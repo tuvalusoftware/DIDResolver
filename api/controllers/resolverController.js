@@ -1,7 +1,4 @@
 const { response } = require("express");
-
-const fs = require("fs");
-const FormData = require("form-data");
 const axios = require("axios").default;
 
 /**
@@ -10,7 +7,7 @@ const axios = require("axios").default;
  * @param {Object} file file 
  * @returns {Object} DID Document of DID
  */
-exports.createDidDoc = async function (req, res) {
+exports.createDIDDocument = async function (req, res) {
     if (!req.files || Object.keys(req.files).length === 0) {
         return res.status(400).send("No files were uploaded.");
     }
@@ -53,9 +50,8 @@ exports.createDidDoc = async function (req, res) {
  * @param {String} did syntax is did:tradetrust:<companyName>:<documentName>:<somehash>
  * @returns {Object} DID Document of DID
  */
-exports.getDidDoc = async function(req, res) {
+exports.getDIDDocument = async function(req, res) {
     const { did } = req.headers;
-    console.log(did);
     if (!did)
         return res.status(400).send("Missing parameters.");
 
@@ -88,46 +84,38 @@ exports.getDidDoc = async function(req, res) {
 
 
 /**
- * POST to create document
+ * POST to creat wrapped document
  * @param {String} did DID string of user/company. Syntax did:tradetrust:<companyName>
- * @param {Object} file document file 
+ * @param {Object} file JSON object wrapped document
  * @returns {JSON} message
  */
-exports.createDocument = async function(req, res) {
-    if (!req.files || Object.keys(req.files).length === 0) {
-        return res.status(400).send("No files were uploaded.");
-    }
-    
-    const { did } = req.body;
-    const document = req.files.file;  
-    console.log(document);
-    if (!did || !document)
+exports.createWrappedDocument = async function(req, res) {
+    console.log(req.body);
+    const { did, wrappedDocument } = req.body;  
+    if (!did || !wrappedDocument)
         return res.status(400).send("Missing parameters.");
 
     const didComponents = did.split(":");
     if (didComponents.length < 3 || didComponents[0] != "did") 
         return res.status(400).send("Invalid DID syntax.");
-
+    console.log(wrappedDocument);
+    
     try {
-        const companyName = didComponents[2];        
+        const companyName = didComponents[2];
         const response = await axios.post("http://localhost:8080/api/doc/", {
-            body: {
-                companyName: companyName,
-                document: document   
-            }
+            companyName: companyName,
+            wrappedDocument: wrappedDocument
         })
-        .then(function(response) {
+        .then (function(response) {
             return response;
         })
         .catch(function(error) {
-            return res.status(400).json(error);
+            return res.status(200).json(error);
         });
-        return res.status(200).json(response.data);
+
+        return res.status(400).json(response.data);
     }
     catch (err) {
-        return res.status(200).json(err);
+        return res.status(400).json(err);
     }
 }
-
-
-// Create Image
