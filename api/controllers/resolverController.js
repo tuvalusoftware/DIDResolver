@@ -1,5 +1,7 @@
-const { response } = require("express");
+// const { response } = require("express");
 const axios = require("axios").default;
+const { type } = require("express/lib/response");
+const keckak = require("keccak256");
 
 /**
  * POST to create DID Doc for a DID
@@ -82,6 +84,9 @@ exports.getDIDDocument = async function(req, res) {
     }
 }
 
+exports.storeWrappedDocument = async function(req, res) {
+    
+}
 
 /**
  * POST to creat wrapped document
@@ -98,24 +103,48 @@ exports.createWrappedDocument = async function(req, res) {
     const didComponents = did.split(":");
     if (didComponents.length < 3 || didComponents[0] != "did") 
         return res.status(400).send("Invalid DID syntax.");
-    console.log(wrappedDocument);
-    
+
     try {
-        const companyName = didComponents[2];
-        const response = await axios.post("http://localhost:8080/api/doc/", {
-            companyName: companyName,
-            wrappedDocument: wrappedDocument
+        const targetHash = wrappedDocument.signature.targetHash;
+        const issuers = wrappedDocument.data.issuers;
+        const address = issuers[0].address;
+
+        const response = await axios.put("http://192.168.1.32/api/storeHash/", {
+            address: address,
+            hash: targetHash
         })
-        .then (function(response) {
+        .then(function(response) {
             return response;
         })
         .catch(function(error) {
-            return res.status(200).json(error);
+            console.log(error);
+            return res.status(400).json(error);
         });
 
-        return res.status(400).json(response.data);
+        return res.status(200).json(response.data);
     }
     catch (err) {
-        return res.status(400).json(err);
+        console.log(err);
+        return res.status(200).json(err);
     }
+    
+    // try {
+    //     const companyName = didComponents[2];
+    //     const response = await axios.post("http://localhost:8080/api/doc/", {
+    //         companyName: companyName,
+    //         wrappedDocument: wrappedDocument
+    //     })
+    //     .then (function(response) {
+    //         return response;
+    //     })
+    //     .catch(function(error) {
+    //         return res.status(200).json(error);
+    //     });
+
+    //     return res.status(400).json(response.data);
+    // }
+    // catch (err) {
+    //     return res.status(400).json(err);
+    // }
+    return res.status(200);
 }
