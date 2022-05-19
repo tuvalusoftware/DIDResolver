@@ -1,43 +1,51 @@
 const { response } = require("express");
 
+const fs = require("fs");
 const FormData = require("form-data");
 const axios = require("axios").default;
 
 /**
  * POST to create DID Doc for a DID
- * @param {userDid} userDid DID string of user/company. Syntax did:tradetrust:<companyName>
- * @param {file} file file 
+ * @param {String} did DID string of user/company. Syntax did:tradetrust:<companyName>
+ * @param {Object} file file 
  * @returns {Object} DID Document of DID
  */
-// exports.createDidDoc = async function (req, res) {
-//     const { userDid, file } = req.body;
+exports.createDidDoc = async function (req, res) {
+    if (!req.files || Object.keys(req.files).length === 0) {
+        return res.status(400).send("No files were uploaded.");
+    }
 
+    const { did } = req.body;
+    const file = req.files.file;
+    if (!did || !file)
+        return res.status(400).send("Missing parameters.");
+
+    const didComponents = did.split(":");
+    if (didComponents.length != 3 || didComponents[0] != "did")
+            return res.status(400).json("Invalid DID syntax.");
     
-//     try {
-//         const didComponents = userDid.split(":");
-//         if (didComponents.length != 3 || didComponents[0] != "did")
-//             return res.status(400).json("Wrong input!");
-        
-//         const companyName = didComponents[2];
-//         const response = await axios.post("http://localhost:8080/new-did/", {
-//             body: {
-//                 companyName: companyName,
-//                 fileName: fileName,
-//                 content: {}
-//             }
-//         })
-//         .then(function(response) {
-//             return response;
-//         })
-//         .catch(function(error) {
-//             return res.status(400).json(error);
-//         })
-//     }
-//     catch (err) {
-//         console.log(err);
-//         return res.status(400).json(err);
-//     }
-// }
+    try {
+        const companyName = didComponents[2];
+        const fileName = file.name;
+        const response = await axios.post("http://localhost:8080/new-did/", {
+            body: {
+                companyName: companyName,
+                fileName: fileName,
+                content: {}
+            }
+        })
+        .then(function(response) {
+            return response;
+        })
+        .catch(function(error) {
+            return res.status(400).json(error);
+        })
+    }
+    catch (err) {
+        console.log(err);
+        return res.status(400).json(err);
+    }
+}
 
 
 /**
@@ -81,9 +89,9 @@ exports.getDidDoc = async function(req, res) {
 
 /**
  * POST to create document
- * @param {did} userDid DID string of user/company. Syntax did:tradetrust:<companyName>
- * @param {file} file document file 
- * @returns {Object} DID Document of DID
+ * @param {String} did DID string of user/company. Syntax did:tradetrust:<companyName>
+ * @param {Object} file document file 
+ * @returns {JSON} message
  */
 exports.createDocument = async function(req, res) {
     if (!req.files || Object.keys(req.files).length === 0) {
@@ -92,6 +100,7 @@ exports.createDocument = async function(req, res) {
     
     const { did } = req.body;
     const document = req.files.file;  
+    console.log(document);
     if (!did || !document)
         return res.status(400).send("Missing parameters.");
 
@@ -100,19 +109,12 @@ exports.createDocument = async function(req, res) {
         return res.status(400).send("Invalid DID syntax.");
 
     try {
-        const companyName = didComponents[2];
-        var formData = new FormData();
-        formData.append("document", document);
-        formData.append("comanyName", companyName);
-        console.log(formData);
-        const response = await axios.post("http://localhost:8080/api/doc/", formData, {
-            headers: {
-                "Content-Type": "multipart/form-data"
+        const companyName = didComponents[2];        
+        const response = await axios.post("http://localhost:8080/api/doc/", {
+            body: {
+                companyName: companyName,
+                document: document   
             }
-            // body: {
-            //     companyName: companyName,
-            //     // document: document
-            // }
         })
         .then(function(response) {
             return response;

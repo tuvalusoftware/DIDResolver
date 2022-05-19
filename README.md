@@ -1,2 +1,2 @@
 Start server:
-npm run start
+npm run server
