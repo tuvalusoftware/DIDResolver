@@ -15,7 +15,7 @@ routes(app);
 
 app.listen(port);
 
-console.log("Todo list RESTfull API server start on: " + port);
+console.log("DID Resolver RESTfull API server start on: " + port);
 app.use(function(req, res) {
     res.status(404).send({url: req.originalUrl + " not found"});
 });
