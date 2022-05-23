@@ -1,6 +1,3 @@
-const req = require("express/lib/request");
-// const fileupload = require("express-fileupload");
-
 var express = require("express"),
   app = express(),
   port = process.env.PORT || 3000,
@@ -8,8 +5,8 @@ var express = require("express"),
 
 app.use(bodyParser.urlencoded({ extended: true }));
 app.use(bodyParser.json());
-// app.use(fileupload());
 
+// routes
 var routes = require("./api/routes/resolverRoutes");
 routes(app);
 

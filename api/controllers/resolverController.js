@@ -1,36 +1,31 @@
 // const { response } = require("express");
 const axios = require("axios").default;
-const { type } = require("express/lib/response");
-const keckak = require("keccak256");
+const DID_CONTROLLER = "http://localhost:8080";
+const CARDANO_SERVICE = "http://localhost:8000";
 
 /**
  * POST to create DID Doc for a DID
- * @param {String} did DID string of user/company. Syntax did:tradetrust:<companyName>
- * @param {Object} file file 
+ * @param {String} did DID string of user/company. Syntax did:tradetrust:<companyName>:<publicKey>
+ * @param {Object} didDocument JSON object is a DID Document
  * @returns {Object} DID Document of DID
  */
 exports.createDIDDocument = async function (req, res) {
-    if (!req.files || Object.keys(req.files).length === 0) {
-        return res.status(400).send("No files were uploaded.");
-    }
-
-    const { did } = req.body;
-    const file = req.files.file;
-    if (!did || !file)
+    const { did, didDocument } = req.body;
+    if (!did || !didDocument)
         return res.status(400).send("Missing parameters.");
 
     const didComponents = did.split(":");
-    if (didComponents.length != 3 || didComponents[0] != "did")
+    if (didComponents.length < 4 || didComponents[0] != "did")
             return res.status(400).json("Invalid DID syntax.");
     
     try {
         const companyName = didComponents[2];
-        const fileName = file.name;
-        const response = await axios.post("http://localhost:8080/new-did/", {
+        const publicKey = file.name;
+        const response = await axios.post(DID_CONTROLLER + "/new-did/", {
             body: {
                 companyName: companyName,
-                fileName: fileName,
-                content: {}
+                fileName: publicKey,
+                content: didDocument
             }
         })
         .then(function(response) {
@@ -41,7 +36,6 @@ exports.createDIDDocument = async function (req, res) {
         })
     }
     catch (err) {
-        console.log(err);
         return res.status(400).json(err);
     }
 }
@@ -64,7 +58,7 @@ exports.getDIDDocument = async function(req, res) {
     try {
         const companyName = didComponents[2];
         const fileName = didComponents[3];
-        const response = await axios.get("http://localhost:8080/api/get-did/", {
+        const response = await axios.get(DID_CONTROLLER + "/api/get-did/", {
             headers: {
                 companyName: companyName,
                 fileName: fileName
@@ -75,7 +69,7 @@ exports.getDIDDocument = async function(req, res) {
         })
         .catch(function(error) {
             return res.status(400).json(error);
-        })
+        });
 
         return res.status(200).json(response.data);
     }
@@ -84,67 +78,51 @@ exports.getDIDDocument = async function(req, res) {
     }
 }
 
-exports.storeWrappedDocument = async function(req, res) {
-    
-}
-
 /**
  * POST to creat wrapped document
- * @param {String} did DID string of user/company. Syntax did:tradetrust:<companyName>
- * @param {Object} file JSON object wrapped document
+ * @param {Object} wrappedDocument JSON object wrapped document, including did, hash and address.
  * @returns {JSON} message
  */
 exports.createWrappedDocument = async function(req, res) {
-    console.log(req.body);
-    const { did, wrappedDocument } = req.body;  
-    if (!did || !wrappedDocument)
+    const { wrappedDocument } = req.body;  
+    if (!wrappedDocument || !wrappedDocument.ddidDocument) // did:tradetrust:companyName:fileName
         return res.status(400).send("Missing parameters.");
+    const did = wrappedDocument.ddidDocument;
 
     const didComponents = did.split(":");
-    if (didComponents.length < 3 || didComponents[0] != "did") 
+    if (didComponents.length < 4 || didComponents[0] != "did") 
         return res.status(400).send("Invalid DID syntax.");
-
+    
     try {
-        const targetHash = wrappedDocument.signature.targetHash;
-        const issuers = wrappedDocument.data.issuers;
-        const address = issuers[0].address;
+        const companyName = didComponents[2];
+        const fileName = didComponents[3];
 
-        const response = await axios.put("http://192.168.1.32/api/storeHash/", {
-            address: address,
-            hash: targetHash
+        const existedName = await axios.post(DID_CONTROLLER + "/api/doc-exists/", {
+           companyName: companyName,
+           fileName: fileName
         })
         .then(function(response) {
-            return response;
+            return response.data.data.isExisted;
         })
         .catch(function(error) {
-            console.log(error);
             return res.status(400).json(error);
         });
 
-        return res.status(200).json(response.data);
+        if (existedName == true)
+            return res.status(400).send("File name existed");
+        else {
+            // call Khang API
+            const storingHash = true;
+            if (!storingHash) 
+                return res.status(400).send("Cannot store hash");
+            else {
+                // call Bao API to store
+                return res.status(200).send("Stored wrapped document");
+            }
+        }
     }
     catch (err) {
         console.log(err);
-        return res.status(200).json(err);
+        return res.status(400).json(err);
     }
-    
-    // try {
-    //     const companyName = didComponents[2];
-    //     const response = await axios.post("http://localhost:8080/api/doc/", {
-    //         companyName: companyName,
-    //         wrappedDocument: wrappedDocument
-    //     })
-    //     .then (function(response) {
-    //         return response;
-    //     })
-    //     .catch(function(error) {
-    //         return res.status(200).json(error);
-    //     });
-
-    //     return res.status(400).json(response.data);
-    // }
-    // catch (err) {
-    //     return res.status(400).json(err);
-    // }
-    return res.status(200);
 }
