@@ -20,23 +20,17 @@ exports.createDIDDocument = async function (req, res) {
     
     try {
         const companyName = didComponents[2];
-        const publicKey = file.name;
-        const response = await axios.post(DID_CONTROLLER + "/new-did/", {
-            body: {
-                companyName: companyName,
-                fileName: publicKey,
-                content: didDocument
-            }
-        })
-        .then(function(response) {
-            return response;
-        })
-        .catch(function(error) {
-            return res.status(400).json(error);
-        })
+        const publicKey = didComponents[3];
+        const response = await axios.post(DID_CONTROLLER + "/api/did/", {
+            companyName: companyName,
+            publicKey: publicKey,
+            content: didDocument
+        });
+
+        return res.status(201).json(response.data);
     }
     catch (err) {
-        return res.status(400).json(err);
+        return res.status(400).json(err.response.data);
     }
 }
 
@@ -58,23 +52,17 @@ exports.getDIDDocument = async function(req, res) {
     try {
         const companyName = didComponents[2];
         const fileName = didComponents[3];
-        const response = await axios.get(DID_CONTROLLER + "/api/get-did/", {
+        const response = await axios.get(DID_CONTROLLER + "/api/did/", {
             headers: {
                 companyName: companyName,
                 fileName: fileName
             }
-        })
-        .then(function(response) {
-            return response;
-        })
-        .catch(function(error) {
-            return res.status(400).json(error);
         });
 
         return res.status(200).json(response.data);
     }
     catch (err) {
-        return res.status(400).json(err);
+        return res.status(400).json(err.response.data);
     }
 }
 
@@ -138,13 +126,10 @@ exports.createWrappedDocument = async function(req, res) {
                     return res.status(400).json(error);
                 });
             }
-        })
-        .catch(function(error) {
-            return res.status(400).json(error);
         });
     }
     catch (err) {
         console.log(err);
-        return res.status(400).json(err);
+        return res.status(400).json(err.response.data);
     }
 }
