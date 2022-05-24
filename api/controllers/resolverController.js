@@ -129,7 +129,7 @@ exports.createWrappedDocument = async function(req, res) {
             })
             .catch(function(error) {
                 console.log(4)
-                return res.status(400).json(error);
+                return res.status(200).json(error.response.data);
             });
         }
     })
