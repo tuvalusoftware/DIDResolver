@@ -88,7 +88,7 @@ exports.createWrappedDocument = async function(req, res) {
     console.log(req.body);
     if (!wrappedDocument || !wrappedDocument.ddidDocument) {
         console.log(1);
-        return res.status(400).send("Missing parameters.");
+        return res.status(200).send("Missing parameters.");
 
     }
      // did:tradetrust:companyName:fileName
@@ -97,7 +97,7 @@ exports.createWrappedDocument = async function(req, res) {
          didComponents = did.split(":");
     if (didComponents.length < 4 || didComponents[0] != "did") {
         console.log("idjasdas")
-        return res.status(400).send("Invalid DID syntax.");
+        return res.status(200).send("Invalid DID syntax.");
     }
 
     const companyName = didComponents[2], 
@@ -113,7 +113,7 @@ exports.createWrappedDocument = async function(req, res) {
         console.log('then 1')
         if (response.data.data.isExisted) {
             console.log(2)
-            return res.status(400).send("File name existed");
+            return res.status(200).send("File name existed");
         }
         else {
             // CALL CARDANO SERVICE using address and targetHash
@@ -135,6 +135,6 @@ exports.createWrappedDocument = async function(req, res) {
     })
     .catch(function(error) {
         console.log(6)
-        return res.status(400).json(error);
+        return res.status(200).json(error.response.data);
     });
 }
