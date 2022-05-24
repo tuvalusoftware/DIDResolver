@@ -103,43 +103,38 @@ exports.createWrappedDocument = async function(req, res) {
     const companyName = didComponents[2], 
         fileName = didComponents[3],
         address = wrappedDocument.data.issuers[0].address,
-        targetHash = wrappedDocument.signature.targetHash;
+        targetHash = wrappedDocument.signature.proof[0].signature;
 
-    // try {
-        console.log('Heelo')
-        axios.post(DID_CONTROLLER + "/api/doc-exists/", {
-           companyName: companyName,
-           fileName: fileName
-        })
-        .then(function(response) {
-            console.log('then 1')
-            if (response.data.data.isExisted) {
-                console.log(2)
-                return res.status(400).send("File name existed");
-            }
-            else {
-                axios.post(DID_CONTROLLER + "/api/doc/", {
-                    fileName: fileName,
-                    wrappedDocument: wrappedDocument,
-                    companyName: companyName
-                })
-                .then(function(response) {
-                    console.log("Stored data");
-                    return res.status(200).json(response.data);
-                })
-                .catch(function(error) {
-                    console.log(4)
-                    return res.status(400).json(error);
-                });
-            }
-        })
-        .catch(function(error) {
-            console.log(6)
-            return res.status(400).json(error);
-        });
-    // }
-    // catch (err) {
-    //     console.log(err);
-    //     return res.status(400).json(err);
-    // }
+    axios.post(DID_CONTROLLER + "/api/doc-exists/", {
+        companyName: companyName,
+        fileName: fileName
+    })
+    .then(function(response) {
+        console.log('then 1')
+        if (response.data.data.isExisted) {
+            console.log(2)
+            return res.status(400).send("File name existed");
+        }
+        else {
+            // CALL CARDANO SERVICE using address and targetHash
+
+            axios.post(DID_CONTROLLER + "/api/doc/", {
+                fileName: fileName,
+                wrappedDocument: wrappedDocument,
+                companyName: companyName
+            })
+            .then(function(response) {
+                console.log("Stored data");
+                return res.status(200).json(response.data);
+            })
+            .catch(function(error) {
+                console.log(4)
+                return res.status(400).json(error);
+            });
+        }
+    })
+    .catch(function(error) {
+        console.log(6)
+        return res.status(400).json(error);
+    });
 }
