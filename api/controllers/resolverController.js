@@ -85,66 +85,61 @@ exports.getDIDDocument = async function(req, res) {
  */
 exports.createWrappedDocument = async function(req, res) {
     const { wrappedDocument } = req.body;  
-    if (!wrappedDocument || !wrappedDocument.ddidDocument) // did:tradetrust:companyName:fileName
+    console.log(req.body);
+    if (!wrappedDocument || !wrappedDocument.ddidDocument) {
+        console.log(1);
         return res.status(400).send("Missing parameters.");
+
+    }
+     // did:tradetrust:companyName:fileName
     
     const did = wrappedDocument.ddidDocument,
          didComponents = did.split(":");
-    if (didComponents.length < 4 || didComponents[0] != "did") 
+    if (didComponents.length < 4 || didComponents[0] != "did") {
+        console.log("idjasdas")
         return res.status(400).send("Invalid DID syntax.");
+    }
 
     const companyName = didComponents[2], 
         fileName = didComponents[3],
         address = wrappedDocument.data.issuers[0].address,
         targetHash = wrappedDocument.signature.targetHash;
 
-    try {
-        await axios.post(DID_CONTROLLER + "/api/doc-exists/", {
+    // try {
+        console.log('Heelo')
+        axios.post(DID_CONTROLLER + "/api/doc-exists/", {
            companyName: companyName,
            fileName: fileName
         })
         .then(function(response) {
+            console.log('then 1')
             if (response.data.data.isExisted) {
+                console.log(2)
                 return res.status(400).send("File name existed");
             }
             else {
-                axios.put(CARDANO_SERVICE + "/api/storeHash/", {
-                    address: address,
-                    hash: targetHash
+                axios.post(DID_CONTROLLER + "/api/doc/", {
+                    fileName: fileName,
+                    wrappedDocument: wrappedDocument,
+                    companyName: companyName
                 })
                 .then(function(response) {
-                    const storingHash = response.data;
-                    console.log(storingHash);
-                    // const storingHash = true;
-                    if (!storingHash) 
-                        return res.status(400).send("Cannot store hash");
-                    else {
-                        axios.post(DID_CONTROLLER + "/api/doc/", {
-                            fileName: fileName,
-                            wrappedDocument: wrappedDocument,
-                            companyName: companyName
-                        })
-                        .then(function(response) {
-                            console.log("Stored data");
-                            return res.status(200).json(response.data);
-                        })
-                        .catch(function(error) {
-                            return res.status(400).json(error);
-                        });
-                    }
+                    console.log("Stored data");
+                    return res.status(200).json(response.data);
                 })
                 .catch(function(error) {
-                    console.log(error);
+                    console.log(4)
                     return res.status(400).json(error);
                 });
             }
         })
         .catch(function(error) {
+            console.log(6)
             return res.status(400).json(error);
         });
-    }
-    catch (err) {
-        console.log(err);
-        return res.status(400).json(err);
-    }
+    // }
+    // catch (err) {
+    //     console.log(err);
+    //     return res.status(400).json(err);
+    // }
 }
