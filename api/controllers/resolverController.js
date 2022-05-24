@@ -1,7 +1,7 @@
 // const { response } = require("express");
 const axios = require("axios").default;
 const DID_CONTROLLER = "http://localhost:8080";
-const CARDANO_SERVICE = "http://localhost:8000";
+const CARDANO_SERVICE = "http://localhost";
 
 /**
  * POST to create DID Doc for a DID
@@ -87,39 +87,61 @@ exports.createWrappedDocument = async function(req, res) {
     const { wrappedDocument } = req.body;  
     if (!wrappedDocument || !wrappedDocument.ddidDocument) // did:tradetrust:companyName:fileName
         return res.status(400).send("Missing parameters.");
-    const did = wrappedDocument.ddidDocument;
-
-    const didComponents = did.split(":");
+    
+    const did = wrappedDocument.ddidDocument,
+         didComponents = did.split(":");
     if (didComponents.length < 4 || didComponents[0] != "did") 
         return res.status(400).send("Invalid DID syntax.");
-    
-    try {
-        const companyName = didComponents[2];
-        const fileName = didComponents[3];
 
-        const existedName = await axios.post(DID_CONTROLLER + "/api/doc-exists/", {
+    const companyName = didComponents[2], 
+        fileName = didComponents[3],
+        address = wrappedDocument.data.issuers[0].address,
+        targetHash = wrappedDocument.signature.targetHash;
+
+    try {
+        await axios.post(DID_CONTROLLER + "/api/doc-exists/", {
            companyName: companyName,
            fileName: fileName
         })
         .then(function(response) {
-            return response.data.data.isExisted;
+            if (response.data.data.isExisted) {
+                return res.status(400).send("File name existed");
+            }
+            else {
+                axios.put(CARDANO_SERVICE + "/api/storeHash/", {
+                    address: address,
+                    hash: targetHash
+                })
+                .then(function(response) {
+                    const storingHash = response.data;
+                    console.log(storingHash);
+                    // const storingHash = true;
+                    if (!storingHash) 
+                        return res.status(400).send("Cannot store hash");
+                    else {
+                        axios.post(DID_CONTROLLER + "/api/doc/", {
+                            fileName: fileName,
+                            wrappedDocument: wrappedDocument,
+                            companyName: companyName
+                        })
+                        .then(function(response) {
+                            console.log("Stored data");
+                            return res.status(200).json(response.data);
+                        })
+                        .catch(function(error) {
+                            return res.status(400).json(error);
+                        });
+                    }
+                })
+                .catch(function(error) {
+                    console.log(error);
+                    return res.status(400).json(error);
+                });
+            }
         })
         .catch(function(error) {
             return res.status(400).json(error);
         });
-
-        if (existedName == true)
-            return res.status(400).send("File name existed");
-        else {
-            // call Khang API
-            const storingHash = true;
-            if (!storingHash) 
-                return res.status(400).send("Cannot store hash");
-            else {
-                // call Bao API to store
-                return res.status(200).send("Stored wrapped document");
-            }
-        }
     }
     catch (err) {
         console.log(err);
