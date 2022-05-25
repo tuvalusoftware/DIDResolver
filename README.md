@@ -17,6 +17,6 @@ DID Resolver RESTfull API server start on: 3000
 ```
 
 ## API
-Resolve DID (GET): http://localhost:3000/resolver/did/
+Resolve DID (GET): http://localhost:3000/resolver/did-document/
 Create wrapped document (POST): http://localhost:3000/resolver/wrapped-document/
 
