@@ -1,7 +1,8 @@
-// const { response } = require("express");
+const { response } = require("express");
+
 const axios = require("axios").default;
-const DID_CONTROLLER = "http://localhost:8080";
-const CARDANO_SERVICE = "http://localhost";
+const DID_CONTROLLER = "http://localhost:9000";
+const CARDANO_SERVICE = "http://192.168.1.23:10000";
 
 /**
  * POST to create DID Doc for a DID
@@ -16,22 +17,17 @@ exports.createDIDDocument = async function (req, res) {
 
     const didComponents = did.split(":");
     if (didComponents.length < 4 || didComponents[0] != "did")
-            return res.status(400).json("Invalid DID syntax.");
-    
-    try {
-        const companyName = didComponents[2];
-        const publicKey = didComponents[3];
-        const response = await axios.post(DID_CONTROLLER + "/api/did/", {
-            companyName: companyName,
-            publicKey: publicKey,
-            content: didDocument
-        });
+        return res.status(400).json("Invalid DID syntax.");
 
-        return res.status(201).json(response.data);
-    }
-    catch (err) {
-        return res.status(400).json(err.response.data);
-    }
+    const companyName = didComponents[2];
+    const publicKey = didComponents[3];
+    await axios.post(DID_CONTROLLER + "/api/did/", {
+        companyName: companyName,
+        publicKey: publicKey,
+        content: didDocument
+    })
+    .then((response) => res.status(201).json(response.data))
+    .catch((error) => res.status(400).json(error.response.data));
 }
 
 
@@ -49,21 +45,16 @@ exports.getDIDDocument = async function(req, res) {
     if (didComponents.length < 4 || didComponents[0] != "did")
         return res.status(400).send("Invalid DID syntax.");
 
-    try {
-        const companyName = didComponents[2];
-        const fileName = didComponents[3];
-        const response = await axios.get(DID_CONTROLLER + "/api/did/", {
-            headers: {
-                companyName: companyName,
-                fileName: fileName
-            }
-        });
-
-        return res.status(200).json(response.data);
-    }
-    catch (err) {
-        return res.status(400).json(err.response.data);
-    }
+    const companyName = didComponents[2];
+    const fileName = didComponents[3];
+    await axios.get(DID_CONTROLLER + "/api/did/", {
+        headers: {
+            companyName: companyName,
+            fileName: fileName
+        }
+    })
+    .then((response) => res.status(200).json(response.data))
+    .catch((error) => res.status(400).json(error.response.data));
 }
 
 /**
@@ -86,50 +77,47 @@ exports.createWrappedDocument = async function(req, res) {
         address = wrappedDocument.data.issuers[0].address,
         targetHash = wrappedDocument.signature.targetHash;
 
-    try {
-        await axios.post(DID_CONTROLLER + "/api/doc-exists/", {
-           companyName: companyName,
-           fileName: fileName
-        })
-        .then(function(response) {
-            if (response.data.data.isExisted) {
-                return res.status(400).send("File name existed");
-            }
-            else {
-                axios.put(CARDANO_SERVICE + "/api/storeHash/", {
-                    address: address,
-                    hash: targetHash
-                })
-                .then(function(response) {
-                    const storingHash = response.data;
-                    console.log(storingHash);
-                    // const storingHash = true;
-                    if (!storingHash) 
-                        return res.status(400).send("Cannot store hash");
-                    else {
-                        axios.post(DID_CONTROLLER + "/api/doc/", {
-                            fileName: fileName,
-                            wrappedDocument: wrappedDocument,
-                            companyName: companyName
-                        })
-                        .then(function(response) {
-                            console.log("Stored data");
-                            return res.status(200).json(response.data);
-                        })
-                        .catch(function(error) {
-                            return res.status(400).json(error);
-                        });
-                    }
-                })
-                .catch(function(error) {
-                    console.log(error);
-                    return res.status(400).json(error);
-                });
-            }
-        });
-    }
-    catch (err) {
-        console.log(err);
-        return res.status(400).json(err.response.data);
-    }
+    console.log(address, targetHash);
+
+    await axios.get(DID_CONTROLLER + "/api/doc-exists/", {
+        headers: {
+            companyName: companyName,
+            fileName: fileName
+        }
+    })
+    .then((existence) => {
+        (existence.data.isExisted) ? res.status(400).send("File name existed") :
+            axios.put(CARDANO_SERVICE + "/api/storeHash/", {
+                address,
+                hash: targetHash
+            })
+            .then((storingHashStatus) => {
+                // const status = storingHashStatus.data.result;
+                const status = "true";
+                console.log(status);
+                (status !== "true") ? res.status(400).send( status, ". Cannot store hash") :
+                    axios.post(DID_CONTROLLER + "/api/doc/", {
+                        fileName,
+                        wrappedDocument,
+                        companyName
+                    })
+                    .then((storingWrappedDocumentStatus) => {
+                        console.log("Stored data");
+                        return res.status(200).json(storingWrappedDocumentStatus.data);
+                    })
+                    .catch((error) => {
+                        console.log("ERROR WHEN STORING WRAPPED DOCUMENT");
+                        return (error.response) ? res.status(400).json(error.response.data) : res.status(400).json(error);
+                    }); 
+            })
+            .catch((error) => {
+                console.log("ERROR WHEN STORING HASH");
+                console.log(error);
+                return (error.response) ? res.status(400).json(error.response.data) : res.status(400).json(error);
+            }); 
+    })
+    .catch((error) => {
+        console.log("ERROR WHEN CHECKING EXISTANCE");
+        return (error.response) ? res.status(400).json(error.response.data) : res.status(400).json(error);
+    });
 }
