@@ -72,7 +72,7 @@ exports.createWrappedDocument = async function(req, res) {
     }
      // did:tradetrust:companyName:fileName
     
-    const did = wrappedDocument.ddidDocument,
+    const did = wrappedDocument.data.ddidDocument,
          didComponents = did.split(":");
     if (didComponents.length < 4 || didComponents[0] != "did") {
         console.log("idjasdas")
