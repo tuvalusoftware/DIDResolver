@@ -92,8 +92,8 @@ exports.createWrappedDocument = async function(req, res) {
                 hash: targetHash
             })
             .then((storingHashStatus) => {
-                // const status = storingHashStatus.data.result;
-                const status = "true";
+                const status = storingHashStatus.data.result;
+                // const status = "true";
                 console.log(status);
                 (status !== "true") ? res.status(400).send( status, ". Cannot store hash") :
                     axios.post(DID_CONTROLLER + "/api/doc/", {
