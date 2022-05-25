@@ -93,35 +93,27 @@ exports.createWrappedDocument = async function(req, res) {
         }
     })
     .then((existence) => {
-        (existence.data.isExisted) ? res.status(400).send("File name existed") :
-            axios.put(CARDANO_SERVICE + "/api/storeHash/", {
-                address,
-                hash: targetHash
-            })
-            .then((storingHashStatus) => {
-                const status = storingHashStatus.data.result;
-                // const status = "true";
-                console.log(status);
-                (status !== "true") ? res.status(400).send( status, ". Cannot store hash") :
-                    axios.post(DID_CONTROLLER + "/api/doc/", {
-                        fileName,
-                        wrappedDocument,
-                        companyName
-                    })
-                    .then((storingWrappedDocumentStatus) => {
-                        console.log("Stored data");
-                        return res.status(200).json(storingWrappedDocumentStatus.data);
-                    })
-                    .catch((error) => {
-                        console.log("ERROR WHEN STORING WRAPPED DOCUMENT");
-                        return (error.response) ? res.status(400).json(error.response.data) : res.status(400).json(error);
-                    }); 
-            })
-            .catch((error) => {
-                console.log("ERROR WHEN STORING HASH");
-                console.log(error);
-                return (error.response) ? res.status(400).json(error.response.data) : res.status(400).json(error);
-            }); 
+        if (existence.data.isExisted) 
+            return res.status(400).send("File name existed");
+        else {
+            // CALL CARDANO SERVICE
+            const status = "true";
+            console.log(status);
+            (status !== "true") ? res.status(400).send( status, ". Cannot store hash") :
+                axios.post(DID_CONTROLLER + "/api/doc/", {
+                    fileName,
+                    wrappedDocument,
+                    companyName
+                })
+                .then((storingWrappedDocumentStatus) => {
+                    console.log("Stored data");
+                    return res.status(200).json(storingWrappedDocumentStatus.data);
+                })
+                .catch((error) => {
+                    console.log("ERROR WHEN STORING WRAPPED DOCUMENT");
+                    return (error.response) ? res.status(400).json(error.response.data) : res.status(400).json(error);
+                });
+            }
     })
     .catch((error) => {
         console.log("ERROR WHEN CHECKING EXISTANCE");
