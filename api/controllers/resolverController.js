@@ -64,29 +64,25 @@ exports.getDIDDocument = async function(req, res) {
  */
 exports.createWrappedDocument = async function(req, res) {
     const { wrappedDocument } = req.body;  
-    console.log(req.body);
-    if (!wrappedDocument || !wrappedDocument.ddidDocument) {
+    if (!wrappedDocument || !wrappedDocument.data.ddidDocument) {
         console.log(1);
         return res.status(200).send("Missing parameters.");
-
     }
-     // did:tradetrust:companyName:fileName
     
-    const did = wrappedDocument.data.ddidDocument,
+    const did = wrappedDocument.data.ddidDocument, // uuid:string:did:tradetrust:companyName:fileName
          didComponents = did.split(":");
-    if (didComponents.length < 4 || didComponents[0] != "did") {
-        console.log("idjasdas")
+    if (didComponents.length < 6) 
         return res.status(200).send("Invalid DID syntax.");
-    }
 
-    const companyName = didComponents[2], 
-        fileName = didComponents[3],
+    const companyName = didComponents[4], 
+        fileName = didComponents[5],
         address = wrappedDocument.data.issuers[0].address,
         targetHash = wrappedDocument.signature.proof[0].signature;
+    console.log(companyName, fileName);
 
     console.log(address, targetHash);
 
-    await axios.get(DID_CONTROLLER + "/api/doc-exists/", {
+    await axios.get(DID_CONTROLLER + "/api/doc/exists/", {
         headers: {
             companyName: companyName,
             fileName: fileName
