@@ -64,23 +64,18 @@ exports.getDIDDocument = async function(req, res) {
  */
 exports.createWrappedDocument = async function(req, res) {
     const { wrappedDocument } = req.body;  
-    if (!wrappedDocument || !wrappedDocument.data.ddidDocument) {
-        console.log(1);
-        return res.status(200).send("Missing parameters.");
-    }
+    if (!wrappedDocument || !wrappedDocument.data.ddidDocument)
+        return res.status(400).send("Missing parameters.");
     
-    const did = wrappedDocument.data.ddidDocument, // uuid:string:did:tradetrust:companyName:fileName
+    const did = wrappedDocument.data.ddidDocument,
          didComponents = did.split(":");
     if (didComponents.length < 6) 
-        return res.status(200).send("Invalid DID syntax.");
+        return res.status(400).send("Invalid DID syntax.");
 
     const companyName = didComponents[4], 
         fileName = didComponents[5],
         address = wrappedDocument.data.issuers[0].address,
-        targetHash = wrappedDocument.signature.proof[0].signature;
-    console.log(companyName, fileName);
-
-    console.log(address, targetHash);
+        targetHash = wrappedDocument.signature.targetHash;
 
     await axios.get(DID_CONTROLLER + "/api/doc/exists/", {
         headers: {
@@ -89,27 +84,35 @@ exports.createWrappedDocument = async function(req, res) {
         }
     })
     .then((existence) => {
-        if (existence.data.isExisted) 
-            return res.status(400).send("File name existed");
-        else {
-            // CALL CARDANO SERVICE
-            const status = "true";
-            console.log(status);
-            (status !== "true") ? res.status(400).send( status, ". Cannot store hash") :
-                axios.post(DID_CONTROLLER + "/api/doc/", {
-                    fileName,
-                    wrappedDocument,
-                    companyName
-                })
-                .then((storingWrappedDocumentStatus) => {
-                    console.log("Stored data");
-                    return res.status(200).json(storingWrappedDocumentStatus.data);
-                })
-                .catch((error) => {
-                    console.log("ERROR WHEN STORING WRAPPED DOCUMENT");
-                    return (error.response) ? res.status(400).json(error.response.data) : res.status(400).json(error);
-                });
-            }
+        (existence.data.isExisted) ? res.status(400).send("File name existed") :
+            axios.put(CARDANO_SERVICE + "/api/storeHash/", {
+                address,
+                hash: targetHash
+            })
+            .then((storingHashStatus) => {
+                const status = storingHashStatus.data.result;
+                // const status = "true";
+                console.log(status);
+                (status !== "true") ? res.status(400).send( status, ". Cannot store hash") :
+                    axios.post(DID_CONTROLLER + "/api/doc/", {
+                        fileName,
+                        wrappedDocument,
+                        companyName
+                    })
+                    .then((storingWrappedDocumentStatus) => {
+                        console.log("Stored data");
+                        return res.status(200).json(storingWrappedDocumentStatus.data);
+                    })
+                    .catch((error) => {
+                        console.log("ERROR WHEN STORING WRAPPED DOCUMENT");
+                        return (error.response) ? res.status(400).json(error.response.data) : res.status(400).json(error);
+                    }); 
+            })
+            .catch((error) => {
+                console.log("ERROR WHEN STORING HASH");
+                console.log(error);
+                return (error.response) ? res.status(400).json(error.response.data) : res.status(400).json(error);
+            }); 
     })
     .catch((error) => {
         console.log("ERROR WHEN CHECKING EXISTANCE");
