@@ -1,0 +1,93 @@
+{
+    "swagger": "2.0",
+    "info": {
+      "version": "1.0.0",
+      "title": "DID Resolver",
+      "description": "DID resolver for Cardano Project | Fuixlabs"
+    },
+    "host": "localhost:8000",
+    "basePath": "/resolver",
+    "schemes": ["http"],
+    "tags": [
+      {
+        "name": "DID document",
+        "description": "API for DID document"
+      },
+      {
+          "name": "Wrapped document",
+          "description": "API for wrapped document"
+      }
+    ],
+    "paths": {
+        "/did-document": {
+            "get": {
+                "tags": ["DID document"],
+                "summary": "Resolve DID - Takes a DID as input and produces a conforming DID document as output.",
+                "parameters": [
+                    {
+                        "name": "did",
+                        "type": "string",
+                        "in": "header",
+                        "require": true,
+                        "description": "DID string. Syntax: did:method:companyName:publicKey.",
+                        "example": "did:tradetrust:Kukulu:122qhfkajsddkfhbw8eaisudfbasewabsfkjasfb2"
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "Return a single DID Document",
+                        "schema": { "$ref": "#/definitions/didDocument" }
+                    },
+                    "400": { 
+                        "description": "Missing parameters."
+                     },
+                    "404": { "description": "Do not exist." }
+                }
+            },
+            "post": {
+                "tags": ["DID document"],
+                "summary": "Create DID Document for a DID.",
+                "parameters": [
+                    {
+                        "name": "did",
+                        "type": "string",
+                        "in": "body",
+                        "require": true,
+                        "description": "DID string. Syntax: did:method:companyName:publicKey.",
+                        "example": "did:tradetrust:Kukulu:122qhfkajsddkfhbw8eaisudfbasewabsfkjasfb2"
+                    },
+                    {
+                        "name": "didDocument",
+                        "type": "object",
+                        "in": "body",
+                        "require": true,
+                        "description": "Content of the DID document"
+                    }
+                ],
+                "responses": {
+                    "200": {},
+                    "400": {}
+                }
+            }
+        }
+    },
+    "definitions": {
+        "didDocument": {
+            "type": "object",
+            "properties": {
+                "name": {
+                    "type": "string",
+                    "description": "Name of DID document, usually be DID string.",
+                    "example": "did:tradetrust:Kukulu:1234xyzt"
+                },
+                "content": {
+                    "type": "object",
+                    "description": "DID document in JSON format.",
+                    "example": {
+                        "date": "10-10-2000"
+                    }
+                }
+            }
+        }
+    }
+  }

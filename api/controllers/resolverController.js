@@ -33,7 +33,7 @@ exports.createDIDDocument = async function (req, res) {
 
 /**
  * GET request to resolve DID
- * @param {String} did syntax is did:tradetrust:<companyName>:<documentName>:<somehash>
+ * @param {String} did syntax is did:tradetrust:<companyName>:<documentName>
  * @returns {Object} DID Document of DID
  */
 exports.getDIDDocument = async function(req, res) {
@@ -54,7 +54,7 @@ exports.getDIDDocument = async function(req, res) {
         }
     })
     .then((response) => res.status(200).json(response.data))
-    .catch((error) => res.status(400).json(error.response.data));
+    .catch((error) => (error.response) ? res.status(404).json(error.response.data) : res.status(400).json(error));
 }
 
 /**
