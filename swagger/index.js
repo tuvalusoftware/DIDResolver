@@ -1,10 +1,7 @@
-const definitions = require("./definitions"),
- tags = require("./tags");
-const didDocument = require("./didDocument");
-
-const paths = {
-    ...didDocument
-}
+const tags = require("./tags");
+const { definitions } = require("./definitions");
+const { getDidDocument } = require("./getDidDocument");
+const { postDidDocument } = require("./postDidDocument");
 
 module.exports = {
     swagger: "2.0",
@@ -17,6 +14,17 @@ module.exports = {
     basePath: "/resolver",
     schemes: ["http"],
     ...tags,
-    ...definitions,
-    ...{ paths: paths },
+    definitions: {
+        ...definitions
+    },
+    paths: {
+        "/did-document/": {
+            ...getDidDocument,
+            ...postDidDocument,
+        },
+        "/wrapped-document/": {
+
+        }
+    }
+    // ...{ paths: paths },
 }

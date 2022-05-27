@@ -12,18 +12,26 @@ module.exports.getDidDocument = {
                 example: "did:tradetrust:Kukulu:1212wfnajskfhowbr1323irbiu3bkajbfjakbs."
             }
         ],
-        response: {
+        responses: {
             200: {
-                description: "",
+                description: "OK. Return a conforming DID document.",
                 schema: { 
                     $ref: "#/definitions/didDocument"
                 }
             },
             400: {
-                description: "Missing parameters."
+                description: "Bad request. Input DID is invalid or undefined.",
+                schema: {
+                    type: "string",
+                    example: "Missing parameters."
+                }
             },
             404: {
-                description: "Do not exist"
+                description: "Cannot found DID document with a companyName and publicKey included in DID string.",
+                schema: {
+                    type: "string",
+                    example: "Not found."
+                }
             }
         }
     }

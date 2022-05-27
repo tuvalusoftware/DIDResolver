@@ -13,16 +13,27 @@ module.exports.postDidDocument = {
             },
             {
                 name: "didDocument",
-                type: "string",
+                type: "object",
                 in: "body",
                 require: true,
                 description: "Content of the DID document",
-                example: { $ref: "#/defininition/didDocument" }
+                schema: { $ref: "#/definitions/didDocument" }
             }
         ],
-        response: {
-            200: {},
-            400: {}
+        responses: {
+            201: {
+                description: "Created sucess. New DID document is created.",
+                schema: {
+                    message: "New DID created sucessfully"
+                }
+            },
+            400: {
+                description: "Bad request. ",
+                schema: {
+                    type: "string",
+                    example: ""
+                }
+            }
         }
     }
 }
