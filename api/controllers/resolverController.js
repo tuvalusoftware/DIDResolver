@@ -33,7 +33,7 @@ exports.createDIDDocument = async function (req, res) {
 
 /**
  * GET request to resolve DID
- * @param {String} did syntax is did:tradetrust:<companyName>:<documentName>:<somehash>
+ * @param {String} did syntax is did:tradetrust:<companyName>:<documentName>
  * @returns {Object} DID Document of DID
  */
 exports.getDIDDocument = async function(req, res) {
@@ -54,7 +54,24 @@ exports.getDIDDocument = async function(req, res) {
         }
     })
     .then((response) => res.status(200).json(response.data))
-    .catch((error) => res.status(400).json(error.response.data));
+    .catch((error) => (error.response) ? res.status(404).json(error.response.data) : res.status(400).json(error));
+}
+
+function parseCookies (request) {
+    const list = {};
+    const cookieHeader = request.headers?.cookie;
+    if (!cookieHeader) return list;
+
+    cookieHeader.split(`;`).forEach(function(cookie) {
+        let [ name, ...rest] = cookie.split(`=`);
+        name = name?.trim();
+        if (!name) return;
+        const value = rest.join(`=`).trim();
+        if (!value) return;
+        list[name] = decodeURIComponent(value);
+    });
+
+    return list;
 }
 
 /**
@@ -63,6 +80,10 @@ exports.getDIDDocument = async function(req, res) {
  * @returns {JSON} message
  */
 exports.createWrappedDocument = async function(req, res) {
+    const cookies = parseCookies(req);
+    console.log(cookies);
+    return res.status(200).json(cookies);
+
     const { wrappedDocument } = req.body;  
     if (!wrappedDocument || !wrappedDocument.data.ddidDocument)
         return res.status(400).send("Missing parameters.");
