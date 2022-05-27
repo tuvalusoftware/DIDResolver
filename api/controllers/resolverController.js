@@ -2,7 +2,7 @@ const { response } = require("express");
 
 const axios = require("axios").default;
 const DID_CONTROLLER = "http://localhost:9000";
-const CARDANO_SERVICE = "http://192.168.1.23:10000";
+const CARDANO_SERVICE = "http://localhost:10000";
 
 /**
  * POST to create DID Doc for a DID
