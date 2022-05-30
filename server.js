@@ -8,12 +8,12 @@ app.use(bodyParser.urlencoded({ extended: true }));
 app.use(bodyParser.json());
 
 app.use(express.json()); 
-app.use(cors());
+app.use(cors({credentials: true}));
 app.use(function (req, res, next) {
   //Enabling CORS
-  res.header("Access-Control-Allow-Origin", "http://192.168.1.20:4000");
-  res.header("Access-Control-Allow-Methods", "GET,HEAD,OPTIONS,POST,PUT");
-  res.header("Access-Control-Allow-Headers", "Origin, X-Requested-With, ConAccept, x-client-key, x-client-token, x-client-secret, Authorization");
+  res.header("Access-Control-Allow-Origin", "http://locahost:11000/");
+  res.header("Access-Control-Allow-Methods", "GET,HEAD,OPTIONS,POST,PUT,DELETE");
+  res.header("Access-Control-Allow-Headers", "Origin, X-Requested-With, ConAccept, x-client-key, x-client-token, x-client-secret, Authorization, Content-Type, Request-With, Accept");
   next();
   });
 

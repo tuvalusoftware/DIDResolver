@@ -59,7 +59,7 @@ exports.getDIDDocument = async function(req, res) {
     .catch((error) => (error.response) ? res.status(404).json(error.response.data) : res.status(400).json(error));
 }
 
-exports.checkDocExists = async function(req, res) {
+exports.checkWrappedDocumentExistence = async function(req, res) {
     const { fileName, companyName } = req.body;
     console.log(req.body);
     if (!fileName || !companyName) 
@@ -82,7 +82,6 @@ exports.checkDocExists = async function(req, res) {
 exports.createWrappedDocument = async function(req, res) {
     const cookies = parseCookies(req);
     console.log(cookies.access_token);
-    // return res.status(200).json(cookies);
 
     const { wrappedDocument } = req.body;
     if (!wrappedDocument || !wrappedDocument.data.ddidDocument || !cookies.access_token)

@@ -11,6 +11,6 @@ module.exports = function(app) {
         .post(resolver.createWrappedDocument);
 
     app.route("/resolver/wrapped-document/exists")
-        .get(resolver.checkDocExists);
+        .get(resolver.checkWrappedDocumentExistence);
 }
 
