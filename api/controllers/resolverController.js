@@ -59,6 +59,21 @@ exports.getDIDDocument = async function(req, res) {
     .catch((error) => (error.response) ? res.status(404).json(error.response.data) : res.status(400).json(error));
 }
 
+exports.checkDocExists = async function(req, res) {
+    const { fileName, companyName } = req.body;
+    console.log(req.body);
+    if (!fileName || !companyName) 
+        return res.status(400).send("Missing parameters.");
+
+    await axios.get(DID_CONTROLLER + "/api/doc/exists/", {
+        headers: {
+            fileName, companyName
+        }
+    })
+    .then((existence) => res.status(200).json(existence.data.isExisted))
+    .catch((error) => (error.response) ? res.status(400).json(error.response.data) : res.status(400).json(error)); 
+}
+
 /**
  * POST to creat wrapped document
  * @param {Object} wrappedDocument JSON object wrapped document, including did, hash and address.
@@ -115,6 +130,7 @@ exports.createWrappedDocument = async function(req, res) {
         const storingWrappedDocumentStatus = await axios.post(DID_CONTROLLER = "/api/docs", {
             fileName, wrappedDocument, companyName    
         });
+        console.log(storingWrappedDocumentStatus.data);
         return res.status(200).json(storingWrappedDocumentStatus.data);
     }
     catch (err) {
