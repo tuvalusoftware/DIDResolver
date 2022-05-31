@@ -8,14 +8,10 @@ app.use(bodyParser.urlencoded({ extended: true }));
 app.use(bodyParser.json());
 
 app.use(express.json()); 
-app.use(cors({credentials: true}));
-app.use(function (req, res, next) {
-  //Enabling CORS
-  res.header("Access-Control-Allow-Origin", "http://locahost:11000/");
-  res.header("Access-Control-Allow-Methods", "GET,HEAD,OPTIONS,POST,PUT,DELETE");
-  res.header("Access-Control-Allow-Headers", "Origin, X-Requested-With, ConAccept, x-client-key, x-client-token, x-client-secret, Authorization, Content-Type, Request-With, Accept");
-  next();
-  });
+app.use(cors({
+  origin: "http://localhost:11000",
+  credentials: true
+}));
 
 // routes
 var routes = require("./api/routes/resolverRoutes");
