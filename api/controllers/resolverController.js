@@ -105,7 +105,7 @@ exports.createWrappedDocument = async function (req, res) {
   // list[name] = decodeURIComponent(value);
   // console.log("list", list);
   // access_token = list.access_token;
-  // console.log("parsed access_token", access_token);
+  console.log("access_token", access_token);
 
   const { wrappedDocument, address, did } = req.body;
   if (!wrappedDocument || !wrappedDocument.data.ddidDocument) {
@@ -129,11 +129,10 @@ exports.createWrappedDocument = async function (req, res) {
     //     }
     // });
     const address = await axios.get(
-      "http://192.168.1.26:12000" + "/api/auth/verify",
-      {
+      "http://192.168.1.26:12000" + "/api/auth/verify", {
         withCredentials: true,
         headers: {
-          Cookie: `${access_token};`,
+          Cookie: `access_token=${access_token};`,
         },
       }
     );
@@ -150,17 +149,16 @@ exports.createWrappedDocument = async function (req, res) {
       return res.status(400).send("File name exsited");
     }
     const storingHash = await axios.put(CARDANO_SERVICE + "/api/storeHash/", {
-      withCredentials: true,
-      headers: {
-        Cookie: `${access_token};`,
-      },
-      body: {
         address: address.data.data.address,
         hash: targetHash,
-      },
+    }, {
+      withCredentials: true,
+      headers: {
+        "Cookie": `access_token=${access_token};`,
+      }
     });
     if(storingHash.error_code) {
-        return res.status(400).send('Loi rui')
+        return res.status(400).send('Storing has eror.')
     }
     const storingHashStatus = storingHash.data.result;
     console.log(storingHashStatus);
