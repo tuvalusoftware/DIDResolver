@@ -2,9 +2,9 @@
 
 const axios = require("axios").default;
 const { parseCookies, ensureAuthenticated } = require("../../core/index");
-const DID_CONTROLLER = "http://localhost:8000";
+const DID_CONTROLLER = "http://localhost:9000";
 const CARDANO_SERVICE = "http://http://18.139.84.180:10000";
-const AUTHENTICATION_SERVICE = "http://localhost:3000";
+const AUTHENTICATION_SERVICE = "http://18.139.84.180:12000";
 
 /**
  * POST to create DID Doc for a DID
@@ -80,15 +80,31 @@ exports.checkWrappedDocumentExistence = async function(req, res) {
  * @returns {JSON} message
  */
 exports.createWrappedDocument = async function(req, res) {
-    const cookies = parseCookies(req);
-    console.log('Cookie', cookies.access_token);
+    // console.log('REQUEST HEADER:\n', req.headers);
+    // const cookies = parseCookies(req);
+    // console.log(cookies)
+    // console.log('Cookie', cookies);
+    list = {};
+    var { access_token } = req.headers;
+    console.log("raw access_token", access_token);
+    // let [ name, ...rest] = access_token.split(`=`);
+    // name = name?.trim();
+    // if (!name) return;
+    // const value = rest.join(`=`).trim();
+    // if (!value) return;
+    // list[name] = decodeURIComponent(value);
+    // console.log("list", list);
+    // access_token = list.access_token;
+    // console.log("parsed access_token", access_token);
 
+
+ 
     const { wrappedDocument } = req.body;
-    if (!wrappedDocument || !wrappedDocument.data.ddidDocument || !cookies.access_token)
+    if (!wrappedDocument || !wrappedDocument.data.ddidDocument)
         return res.status(400).send("Missing parameters.");
     
-    const access_token = cookies.access_token,
-        did = wrappedDocument.data.ddidDocument,
+    // const access_token = cookies.access_token,
+    const did = wrappedDocument.data.ddidDocument,
         didComponents = did.split(":");
     if (didComponents.length < 6) 
         return res.status(400).send("Invalid DID syntax.");
@@ -99,15 +115,22 @@ exports.createWrappedDocument = async function(req, res) {
         targetHash = wrappedDocument.signature.targetHash;
 
     try {
-        const address = await axios.get(AUTHENTICATION_SERVICE + "/api/auth/verify", {
+        // const address = await axios.get(AUTHENTICATION_SERVICE + "/api/auth/verify", {
+        //     withCredentials: true,
+        //     headers: {
+        //         "Cookie": `access_token=${access_token};`,
+        //     }
+        // });
+        const address = await axios.get("http://192.168.1.26:12000" + "/api/auth/verify", {
             withCredentials: true,
             headers: {
                 "Cookie": `access_token=${access_token};`,
             }
         });
+        console.log("CALL A TAM (HAO): ", address.data.data.address);
 
-        if (address !== issuerAddress) 
-            return res.status(401).send("Unauthorized");
+        // if (address !== issuerAddress) 
+        //     return res.status(401).send("Unauthorized");
         
         const existence = await axios.get(DID_CONTROLLER + "/api/doc/exists/", {
             headers: {
@@ -119,15 +142,21 @@ exports.createWrappedDocument = async function(req, res) {
             return res.status(400).send("File name exsited");
         }
         
+        console.log("CALLING KHANG");
         const storingHash = await axios.put(CARDANO_SERVICE + "/api/storeHash/", {
-            address,
-            hash: targetHash
+            withCredentials: true,
+            headers: {
+                "Cookie": `access_token=${access_token};`,
+            },
+            body: {
+                address: address.data.data.address,
+                hash: targetHash
+            }
         });
         const storingHashStatus = storingHash.data.result;
         if (storingHashStatus !== "true") {
             return res.status(400).send(storingHashStatus, ". Cannot store hash.");
         }
-           
         
         const storingWrappedDocumentStatus = await axios.post(DID_CONTROLLER = "/api/docs", {
             fileName, wrappedDocument, companyName    
@@ -137,6 +166,6 @@ exports.createWrappedDocument = async function(req, res) {
     }
     catch (err) {
         console.log(err);
-        return (err.response) ? res.status(400).json(error.response.data) : res.status(400).json(err);
+        return (err.response) ? res.status(400).json(err.response.data) : res.status(400).json(err);
     }
 }

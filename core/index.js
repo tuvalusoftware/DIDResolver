@@ -1,6 +1,6 @@
 module.exports.parseCookies = (request) => {
     const list = {};
-    const cookieHeader = request.headers?.cookie;
+    const cookieHeader = request.headers?.access_token;
     if (!cookieHeader) return list;
 
     cookieHeader.split(`;`).forEach(function(cookie) {
