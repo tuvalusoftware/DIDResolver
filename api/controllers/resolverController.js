@@ -3,8 +3,8 @@
 const axios = require("axios").default;
 const { parseCookies, ensureAuthenticated } = require("../../core/index");
 const DID_CONTROLLER = "http://localhost:8000";
-const CARDANO_SERVICE = "http://localhost:10000";
-const AUTHENTICATION_SERVICE = "http://localhost:12000";
+const CARDANO_SERVICE = "http://http://18.139.84.180:10000";
+const AUTHENTICATION_SERVICE = "http://localhost:3000";
 
 /**
  * POST to create DID Doc for a DID
@@ -81,7 +81,7 @@ exports.checkWrappedDocumentExistence = async function(req, res) {
  */
 exports.createWrappedDocument = async function(req, res) {
     const cookies = parseCookies(req);
-    console.log(cookies.access_token);
+    console.log('Cookie', cookies.access_token);
 
     const { wrappedDocument } = req.body;
     if (!wrappedDocument || !wrappedDocument.data.ddidDocument || !cookies.access_token)
@@ -115,16 +115,19 @@ exports.createWrappedDocument = async function(req, res) {
                 fileName
             }
         });
-        if (existence.data.isExisted) 
+        if (existence.data.isExisted) {
             return res.status(400).send("File name exsited");
+        }
         
         const storingHash = await axios.put(CARDANO_SERVICE + "/api/storeHash/", {
             address,
             hash: targetHash
         });
         const storingHashStatus = storingHash.data.result;
-        if (storingHashStatus !== "true")
+        if (storingHashStatus !== "true") {
             return res.status(400).send(storingHashStatus, ". Cannot store hash.");
+        }
+           
         
         const storingWrappedDocumentStatus = await axios.post(DID_CONTROLLER = "/api/docs", {
             fileName, wrappedDocument, companyName    
@@ -133,6 +136,7 @@ exports.createWrappedDocument = async function(req, res) {
         return res.status(200).json(storingWrappedDocumentStatus.data);
     }
     catch (err) {
+        console.log(err);
         return (err.response) ? res.status(400).json(error.response.data) : res.status(400).json(err);
     }
 }
