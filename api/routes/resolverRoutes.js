@@ -1,3 +1,5 @@
+const res = require("express/lib/response");
+
 module.exports = function(app) {
     var resolver = require("../controllers/resolverController");
 
@@ -7,5 +9,8 @@ module.exports = function(app) {
         
     app.route("/resolver/wrapped-document")
         .post(resolver.createWrappedDocument);
+
+    app.route("/resolver/wrapped-document/exists")
+        .get(resolver.checkWrappedDocumentExistence);
 }
 
