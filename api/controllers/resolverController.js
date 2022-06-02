@@ -81,8 +81,7 @@ exports.getDIDDocument = async function (req, res) {
 
 
 exports.checkWrappedDocumentExistence = async function (req, res) {
-  const { companyName, fileName } = req.headers;
-  console.log(req.headers);
+  const { companyname: companyName, filename: fileName } = req.headers;
   if (!companyName || !fileName)
     return res.status(400).send("Missing parameters.");
 

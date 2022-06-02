@@ -4,9 +4,9 @@ module.exports.getDidDocument = {
         summary: "Resolve DID - Takes a DID as input and produces a conforming DID document as output.",
         parameters: [
             {
+                in: "header",
                 name: "did",
                 type: "string",
-                in: "header",
                 require: true,
                 description: "DID string. Syntax: did:method:companyName:publicKey.",
                 example: "did:method:companyName:publicKey",
