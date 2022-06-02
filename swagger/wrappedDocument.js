@@ -26,15 +26,28 @@ module.exports.checkExistWrappedDocument = {
             200: {
                 description: "OK. Return true/false value representing the exsitence of the given wrapped document name in the given company storage.",
                 content: {
-                    
+                    "text/plain": {
+                        schema: {
+                            type: "boolean"
+                        }
+                    }
                 }
             },
             400: {
                 description: "Bad request.",
                 content: {
+                    "text/plain": {
+                        schema: {
+                            type: "string",
+                            example: "Missing parameters."
+                        }
+                    },
                     "application/json": {
-                        schemas: {
-                            type: "object"
+                        schema: {
+                            type: "object",
+                            properties: {
+
+                            }
                         }
                     }
                 }
