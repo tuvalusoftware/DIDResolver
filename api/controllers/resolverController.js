@@ -2,11 +2,13 @@
 
 const axios = require("axios").default;
 const { parseCookies, ensureAuthenticated } = require("../../core/index");
-const DID_CONTROLLER = "http://localhost:9000";
+const DID_CONTROLLER = "http://18.139.84.180:9000";
 const CARDANO_SERVICE = "http://18.139.84.180:10000";
 // const CARDANO_SERVICE = "http://localhost:10000";
-// const AUTHENTICATION_SERVICE = "http://18.139.84.180:12000";
-const AUTHENTICATION_SERVICE = "http://localhost:12000";
+const AUTHENTICATION_SERVICE = "http://18.139.84.180:12000";
+// const AUTHENTICATION_SERVICE = "http://localhost:12000";
+
+// --------------------- DID DOCUMENT ---------------------
 
 /**
  * POST to create DID Doc for a DID
@@ -30,8 +32,15 @@ exports.createDIDDocument = async function (req, res) {
       publicKey: publicKey,
       content: didDocument,
     })
-    .then((response) => res.status(201).json(response.data))
-    .catch((error) => res.status(400).json(error.response.data));
+    .then((response) => {
+        response.data.errorCode 
+            ? res.status(400).json(response.data)
+            : res.status(201).send("DID Document created.")
+    })
+    .catch((error) => {
+        console.log(error);
+        res.status(400).json(error.response?.data)
+    });
 };
 
 /**
@@ -53,27 +62,34 @@ exports.getDIDDocument = async function (req, res) {
     .get(DID_CONTROLLER + "/api/did/", {
       headers: {
         companyName: companyName,
-        fileName: fileName,
+        publicKey: fileName,
       },
     })
-    .then((response) => res.status(200).json(response.data))
+    .then((response) => 
+        response.data.errorCode 
+            ? res.status(404).json(req.data) 
+            : res.status(200).json(req.data))
     .catch((error) =>
-      error.response
-        ? res.status(404).json(error.response.data)
-        : res.status(400).json(error)
+        error.response
+            ? res.status(400).json(error.response.data)
+            : res.status(400).json(error)
     );
 };
 
+
+// --------------------- WRAPPED DOCUMENT ---------------------
+
+
 exports.checkWrappedDocumentExistence = async function (req, res) {
-  const { fileName, companyName } = req.body;
-  console.log(req.body);
-  if (!fileName || !companyName)
+  const { companyName, fileName } = req.headers;
+  console.log(req.headers);
+  if (!companyName || !fileName)
     return res.status(400).send("Missing parameters.");
 
   await axios.get(DID_CONTROLLER + "/api/doc/exists/", {
       headers: {
-        fileName,
         companyName,
+        fileName,
       },
     })
     .then((existence) => res.status(200).json(existence.data.isExisted))

@@ -1,21 +1,32 @@
 const tags = require("./tags");
-const { definitions } = require("./definitions");
-const { getDidDocument } = require("./getDidDocument");
-const { postDidDocument } = require("./postDidDocument");
+const { schemas, examples } = require("./components");
+const { getDidDocument, postDidDocument } = require("./didDocument");
+const { checkExistWrappedDocument } = require("./wrappedDocument");
 
 module.exports = {
-    swagger: "2.0",
+    openapi: "3.0.0",
     info: {
         version: "1.0.0",
         title: "DID Resolver",
         description: "DID resolver for Cardano project | Fuixlabs"
     },
-    host: "localhost:8000",
-    basePath: "/resolver",
+    servers: [
+        {
+          url: "/resolver",
+          description: "Local server",
+        },
+    ],
+    // host: "18.139.84.180:8000",
+    // basePath: "/resolver",
     schemes: ["http"],
     ...tags,
-    definitions: {
-        ...definitions
+    components: {
+        schemas: {
+            ...schemas
+        },
+        examples: {
+            ...examples
+        }
     },
     paths: {
         "/did-document/": {
@@ -24,7 +35,10 @@ module.exports = {
         },
         "/wrapped-document/": {
 
-        }
+        },
+        "/wrapped-document/exists": {
+            ...checkExistWrappedDocument
+        },
     }
     // ...{ paths: paths },
 }
