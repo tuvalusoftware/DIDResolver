@@ -1,7 +1,7 @@
 const tags = require("./tags");
 const { schemas, examples } = require("./components");
 const { getDidDocument, postDidDocument } = require("./didDocument");
-const { checkExistWrappedDocument } = require("./wrappedDocument");
+const { checkWrappedDocumentExistence } = require("./wrappedDocument");
 
 module.exports = {
     openapi: "3.0.0",
@@ -37,7 +37,7 @@ module.exports = {
 
         },
         "/wrapped-document/exists": {
-            ...checkExistWrappedDocument
+            ...checkWrappedDocumentExistence
         },
     }
     // ...{ paths: paths },

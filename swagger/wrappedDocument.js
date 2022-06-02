@@ -1,6 +1,4 @@
-const { schemas } = require("./components");
-
-module.exports.checkExistWrappedDocument = {
+module.exports.checkWrappedDocumentExistence = {
     get: {
         tags: ["Wrapped document"],
         summary: "Check existence of a given wrapped document of a company.",
@@ -52,6 +50,20 @@ module.exports.checkExistWrappedDocument = {
                     }
                 }
             }
+        }
+    }
+}
+
+module.exports.createWrappedDocument = {
+    post: {
+        tags: ["Wrapped document"],
+        summary: "Receive and valiate wrapped document from dApp and call services to hash and store data.",
+        // parameters: [],
+        requestBody: {
+
+        },
+        responses: {
+            
         }
     }
 }
