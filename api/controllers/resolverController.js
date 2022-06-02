@@ -4,7 +4,7 @@ const axios = require("axios").default;
 const { parseCookies, ensureAuthenticated } = require("../../core/index");
 const DID_CONTROLLER = "http://localhost:9000";
 const CARDANO_SERVICE = "http://18.139.84.180:10000";
-// const CARDANO_SERVICE = "http://192.168.1.22:10000";
+// const CARDANO_SERVICE = "http://localhost:10000";
 // const AUTHENTICATION_SERVICE = "http://18.139.84.180:12000";
 const AUTHENTICATION_SERVICE = "http://localhost:12000";
 
