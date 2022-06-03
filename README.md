@@ -13,10 +13,9 @@ npm run server
 ```
 Result:
 ```
-DID Resolver RESTfull API server start on: 3000
+DID Resolver RESTfull API server start on: 9000
 ```
 
 ## API
-Resolve DID (GET): http://localhost:3000/resolver/did-document/
-Create wrapped document (POST): http://localhost:3000/resolver/wrapped-document/
+http://localhost:9000/api-docs/
 
