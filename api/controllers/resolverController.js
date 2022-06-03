@@ -5,8 +5,8 @@ const { parseCookies, ensureAuthenticated, getAddressFromHexEncoded } = require(
 const DID_CONTROLLER = "http://18.139.84.180:9000";
 const CARDANO_SERVICE = "http://18.139.84.180:10000";
 // const CARDANO_SERVICE = "http://localhost:10000";
-const AUTHENTICATION_SERVICE = "http://18.139.84.180:12000";
-// const AUTHENTICATION_SERVICE = "http://localhost:12000";
+// const AUTHENTICATION_SERVICE = "http://18.139.84.180:12000";
+const AUTHENTICATION_SERVICE = "http://localhost:12000";
 
 // --------------------- DID DOCUMENT ---------------------
 
@@ -114,7 +114,7 @@ exports.createWrappedDocument = async function (req, res) {
   const access_token = cookies.access_token;
 
   const { wrappedDocument, issuerAddress: encryptedIssuerAddress, did } = req.body;
-  if (!wrappedDocument || !issuerAddress || !did) {
+  if (!wrappedDocument || !encryptedIssuerAddress || !did) {
     return res.status(400).send("Missing parameters.");
   }
   const didComponents = did.split(":");
@@ -125,6 +125,8 @@ exports.createWrappedDocument = async function (req, res) {
     fileName = didComponents[3],
     targetHash = wrappedDocument.signature.targetHash,
     issuerAddress = getAddressFromHexEncoded(encryptedIssuerAddress);
+
+  console.log(issuerAddress);
 
   try {
     // 1. Validate permission to create document. 
@@ -173,8 +175,8 @@ exports.createWrappedDocument = async function (req, res) {
 
     const mintingNFTStatus = (mintingNFT.data.result) ? mintingNFT.data.result : false;
     console.log(mintingNFT.data);
-    if (mintingNFTStatus !== "true") {
-      return res.status(400).send(mintingNFTStatus, ". Cannot store hash.");
+    if (!mintingNFTStatus) {
+      return res.status(400).send("Cannot store hash.");
     }
 
     // 4. Storing wrapped document on DB
