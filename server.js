@@ -14,7 +14,6 @@ const app = express();
 const routes = require("./api/routes/resolverRoutes");
 app.use(cors());
 app.use(compression());
-<<<<<<< HEAD
 app.use(express.json());
 app.use((err, req, res, _next) => {
   res.json({
@@ -22,10 +21,6 @@ app.use((err, req, res, _next) => {
   });
 });
 // app.use('/api-docs', swaggerUi.serve, swaggerUi.setup(swaggerDocument));
-=======
-app.use(bodyParser.urlencoded({ extended: true }));
-app.use(bodyParser.json());
->>>>>>> 2f49a9112ff642636bd22b634b60ce6980e82b93
 app.use(
   express.urlencoded({
     extended: true,
