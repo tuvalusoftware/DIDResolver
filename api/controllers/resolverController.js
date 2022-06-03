@@ -132,9 +132,6 @@ exports.createWrappedDocument = async function (req, res) {
     const address = await axios.get(AUTHENTICATION_SERVICE + "/api/auth/verify",
       {
         withCredentials: true,
-        headers: {
-          "Cookie": `access_token=${access_token};`,
-        }
       });
 
     // 1.2 Compare
@@ -161,9 +158,6 @@ exports.createWrappedDocument = async function (req, res) {
       },
       {
         withCredentials: true,
-        headers: {
-          "Cookie": `access_token=${access_token};`,
-        }
       });
 
     if (mintingNFT.error_code) {
