@@ -1,15 +1,20 @@
-const http = require("http");
-const express = require("express");
-const cors = require("cors");
-const port = process.env.PORT || 8000;
-const bodyParser = require("body-parser");
-const compression = require('compression');
-const methodOverride = require('method-override');
+const http = require("http"),
+  express = require("express"),
+  cors = require("cors"),
+  bodyParser = require("body-parser"),
+  compression = require("compression"),
+  methodOverride = require("method-override");
+swaggerUi = require("swagger-ui-express"),
+  swaggerDocument = require("./swagger/"),
+  port = process.env.PORT || 8000;
+
 const app = express();
+
 // routes
 const routes = require("./api/routes/resolverRoutes");
 app.use(cors());
 app.use(compression());
+<<<<<<< HEAD
 app.use(express.json());
 app.use((err, req, res, _next) => {
   res.json({
@@ -17,13 +22,17 @@ app.use((err, req, res, _next) => {
   });
 });
 // app.use('/api-docs', swaggerUi.serve, swaggerUi.setup(swaggerDocument));
+=======
+app.use(bodyParser.urlencoded({ extended: true }));
+app.use(bodyParser.json());
+>>>>>>> 2f49a9112ff642636bd22b634b60ce6980e82b93
 app.use(
   express.urlencoded({
     extended: true,
   })
 );
 app.use(methodOverride());
-
+app.use('/api-docs', swaggerUi.serve, swaggerUi.setup(swaggerDocument));
 
 const server = http.createServer(app);
 routes(app);
@@ -35,5 +44,5 @@ app.use((err, res) => {
   });
 });
 server.listen(port, () => {
-  console.log(`Listening on http://localhost${port}`);
+  console.log(`Listening on http://localhost:${port}`);
 });

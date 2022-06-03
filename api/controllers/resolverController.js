@@ -84,6 +84,7 @@ exports.getDIDDocument = async function (req, res) {
 
 exports.checkWrappedDocumentExistence = async function (req, res) {
   const { companyname: companyName, filename: fileName } = req.headers;
+  console.log()
   if (!companyName || !fileName)
     return res.status(400).send("Missing parameters.");
 
@@ -109,12 +110,10 @@ exports.checkWrappedDocumentExistence = async function (req, res) {
  * @returns {JSON} message
  */
 exports.createWrappedDocument = async function (req, res) {
+  console.log('HEHE', req.body);
   console.log('REQUEST HEADER:\n', req.headers);
   const cookies = parseCookies(req);
-  console.log(cookies)
-  console.log('Cookie', cookies);
   const access_token = cookies.access_token;
-  console.log("access_token", access_token);
 
   const { wrappedDocument, issuerAddress, did } = req.body;
   if (!wrappedDocument || !issuerAddress || !did) {
