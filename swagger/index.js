@@ -12,8 +12,8 @@ module.exports = {
     },
     servers: [
         {
-          url: "/resolver",
-          description: "Local server",
+            url: "/resolver",
+            description: "Local server",
         },
     ],
     // host: "18.139.84.180:8000",
@@ -34,7 +34,6 @@ module.exports = {
             ...postDidDocument,
         },
         "/wrapped-document/": {
-
         },
         "/wrapped-document/exists": {
             ...checkWrappedDocumentExistence

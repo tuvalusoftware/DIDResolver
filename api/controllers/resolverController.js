@@ -110,8 +110,6 @@ exports.checkWrappedDocumentExistence = async function (req, res) {
  * @returns {JSON} message
  */
 exports.createWrappedDocument = async function (req, res) {
-  console.log('HEHE', req.body);
-  console.log('REQUEST HEADER:\n', req.headers);
   const cookies = parseCookies(req);
   const access_token = cookies.access_token;
 
@@ -120,7 +118,7 @@ exports.createWrappedDocument = async function (req, res) {
     return res.status(400).send("Missing parameters.");
   }
   const didComponents = did.split(":");
-  if (didComponents.length < 4 || did[0] !== "did") {
+  if (didComponents.length < 4 || didComponents[0] !== "did") {
     return res.status(400).send("Invalid DID syntax.");
   }
   const companyName = didComponents[2],
@@ -129,19 +127,19 @@ exports.createWrappedDocument = async function (req, res) {
 
   try {
     // 1. Validate permission to create document. 
+    console.log(1);
     // 1.1 Get address of user from the acess token. 
-    const encryptedAddress = await axios.get(AUTHENTICATION_SERVICE + "/api/auth/verify",
+    const address = await axios.get(AUTHENTICATION_SERVICE + "/api/auth/verify",
       {
         withCredentials: true,
         headers: {
           "Cookie": `access_token=${access_token};`,
         }
       });
-    // 1.2. Decrypt address
-    const address = getAddressFromHexEncoded(encryptedAddress);
-    // 1.3. Compare addresses 
-    if (address !== issuerAddress)
-      return res.status(401).send("Unauthorized");
+
+    // 1.2 Compare
+    if (issuerAddress !== address)
+      return res.status(400).send("DUNG LAI");
 
     // 2. Check if document is already stored on DB (true/false).
     const existence = await axios.get(DID_CONTROLLER + "/api/doc/exists/",
@@ -189,7 +187,8 @@ exports.createWrappedDocument = async function (req, res) {
     console.log(storingWrappedDocumentStatus.data);
     return res.status(200).json(storingWrappedDocumentStatus.data);
   } catch (err) {
-    // console.log(err);
+    console.log("CATCH ERROR");
+    console.log(err);
     return err.response
       ? res.status(400).json(err.response.data)
       : res.status(400).json(err);
