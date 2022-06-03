@@ -162,6 +162,9 @@ exports.createWrappedDocument = async function (req, res) {
       },
       {
         withCredentials: true,
+        headers: {
+          "Cookie": `access_token=${access_token}`
+        }
       });
 
     if (mintingNFT.error_code) {
