@@ -8,13 +8,15 @@ const methodOverride = require('method-override');
 const app = express();
 // routes
 const routes = require("./api/routes/resolverRoutes");
-routes(app);
-
 app.use(cors());
 app.use(compression());
-app.use(bodyParser.urlencoded({ extended: true }));
-app.use(bodyParser.json());
-app.use('/api-docs', swaggerUi.serve, swaggerUi.setup(swaggerDocument));
+app.use(express.json());
+app.use((err, req, res, _next) => {
+  res.json({
+      error_message: 'Body should be a JSON',
+  });
+});
+// app.use('/api-docs', swaggerUi.serve, swaggerUi.setup(swaggerDocument));
 app.use(
   express.urlencoded({
     extended: true,
@@ -24,7 +26,7 @@ app.use(methodOverride());
 
 
 const server = http.createServer(app);
-
+routes(app);
 app.use((err, res) => {
   res.json({
     error_code: err.error_code || err.message,
