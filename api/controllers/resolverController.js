@@ -1,7 +1,7 @@
 // const { response } = require("express");
 
 const axios = require("axios").default;
-const { parseCookies, ensureAuthenticated } = require("../../core/index");
+const { parseCookies, ensureAuthenticated, getAddressFromHexEncoded } = require("../../core/index");
 const DID_CONTROLLER = "http://18.139.84.180:9000";
 const CARDANO_SERVICE = "http://18.139.84.180:10000";
 // const CARDANO_SERVICE = "http://localhost:10000";
@@ -27,19 +27,20 @@ exports.createDIDDocument = async function (req, res) {
   const companyName = didComponents[2];
   const publicKey = didComponents[3];
   await axios
-    .post(DID_CONTROLLER + "/api/did/", {
-      companyName: companyName,
-      publicKey: publicKey,
-      content: didDocument,
-    })
+    .post(DID_CONTROLLER + "/api/did/",
+      {
+        companyName: companyName,
+        publicKey: publicKey,
+        content: didDocument,
+      })
     .then((response) => {
-        response.data.errorCode 
-            ? res.status(400).json(response.data)
-            : res.status(201).send("DID Document created.")
+      response.data.errorCode
+        ? res.status(400).json(response.data)
+        : res.status(201).send("DID Document created.")
     })
     .catch((error) => {
-        console.log(error);
-        res.status(400).json(error.response?.data)
+      console.log(error);
+      res.status(400).json(error.response?.data)
     });
 };
 
@@ -59,20 +60,21 @@ exports.getDIDDocument = async function (req, res) {
   const companyName = didComponents[2];
   const fileName = didComponents[3];
   await axios
-    .get(DID_CONTROLLER + "/api/did/", {
-      headers: {
-        companyName: companyName,
-        publicKey: fileName,
-      },
-    })
-    .then((response) => 
-        response.data.errorCode 
-            ? res.status(404).json(req.data) 
-            : res.status(200).json(req.data))
+    .get(DID_CONTROLLER + "/api/did/",
+      {
+        headers: {
+          companyName: companyName,
+          publicKey: fileName,
+        },
+      })
+    .then((response) =>
+      response.data.errorCode
+        ? res.status(404).json(req.data)
+        : res.status(200).json(req.data))
     .catch((error) =>
-        error.response
-            ? res.status(400).json(error.response.data)
-            : res.status(400).json(error)
+      error.response
+        ? res.status(400).json(error.response.data)
+        : res.status(400).json(error)
     );
 };
 
@@ -85,7 +87,8 @@ exports.checkWrappedDocumentExistence = async function (req, res) {
   if (!companyName || !fileName)
     return res.status(400).send("Missing parameters.");
 
-  await axios.get(DID_CONTROLLER + "/api/doc/exists/", {
+  await axios.get(DID_CONTROLLER + "/api/doc/exists/",
+    {
       headers: {
         companyName,
         fileName,
@@ -102,86 +105,82 @@ exports.checkWrappedDocumentExistence = async function (req, res) {
 /**
  * POST to creat wrapped document
  * @param {Object} wrappedDocument JSON object wrapped document, including did, hash and address.
+ * @param {}
  * @returns {JSON} message
  */
 exports.createWrappedDocument = async function (req, res) {
-  // console.log('REQUEST HEADER:\n', req.headers);
-  // const cookies = parseCookies(req);
-  // console.log(cookies)
-  // console.log('Cookie', cookies);
+  console.log('REQUEST HEADER:\n', req.headers);
+  const cookies = parseCookies(req);
+  console.log(cookies)
+  console.log('Cookie', cookies);
   const access_token = cookies.access_token;
-  // var { access_token } = req.headers?.cookies;
-  // let [ name, ...rest] = access_token.split(`=`);
-  // name = name?.trim();
-  // if (!name) return;
-  // const value = rest.join(`=`).trim();
-  // if (!value) return;
-  // list[name] = decodeURIComponent(value);
-  // console.log("list", list);
-  // access_token = list.access_token;
   console.log("access_token", access_token);
 
-  const { wrappedDocument, address, did } = req.body;
-  if (!wrappedDocument || !wrappedDocument.data.ddidDocument) {
-     return res.status(400).send("Missing parameters."); 
+  const { wrappedDocument, issuerAddress, did } = req.body;
+  if (!wrappedDocument || !issuerAddress || !did) {
+    return res.status(400).send("Missing parameters.");
   }
-    // const access_token = cookies.access_token,
   const didComponents = did.split(":");
-  if (didComponents.length < 4) {
+  if (didComponents.length < 4 || did[0] !== "did") {
     return res.status(400).send("Invalid DID syntax.");
   }
   const companyName = didComponents[2],
     fileName = didComponents[3],
-    issuerAddress = wrappedDocument.data.issuers[0].address,
     targetHash = wrappedDocument.signature.targetHash;
 
   try {
-    // const address = await axios.get(AUTHENTICATION_SERVICE + "/api/auth/verify", {
-    //     withCredentials: true,
-    //     headers: {
-    //         "Cookie": `access_token=${access_token};`,
-    //     }
-    // });
-    const address = await axios.get(
-      "http://192.168.1.26:12000" + "/api/auth/verify", {
+    // 1. Validate permission to create document. 
+    // 1.1 Get address of user from the acess token. 
+    const encryptedAddress = await axios.get(AUTHENTICATION_SERVICE + "/api/auth/verify",
+      {
         withCredentials: true,
         headers: {
-          Cookie: `access_token=${access_token};`,
-        },
-      }
-    );
-    // if (address !== issuerAddress)
-    //     return res.status(401).send("Unauthorized");
+          "Cookie": `access_token=${access_token};`,
+        }
+      });
+    // 1.2. Decrypt address
+    const address = getAddressFromHexEncoded(encryptedAddress);
+    // 1.3. Compare addresses 
+    if (address !== issuerAddress)
+      return res.status(401).send("Unauthorized");
 
-    const existence = await axios.get(DID_CONTROLLER + "/api/doc/exists/", {
-      headers: {
-        companyName,
-        fileName,
-      },
-    });
+    // 2. Check if document is already stored on DB (true/false).
+    const existence = await axios.get(DID_CONTROLLER + "/api/doc/exists/",
+      {
+        headers: {
+          companyName,
+          fileName,
+        },
+      });
     if (existence.data.isExisted) {
       return res.status(400).send("File name exsited");
     }
-    const storingHash = await axios.put(CARDANO_SERVICE + "/api/storeHash/", {
-        address: address.data.data.address,
+
+    // 3. Storing hash on Cardano blockchain
+    const mintingNFT = await axios.put(CARDANO_SERVICE + "/api/storeHash/",
+      {
+        address: issuerAddress,
         hash: targetHash,
-    }, {
-      withCredentials: true,
-      headers: {
-        "Cookie": `access_token=${access_token};`,
-      }
-    });
-    if(storingHash.error_code) {
-        return res.status(400).send('Storing has error.')
-    }
-    const storingHashStatus = (storingHash.data.result) ? storingHash.data.result : false;
-    console.log(storingHash.data);
-    if (storingHashStatus !== "true") {
-      return res.status(400).send(storingHashStatus, ". Cannot store hash.");
+      },
+      {
+        withCredentials: true,
+        headers: {
+          "Cookie": `access_token=${access_token};`,
+        }
+      });
+
+    if (mintingNFT.error_code) {
+      return res.status(400).send('Storing has error.');
     }
 
-    const storingWrappedDocumentStatus = await axios.post(
-      (DID_CONTROLLER = "/api/docs"),
+    const mintingNFTStatus = (mintingNFT.data.result) ? mintingNFT.data.result : false;
+    console.log(mintingNFT.data);
+    if (mintingNFTStatus !== "true") {
+      return res.status(400).send(mintingNFTStatus, ". Cannot store hash.");
+    }
+
+    // 4. Storing wrapped document on DB
+    const storingWrappedDocumentStatus = await axios.post((DID_CONTROLLER = "/api/docs"),
       {
         fileName,
         wrappedDocument,

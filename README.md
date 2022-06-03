@@ -18,4 +18,3 @@ DID Resolver RESTfull API server start on: 9000
 
 ## API
 http://localhost:9000/api-docs/
-

@@ -1,3 +1,5 @@
+const cardanoSerialization = require("@emurgo/cardano-serialization-lib-nodejs"); 
+
 module.exports.parseCookies = (request) => {
     const list = {};
     const cookieHeader = request.headers?.cookie;
@@ -41,3 +43,7 @@ module.exports.ensureAuthenticated = (req, res, next) => {
         }
     );
   };
+
+module.exports.getAddressFromHexEncoded = (hexAddress) => {
+    return cardanoSerialization.Address.from_bytes(Buffer.from(hexAddress, 'hex')).to_bech32();
+};
