@@ -113,7 +113,7 @@ exports.createWrappedDocument = async function (req, res) {
   const cookies = parseCookies(req);
   const access_token = cookies.access_token;
 
-  const { wrappedDocument, issuerAddress, did } = req.body;
+  const { wrappedDocument, issuerAddress: encryptedIssuerAddress, did } = req.body;
   if (!wrappedDocument || !issuerAddress || !did) {
     return res.status(400).send("Missing parameters.");
   }
@@ -123,7 +123,8 @@ exports.createWrappedDocument = async function (req, res) {
   }
   const companyName = didComponents[2],
     fileName = didComponents[3],
-    targetHash = wrappedDocument.signature.targetHash;
+    targetHash = wrappedDocument.signature.targetHash,
+    issuerAddress = getAddressFromHexEncoded(encryptedIssuerAddress);
 
   try {
     // 1. Validate permission to create document. 
@@ -132,10 +133,13 @@ exports.createWrappedDocument = async function (req, res) {
     const address = await axios.get(AUTHENTICATION_SERVICE + "/api/auth/verify",
       {
         withCredentials: true,
+        headers: {
+          "Cookie": `access_token=${access_token}`
+        }
       });
 
     // 1.2 Compare
-    if (issuerAddress !== address)
+    if (issuerAddress !== address.data.data.address)
       return res.status(400).send("DUNG LAI");
 
     // 2. Check if document is already stored on DB (true/false).
