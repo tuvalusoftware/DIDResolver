@@ -109,8 +109,8 @@ exports.createWrappedDocument = async function (req, res) {
   // const cookies = parseCookies(req);
   // console.log(cookies)
   // console.log('Cookie', cookies);
-  list = {};
-  var { access_token } = req.headers;
+  const access_token = cookies.access_token;
+  // var { access_token } = req.headers?.cookies;
   // let [ name, ...rest] = access_token.split(`=`);
   // name = name?.trim();
   // if (!name) return;

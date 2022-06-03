@@ -1,5 +1,5 @@
 module.exports.checkWrappedDocumentExistence = {
-    get: {
+  get: {
         tags: ["Wrapped document"],
         summary: "Check existence of a given wrapped document of a company.",
         parameters: [
@@ -51,7 +51,7 @@ module.exports.checkWrappedDocumentExistence = {
                 }
             }
         }
-    }
+  }
 }
 
 module.exports.createWrappedDocument = {
@@ -60,10 +60,44 @@ module.exports.createWrappedDocument = {
         summary: "Receive and valiate wrapped document from dApp and call services to hash and store data.",
         // parameters: [],
         requestBody: {
+            require: true,
+            content: {
+                "application/json": {
+                    schema: {
+                        type: "object",
+                        properties: {
 
+                        }
+                    }
+                }
+            }
         },
         responses: {
-            
+            200: {
+                description: "OK.",
+                content: {
+
+                }
+            },
+            400: {
+                description: "Bad request.",
+                content: {
+                    "text/plain": {
+                        schema: {
+                            type: "string",
+                            example: "Missing parameters."
+                        }
+                    },
+                    "application/json": {
+                        schema: {
+                            type: "object",
+                            properties: {
+
+                            }
+                        }
+                    }
+                }
+            }
         }
     }
 }
