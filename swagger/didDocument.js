@@ -16,7 +16,7 @@ module.exports.getDidDocument = {
         responses: {
             200: {
                 description: "OK. Return a conforming DID document.",
-                schema: { 
+                schema: {
                     $ref: "#/components/schemas/didDocument"
                 }
             },
@@ -51,7 +51,7 @@ module.exports.getDidDocument = {
     }
 }
 
-module.exports.postDidDocument = {
+module.exports.createDidDocument = {
     post: {
         tags: ["DID document"],
         summary: "Create DID document for a given DID",
