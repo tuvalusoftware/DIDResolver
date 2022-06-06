@@ -1,14 +1,13 @@
 // const { response } = require("express");
 
 const axios = require("axios").default;
+const { response } = require("express");
 const { parseCookies, ensureAuthenticated, getAddressFromHexEncoded } = require("../../core/index");
 const DID_CONTROLLER = "http://localhost:9000";
 const CARDANO_SERVICE = "http://18.139.84.180:10000";
 // const CARDANO_SERVICE = "http://localhost:10000";
 // const AUTHENTICATION_SERVICE = "http://18.139.84.180:12000";
 const AUTHENTICATION_SERVICE = "http://localhost:12000";
-
-// --------------------- DID DOCUMENT ---------------------
 
 /**
  * POST to create DID Doc for a DID
@@ -78,10 +77,12 @@ exports.getDIDDocument = async function (req, res) {
     );
 };
 
-
-// --------------------- WRAPPED DOCUMENT ---------------------
-
-
+/**
+ * GET request to check if the wrapped document is exsited
+ * @param {String} companyName
+ * @param {String} fileName 
+ * @returns {boolean} status isExisted 
+ */
 exports.checkWrappedDocumentExistence = async function (req, res) {
   const { companyname: companyName, filename: fileName } = req.headers;
   console.log()
@@ -107,7 +108,7 @@ exports.checkWrappedDocumentExistence = async function (req, res) {
  * POST to creat wrapped document
  * @param {Object} wrappedDocument JSON object wrapped document, including did, hash and address.
  * @param {}
- * @returns {JSON} message
+ * @returns {Object} message
  */
 exports.createWrappedDocument = async function (req, res) {
   // Get access-token from request
@@ -193,4 +194,40 @@ exports.createWrappedDocument = async function (req, res) {
       ? res.status(400).json(err.response.data)
       : res.status(400).json(err);
   }
+};
+
+/** GET to receive didDocument and wrappedDocument of a document
+ * @param {String} did
+ * @param {boolean} didDocument 
+ * @param {boolean} wrappedDocument
+ * @returns {Object} 
+ */
+exports.getDocuments = async function (req, res) {
+  const { did } = req.headers;
+  var { didDocument, wrappedDocument } = req.querry;
+  if (!did)
+    return res.status(400).send("Missing parameters.");
+
+  const didComponents = did.split(":");
+  if (didComponents.length < 4 || didComponents[0] != "did")
+    return res.status(400).send("Invalid DID syntax.");
+
+  await axios.get(DID_CONTROLLER + "api/doc/", {
+    headers: {
+      companyName: didComponents[2],
+      fileName: didComponents[3]
+    },
+    params: {
+      didDocument: !!didDocument,
+      wrappedDocument: !!wrappedDocument
+    }
+  })
+    .then((response) => {
+      return res.status(200).json(response.data);
+    })
+    .catch((error) => {
+      error.response
+        ? res.status(400).json(error.response.data)
+        : res.status(400).json(error)
+    });
 };
