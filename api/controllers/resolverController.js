@@ -204,7 +204,9 @@ exports.createWrappedDocument = async function (req, res) {
  */
 exports.getDocuments = async function (req, res) {
   const { did } = req.headers;
-  var { didDocument, wrappedDocument } = req.querry;
+  console.log(did);
+  const { exclude } = req.query;
+  console.log(exclude);
   if (!did)
     return res.status(400).send("Missing parameters.");
 
@@ -212,14 +214,13 @@ exports.getDocuments = async function (req, res) {
   if (didComponents.length < 4 || didComponents[0] != "did")
     return res.status(400).send("Invalid DID syntax.");
 
-  await axios.get(DID_CONTROLLER + "api/doc/", {
+  await axios.get(DID_CONTROLLER + "/api/doc", {
     headers: {
       companyName: didComponents[2],
       fileName: didComponents[3]
     },
     params: {
-      didDocument: !!didDocument,
-      wrappedDocument: !!wrappedDocument
+      exclude
     }
   })
     .then((response) => {
