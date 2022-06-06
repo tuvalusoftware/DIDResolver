@@ -3,21 +3,23 @@ const http = require("http"),
   cors = require("cors"),
   bodyParser = require("body-parser"),
   compression = require("compression"),
+  cookieParser = require('cookie-parser'),
   methodOverride = require("method-override");
-swaggerUi = require("swagger-ui-express"),
-  swaggerDocument = require("./swagger/"),
-  port = process.env.PORT || 8000;
+(swaggerUi = require("swagger-ui-express")),
+  (swaggerDocument = require("./swagger/")),
+  (port = process.env.PORT || 8000);
 
 const app = express();
 
 // routes
 const routes = require("./api/routes/resolverRoutes");
 app.use(cors());
+app.use(cookieParser());
 app.use(compression());
 app.use(express.json());
 app.use((err, req, res, _next) => {
   res.json({
-      error_message: 'Body should be a JSON',
+    error_message: "Body should be a JSON",
   });
 });
 // app.use('/api-docs', swaggerUi.serve, swaggerUi.setup(swaggerDocument));
@@ -27,7 +29,7 @@ app.use(
   })
 );
 app.use(methodOverride());
-app.use('/api-docs', swaggerUi.serve, swaggerUi.setup(swaggerDocument));
+app.use("/api-docs", swaggerUi.serve, swaggerUi.setup(swaggerDocument));
 
 const server = http.createServer(app);
 routes(app);

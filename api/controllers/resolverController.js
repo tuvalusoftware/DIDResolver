@@ -2,7 +2,7 @@
 
 const axios = require("axios").default;
 const { parseCookies, ensureAuthenticated, getAddressFromHexEncoded } = require("../../core/index");
-const DID_CONTROLLER = "http://18.139.84.180:9000";
+const DID_CONTROLLER = "http://localhost:9000";
 const CARDANO_SERVICE = "http://18.139.84.180:10000";
 // const CARDANO_SERVICE = "http://localhost:10000";
 // const AUTHENTICATION_SERVICE = "http://18.139.84.180:12000";
@@ -110,8 +110,8 @@ exports.checkWrappedDocumentExistence = async function (req, res) {
  * @returns {JSON} message
  */
 exports.createWrappedDocument = async function (req, res) {
-  const cookies = parseCookies(req);
-  const access_token = cookies.access_token;
+  // Get access-token from request
+  const access_token = req.cookies['access_token'];
 
   const { wrappedDocument, issuerAddress: encryptedIssuerAddress, did } = req.body;
   if (!wrappedDocument || !encryptedIssuerAddress || !did) {
@@ -126,11 +126,8 @@ exports.createWrappedDocument = async function (req, res) {
     targetHash = wrappedDocument.signature.targetHash,
     issuerAddress = getAddressFromHexEncoded(encryptedIssuerAddress);
 
-  console.log(issuerAddress);
-
   try {
     // 1. Validate permission to create document. 
-    console.log(1);
     // 1.1 Get address of user from the acess token. 
     const address = await axios.get(AUTHENTICATION_SERVICE + "/api/auth/verify",
       {
@@ -191,7 +188,7 @@ exports.createWrappedDocument = async function (req, res) {
     return res.status(200).json(storingWrappedDocumentStatus.data);
   } catch (err) {
     console.log("CATCH ERROR");
-    console.log(err);
+    // console.log(err);
     return err.response
       ? res.status(400).json(err.response.data)
       : res.status(400).json(err);
