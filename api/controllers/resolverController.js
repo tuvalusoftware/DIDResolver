@@ -4,7 +4,7 @@ const axios = require("axios").default;
 const { response } = require("express");
 const { parseCookies, ensureAuthenticated, getAddressFromHexEncoded } = require("../../core/index");
 const DID_CONTROLLER = "http://localhost:9000";
-const CARDANO_SERVICE = "http://18.139.84.180:10000";
+const CARDANO_SERVICE = "http://localhost:10000";
 // const CARDANO_SERVICE = "http://localhost:10000";
 // const AUTHENTICATION_SERVICE = "http://18.139.84.180:12000";
 const AUTHENTICATION_SERVICE = "http://localhost:12000";
@@ -211,19 +211,20 @@ exports.getDocuments = async function (req, res) {
     return res.status(400).send("Missing parameters.");
 
   const didComponents = did.split(":");
-  if (didComponents.length < 4 || didComponents[0] != "did")
+  if (didComponents.length < 6 || didComponents[2] != "did")
     return res.status(400).send("Invalid DID syntax.");
 
   await axios.get(DID_CONTROLLER + "/api/doc", {
     headers: {
-      companyName: didComponents[2],
-      fileName: didComponents[3]
+      companyName: didComponents[4],
+      fileName: didComponents[5]
     },
     params: {
       exclude
     }
   })
     .then((response) => {
+      console.log(response)
       return res.status(200).json(response.data);
     })
     .catch((error) => {
