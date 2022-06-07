@@ -15,5 +15,9 @@ module.exports = function (app) {
 
     app.route("/resolver/document")
         .get(resolver.getDocuments);
+    app.route('/resolver/nfts')
+        .get(resolver.getNfts);
+    app.route('/resolver/verify-hash')
+        .get(resolver.verifyHash)
 }
 

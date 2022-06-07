@@ -4,7 +4,7 @@ const axios = require("axios").default;
 const { response } = require("express");
 const { parseCookies, ensureAuthenticated, getAddressFromHexEncoded } = require("../../core/index");
 const DID_CONTROLLER = "http://localhost:9000";
-const CARDANO_SERVICE = "http://localhost:10000";
+const CARDANO_SERVICE = "http://18.139.84.180:10000";
 // const CARDANO_SERVICE = "http://localhost:10000";
 // const AUTHENTICATION_SERVICE = "http://18.139.84.180:12000";
 const AUTHENTICATION_SERVICE = "http://localhost:12000";
@@ -133,11 +133,10 @@ exports.createWrappedDocument = async function (req, res) {
     const address = await axios.get(AUTHENTICATION_SERVICE + "/api/auth/verify",
       {
         withCredentials: true,
-        // headers: {
-        //   "Cookie": `access_token=${access_token}`
-        // }
+        headers: {
+          "Cookie": `access_token=${access_token}`
+        }
       });
-
     // 1.2 Compare
     if (issuerAddress !== address.data.data.address)
       return res.status(400).send("DUNG LAI");
@@ -153,7 +152,7 @@ exports.createWrappedDocument = async function (req, res) {
     if (existence.data.isExisted) {
       return res.status(400).send("File name exsited");
     }
-
+    console.log(1, access_token)
     // 3. Storing hash on Cardano blockchain
     const mintingNFT = await axios.put(CARDANO_SERVICE + "/api/storeHash/",
       {
@@ -166,11 +165,9 @@ exports.createWrappedDocument = async function (req, res) {
           "Cookie": `access_token=${access_token}`
         }
       });
-
     if (mintingNFT.error_code) {
       return res.status(400).send('Storing has error.');
     }
-
     const mintingNFTStatus = (mintingNFT.data.result) ? mintingNFT.data.result : false;
     console.log(mintingNFT.data);
     if (!mintingNFTStatus) {
@@ -233,3 +230,36 @@ exports.getDocuments = async function (req, res) {
         : res.status(400).json(error)
     });
 };
+
+exports.getNfts = async function (req, res) {
+  const access_token = req.cookies['access_token'];
+  const {policyid} = req.headers;
+  if(!policyid) return res.status(400).send("Missing parameters.");
+  await axios.get(`${CARDANO_SERVICE}/api/getNFTs/${policyid}`,  {
+    withCredentials: true,
+    headers: {
+      "Cookie": `access_token=${access_token}`
+    }
+  })
+  .then((response) => {
+    console.log(response)
+    return res.status(200).json(response.data)
+  })
+  .catch(error => {
+    return error.response
+        ? res.status(400).json(error.response.data)
+        : res.status(400).json(error)
+  }) 
+}
+
+exports.verifyHash = async function(req, res) {
+  const {hash} = req.headers;
+  if(hash) return res.status(400).send("Missing parameters.");
+  await axios.get(`${CARDANO_SERVICE}/api/verifyHash/hash=${hash}`)
+  .then((response) => res.status(200).json(response.data))
+  .catch(error => {
+    return error.response
+        ? res.status(400).json(error.response.data)
+        : res.status(400).json(error)
+  }) 
+}
