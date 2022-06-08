@@ -4,7 +4,7 @@ const axios = require("axios").default;
 const { response } = require("express");
 const { parseCookies, ensureAuthenticated, getAddressFromHexEncoded } = require("../../core/index");
 const DID_CONTROLLER = "http://localhost:9000";
-const CARDANO_SERVICE = "http://18.139.84.180:10000";
+const CARDANO_SERVICE = "http://192.168.1.23:10000";
 // const CARDANO_SERVICE = "http://localhost:10000";
 // const AUTHENTICATION_SERVICE = "http://18.139.84.180:12000";
 const AUTHENTICATION_SERVICE = "http://localhost:12000";
@@ -134,13 +134,12 @@ exports.createWrappedDocument = async function (req, res) {
       {
         withCredentials: true,
         headers: {
-          "Cookie": `access_token=${access_token}`
+          "Cookie": `access_token=${access_token};`
         }
       });
     // 1.2 Compare
     if (issuerAddress !== address.data.data.address)
       return res.status(400).send("DUNG LAI");
-
     // 2. Check if document is already stored on DB (true/false).
     const existence = await axios.get(DID_CONTROLLER + "/api/doc/exists/",
       {
@@ -157,7 +156,7 @@ exports.createWrappedDocument = async function (req, res) {
     const mintingNFT = await axios.put(CARDANO_SERVICE + "/api/storeHash/",
       {
         address: issuerAddress,
-        hash: targetHash,
+        hashOfDocument: targetHash,
       },
       {
         withCredentials: true,
@@ -168,25 +167,29 @@ exports.createWrappedDocument = async function (req, res) {
     if (mintingNFT.error_code) {
       return res.status(400).send('Storing has error.');
     }
-    const mintingNFTStatus = (mintingNFT.data.result) ? mintingNFT.data.result : false;
+    console.log(2)
+    // console.log(mintingNFT)
+    const mintingNFTStatus = (mintingNFT.data.data.result) ? mintingNFT.data.data.result : false;
+    
     console.log(mintingNFT.data);
     if (!mintingNFTStatus) {
+      console.log('DUDU')
       return res.status(400).send("Cannot store hash.");
     }
-
+    console.log(3)
     // 4. Storing wrapped document on DB
-    const storingWrappedDocumentStatus = await axios.post((DID_CONTROLLER = "/api/docs"),
+    const storingWrappedDocumentStatus = await axios.post((DID_CONTROLLER + "/api/docs"),
       {
         fileName,
         wrappedDocument,
         companyName,
       }
     );
-    console.log(storingWrappedDocumentStatus.data);
+    console.log(4);
     return res.status(200).json(storingWrappedDocumentStatus.data);
   } catch (err) {
     console.log("CATCH ERROR");
-    // console.log(err);
+    console.log(err);
     return err.response
       ? res.status(400).json(err.response.data)
       : res.status(400).json(err);
