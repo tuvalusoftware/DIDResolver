@@ -167,26 +167,20 @@ exports.createWrappedDocument = async function (req, res) {
     if (mintingNFT.error_code) {
       return res.status(400).send('Storing has error.');
     }
-    console.log(2)
-    // console.log(mintingNFT)
+    // console.log(mintingNFT) policyId
     const mintingNFTStatus = (mintingNFT.data.data.result) ? mintingNFT.data.data.result : false;
-    
-    console.log(mintingNFT.data);
-    if (!mintingNFTStatus) {
-      console.log('DUDU')
-      return res.status(400).send("Cannot store hash.");
-    }
-    console.log(3)
+    const policyId = mintingNFT.data.data.policyId;
+
+    if (!mintingNFTStatus) return res.status(400).send("Cannot store hash.");
     // 4. Storing wrapped document on DB
-    const storingWrappedDocumentStatus = await axios.post((DID_CONTROLLER + "/api/docs"),
+    const storingWrappedDocumentStatus = await axios.post((DID_CONTROLLER + "/api/doc"),
       {
         fileName,
         wrappedDocument,
         companyName,
       }
     );
-    console.log(4);
-    return res.status(200).json(storingWrappedDocumentStatus.data);
+    return res.status(200).json(policyId);
   } catch (err) {
     console.log("CATCH ERROR");
     console.log(err);
