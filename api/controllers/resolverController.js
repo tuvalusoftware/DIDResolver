@@ -1,14 +1,13 @@
 // const { response } = require("express");
 
 const axios = require("axios").default;
+const { response } = require("express");
 const { parseCookies, ensureAuthenticated, getAddressFromHexEncoded } = require("../../core/index");
-const DID_CONTROLLER = "http://18.139.84.180:9000";
-const CARDANO_SERVICE = "http://18.139.84.180:10000";
+const DID_CONTROLLER = "http://localhost:9000";
+const CARDANO_SERVICE = "http://192.168.1.23:10000";
 // const CARDANO_SERVICE = "http://localhost:10000";
 // const AUTHENTICATION_SERVICE = "http://18.139.84.180:12000";
 const AUTHENTICATION_SERVICE = "http://localhost:12000";
-
-// --------------------- DID DOCUMENT ---------------------
 
 /**
  * POST to create DID Doc for a DID
@@ -78,10 +77,12 @@ exports.getDIDDocument = async function (req, res) {
     );
 };
 
-
-// --------------------- WRAPPED DOCUMENT ---------------------
-
-
+/**
+ * GET request to check if the wrapped document is exsited
+ * @param {String} companyName
+ * @param {String} fileName 
+ * @returns {boolean} status isExisted 
+ */
 exports.checkWrappedDocumentExistence = async function (req, res) {
   const { companyname: companyName, filename: fileName } = req.headers;
   console.log()
@@ -107,11 +108,11 @@ exports.checkWrappedDocumentExistence = async function (req, res) {
  * POST to creat wrapped document
  * @param {Object} wrappedDocument JSON object wrapped document, including did, hash and address.
  * @param {}
- * @returns {JSON} message
+ * @returns {Object} message
  */
 exports.createWrappedDocument = async function (req, res) {
-  const cookies = parseCookies(req);
-  const access_token = cookies.access_token;
+  // Get access-token from request
+  const access_token = req.cookies['access_token'];
 
   const { wrappedDocument, issuerAddress: encryptedIssuerAddress, did } = req.body;
   if (!wrappedDocument || !encryptedIssuerAddress || !did) {
@@ -126,24 +127,19 @@ exports.createWrappedDocument = async function (req, res) {
     targetHash = wrappedDocument.signature.targetHash,
     issuerAddress = getAddressFromHexEncoded(encryptedIssuerAddress);
 
-  console.log(issuerAddress);
-
   try {
     // 1. Validate permission to create document. 
-    console.log(1);
     // 1.1 Get address of user from the acess token. 
     const address = await axios.get(AUTHENTICATION_SERVICE + "/api/auth/verify",
       {
         withCredentials: true,
         headers: {
-          "Cookie": `access_token=${access_token}`
+          "Cookie": `access_token=${access_token};`
         }
       });
-
     // 1.2 Compare
     if (issuerAddress !== address.data.data.address)
       return res.status(400).send("DUNG LAI");
-
     // 2. Check if document is already stored on DB (true/false).
     const existence = await axios.get(DID_CONTROLLER + "/api/doc/exists/",
       {
@@ -155,12 +151,13 @@ exports.createWrappedDocument = async function (req, res) {
     if (existence.data.isExisted) {
       return res.status(400).send("File name exsited");
     }
-
+    console.log(1, access_token)
     // 3. Storing hash on Cardano blockchain
     const mintingNFT = await axios.put(CARDANO_SERVICE + "/api/storeHash/",
       {
         address: issuerAddress,
-        hash: targetHash,
+        hashOfDocument: targetHash,
+        // previousHashOfDocument: ""
       },
       {
         withCredentials: true,
@@ -168,27 +165,24 @@ exports.createWrappedDocument = async function (req, res) {
           "Cookie": `access_token=${access_token}`
         }
       });
-
     if (mintingNFT.error_code) {
       return res.status(400).send('Storing has error.');
     }
+    // console.log(mintingNFT) policyId
+    if (!mintingNFTStatus) return res.status(400).send("Cannot store hash.");
+    const mintingNFTStatus = (mintingNFT.data.data.result) ? mintingNFT.data.data.result : false;
+    const policyId = mintingNFTStatus ? mintingNFT.data.data.policyId : "No policyId";
 
-    const mintingNFTStatus = (mintingNFT.data.result) ? mintingNFT.data.result : false;
-    console.log(mintingNFT.data);
-    if (!mintingNFTStatus) {
-      return res.status(400).send("Cannot store hash.");
-    }
 
     // 4. Storing wrapped document on DB
-    const storingWrappedDocumentStatus = await axios.post((DID_CONTROLLER = "/api/docs"),
+    const storingWrappedDocumentStatus = await axios.post((DID_CONTROLLER + "/api/doc"),
       {
         fileName,
         wrappedDocument,
         companyName,
       }
     );
-    console.log(storingWrappedDocumentStatus.data);
-    return res.status(200).json(storingWrappedDocumentStatus.data);
+    return res.status(200).json(policyId);
   } catch (err) {
     console.log("CATCH ERROR");
     console.log(err);
@@ -197,3 +191,94 @@ exports.createWrappedDocument = async function (req, res) {
       : res.status(400).json(err);
   }
 };
+
+/** GET to receive didDocument and wrappedDocument of a document
+ * @param {String} did
+ * @param {boolean} didDocument 
+ * @param {boolean} wrappedDocument
+ * @returns {Object} 
+ */
+exports.getDocuments = async function (req, res) {
+  const { did } = req.headers;
+  console.log(did);
+  const { exclude } = req.query;
+  console.log(exclude);
+  if (!did)
+    return res.status(400).send("Missing parameters.");
+
+  const didComponents = did.split(":");
+  if (didComponents.length < 6 || didComponents[2] != "did")
+    return res.status(400).send("Invalid DID syntax.");
+
+  await axios.get(DID_CONTROLLER + "/api/doc", {
+    headers: {
+      companyName: didComponents[4],
+      fileName: didComponents[5]
+    },
+    params: {
+      exclude
+    }
+  })
+    .then((response) => {
+      console.log(response)
+      return res.status(200).json(response.data);
+    })
+    .catch((error) => {
+      error.response
+        ? res.status(400).json(error.response.data)
+        : res.status(400).json(error)
+    });
+};
+
+exports.getNfts = async function (req, res) {
+  const access_token = req.cookies['access_token'];
+  const { policyid } = req.headers;
+  if (!policyid) return res.status(400).send("Missing parameters.");
+  await axios.get(`${CARDANO_SERVICE}/api/getNFTs/${policyid}`, {
+    withCredentials: true,
+    headers: {
+      "Cookie": `access_token=${access_token}`
+    }
+  })
+    .then((response) => {
+      console.log(response)
+      return res.status(200).json(response.data)
+    })
+    .catch(error => {
+      return error.response
+        ? res.status(400).json(error.response.data)
+        : res.status(400).json(error)
+    })
+}
+
+exports.verifyHash = async function (req, res) {
+  const { hashOfDocument, policyId } = req.headers;
+  if (!hashOfDocument || !policyId)
+    return res.status(400).send("Missing parameters.");
+
+  await axios.get(`${CARDANO_SERVICE}/api/verifyHash/?hashOfDocument=${hashOfDocument}&policyId=${policyId}`)
+    .then((response) => res.status(200).json(response.data))
+    .catch(error => {
+      return error.response
+        ? res.status(400).json(error.response.data)
+        : res.status(400).json(error)
+    })
+}
+
+exports.verifySignature = async function (req, res) {
+  const { address, payload, signature } = req.headers;
+  if (!address || !payload || !signature)
+    return res.status(400).send("Missing parameters.");
+
+  await axios.post(CARDANO_SERVICE + "/api/verifySignature", {
+    address,
+    payload,
+    signature
+  })
+    .then((response) => res.status(200).json(response.data))
+    .catch((error) => {
+      return error.response
+        ? res.status(400).json(error.response.data)
+        : res.status(400).json(error)
+    })
+}

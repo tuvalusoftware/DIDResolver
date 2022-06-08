@@ -16,6 +16,7 @@
     "@emurgo/cardano-serialization-lib-nodejs": "^10.1.0",
     "axios": "^0.27.2",
     "compression": "^1.7.4",
+    "cookie-parser": "^1.4.6",
     "cors": "^2.8.5",
     "express": "^4.18.1",
     "keccak256": "^1.0.6",
