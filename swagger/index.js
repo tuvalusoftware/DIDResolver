@@ -3,6 +3,7 @@ const { schemas, examples } = require("./components");
 const { getDidDocument, createDidDocument } = require("./didDocument");
 const { checkWrappedDocumentExistence } = require("./wrappedDocument");
 const { getDocument } = require("./document");
+const { verifyHash, verifySignature } = require("./verify");
 
 module.exports = {
     openapi: "3.0.0",
@@ -42,14 +43,14 @@ module.exports = {
         "/document/": {
             ...getDocument
         },
-        "nfts/": {
+        "/nfts/": {
 
         },
-        "verify/hash/": {
-
+        "/verify/hash/": {
+            ...verifyHash
         },
-        "verify/signature/": {
-
+        "/verify/signature/": {
+            ...verifySignature
         }
     }
     // ...{ paths: paths },
