@@ -146,7 +146,7 @@ exports.createWrappedDocument = async function (req, res) {
       });
     // 1.2 Compare
     if (issuerAddress !== address.data.data.address)
-      return res.status(400).send("DUNG LAI");
+      return res.status(400).send("Permission denied.");
     // 2. Check if document is already stored on DB (true/false).
     const existence = await axios.get(DID_CONTROLLER + "/api/doc/exists/",
       {
@@ -164,7 +164,7 @@ exports.createWrappedDocument = async function (req, res) {
       {
         address: issuerAddress,
         hashOfDocument: targetHash,
-        // previousHashOfDocument: ""
+        previousHashOfDocument: "EMPTY"
       },
       {
         withCredentials: true,
