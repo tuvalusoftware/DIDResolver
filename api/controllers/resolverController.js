@@ -164,7 +164,8 @@ exports.createWrappedDocument = async function (req, res) {
       {
         address: issuerAddress,
         hashOfDocument: targetHash,
-        previousHashOfDocument: "EMPTY"
+        previousHashOfDocument: "EMPTY",
+        originPolicyId: "EMPTY"
       },
       {
         withCredentials: true,
