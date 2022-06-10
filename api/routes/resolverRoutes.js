@@ -1,5 +1,3 @@
-const res = require("express/lib/response");
-
 module.exports = function (app) {
     var resolver = require("../controllers/resolverController");
 
@@ -24,5 +22,8 @@ module.exports = function (app) {
 
     app.route("/resolver/verify/signature")
         .get(resolver.verifySignature);
+
+    app.route("/resolver/wrapped-document/valid")
+        .get(resolver.checkWrappedDocumentValidity)
 }
 
