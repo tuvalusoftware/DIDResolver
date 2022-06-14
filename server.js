@@ -4,10 +4,11 @@ const http = require("http"),
   bodyParser = require("body-parser"),
   compression = require("compression"),
   cookieParser = require('cookie-parser'),
-  methodOverride = require("method-override");
-(swaggerUi = require("swagger-ui-express")),
-  (swaggerDocument = require("./swagger/")),
-  (port = process.env.PORT || 8000);
+  methodOverride = require("method-override"),
+  port = process.env.PORT || 8000;
+
+const swaggerUi = require("swagger-ui-express"),
+  swaggerDocument = require("./swagger/");
 
 const app = express();
 
@@ -22,7 +23,7 @@ app.use((err, req, res, _next) => {
     error_message: "Body should be a JSON",
   });
 });
-// app.use('/api-docs', swaggerUi.serve, swaggerUi.setup(swaggerDocument));
+
 app.use(
   express.urlencoded({
     extended: true,
@@ -40,6 +41,7 @@ app.use((err, res) => {
     error_data: err.error_data,
   });
 });
+
 server.listen(port, () => {
   console.log(`Listening on http://localhost:${port}`);
 });
