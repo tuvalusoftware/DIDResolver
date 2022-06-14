@@ -290,3 +290,19 @@ exports.verifySignature = async function (req, res) {
         : res.status(400).json(error)
     })
 }
+
+const Ajv = require("ajv");
+const ajv = new Ajv();
+
+exports.validateWrappedDocument = function (req, res) {
+  const { wrappedDocument } = req.body;
+  if (!wrappedDocument)
+    return res.status(400).send("Missing parameters.");
+
+  const shema = {
+    type: "object",
+    properties: {
+
+    }
+  }
+}
