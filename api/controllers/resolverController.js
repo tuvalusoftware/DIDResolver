@@ -1,7 +1,5 @@
-// const { response } = require("express");
-
+const Ajv = require("ajv");
 const axios = require("axios").default;
-const { response } = require("express");
 const { parseCookies, ensureAuthenticated, getAddressFromHexEncoded } = require("../../core/index");
 const DID_CONTROLLER = "http://localhost:9000";
 const CARDANO_SERVICE = "http://192.168.1.23:10000";
@@ -289,4 +287,18 @@ exports.verifySignature = async function (req, res) {
         ? res.status(400).json(error.response.data)
         : res.status(400).json(error)
     })
+}
+
+exports.validateWrappedDocument = function (req, res) {
+  const { wrappedDocument } = req.headers;
+  if (!wrappedDocument)
+    return res.status(400).send("Missing parameters.");
+
+  const schema = {}
+
+  const ajv = new Ajv();
+  const validate = ajv.compile(schema)
+  const valid = validate(data)
+  if (!valid) console.log(validate.errors)
+
 }
