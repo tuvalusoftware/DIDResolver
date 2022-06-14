@@ -6,7 +6,8 @@ module.exports = function (app) {
         .post(resolver.createDIDDocument);
 
     app.route("/resolver/wrapped-document")
-        .post(resolver.createWrappedDocument);
+        .post(resolver.createWrappedDocument)
+        .get(resolver.validateWrappedDocument);
 
     app.route("/resolver/wrapped-document/exists")
         .get(resolver.checkWrappedDocumentExistence);

@@ -1,7 +1,7 @@
-// const { response } = require("express");
-
+const Ajv = require("ajv");
+const { validateSchemaDeps } = require("ajv/dist/vocabularies/applicator/dependencies");
+const { restart } = require("nodemon");
 const axios = require("axios").default;
-const { response } = require("express");
 const { parseCookies, ensureAuthenticated, getAddressFromHexEncoded } = require("../../core/index");
 const DID_CONTROLLER = "http://localhost:9000";
 const CARDANO_SERVICE = "http://192.168.1.23:10000";
@@ -177,7 +177,7 @@ exports.createWrappedDocument = async function (req, res) {
       return res.status(400).send('Storing has error.');
     }
     // console.log(mintingNFT) policyId
-    if (!mintingNFTStatus) return res.status(400).send("Cannot store hash.");
+    if (!mintingNFT) return res.status(400).send("Cannot store hash.");
     const mintingNFTStatus = (mintingNFT.data.data.result) ? mintingNFT.data.data.result : false;
     const policyId = mintingNFTStatus ? mintingNFT.data.data.policyId : "No policyId";
 
@@ -291,18 +291,63 @@ exports.verifySignature = async function (req, res) {
     })
 }
 
-const Ajv = require("ajv");
-const ajv = new Ajv();
-
-exports.validateWrappedDocument = function (req, res) {
+exports.validateWrappedDocument = async function (req, res) {
   const { wrappedDocument } = req.body;
   if (!wrappedDocument)
     return res.status(400).send("Missing parameters.");
 
-  const shema = {
+  const schema = {
     type: "object",
+    required: ["data", "signature"],
     properties: {
-
+      vesion: { type: "string" },
+      data: {
+        type: "object",
+        properties: {
+          name: { type: "string" },
+          issuers: {
+            type: "array",
+            items: {
+              type: "object",
+              properties: {
+                identityProofType: {
+                  type: "object",
+                  properties: {
+                    type: { type: "string" },
+                    location: { type: "string" }
+                  }
+                },
+                did: { type: "string" },
+                tokenRegistry: { type: "string" },
+                address: { type: "string" }
+              }
+            }
+          }
+        }
+      },
+      signature: {
+        type: "object",
+        properties: {
+          type: { type: "string" },
+          targetHash: { type: "string" },
+          proof: { type: "array" },
+          merkleRoot: { type: "string" }
+        }
+      }
     }
   }
+
+  // const schema = {
+  //   type: "object",
+  //   properties: {
+  //     foo: { type: "string" },
+  //     noo: { type: "number" }
+  //   }
+  // }
+
+  const ajv = new Ajv();
+  const validate = ajv.compile(schema); console.log(2);
+  const valid = validate(wrappedDocument); console.log(valid);
+  if (!valid) console.log(validate.errors);
+  return res.status(200).json(wrappedDocument);
 }
