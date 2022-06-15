@@ -105,13 +105,6 @@ exports.checkWrappedDocumentExistence = async function (req, res) {
     );
 };
 
-exports.checkWrappedDocumentValidity = async function (req, res) {
-  const { wrappedDocument } = req.headers;
-  if (!wrappedDocument) return res.status(400).send("Missing parameters.");
-
-  return res.status(200).send("Wrapped document is valid.");
-}
-
 /**
  * POST to creat wrapped document
  * @param {Object} wrappedDocument JSON object wrapped document, including did, hash and address.

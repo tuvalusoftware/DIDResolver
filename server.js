@@ -1,9 +1,8 @@
 const http = require("http"),
   express = require("express"),
   cors = require("cors"),
-  bodyParser = require("body-parser"),
   compression = require("compression"),
-  cookieParser = require('cookie-parser'),
+  cookieParser = require("cookie-parser"),
   methodOverride = require("method-override"),
   port = process.env.PORT || 8000;
 
@@ -13,7 +12,9 @@ const swaggerUi = require("swagger-ui-express"),
 const app = express();
 
 // routes
-const routes = require("./api/routes/resolverRoutes");
+// const routes = require("./api/routes/resolverRoutes");
+const routes = require("./api/routes/")
+
 app.use(cors());
 app.use(cookieParser());
 app.use(compression());
@@ -33,7 +34,7 @@ app.use(methodOverride());
 app.use("/api-docs", swaggerUi.serve, swaggerUi.setup(swaggerDocument));
 
 const server = http.createServer(app);
-routes(app);
+// routes(app);
 app.use((err, res) => {
   res.json({
     error_code: err.error_code || err.message,

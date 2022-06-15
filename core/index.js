@@ -1,6 +1,5 @@
 const cardanoSerialization = require("@emurgo/cardano-serialization-lib-nodejs");
 
-
 module.exports.ensureAuthenticated = (req, res, next) => {
   if (!req.cookies["access_token"]) return res.sendStatus(401);
   const token = req.cookies["access_token"];
