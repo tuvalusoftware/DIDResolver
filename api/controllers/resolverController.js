@@ -184,8 +184,7 @@ exports.createWrappedDocument = async function (req, res) {
     const assetId = mintingNFTStatus ? mintingNFT.data.data.token.assetId : "No assetId";
 
     // 4. Add policy Id and assert Id to wrapped document
-    wrappedDocument.policyId = policyId;
-    wrappedDocument.assertId = assetId;
+    wrappedDocument = { ...wrappedDocument, policyId: policyId, assetId: assetId }
 
     // 5. Storing wrapped document on DB
     const storingWrappedDocumentStatus = await axios.post((DID_CONTROLLER + "/api/doc"),
