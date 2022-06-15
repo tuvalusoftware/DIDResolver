@@ -24,5 +24,9 @@ module.exports.ERRORS = {
   NOT_FOUND: {
     errorCode: 404,
     errorMessage: "Not found. Resource is not found."
+  },
+  ALREADY_EXSISTED: {
+    errorCode: 409,
+    errorMessage: "Conflict. Resource already exsited."
   }
 }
