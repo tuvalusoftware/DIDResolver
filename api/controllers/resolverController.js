@@ -205,6 +205,7 @@ exports.createWrappedDocument = async function (req, res) {
       })
   }
   catch (err) {
+    console.log("CATCH ERROR");
     console.log(err);
     return err.response
       ? res.status(400).json(err.response.data)
@@ -272,11 +273,17 @@ exports.getNfts = async function (req, res) {
 }
 
 exports.verifyHash = async function (req, res) {
-  const { hashOfDocument, policyId } = req.headers;
-  if (!hashOfDocument || !policyId)
+  const access_token = req.cookies['access_token'];
+  const { hashofdocument, policyid } = req.headers;
+  console.log(policyid)
+  if (!hashofdocument || !policyid)
     return res.status(400).send("Missing parameters.");
-
-  await axios.get(`${CARDANO_SERVICE}/api/verifyHash/?hashOfDocument=${hashOfDocument}&policyId=${policyId}`)
+  await axios.get(`${CARDANO_SERVICE}/api/verifyHash?policyID=${policyid}&hashOfDocument=${hashofdocument}`, {
+    withCredentials: true,
+    headers: {
+      "Cookie": `access_token=${access_token}`
+    }
+  })
     .then((response) => res.status(200).json(response.data))
     .catch(error => {
       return error.response
@@ -286,15 +293,22 @@ exports.verifyHash = async function (req, res) {
 }
 
 exports.verifySignature = async function (req, res) {
+  const access_token = req.cookies['access_token'];
   const { address, payload, signature } = req.headers;
   if (!address || !payload || !signature)
     return res.status(400).send("Missing parameters.");
-
-  await axios.post(CARDANO_SERVICE + "/api/verifySignature", {
-    address,
-    payload,
-    signature
-  })
+  await axios.post(CARDANO_SERVICE + "/api/verifySignature",
+    {
+      address: address,
+      payload: payload,
+      signature: signature
+    },
+    {
+      withCredentials: true,
+      headers: {
+        "Cookie": `access_token=${access_token}`
+      }
+    })
     .then((response) => res.status(200).json(response.data))
     .catch((error) => {
       return error.response
