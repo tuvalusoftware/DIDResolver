@@ -1,13 +1,12 @@
 const Ajv = require("ajv");
 const axios = require("axios").default;
-const { parseCookies, ensureAuthenticated, getAddressFromHexEncoded } = require("../../core/index");
+const { getAddressFromHexEncoded } = require("../../core/index");
 const DID_CONTROLLER = "http://localhost:9000";
-// const CARDANO_SERVICE = "http://192.168.1.23:10000";
-const CARDANO_SERVICE = "http://localhost:10000";
-// const AUTHENTICATION_SERVICE = "http://18.139.84.180:12000";
-const AUTHENTICATION_SERVICE = "http://localhost:12000";
+const CARDANO_SERVICE = "http://192.168.1.23:10000";
+// const CARDANO_SERVICE = "http://localhost:10000";
+const AUTHENTICATION_SERVICE = "http://18.139.84.180:12000";
+// const AUTHENTICATION_SERVICE = "http://localhost:12000";
 
-const axios = require("axios").default;
 const { getAddressFromHexEncoded, errorResponse } = require("../../core/index");
 
 /**
@@ -176,15 +175,19 @@ exports.createWrappedDocument = async function (req, res) {
         }
       });
     if (mintingNFT.error_code) {
-      return res.status(400).send('Storing has error.');
+      return res.status(400).send("Storing has error.");
     }
-    // console.log(mintingNFT) policyId
+
     if (!mintingNFT) return res.status(400).send("Cannot store hash.");
     const mintingNFTStatus = (mintingNFT.data.data.result) ? mintingNFT.data.data.result : false;
     const policyId = mintingNFTStatus ? mintingNFT.data.data.token.policyId : "No policyId";
+    const assetId = mintingNFTStatus ? mintingNFT.data.data.token.assetId : "No assetId";
 
+    // 4. Add policy Id and assert Id to wrapped document
+    wrappedDocument.policyId = policyId;
+    wrappedDocument.assertId = assetId;
 
-    // 4. Storing wrapped document on DB
+    // 5. Storing wrapped document on DB
     const storingWrappedDocumentStatus = await axios.post((DID_CONTROLLER + "/api/doc"),
       {
         fileName,
@@ -192,9 +195,16 @@ exports.createWrappedDocument = async function (req, res) {
         companyName,
       }
     );
-    return res.status(200).json(policyId);
-  } catch (err) {
-    console.log("CATCH ERROR");
+
+    // 6. Return policyId an assetId if the process is success.
+    storingWrappedDocumentStatus.data.errorCode
+      ? res.status(400).json(storingWrappedDocumentStatus.data)
+      : res.status(200).json({
+        policyId: policyId,
+        assetId: assetId
+      })
+  }
+  catch (err) {
     console.log(err);
     return err.response
       ? res.status(400).json(err.response.data)
