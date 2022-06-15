@@ -1,3 +1,6 @@
+const Ajv = require("ajv");
+const axios = require("axios").default;
+const { parseCookies, ensureAuthenticated, getAddressFromHexEncoded } = require("../../core/index");
 const DID_CONTROLLER = "http://localhost:9000";
 // const CARDANO_SERVICE = "http://192.168.1.23:10000";
 const CARDANO_SERVICE = "http://localhost:10000";
@@ -103,6 +106,13 @@ exports.checkWrappedDocumentExistence = async function (req, res) {
     );
 };
 
+exports.checkWrappedDocumentValidity = async function (req, res) {
+  const { wrappedDocument } = req.headers;
+  if (!wrappedDocument) return res.status(400).send("Missing parameters.");
+
+  return res.status(200).send("Wrapped document is valid.");
+}
+
 /**
  * POST to creat wrapped document
  * @param {Object} wrappedDocument JSON object wrapped document, including did, hash and address.
@@ -138,7 +148,7 @@ exports.createWrappedDocument = async function (req, res) {
       });
     // 1.2 Compare
     if (issuerAddress !== address.data.data.address)
-      return res.status(400).send("DUNG LAI");
+      return res.status(400).send("Permission denied.");
     // 2. Check if document is already stored on DB (true/false).
     const existence = await axios.get(DID_CONTROLLER + "/api/doc/exists/",
       {
@@ -156,7 +166,8 @@ exports.createWrappedDocument = async function (req, res) {
       {
         address: issuerAddress,
         hashOfDocument: targetHash,
-        // previousHashOfDocument: ""
+        previousHashOfDocument: "EMPTY",
+        originPolicyId: "EMPTY"
       },
       {
         withCredentials: true,
@@ -168,7 +179,7 @@ exports.createWrappedDocument = async function (req, res) {
       return res.status(400).send('Storing has error.');
     }
     // console.log(mintingNFT) policyId
-    if (!mintingNFTStatus) return res.status(400).send("Cannot store hash.");
+    if (!mintingNFT) return res.status(400).send("Cannot store hash.");
     const mintingNFTStatus = (mintingNFT.data.data.result) ? mintingNFT.data.data.result : false;
     const policyId = mintingNFTStatus ? mintingNFT.data.data.token.policyId : "No policyId";
 
@@ -280,4 +291,71 @@ exports.verifySignature = async function (req, res) {
         ? res.status(400).json(error.response.data)
         : res.status(400).json(error)
     })
+}
+
+exports.validateWrappedDocument = async function (req, res) {
+  const { wrappedDocument } = req.body;
+  if (!wrappedDocument)
+    return res.status(400).send("Missing parameters.");
+
+  const schema = {
+    type: "object",
+    required: ["data", "signature", "assertId", "policyId"],
+    properties: {
+      vesion: { type: "string" },
+      data: {
+        type: "object",
+        properties: {
+          file: { type: "string" },
+          name: { type: "string" },
+          title: { type: "string" },
+          companyName: { type: "string" },
+          did: { type: "string" },
+          issuers: {
+            type: "array",
+            items: {
+              type: "object",
+              properties: {
+                identityProofType: {
+                  type: "object",
+                  properties: {
+                    type: { type: "string" },
+                    location: { type: "string" }
+                  }
+                },
+                did: { type: "string" },
+                tokenRegistry: { type: "string" },
+                address: { type: "string" }
+              }
+            }
+          }
+        }
+      },
+      signature: {
+        type: "object",
+        properties: {
+          type: { type: "string" },
+          targetHash: { type: "string" },
+          proof: { type: "array" },
+          merkleRoot: { type: "string" }
+        }
+      },
+      assertId: { type: "string" },
+      policyId: { type: "string" },
+    }
+  }
+
+  // const schema = {
+  //   type: "object",
+  //   properties: {
+  //     foo: { type: "string" },
+  //     noo: { type: "number" }
+  //   }
+  // }
+
+  const ajv = new Ajv();
+  const validate = ajv.compile(schema); console.log(2);
+  const valid = validate(wrappedDocument); console.log(valid);
+  if (!valid) console.log(validate.errors);
+  return res.status(200).json(wrappedDocument);
 }

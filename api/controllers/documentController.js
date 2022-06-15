@@ -40,31 +40,34 @@ exports.getDocuments = async function (req, res) {
     });
 };
 
-// exports.createDIDDocument = async function (req, res) {
-//     const { did, didDocument } = req.body;
-//     if (!did || !didDocument)
-//         return res.status(200).json(ERRORS.DID_CONTROLLER)
+exports.createDIDDocument = async function (req, res) {
+  const { did, didDocument } = req.body;
+  if (!did || !didDocument)
+    return res.status(400).json(ERRORS.MISSING_PARAMETERS)
 
-//     const didComponents = did.split(":");
-//     if (didComponents.length < 4 || didComponents[0] != "did")
-//         return res.status(400).json("Invalid DID syntax.");
+  const didComponents = did.split(":");
+  if (didComponents.length < 4 || didComponents[0] != "did")
+    return res.status(400).json(ERRORS.INVALID_INPUT);
 
-//     const companyName = didComponents[2];
-//     const publicKey = didComponents[3];
-//     await axios
-//         .post(DID_CONTROLLER + "/api/did/",
-//             {
-//                 companyName: companyName,
-//                 publicKey: publicKey,
-//                 content: didDocument,
-//             })
-//         .then((response) => {
-//             response.data.errorCode
-//                 ? res.status(400).json(response.data)
-//                 : res.status(201).send("DID Document created.")
-//         })
-//         .catch((error) => {
-//             console.log(error);
-//             res.status(400).json(error.response?.data)
-//         });
-// };
+  const companyName = didComponents[2];
+  const publicKey = didComponents[3];
+  await axios
+    .post(DID_CONTROLLER + "/api/did/",
+      {
+        companyName: companyName,
+        publicKey: publicKey,
+        content: didDocument,
+      })
+    .then((response) => {
+      console.log(response.data);
+      response.data.errorCode
+        ? res.status(400).json(response.data)
+        : res.status(201).send("DID Document created.")
+    })
+    .catch((error) => {
+      console.log(error);
+      error.response
+        ? res.status(400).json(error.response.data)
+        : res.status(400).json(error)
+    });
+};
