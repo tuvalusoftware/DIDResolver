@@ -6,15 +6,7 @@ const http = require("http"),
   methodOverride = require("method-override"),
   port = process.env.PORT || 8000;
 
-const swaggerUi = require("swagger-ui-express"),
-  swaggerDocument = require("./swagger/");
-
 const app = express();
-
-// routes
-// const routes = require("./api/routes/resolverRoutes");
-const routes = require("./api/routes/");
-console.log(routes);
 
 app.use(cors());
 app.use(cookieParser());
@@ -32,9 +24,15 @@ app.use(
   })
 );
 app.use(methodOverride());
+
+// SET UP SWAGGER API DOCUMENT 
+const swaggerUi = require("swagger-ui-express"),
+  swaggerDocument = require("./swagger/");
 app.use("/api-docs", swaggerUi.serve, swaggerUi.setup(swaggerDocument));
 
+// ROUTE
 const server = http.createServer(app);
+const routes = require("./api/routes");
 routes(app);
 app.use((err, res) => {
   res.json({

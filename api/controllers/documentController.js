@@ -261,19 +261,14 @@ module.exports = {
       // 6. Return policyId an assetId if the process is success.
       storingWrappedDocumentStatus.data.errorCode
         ? res.status(400).json(storingWrappedDocumentStatus.data)
-        : res.status(200).json({
-          policyId: policyId,
-          assetId: assetId
-        })
+        : res.status(200).json(wrappedDocument);
     }
     catch (err) {
       console.log("CATCH ERROR");
       console.log(err);
-      return err.response
+      err.response
         ? res.status(400).json(err.response.data)
         : res.status(400).json(err);
     }
   },
-
-
 }
