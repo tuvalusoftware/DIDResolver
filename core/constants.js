@@ -32,5 +32,9 @@ module.exports.ERRORS = {
   CANNOT_MINT_NFT: {
     errorCode: 500,
     errorMessage: "Error. Cannot mint NFT."
+  },
+  CANNOT_FETCH_NFT: {
+    errorCode: 400,
+    errorMessage: "Bad request. Cannot fetch NFT metadata. Check your assetId or policyId."
   }
 }
