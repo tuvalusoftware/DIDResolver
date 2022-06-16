@@ -4,6 +4,8 @@ const { ERRORS, SERVERS } = require("../../core/constants");
 
 module.exports = {
   getDocuments: async function (req, res) {
+    console.log("RUN GET DOCUMENTS");
+
     // Receive input data
     const { did } = req.headers;
     const { exclude } = req.query;

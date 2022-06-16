@@ -1,7 +1,10 @@
+const HOST = "http://18.139.84.180";
+const LOCAL_HOST = "http://localhost"
+
 module.exports.SERVERS = {
-  DID_CONTROLLER: "http://localhost:9000",
-  CARDANO_SERVICE: "http://localhost:1000",
-  AUTHENTICATION_SERVICE: "http://localhost:12000",
+  DID_CONTROLLER: `${HOST}:9000`,
+  CARDANO_SERVICE: `${HOST}:10000`,
+  AUTHENTICATION_SERVICE: `${HOST}:12000`,
 }
 
 module.exports.ERRORS = {

@@ -13,7 +13,8 @@ const app = express();
 
 // routes
 // const routes = require("./api/routes/resolverRoutes");
-const routes = require("./api/routes/")
+const routes = require("./api/routes/");
+console.log(routes);
 
 app.use(cors());
 app.use(cookieParser());
@@ -34,7 +35,7 @@ app.use(methodOverride());
 app.use("/api-docs", swaggerUi.serve, swaggerUi.setup(swaggerDocument));
 
 const server = http.createServer(app);
-// routes(app);
+routes(app);
 app.use((err, res) => {
   res.json({
     error_code: err.error_code || err.message,
