@@ -28,5 +28,9 @@ module.exports.ERRORS = {
   ALREADY_EXSISTED: {
     errorCode: 409,
     errorMessage: "Conflict. Resource already exsited."
+  },
+  CANNOT_MINT_NFT: {
+    errorCode: 500,
+    errorMessage: "Error. Cannot mint NFT."
   }
 }
