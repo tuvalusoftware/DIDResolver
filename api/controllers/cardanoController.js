@@ -45,6 +45,35 @@ module.exports = {
       })
   },
 
+  verifyHash: async function (req, res) {
+    // Receive input data
+    const access_token = req.cookies['access_token'];
+    const { hashofdocument, policyid } = req.headers;
+    console.log(policyid)
+
+    // Handle input errors
+    if (!hashofdocument || !policyid)
+      return res.status(400).json(ERRORS.MISSING_PARAMETERS);
+
+    // Call Cardano Service
+    // succes:
+    //   { data: { result: true/false } }
+    // error:
+    //   { error_code: number, error_message: string }
+    await axios.get(`${SERVERS.CARDANO_SERVICE}/api/verifyHash?policyID=${policyid}&hashOfDocument=${hashofdocument}`, {
+      withCredentials: true,
+      headers: {
+        "Cookie": `access_token=${access_token}`
+      }
+    })
+      .then((response) => res.status(200).json(response.data))
+      .catch(error => {
+        return error.response
+          ? res.status(400).json(error.response.data)
+          : res.status(400).json(error)
+      })
+  },
+
   verifySignature: async function (req, res) {
     // Receive input data
     const access_token = req.cookies['access_token'];
