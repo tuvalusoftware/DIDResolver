@@ -9,8 +9,10 @@ router.get("/document", documentController.getDocuments);
 router.get("/did-document", documentController.getDIDDocument);
 router.post("/did-document", documentController.createDIDDocument);
 
+// router.get("/wrapped-document", documentController.getDocuments);
 router.post("/wrapped-document", documentController.createWrappedDocument);
-// router.get("/wrapped-document/valid", documentController.validateWrappedDocument);
+// router.put("/wrapped-document", documentController.updateWrappedDocument);
+router.put("/wrapped-document/valid", documentController.validateWrappedDocument);
 router.get("/wrapped-document/exist", documentController.checkWrappedDocumentExistence);
 
 module.exports = router;

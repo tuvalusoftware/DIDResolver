@@ -1,7 +1,6 @@
 const axios = require("axios").default;
-const Ajv = require("ajv");
-const { ERRORS, SERVERS } = require("../../core/constants");
-const { wrappedDocument } = require("../../swagger/schemas");
+const { ERRORS, SERVERS, SHEMAS } = require("../../core/constants");
+const { validateJSONSchema, getAddressFromHexEncoded } = require("../../core/index");
 
 module.exports = {
   getDocuments: async function (req, res) {
@@ -156,8 +155,8 @@ module.exports = {
 
   createWrappedDocument: async function (req, res) {
     // Get access-token from request and receive input data
-    const access_token = req.cookies["access_token"];
-    const { wrappedDocument, issuerAddress: encryptedIssuerAddress, did } = req.body;
+    const access_token = req.cookies['access_token'];
+    var { wrappedDocument, issuerAddress: encryptedIssuerAddress, did } = req.body;
 
     // Handle input errors
     if (!wrappedDocument || !encryptedIssuerAddress || !did) {
@@ -278,72 +277,49 @@ module.exports = {
     if (!wrappedDocument)
       return res.status(400).json(ERRORS.MISSING_PARAMETERS);
 
-    const schema = {
-      type: "object",
-      required: ["data", "signature", "assertId", "policyId"],
-      properties: {
-        vesion: { type: "string" },
-        data: {
-          type: "object",
-          properties: {
-            file: { type: "string" },
-            name: { type: "string" },
-            title: { type: "string" },
-            companyName: { type: "string" },
-            did: { type: "string" },
-            issuers: {
-              type: "array",
-              items: {
-                type: "object",
-                properties: {
-                  identityProofType: {
-                    type: "object",
-                    properties: {
-                      type: { type: "string" },
-                      location: { type: "string" }
-                    }
-                  },
-                  did: { type: "string" },
-                  tokenRegistry: { type: "string" },
-                  address: { type: "string" }
-                }
-              }
-            }
-          }
-        },
-        signature: {
-          type: "object",
-          properties: {
-            type: { type: "string" },
-            targetHash: { type: "string" },
-            proof: { type: "array" },
-            merkleRoot: { type: "string" }
-          }
-        },
-        assertId: { type: "string" },
-        policyId: { type: "string" },
-      }
-    }
+    const valid = validateJSONSchema(SHEMAS.WRAPPED_DOCUMENT, wrappedDocument);
 
-    const ajv = new Ajv();
-    const validate = ajv.compile(schema); console.log(2);
-    const valid = validate(wrappedDocument); console.log(valid);
-    if (!valid) console.log(validate.errors);
-    return res.status(200).json(wrappedDocument);
+    return res.status(200).send(valid);
   },
 
   updateWrappedDocument: async function (req, res) {
     // Receive input data
     const access_token = req.cookies["access_token"];
-    const { newWrappedDocument, did } = req.body;
+    var { newWrappedDocument, previousHashOfDocument } = req.body;
 
     // Handle input errors
-    if (!wrappedDocument || !did)
-      return res.status(400).json(ERRORS.MISSING_PARAMETERS);
+    if (!newWrappedDocument || !previousHashOfDocument)
+      return res.status(400).json({
+        ...ERRORS.MISSING_PARAMETERS,
+        detail: "Not found:"
+          + (newWrappedDocument) ? "" : " wrappedDocument"
+            + (previousHashOfDocument) ? "" : " previousHashOfDocument"
+      });
+
+    // 0. Validate wrapped document format
+    const valid = validateJSONSchema(SHEMAS.WRAPPED_DOCUMENT, newWrappedDocument);
+    if (!valid.valid)
+      return res.status(400).json({
+        ...ERRORS.INVALID_INPUT,
+        detail: valid.detail
+      });
 
     // Extract data required to call services
-    const companyName = "",
-      fileName = "";
+    const did = newWrappedDocument.data?.did;
+    const targetHash = newWrappedDocument.signature?.targetHash;
+    const encryptedControllerAddress = newWrappedDocument.data?.issuers[0]?.address;
+    const policyId = newWrappedDocument.policyId;
+
+    didComponents = did.split(":");
+    if (didComponents.length < 6 || didComponents[2] != "did")
+      return res.status(400).json({
+        ...ERRORS.INVALID_INPUT,
+        detail: "Invalid DID syntax."
+      });
+
+    const companyName = didComponents[2],
+      fileName = didComponents[3],
+      controllerAddress = getAddressFromHexEncoded(encryptedControllerAddress);
 
     try {
       // 1. Validate permission to update document
@@ -358,7 +334,9 @@ module.exports = {
           }
         })
 
-      // 1.2. Compare ...
+      // 1.2. Compare controller address with user address
+      if (controllerAddress !== address.data.data.address)
+        return res.status(403).send(ERRORS.PERMISSION_DENIED);
 
       // 2. Check if document is not exist on DB 
       const existence = await axios.get(SERVERS.DID_CONTROLLER + "/api/doc/exists/",
@@ -371,10 +349,33 @@ module.exports = {
       if (!existence.data.isExisted)
         return res.status(404).json(ERRORS.NOT_FOUND);
 
-      // 3. Validate wrapped document structure
-
       // 3. Mint hash
-      const mintingNFT = await axios.put(SERVERS.CARDANO_SERVICE)
+      const mintingNFT = await axios.put(SERVERS.CARDANO_SERVICE + "/api/storeHash/",
+        {
+          address: address.data.data.address,
+          hashOfDocument: targetHash,
+          previousHashOfDocument: previousHashOfDocument,
+          origin: policyId
+        },
+        {
+          withCredentials: true,
+          headers: {
+            "Cookie": `access_token=${access_token}`
+          }
+        })
+
+      if (!mintingNFT.data.data.result)
+        return res.status(400).json(mintingNFT.data);
+      if (!mintingNFT) return res.status(400).json(ERRORS.CANNOT_MINT_NFT);
+
+      const mintingNFTStatus = mintingNFT.data.data.result;
+      assetId = mintingNFTStatus ? mintingNFT.data.data.token.assetId : "No assetId";
+
+      newWrappedDocument.assetId = assetId;
+
+      // CALL DID CONTROLLER TO STORE WRAPPED DOCUMENT
+
+      res.status(200).send("PENDING....");
     }
     catch (err) {
       err.response

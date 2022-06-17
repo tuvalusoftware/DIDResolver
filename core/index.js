@@ -32,10 +32,12 @@ module.exports.getAddressFromHexEncoded = (hexAddress) => {
   return cardanoSerialization.Address.from_bytes(Buffer.from(hexAddress, 'hex')).to_bech32();
 };
 
-module.exports.validatJSONSchema = (schema, object) => {
+module.exports.validateJSONSchema = (schema, object) => {
+  // console.log("RUN VALIDATE FUNCTION");
   const ajv = new Ajv();
   const validate = ajv.compile(schema);
   const valid = validate(object);
   console.log(valid);
-  return valid ? true : false;
+  // console.log(validate.errors);
+  return valid ? { valid } : { valid, detail: validate.errors };
 }
