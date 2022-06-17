@@ -271,4 +271,114 @@ module.exports = {
         : res.status(400).json(err);
     }
   },
+
+  validateWrappedDocument: async function (req, res) {
+    const { wrappedDocument } = req.body;
+    if (!wrappedDocument)
+      return res.status(400).json(ERRORS.MISSING_PARAMETERS);
+
+    const schema = {
+      type: "object",
+      required: ["data", "signature", "assertId", "policyId"],
+      properties: {
+        vesion: { type: "string" },
+        data: {
+          type: "object",
+          properties: {
+            file: { type: "string" },
+            name: { type: "string" },
+            title: { type: "string" },
+            companyName: { type: "string" },
+            did: { type: "string" },
+            issuers: {
+              type: "array",
+              items: {
+                type: "object",
+                properties: {
+                  identityProofType: {
+                    type: "object",
+                    properties: {
+                      type: { type: "string" },
+                      location: { type: "string" }
+                    }
+                  },
+                  did: { type: "string" },
+                  tokenRegistry: { type: "string" },
+                  address: { type: "string" }
+                }
+              }
+            }
+          }
+        },
+        signature: {
+          type: "object",
+          properties: {
+            type: { type: "string" },
+            targetHash: { type: "string" },
+            proof: { type: "array" },
+            merkleRoot: { type: "string" }
+          }
+        },
+        assertId: { type: "string" },
+        policyId: { type: "string" },
+      }
+    }
+
+    const ajv = new Ajv();
+    const validate = ajv.compile(schema); console.log(2);
+    const valid = validate(wrappedDocument); console.log(valid);
+    if (!valid) console.log(validate.errors);
+    return res.status(200).json(wrappedDocument);
+  },
+
+  updateWrappedDocument: async function (req, res) {
+    // Receive input data
+    const access_token = req.cookies["access_token"];
+    const { newWrappedDocument, did } = req.body;
+
+    // Handle input errors
+    if (!wrappedDocument || !did)
+      return res.status(400).json(ERRORS.MISSING_PARAMETERS);
+
+    // Extract data required to call services
+    const companyName = "",
+      fileName = "";
+
+    try {
+      // 1. Validate permission to update document
+      // 1.1. Get address of current user from access token
+      // success:
+      //   { data: { address: string }  }
+      const address = await axios.get(SERVERS.AUTHENTICATION_SERVICE + "/api/auth/verify",
+        {
+          withCredentials: true,
+          headers: {
+            "Cookie": `access_token=${access_token};`
+          }
+        })
+
+      // 1.2. Compare ...
+
+      // 2. Check if document is not exist on DB 
+      const existence = await axios.get(SERVERS.DID_CONTROLLER + "/api/doc/exists/",
+        {
+          headers: {
+            companyName,
+            fileName
+          }
+        });
+      if (!existence.data.isExisted)
+        return res.status(404).json(ERRORS.NOT_FOUND);
+
+      // 3. Validate wrapped document structure
+
+      // 3. Mint hash
+      const mintingNFT = await axios.put(SERVERS.CARDANO_SERVICE)
+    }
+    catch (err) {
+      err.response
+        ? res.status(400).json(err.response.data)
+        : res.status(400).json(err);
+    }
+  }
 }
