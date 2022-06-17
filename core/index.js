@@ -30,3 +30,12 @@ module.exports.ensureAuthenticated = (req, res, next) => {
 module.exports.getAddressFromHexEncoded = (hexAddress) => {
   return cardanoSerialization.Address.from_bytes(Buffer.from(hexAddress, 'hex')).to_bech32();
 };
+
+module.exports.validateJSONSchema = (schema, object) => {
+  const ajv = new Ajv();
+  const validate = ajv.compile(schema);
+  const valid = validate(object);
+  console.log(valid);
+  console.log(validate.error);
+  return valid;
+}
