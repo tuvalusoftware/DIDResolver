@@ -41,3 +41,54 @@ module.exports.ERRORS = {
     errorMessage: "Bad request. Cannot fetch NFT metadata. Check your assetId or policyId."
   }
 }
+
+module.exports.SHEMAS = {
+  WRAPPED_DOCUMENT: {
+    type: "object",
+    required: ["data", "signature", "assertId", "policyId"],
+    properties: {
+      vesion: { type: "string" },
+      data: {
+        type: "object",
+        required: ["did", "issuers"],
+        properties: {
+          file: { type: "string" },
+          name: { type: "string" },
+          title: { type: "string" },
+          companyName: { type: "string" },
+          did: { type: "string" },
+          issuers: {
+            type: "array",
+            items: {
+              type: "object",
+              required: ["address"],
+              properties: {
+                identityProofType: {
+                  type: "object",
+                  properties: {
+                    type: { type: "string" },
+                    location: { type: "string" }
+                  }
+                },
+                did: { type: "string" },
+                address: { type: "string" }
+              }
+            }
+          }
+        }
+      },
+      signature: {
+        type: "object",
+        required: ["targetHash"],
+        properties: {
+          type: { type: "string" },
+          targetHash: { type: "string" },
+          proof: { type: "array" },
+          merkleRoot: { type: "string" }
+        }
+      },
+      assertId: { type: "string" },
+      policyId: { type: "string" },
+    }
+  }
+}
