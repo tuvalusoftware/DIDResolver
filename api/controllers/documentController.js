@@ -4,7 +4,7 @@ const { validateJSONSchema, getAddressFromHexEncoded } = require("../../core/ind
 const { wrappedDocument } = require("../../swagger/schemas");
 
 module.exports = {
-  getDocuments: async function (req, res) {
+  getWrappedDocuments: async function (req, res) {
     console.log("RUN GET DOCUMENTS");
 
     // Receive input data
@@ -366,11 +366,11 @@ module.exports = {
           }
         })
 
-      if (!mintingNFT.data.data.result)
+      if (!mintingNFT.error_code)
         return res.status(400).json(mintingNFT.data);
       if (!mintingNFT) return res.status(400).json(ERRORS.CANNOT_MINT_NFT);
 
-      const mintingNFTStatus = mintingNFT.data.data.result;
+      const mintingNFTStatus = (mintingNFT.data.data.result) ? mintingNFT.data.data.result : false;
       assetId = mintingNFTStatus ? mintingNFT.data.data.token.assetId : "No assetId";
 
       newWrappedDocument.assetId = assetId;
