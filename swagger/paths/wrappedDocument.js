@@ -195,3 +195,7 @@ module.exports.updateWrappedDocument = {
     }
   }
 }
+
+module.exports.validateWrappedDocument = {
+
+}

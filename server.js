@@ -28,7 +28,12 @@ app.use(methodOverride());
 // SET UP SWAGGER API DOCUMENT 
 const swaggerUi = require("swagger-ui-express"),
   swaggerDocument = require("./swagger/");
-app.use("/api-docs", swaggerUi.serve, swaggerUi.setup(swaggerDocument));
+var swaggerOptions = {
+  customCss: '.swagger-ui .topbar { display: none }',
+  customSiteTitle: "DID Resolver API",
+  // customfavIcon: "/assets/favicon.ico"
+};
+app.use("/api-docs", swaggerUi.serve, swaggerUi.setup(swaggerDocument, swaggerOptions));
 
 // ROUTE
 const server = http.createServer(app);
