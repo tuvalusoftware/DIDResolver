@@ -1,53 +1,8 @@
 const axios = require("axios").default;
 const { ERRORS, SERVERS, SHEMAS } = require("../../core/constants");
 const { validateJSONSchema, getAddressFromHexEncoded } = require("../../core/index");
-const { wrappedDocument } = require("../../swagger/schemas");
 
 module.exports = {
-  getWrappedDocuments: async function (req, res) {
-    console.log("RUN GET DOCUMENTS");
-
-    // Receive input data
-    const { did } = req.headers;
-    const { exclude } = req.query;
-
-    // Handle input errors
-    if (!did)
-      return res.status(400).json(ERRORS.MISSING_PARAMETERS);
-
-    const didComponents = did.split(":");
-    if (didComponents.length < 6 || didComponents[2] != "did")
-      return res.status(400).json(ERRORS.INVALID_INPUT);
-
-    // Call DID Controller
-    // success:
-    //   {
-    //     didDoc: {},
-    //     wrappedDoc: {}
-    //   }
-    // error: 
-    //   { errorCode: number, message: string }
-    await axios
-      .get(SERVERS.DID_CONTROLLER + "/api/doc", {
-        headers: {
-          companyName: didComponents[4],
-          fileName: didComponents[5]
-        },
-        params: { exclude }
-      })
-      .then((response) => {
-        console.log(response);
-        response.data.errorCode
-          ? res.status(404).send(response.data.message)
-          : res.status(200).json(response.data);
-      })
-      .catch((error) => {
-        error.response
-          ? res.status(400).json(error.response.data)
-          : res.status(400).json(error)
-      });
-  },
-
   getDIDDocument: async function (req, res) {
     // Receive input data
     const { did } = req.headers;
@@ -69,7 +24,7 @@ module.exports = {
     // error:
     //   { errorCode: number, message: string }
     await axios
-      .get(DID_CONTROLLER + "/api/did/",
+      .get(SERVERS.DID_CONTROLLER + "/api/did/",
         {
           headers: {
             companyName: companyName,
@@ -128,6 +83,46 @@ module.exports = {
       });
   },
 
+  getWrappedDocument: async function (req, res) {
+    // Receive input data
+    const { did } = req.headers;
+    const { only } = req.query;
+
+    // Handle input errors
+    if (!did)
+      return res.status(400).json(ERRORS.MISSING_PARAMETERS);
+
+    const didComponents = did.split(":");
+    if (didComponents.length < 4 || didComponents[0] != "did")
+      return res.status(400).json(ERRORS.INVALID_INPUT);
+    // Call DID Controller
+    // success:
+    //   {
+    //     didDoc: {},
+    //     wrappedDoc: {}
+    //   }
+    // error: 
+    //   { errorCode: number, message: string }
+    await axios
+      .get(SERVERS.DID_CONTROLLER + "/api/doc", {
+        headers: {
+          companyName: didComponents[2],
+          fileName: didComponents[3]
+        },
+        params: { only }
+      })
+      .then((response) => {
+        response.data.errorCode
+          ? res.status(404).json(response.data)
+          : res.status(200).json(response.data);
+      })
+      .catch((error) => {
+        error.response
+          ? res.status(400).json(error.response.data)
+          : res.status(400).json(error)
+      });
+  },
+
   checkWrappedDocumentExistence: async function (req, res) {
     // Receive input data
     const { companyname: companyName, filename: fileName } = req.headers;
@@ -175,8 +170,8 @@ module.exports = {
       issuerAddress = getAddressFromHexEncoded(encryptedIssuerAddress);
 
     try {
-      // 1. Validate permission to create document. 
-      // 1.1 Get address of user from the acess token. 
+      // 1. Validate permission to create document
+      // 1.1. Get address of user from the acess token
       // success: 
       //   { data: { address: string } }
       const address = await axios.get(SERVERS.AUTHENTICATION_SERVICE + "/api/auth/verify",
@@ -227,7 +222,7 @@ module.exports = {
         {
           withCredentials: true,
           headers: {
-            "Cookie": `access_token=${access_token}`
+            "Cookie": `access_token=${access_token};`
           }
         });
 
@@ -262,7 +257,7 @@ module.exports = {
       // 6. Return policyId an assetId if the process is success.
       storingWrappedDocumentStatus.data.errorCode
         ? res.status(400).json(storingWrappedDocumentStatus.data)
-        : res.status(200).json(wrappedDocument);
+        : res.status(201).json(wrappedDocument);
     }
     catch (err) {
       console.log("CATCH ERROR");
@@ -274,7 +269,6 @@ module.exports = {
   },
 
   validateWrappedDocument: async function (req, res) {
-    console.log("RUN CHECK VALID");
     const { wrappedDocument } = req.body;
     if (!wrappedDocument)
       return res.status(400).json(ERRORS.MISSING_PARAMETERS);

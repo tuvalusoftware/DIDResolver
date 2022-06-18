@@ -1,81 +1,38 @@
-const SCHEMAS = require("./schemas");
-const EXAMPLES = require("./examples");
-// const { wrappedDocumentSchema } = require("./schemas/wrappedDocument.js");
+const schemas = require("./schemas");
+const examples = require("./examples");
 
 module.exports.schemas = {
-  errorMessageDIDController: {
-    type: "object",
-    properties: {
-      errorCode: {
-        type: "integer",
-        summary: "Error Code.",
-      },
-      message: {
-        type: "string",
-        summary: "Error message from DIDController.",
-      }
-    }
-  },
-  didDocument: {
-    type: "object",
-    properties: {
-      name: {
-        type: "string",
-        description: "Name of DID document, usually is DID string.",
-        example: "did:method:giabuynh:srs"
-      },
-      content: {
-        type: "object",
-        properties: {
+  ...schemas
+}
 
+module.exports.examples = {
+  ...examples
+}
+
+module.exports.responses = {
+  BadRequest: {
+    content: {
+      "application/json": {
+        schema: {
+          $ref: "#/components/schemas/error",
         },
-        description: "Example content in JSON format.",
-        example: {
-          date: "10-10-2000"
+        examples: {
+          "Missing parameters": {
+            value: {
+              errorCode: 400,
+              errorMessage: "Bad request. Missing parameters.",
+              detail: ""
+            }
+          },
+          "Invalid input": {
+            value: {
+              errorCode: 400,
+              errorMessage: "Bad request. Invalid input syntax.",
+              detail: ""
+            }
+          }
         }
       }
     }
   },
-  didDocumentOfWrappedDocument: {
-    ...SCHEMAS.didDocumentOfWrappedDocument
-  },
-  // didDocumentOfWrappedDocument: {
-  //   type: "object",
-  //   properties: {
-  //     controller: {
-  //       type: "string",
-  //       description: "",
-  //       example: ""
-  //     },
-  //     did: {
-  //       type: "string",
-  //       description: "",
-  //       example: ""
-  //     },
-  //     docController: {
-  //       type: "string",
-  //       description: "",
-  //       example: ""
-  //     },
-  //     url: {
-  //       type: "string",
-  //       description: "",
-  //       example: ""
-  //     }
-  //   }
-  // },
-  wrappedDocument: {
-    ...SCHEMAS.wrappedDocument
-  }
-}
-
-module.exports.examples = {
-  didDocumentContent: {
-    controller: "someonePublicKey",
-    id: "did:method:giabynh:srs",
-    date: "10-10-2000"
-  },
-  wrappedDocument: {
-    ...EXAMPLES.wrappedDocument
-  }
 }

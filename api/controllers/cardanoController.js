@@ -46,7 +46,6 @@ module.exports = {
   },
 
   verifyHash: async function (req, res) {
-    console.log("RUN VERIFY HASH");
     // Receive input data
     const access_token = req.cookies['access_token'];
     const { hashofdocument, policyid } = req.headers;

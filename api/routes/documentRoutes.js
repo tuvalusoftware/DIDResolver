@@ -9,7 +9,7 @@ const router = express.Router();
 router.get("/did-document", documentController.getDIDDocument);
 router.post("/did-document", documentController.createDIDDocument);
 
-router.get("/wrapped-document", documentController.getWrappedDocuments);
+router.get("/wrapped-document", documentController.getWrappedDocument);
 router.post("/wrapped-document", documentController.createWrappedDocument);
 router.put("/wrapped-document", documentController.updateWrappedDocument);
 router.put("/wrapped-document/valid", documentController.validateWrappedDocument);

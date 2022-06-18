@@ -6,5 +6,5 @@ const cardanoRoutes = require("./cardanoRoutes");
 
 module.exports = (app) => {
     app.use("/resolver", documentRoutes);
-    // app.use("/resolver", cardanoRoutes);
+    app.use("/resolver", cardanoRoutes);
 }
