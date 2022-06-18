@@ -4,14 +4,14 @@ const router = express.Router();
 
 //  router.use(authControler.ensureAuthenticated);
 
-router.get("/document", documentController.getDocuments);
+// router.get("/document", documentController.getDocuments);
 
 router.get("/did-document", documentController.getDIDDocument);
 router.post("/did-document", documentController.createDIDDocument);
 
-// router.get("/wrapped-document", documentController.getDocuments);
+router.get("/wrapped-document", documentController.getWrappedDocuments);
 router.post("/wrapped-document", documentController.createWrappedDocument);
-// router.put("/wrapped-document", documentController.updateWrappedDocument);
+router.put("/wrapped-document", documentController.updateWrappedDocument);
 router.put("/wrapped-document/valid", documentController.validateWrappedDocument);
 router.get("/wrapped-document/exist", documentController.checkWrappedDocumentExistence);
 
