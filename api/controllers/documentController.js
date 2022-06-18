@@ -3,50 +3,6 @@ const { ERRORS, SERVERS, SHEMAS } = require("../../core/constants");
 const { validateJSONSchema, getAddressFromHexEncoded } = require("../../core/index");
 
 module.exports = {
-  getDocuments: async function (req, res) {
-    console.log("RUN GET DOCUMENTS");
-
-    // Receive input data
-    const { did } = req.headers;
-    const { exclude } = req.query;
-
-    // Handle input errors
-    if (!did)
-      return res.status(400).json(ERRORS.MISSING_PARAMETERS);
-
-    const didComponents = did.split(":");
-    if (didComponents.length < 6 || didComponents[2] != "did")
-      return res.status(400).json(ERRORS.INVALID_INPUT);
-
-    // Call DID Controller
-    // success:
-    //   {
-    //     didDoc: {},
-    //     wrappedDoc: {}
-    //   }
-    // error: 
-    //   { errorCode: number, message: string }
-    await axios
-      .get(SERVERS.DID_CONTROLLER + "/api/doc", {
-        headers: {
-          companyName: didComponents[4],
-          fileName: didComponents[5]
-        },
-        params: { exclude }
-      })
-      .then((response) => {
-        console.log(response);
-        response.data.errorCode
-          ? res.status(404).send(response.data.message)
-          : res.status(200).json(response.data);
-      })
-      .catch((error) => {
-        error.response
-          ? res.status(400).json(error.response.data)
-          : res.status(400).json(error)
-      });
-  },
-
   getDIDDocument: async function (req, res) {
     // Receive input data
     const { did } = req.headers;
@@ -121,6 +77,50 @@ module.exports = {
       })
       .catch((error) => {
         console.log(error);
+        error.response
+          ? res.status(400).json(error.response.data)
+          : res.status(400).json(error)
+      });
+  },
+
+  getWrappedDocument: async function (req, res) {
+    console.log("RUN GET DOCUMENTS");
+
+    // Receive input data
+    const { did } = req.headers;
+    const { exclude } = req.query;
+
+    // Handle input errors
+    if (!did)
+      return res.status(400).json(ERRORS.MISSING_PARAMETERS);
+
+    const didComponents = did.split(":");
+    if (didComponents.length < 6 || didComponents[2] != "did")
+      return res.status(400).json(ERRORS.INVALID_INPUT);
+
+    // Call DID Controller
+    // success:
+    //   {
+    //     didDoc: {},
+    //     wrappedDoc: {}
+    //   }
+    // error: 
+    //   { errorCode: number, message: string }
+    await axios
+      .get(SERVERS.DID_CONTROLLER + "/api/doc", {
+        headers: {
+          companyName: didComponents[4],
+          fileName: didComponents[5]
+        },
+        params: { exclude }
+      })
+      .then((response) => {
+        console.log(response);
+        response.data.errorCode
+          ? res.status(404).send(response.data.message)
+          : res.status(200).json(response.data);
+      })
+      .catch((error) => {
         error.response
           ? res.status(400).json(error.response.data)
           : res.status(400).json(error)

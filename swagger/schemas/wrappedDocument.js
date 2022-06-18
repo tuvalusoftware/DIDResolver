@@ -7,6 +7,7 @@ module.exports = {
     },
     data: {
       type: "object",
+      required: "true",
       properties: {
         name: {
           type: "string",
@@ -64,6 +65,14 @@ module.exports = {
           type: "string"
         }
       }
+    },
+    assetId: {
+      type: "string",
+      example: ""
+    },
+    policyId: {
+      type: "string",
+      example: ""
     }
   }
 }

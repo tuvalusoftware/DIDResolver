@@ -3,16 +3,23 @@ module.exports = {
   properties: {
     controller: {
       type: "string",
-      description: "",
+      description: "???",
+      example: "???"
     },
     did: {
-      type: "string"
+      type: "string",
+      description: "???",
+      example: "???"
     },
     dodController: {
-      type: "string"
+      type: "string",
+      description: "???",
+      example: "???"
     },
     ulr: {
-      type: "string"
+      type: "string",
+      description: "???",
+      example: "???"
     }
   }
 }

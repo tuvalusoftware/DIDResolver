@@ -1,9 +1,6 @@
 const tags = require("./tags");
-const { schemas, examples } = require("./components");
-const { getDidDocument, createDidDocument } = require("./didDocument");
-const { checkWrappedDocumentExistence } = require("./wrappedDocument");
-const { getDocument } = require("./document");
-const { verifyHash, verifySignature } = require("./verify");
+const components = require("./components");
+const paths = require("./paths");
 
 module.exports = {
     openapi: "3.0.0",
@@ -23,35 +20,7 @@ module.exports = {
     schemes: ["http"],
     ...tags,
     components: {
-        schemas: {
-            ...schemas
-        },
-        examples: {
-            ...examples
-        }
+        ...components
     },
-    paths: {
-        "/did-document/": {
-            ...getDidDocument,
-            ...createDidDocument,
-        },
-        "/wrapped-document/": {
-        },
-        "/wrapped-document/exists/": {
-            ...checkWrappedDocumentExistence
-        },
-        "/document/": {
-            ...getDocument
-        },
-        "/nfts/": {
-
-        },
-        "/verify/hash/": {
-            ...verifyHash
-        },
-        "/verify/signature/": {
-            ...verifySignature
-        }
-    }
-    // ...{ paths: paths },
+    ...paths,
 }

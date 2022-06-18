@@ -1,7 +1,7 @@
 module.exports.createDidDocument = {
   post: {
     tags: ["DID document"],
-    summary: "Create DID document for a given DID",
+    summary: "Create DID document for a given DID string of a company/user.",
     parameters: [],
     requestBody: {
       required: true,
