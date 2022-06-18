@@ -3,7 +3,7 @@ const components = require("./components");
 const paths = require("./paths");
 
 module.exports = {
-    openapi: "3.0.0",
+    openapi: "3.0.9",
     info: {
         version: "1.0.0",
         title: "DID Resolver",
@@ -24,3 +24,5 @@ module.exports = {
     },
     ...paths,
 }
+
+// console.log(components);

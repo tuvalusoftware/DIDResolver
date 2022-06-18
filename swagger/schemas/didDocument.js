@@ -1,20 +1,34 @@
 module.exports = {
   type: "object",
   properties: {
-    controller: {
+    name: {
       type: "string",
-      description: "???",
-      example: "???"
+      descrption: "???",
     },
-    id: {
-      type: "string",
-      description: "did:method:company:publicKey",
-      example: "did:abc:Kukulu:publicKey"
-    },
-    date: {
-      type: "string",
-      description: "???",
-      example: "???"
+    content: {
+      type: "objects",
+      properties: {
+        controller: {
+          type: "string",
+          description: "???",
+        },
+        id: {
+          type: "string",
+          description: "DID string of company or user. Syntax: did:method:companyName:publicKey",
+        },
+        date: {
+          type: "string",
+          description: "???",
+        }
+      }
+    }
+  },
+  example: {
+    name: "public_key",
+    content: {
+      controller: "1234abcd",
+      id: "did:somes_tring:Kukulu:zaq12wsxcde34rfvbgt56yhnmkju8iko",
+      date: "10-10-2000"
     }
   }
 }

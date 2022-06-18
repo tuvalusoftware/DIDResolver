@@ -1,3 +1,49 @@
+
+
+module.exports.getDidDocument = {
+  get: {
+    tags: ["DID document"],
+    summary: "Resolve DID - Takes a DID of a company or user as input and produces a conforming DID document as output.",
+    parameters: [
+      {
+        in: "header",
+        name: "did",
+        type: "string",
+        require: true,
+        description: "DID string. Syntax: did:method:companyName:publicKey.",
+        default: "did:method:Kukulu:public_key",
+        // example: "did:method:companyName:publicKey",
+      }
+    ],
+    responses: {
+      200: {
+        description: "OK. Return a conforming DID document.",
+        content: {
+          "application/json": {
+            schema: {
+              $ref: "#/components/schemas/didDocument"
+            },
+          }
+        }
+      },
+      400: {
+        $ref: "#/components/responses/BadRequest"
+      },
+      404: {
+        description: "Not found. Cannot found DID document with a companyName and publicKey included in the given DID string.",
+        content: {
+          "application/json": {
+            example: {
+              errorCode: 404,
+              message: "File/Public Key with the given value cannot be found."
+            }
+          }
+        }
+      }
+    }
+  }
+}
+
 module.exports.createDidDocument = {
   post: {
     tags: ["DID document"],
@@ -12,24 +58,10 @@ module.exports.createDidDocument = {
             properties: {
               did: {
                 type: "string",
-                example: "did:method:giabuynh:srs"
+                example: "did:method:Kukulu:public_key"
               },
               didDocument: {
-                type: "object",
-                properties: {
-                  controller: {
-                    type: "string"
-                  },
-                  id: {
-                    type: "string",
-                  },
-                  date: {
-                    type: "string"
-                  }
-                },
-                example: {
-                  $ref: "#/components/examples/didDocumentContent"
-                }
+                $ref: "#/components/schemas/didDocument"
               }
             }
           },
@@ -49,20 +81,7 @@ module.exports.createDidDocument = {
         }
       },
       400: {
-        description: "Bad request. Input DID is invalid or undefined.",
-        content: {
-          "text/plain": {
-            schema: {
-              type: "string",
-              example: "Missing parameters."
-            }
-          },
-          "application/json": {
-            schema: {
-              $ref: "#/components/schemas/errorMessageDIDController"
-            }
-          }
-        }
+        $ref: "#/components/responses/BadRequest"
       }
     }
   }

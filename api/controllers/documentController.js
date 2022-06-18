@@ -24,7 +24,7 @@ module.exports = {
     // error:
     //   { errorCode: number, message: string }
     await axios
-      .get(DID_CONTROLLER + "/api/did/",
+      .get(SERVERS.DID_CONTROLLER + "/api/did/",
         {
           headers: {
             companyName: companyName,
@@ -84,8 +84,6 @@ module.exports = {
   },
 
   getWrappedDocument: async function (req, res) {
-    console.log("RUN GET DOCUMENTS");
-
     // Receive input data
     const { did } = req.headers;
     const { exclude } = req.query;

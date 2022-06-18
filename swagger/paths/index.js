@@ -1,21 +1,20 @@
 const { getDidDocument, createDidDocument } = require("./didDocument");
-const { checkWrappedDocumentExistence } = require("./wrappedDocument");
-const { getDocument } = require("./document");
-
+const { checkWrappedDocumentExistence, getWrappedDocument, createWrappedDocument } = require("./wrappedDocument");
 
 module.exports.paths = {
     "/did-document/": {
         ...getDidDocument,
         ...createDidDocument,
     },
-    // "/wrapped-document/": {
-    // },
-    // "/wrapped-document/exists/": {
-    //     ...checkWrappedDocumentExistence
-    // },
-    // "/document/": {
-    //     ...getDocument
-    // },
+
+    "/wrapped-document/": {
+        ...getWrappedDocument,
+        ...createWrappedDocument
+    },
+    "/wrapped-document/exists/": {
+        ...checkWrappedDocumentExistence
+    },
+
     // "/nfts/": {
 
     // },
