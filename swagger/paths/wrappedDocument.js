@@ -9,17 +9,29 @@ module.exports.getWrappedDocument = {
         type: "string",
         require: true,
         description: "DID string. Syntax: did:method:companyName:publicKey.",
-        example: "did:method:companyName:fileName",
+        example: "did:method:Kukulu:file_name",
         // default: "did:method:giabuynh:srs"
       },
       {
         in: "query",
-        name: "exclude",
+        name: "only",
         type: "string",
         require: false,
         description: "Optional parameter to receive DID document and/or wrapped document.",
-        example: "'did' for receiving wrapped document onely. 'doc' for receiving DID document only. '' or undefined for receiving both DID document and wrapped document.",
-        // default: ""
+        examples: {
+          "empty": {
+            "value": "",
+            "summary": "'' or undefined for receiving both DID document and wrapped document"
+          },
+          "did": {
+            "value": "did",
+            "summary": "'did' for receiving DID document only."
+          },
+          "doc": {
+            "value": "doc",
+            "summary": "'doc' for receiving wrapped document only."
+          }
+        }
       }
     ],
     responses: {
@@ -28,52 +40,46 @@ module.exports.getWrappedDocument = {
         content: {
           "application/json": {
             schema: {
-              $ref: "#components/schemas/wrappedDocument",
-              // oneOf: {
-              //   $ref: "#/components/schemas/didDocumentOfWrappedDocument",
-              //   $ref: "#/components/schemas/wrappedDocument",
-              // }
-              // type: "object",
-              // propeties: {
-              //   wrapDoc: {
-              //     type: "object"
-              //   },
-              //   didDoc: {
-              //     type: "object"
-              //   }
-              // },
-              // example: {
-              //   "wrapDoc": {},
-              //   "didDoc": {}
-              // }
+              type: "object",
+              properties: {
+                didDoc: {
+                  $ref: "#components/schemas/didDocumentOfWrappedDocument",
+                },
+                wrappedDoc: {
+                  $ref: "#components/schemas/wrappedDocument",
+                }
+              }
             }
           }
         },
       },
       400: {
-        description: "Bad request. Input DID is invalid or undefined.",
-        content: {
-          "text/plain": {
-            schema: {
-              type: "string",
-              example: "Missing parameters."
-            }
-          },
-          "application/json": {
-            schema: {
-              type: "object",
-              example: {}
-            }
-          }
-        }
+        $ref: "#/components/responses/BadRequest"
       },
       404: {
         description: "Not found. DID document or/and wrapped document are not found.",
         content: {
-          "text/plain": {
+          "application/json": {
             schema: {
-              type: "string",
-              example: "File/Public Key with the given value cannot be found."
+              type: "object",
+              properties: {
+                errorCode: { type: "integer" },
+                message: { type: "string" }
+              },
+            },
+            examples: {
+              "No file": {
+                value: {
+                  errorCode: 10004,
+                  message: "File/Public Key with the given value cannot be found."
+                }
+              },
+              "No branch": {
+                value: {
+                  errorCode: 10003,
+                  message: "Company with the given name cannot be found."
+                }
+              },
             }
           }
         }
@@ -93,7 +99,7 @@ module.exports.checkWrappedDocumentExistence = {
         type: "string",
         require: true,
         description: "Name of wrapped file.",
-        example: "srs"
+        example: "file_name"
       },
       {
         in: "header",
@@ -101,7 +107,7 @@ module.exports.checkWrappedDocumentExistence = {
         type: "string",
         require: true,
         description: "Name of company.",
-        example: "giabuynh"
+        example: "Kukulu"
       }
     ],
     responses: {
@@ -116,23 +122,7 @@ module.exports.checkWrappedDocumentExistence = {
         }
       },
       400: {
-        description: "Bad request.",
-        content: {
-          "text/plain": {
-            schema: {
-              type: "string",
-              example: "Missing parameters."
-            }
-          },
-          "application/json": {
-            schema: {
-              type: "object",
-              properties: {
-
-              }
-            }
-          }
-        }
+        $ref: "#/components/responses/BadRequest"
       }
     }
   }
@@ -142,7 +132,16 @@ module.exports.createWrappedDocument = {
   post: {
     tags: ["Wrapped document"],
     summary: "Receive and valiate wrapped document from dApp and call services to hash and store data.",
-    // parameters: [],
+    parameters: [
+      {
+        in: "cookie",
+        name: "access_token",
+        type: "string",
+        require: true,
+        description: "Access token of current user",
+        // default: "did:method:Kukulu:public_key",
+      }
+    ],
     requestBody: {
       require: true,
       content: {
@@ -150,38 +149,49 @@ module.exports.createWrappedDocument = {
           schema: {
             type: "object",
             properties: {
-
+              wrappedDocument: {
+                $ref: "#/components/schemas/wrappedDocument"
+              },
+              issuerAddress: {
+                type: "string",
+                example: "???"
+              },
+              did: {
+                type: "string",
+                example: ""
+              }
             }
           }
         }
       }
     },
     responses: {
-      200: {
-        description: "OK.",
+      201: {
+        description: "Created. New wrapped document is successfully created.",
         content: {
-
-        }
-      },
-      400: {
-        description: "Bad request.",
-        content: {
-          "text/plain": {
-            schema: {
-              type: "string",
-              example: "Missing parameters."
-            }
-          },
           "application/json": {
             schema: {
-              type: "object",
-              properties: {
-
-              }
+              $ref: "#/components/schemas/wrappedDocument"
             }
           }
         }
+      },
+      400: {
+        $ref: "#/components/responses/BadRequest"
       }
+    }
+  },
+}
+
+module.exports.updateWrappedDocument = {
+  put: {
+    tags: ["Wrapped document"],
+    summary: "",
+    requestBody: {
+
+    },
+    responses: {
+
     }
   }
 }

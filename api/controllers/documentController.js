@@ -86,16 +86,15 @@ module.exports = {
   getWrappedDocument: async function (req, res) {
     // Receive input data
     const { did } = req.headers;
-    const { exclude } = req.query;
+    const { only } = req.query;
 
     // Handle input errors
     if (!did)
       return res.status(400).json(ERRORS.MISSING_PARAMETERS);
 
     const didComponents = did.split(":");
-    if (didComponents.length < 6 || didComponents[2] != "did")
+    if (didComponents.length < 4 || didComponents[0] != "did")
       return res.status(400).json(ERRORS.INVALID_INPUT);
-
     // Call DID Controller
     // success:
     //   {
@@ -107,15 +106,14 @@ module.exports = {
     await axios
       .get(SERVERS.DID_CONTROLLER + "/api/doc", {
         headers: {
-          companyName: didComponents[4],
-          fileName: didComponents[5]
+          companyName: didComponents[2],
+          fileName: didComponents[3]
         },
-        params: { exclude }
+        params: { only }
       })
       .then((response) => {
-        console.log(response);
         response.data.errorCode
-          ? res.status(404).send(response.data.message)
+          ? res.status(404).json(response.data)
           : res.status(200).json(response.data);
       })
       .catch((error) => {
@@ -259,7 +257,7 @@ module.exports = {
       // 6. Return policyId an assetId if the process is success.
       storingWrappedDocumentStatus.data.errorCode
         ? res.status(400).json(storingWrappedDocumentStatus.data)
-        : res.status(200).json(wrappedDocument);
+        : res.status(201).json(wrappedDocument);
     }
     catch (err) {
       console.log("CATCH ERROR");
