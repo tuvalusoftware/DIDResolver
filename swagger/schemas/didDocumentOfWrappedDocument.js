@@ -11,7 +11,7 @@ module.exports = {
       description: "???",
       example: "???"
     },
-    dodController: {
+    docController: {
       type: "string",
       description: "???",
       example: "???"
