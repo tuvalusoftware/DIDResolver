@@ -10,7 +10,7 @@ module.exports.ensureAuthenticated = (req, res, next) => {
       withCredentials: true,
       headers: {
         "Cookie": `access_token=${token};`,
-      }, ß
+      },
     }
   )
     .then((response) => {
@@ -33,11 +33,9 @@ module.exports.getAddressFromHexEncoded = (hexAddress) => {
 };
 
 module.exports.validateJSONSchema = (schema, object) => {
-  // console.log("RUN VALIDATE FUNCTION");
   const ajv = new Ajv();
   const validate = ajv.compile(schema);
   const valid = validate(object);
   console.log(valid);
-  // console.log(validate.errors);
   return valid ? { valid } : { valid, detail: validate.errors };
 }

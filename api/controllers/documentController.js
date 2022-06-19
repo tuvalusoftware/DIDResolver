@@ -152,21 +152,40 @@ module.exports = {
   createWrappedDocument: async function (req, res) {
     // Get access-token from request and receive input data
     const access_token = req.cookies['access_token'];
-    var { wrappedDocument, issuerAddress: encryptedIssuerAddress, did } = req.body;
+    var { wrappedDocument, issuerAddress: encryptedIssuerAddress } = req.body;
 
     // Handle input errors
-    if (!wrappedDocument || !encryptedIssuerAddress || !did) {
-      return res.status(400).json(ERRORS.MISSING_PARAMETERS);
-    }
-    const didComponents = did.split(":");
-    if (didComponents.length < 4 || didComponents[0] !== "did") {
-      return res.status(400).json(ERRORS.INVALID_INPUT);
+    if (!wrappedDocument || !encryptedIssuerAddress) {
+      return res.status(400).json({
+        ...ERRORS.MISSING_PARAMETERS,
+        detail: "Not found:"
+          + (!wrappedDocument) ? " wrappedDocument" : ""
+            + (!encryptedIssuerAddress) ? " issuerAddress" : ""
+      });
     }
 
+    //Validate wrapped document format
+    const valid = validateJSONSchema(SHEMAS.NEW_WRAPPED_DOCUMENT, wrappedDocument);
+    if (!valid.valid)
+      return res.status(404).json({
+        ...ERRORS.INVALID_INPUT,
+        detail: "Invalid wrapped document.\n" + valid.detail
+      });
+
     // Extract data required to call services
-    const companyName = didComponents[2],
-      fileName = didComponents[3],
-      targetHash = wrappedDocument.signature.targetHash,
+    const did = wrappedDocument.data.did,
+      targetHash = wrappedDocument.signature.targetHash;
+
+    const didComponents = did.split(":");
+    if (didComponents.length < 6 || didComponents[2] !== "did") {
+      return res.status(400).json({
+        ...ERRORS.INVALID_INPUT,
+        detail: "Invalid DID syntax. Check the wrappedDocument.data.did element."
+      });
+    }
+
+    const companyName = didComponents[4],
+      fileName = didComponents[5],
       issuerAddress = getAddressFromHexEncoded(encryptedIssuerAddress);
 
     try {
@@ -211,7 +230,7 @@ module.exports = {
       //       }
       //   }
       // error: 
-      //   { error_code: { error_code: number, error_message: string } }
+      //   { error_code: number, error_message: string } }
       const mintingNFT = await axios.put(SERVERS.CARDANO_SERVICE + "/api/storeHash/",
         {
           address: issuerAddress,
@@ -227,9 +246,8 @@ module.exports = {
         });
 
       // 3.2. Handle store hash errors 
-      if (mintingNFT.error_code) {
+      if (mintingNFT.error_code)
         return res.status(400).json(mintingNFT.data);
-      }
       if (!mintingNFT) return res.status(400).json(ERRORS.CANNOT_MINT_NFT);
 
       // 3.3. Extract policyId and assetId
@@ -246,7 +264,7 @@ module.exports = {
       //   { message: "success" }
       // error:
       //   { errorCode: number, message: string }
-      const storingWrappedDocumentStatus = await axios.post((DID_CONTROLLER + "/api/doc"),
+      const storingWrappedDocumentStatus = await axios.post((SERVERS.DID_CONTROLLER + "/api/doc"),
         {
           fileName,
           wrappedDocument,
@@ -288,29 +306,29 @@ module.exports = {
       return res.status(400).json({
         ...ERRORS.MISSING_PARAMETERS,
         detail: "Not found:"
-          + (newWrappedDocument) ? "" : " wrappedDocument"
-            + (previousHashOfDocument) ? "" : " previousHashOfDocument"
+          + (!newWrappedDocument) ? " wrappedDocument" : ""
+            + (!previousHashOfDocument) ? " previousHashOfDocument" : ""
       });
 
-    // 0. Validate wrapped document format
+    // Validate wrapped document format
     const valid = validateJSONSchema(SHEMAS.WRAPPED_DOCUMENT, newWrappedDocument);
     if (!valid.valid)
       return res.status(400).json({
         ...ERRORS.INVALID_INPUT,
-        detail: valid.detail
+        detail: "Invalid wrapped document.\n" + valid.detail
       });
 
     // Extract data required to call services
-    const did = newWrappedDocument.data?.did;
-    const targetHash = newWrappedDocument.signature?.targetHash;
-    const encryptedControllerAddress = newWrappedDocument.data?.issuers[0]?.address;
-    const policyId = newWrappedDocument.policyId;
+    const did = newWrappedDocument.data?.did,
+      targetHash = newWrappedDocument.signature?.targetHash,
+      encryptedControllerAddress = newWrappedDocument.data?.issuers[0]?.address,
+      policyId = newWrappedDocument.policyId;
 
     didComponents = did.split(":");
     if (didComponents.length < 6 || didComponents[2] != "did")
       return res.status(400).json({
         ...ERRORS.INVALID_INPUT,
-        detail: "Invalid DID syntax."
+        detail: "Invalid DID syntax. Check the wrappedDocument.data.did element."
       });
 
     const companyName = didComponents[2],
@@ -346,6 +364,17 @@ module.exports = {
         return res.status(404).json(ERRORS.NOT_FOUND);
 
       // 3. Mint hash
+      // 3.1. Call Cardano Service
+      // success:
+      //   {
+      //     data:
+      //       {
+      //         result: true,
+      //         token: { policyId: string, assetId: string }
+      //       }
+      //   }
+      // error:
+      //   { error_code: number, error_message: string }
       const mintingNFT = await axios.put(SERVERS.CARDANO_SERVICE + "/api/storeHash/",
         {
           address: address.data.data.address,
@@ -360,16 +389,28 @@ module.exports = {
           }
         })
 
+      // 3.2. Handle mintingNFT errors
       if (!mintingNFT.data.data.result)
         return res.status(400).json(mintingNFT.data);
       if (!mintingNFT) return res.status(400).json(ERRORS.CANNOT_MINT_NFT);
 
+      // 3.3. Extract assetId
       const mintingNFTStatus = mintingNFT.data.data.result;
       assetId = mintingNFTStatus ? mintingNFT.data.data.token.assetId : "No assetId";
 
+      // 4. Update new assetId for document
       newWrappedDocument.assetId = assetId;
 
-      // CALL DID CONTROLLER TO STORE WRAPPED DOCUMENT
+      // 5. Call DID Controller to store document on DB
+      // const updatingWrappedDocumentStatus = await axios.put(SERVERS.DID_CONTROLLER + "/api/doc",
+      //   {
+      //     fileName,
+      //     wrappedDocument: newWrappedDocument,
+      //     companyName
+      //   });
+      // updatingWrappedDocumentStatus.data.errorCode
+      //   ? res.status(400).json(updatingWrappedDocumentStatus.data)
+      //   : res.status(200).json(newWrappedDocument);
 
       res.status(200).send("PENDING....");
     }
