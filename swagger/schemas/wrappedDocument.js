@@ -1,5 +1,6 @@
 module.exports = {
   type: "object",
+  required: ["data", "signature"],
   properties: {
     vesion: {
       type: "string",

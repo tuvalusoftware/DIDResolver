@@ -178,6 +178,20 @@ module.exports.createWrappedDocument = {
       },
       400: {
         $ref: "#/components/responses/BadRequest"
+      },
+      401: {
+        description: "Unauthorized. Cannot verify user with the given access token.",
+        content: {
+          "text/plain": {
+            schema: {
+              type: "string",
+              example: "Unauthorized."
+            }
+          },
+          "application/json": {
+
+          }
+        }
       }
     }
   },
@@ -194,4 +208,8 @@ module.exports.updateWrappedDocument = {
 
     }
   }
+}
+
+module.exports.validateWrappedDocument = {
+
 }
