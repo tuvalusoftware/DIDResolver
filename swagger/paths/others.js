@@ -15,7 +15,7 @@ module.exports.getNFTs = {
       },
       {
         in: "header",
-        name: "policiId",
+        name: "policyId",
         type: "string",
         require: true,
         description: "Policy Id",
@@ -52,7 +52,15 @@ module.exports.getNFTs = {
         }
       },
       401: {
-
+        description: "Cannot verify user with the given access token.",
+        content: {
+          "text/plain": {
+            schema: {
+              type: "string",
+              example: "Unauthorized."
+            }
+          }
+        }
       }
     }
   }
