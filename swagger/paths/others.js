@@ -40,28 +40,16 @@ module.exports.getNFTs = {
         }
       },
       400: {
-        description: "",
         content: {
           "application/json": {
-            example: {
-              errorCode: 400,
-              errorMessage: "Bad request. Missing parameters.",
-              detail: ""
+            schema: { $ref: "#/components/schemas/error" },
+            examples: {
+              "Missing parameters": { $ref: "#/components/examples/errorMissingParameters" }
             }
           }
         }
       },
-      401: {
-        description: "Cannot verify user with the given access token.",
-        content: {
-          "text/plain": {
-            schema: {
-              type: "string",
-              example: "Unauthorized."
-            }
-          }
-        }
-      }
+      401: { $ref: "#/components/responses/Unauthorized" }
     }
   }
 }
@@ -69,16 +57,34 @@ module.exports.getNFTs = {
 
 module.exports.verifyHash = {
   get: {
-    tags: ["DID document"],
-    summary: "Resolve DID - Takes a DID of a company or user as input and produces a conforming DID document as output.",
+    tags: ["Others"],
+    summary: "",
     parameters: [
       {
-        in: "header",
-        name: "did",
+        in: "cookie",
+        name: "access_token",
         type: "string",
         require: true,
-        description: "DID string. Syntax: did:method:companyName:publicKey.",
-        default: "did:method:Kukulu:public_key",
+        description: "Access token of current user.",
+        // default: "did:method:Kukulu:public_key",
+        // example: "did:method:companyName:publicKey",
+      },
+      {
+        in: "header",
+        name: "hashOfDocument",
+        type: "string",
+        require: true,
+        description: "Hash of document",
+        // default: "did:method:Kukulu:public_key",
+        // example: "did:method:companyName:publicKey",
+      },
+      {
+        in: "header",
+        name: "policyId",
+        type: "string",
+        require: true,
+        description: "Policy Id of document",
+        // default: "did:method:Kukulu:public_key",
         // example: "did:method:companyName:publicKey",
       }
     ],
@@ -88,34 +94,76 @@ module.exports.verifyHash = {
         content: {
           "application/json": {
             schema: {
-              $ref: "#/components/schemas/didDocument"
-            },
+              type: "object",
+              properties: {
+                data: {
+                  type: "object",
+                  properties: {
+                    result: { type: "boolean" }
+                  }
+                }
+              }
+            }
           }
         }
       },
       400: {
-        $ref: "#/components/responses/BadRequest"
-      },
-      404: {
-        description: "Not found. Cannot found DID document with a companyName and publicKey included in the given DID string.",
         content: {
           "application/json": {
-            example: {
-              errorCode: 404,
-              message: "File/Public Key with the given value cannot be found."
+            schema: { $ref: "#/components/schemas/error" },
+            examples: {
+              "Missing parameters": { $ref: "#/components/examples/errorMissingParameters" }
             }
           }
         }
-      }
+      },
+      401: { $ref: "#/components/responses/Unauthorized" }
     }
   }
 }
 
 module.exports.verifySignature = {
   get: {
-    tags: ["DID document"],
-    summary: "Create DID document for a given DID string of a company/user.",
-    parameters: [],
+    tags: ["Others"],
+    summary: "",
+    parameters: [
+      {
+        in: "cookie",
+        name: "access_token",
+        type: "string",
+        require: true,
+        description: "Access token of current user.",
+        // default: "did:method:Kukulu:public_key",
+        // example: "did:method:companyName:publicKey",
+      },
+      {
+        in: "header",
+        name: "address",
+        type: "string",
+        require: true,
+        description: "",
+        // default: "did:method:Kukulu:public_key",
+        // example: "did:method:companyName:publicKey",
+      },
+      {
+        in: "header",
+        name: "payload",
+        type: "string",
+        require: true,
+        description: "",
+        // default: "did:method:Kukulu:public_key",
+        // example: "did:method:companyName:publicKey",
+      },
+      {
+        in: "header",
+        name: "signature",
+        type: "string",
+        require: true,
+        description: "",
+        // default: "did:method:Kukulu:public_key",
+        // example: "did:method:companyName:publicKey",
+      },
+    ],
     requestBody: {
       required: true,
       content: {
@@ -136,20 +184,34 @@ module.exports.verifySignature = {
       }
     },
     responses: {
-      201: {
-        description: "Created. New DID document is successfully created.",
+      200: {
         content: {
-          "text/plain": {
+          "application/json": {
             schema: {
-              type: "string",
-              example: "DID Document created."
+              type: "object",
+              properties: {
+                data: {
+                  type: "object",
+                  properties: {
+                    result: { type: "boolean" }
+                  }
+                }
+              }
             }
           }
         }
       },
       400: {
-        $ref: "#/components/responses/BadRequest"
-      }
+        content: {
+          "application/json": {
+            schema: { $ref: "#/components/schemas/error" },
+            examples: {
+              "Missing parameters": { $ref: "#/components/examples/errorMissingParameters" }
+            }
+          }
+        }
+      },
+      401: { $ref: "#/components/responses/Unauthorized" }
     }
   }
 }

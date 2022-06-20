@@ -23,6 +23,17 @@ module.exports.responses = {
       }
     }
   },
+  Unauthorized: {
+    description: "Cannot verify user with the given access token.",
+    content: {
+      "text/plain": {
+        schema: {
+          type: "string",
+          example: "Unauthorized."
+        }
+      }
+    }
+  }
 }
 
 // console.log(this.responses.BadRequest.content);

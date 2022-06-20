@@ -1,5 +1,5 @@
 const { getDidDocument, createDidDocument } = require("./didDocument");
-const { getNFTs } = require("./others");
+const { getNFTs, verifyHash } = require("./others");
 const { checkWrappedDocumentExistence, getWrappedDocument, createWrappedDocument } = require("./wrappedDocument");
 
 module.exports.paths = {
@@ -22,8 +22,9 @@ module.exports.paths = {
   "/nfts/": {
     ...getNFTs
   },
-  // "/hash/verify/": {
-  // },
+  "/hash/verify/": {
+    ...verifyHash
+  },
   // "/signature/verify/": {
   // }
 }

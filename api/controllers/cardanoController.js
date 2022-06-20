@@ -48,24 +48,30 @@ module.exports = {
   verifyHash: async function (req, res) {
     // Receive input data
     const access_token = req.cookies['access_token'];
-    const { hashofdocument, policyid } = req.headers;
+    const { hashofdocument: hashOfDocument, policyid: policyId } = req.headers;
     console.log(policyid)
 
     // Handle input errors
-    if (!hashofdocument || !policyid)
-      return res.status(400).json(ERRORS.MISSING_PARAMETERS);
+    if (!hashOfDocument || !policyId)
+      return res.status(400).json({
+        ...ERRORS.MISSING_PARAMETERS,
+        detail: "Not found:"
+          + (!hashOfDocument) ? " hashOfDocument" : ""
+            + (!policyId) ? " policyId" : ""
+      });
 
     // Call Cardano Service
     // succes:
     //   { data: { result: true/false } }
     // error:
     //   { error_code: number, error_message: string }
-    await axios.get(`${SERVERS.CARDANO_SERVICE}/api/verifyHash?policyID=${policyid}&hashOfDocument=${hashofdocument}`, {
-      withCredentials: true,
-      headers: {
-        "Cookie": `access_token=${access_token}`
-      }
-    })
+    await axios
+      .get(`${SERVERS.CARDANO_SERVICE}/api/verifyHash?policyID=${policyId}&hashOfDocument=${hashOfDocument}`, {
+        withCredentials: true,
+        headers: {
+          "Cookie": `access_token=${access_token}`
+        }
+      })
       .then((response) => res.status(200).json(response.data))
       .catch(error => {
         return error.response
@@ -81,7 +87,13 @@ module.exports = {
 
     // Handle input error
     if (!address || !payload || !signature)
-      return res.status(400).json(ERRORS.MISSING_PARAMETERS);
+      return res.status(400).json({
+        ...ERRORS.MISSING_PARAMETERS,
+        detail: "Not found:"
+          + (!address) ? " address" : ""
+            + (!payload) ? " payload" : ""
+              + (!signature) ? " signature" : ""
+      });
 
     // Call Cardano Service
     // success:
