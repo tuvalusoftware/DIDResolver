@@ -123,6 +123,47 @@ module.exports = {
       });
   },
 
+  getAllWrappedDocuments: async function (req, res) {
+    // Receive input data
+    const { did } = req.headers;
+
+    // Handle input errors
+    if (!did)
+      return res.status(400).json({
+        ...ERRORS.MISSING_PARAMETERS,
+        detail: "Not found: did"
+      });
+
+    const didComponents = did.split(":");
+    if (didComponents.length < 4 || didComponents[0] != "did")
+      return res.status(400).json(ERRORS.INVALID_INPUT);
+    // Call DID Controller
+    // success:
+    //   [
+    //     {...},
+    //     {...}
+    //   ]
+    // error: 
+    //   { errorCode: number, message: string }
+    await axios
+      .get(SERVERS.DID_CONTROLLER + "/api/doc/user", {
+        headers: {
+          companyName: didComponents[2],
+          publicKey: didComponents[3]
+        },
+      })
+      .then((response) => {
+        response.data.errorCode
+          ? res.status(404).json(response.data)
+          : res.status(200).json(response.data);
+      })
+      .catch((error) => {
+        error.response
+          ? res.status(400).json(error.response.data)
+          : res.status(400).json(error)
+      });
+  },
+
   checkWrappedDocumentExistence: async function (req, res) {
     // Receive input data
     const { companyname: companyName, filename: fileName } = req.headers;
@@ -423,3 +464,4 @@ module.exports = {
     }
   }
 }
+
