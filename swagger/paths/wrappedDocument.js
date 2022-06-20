@@ -240,12 +240,89 @@ module.exports.createWrappedDocument = {
 module.exports.updateWrappedDocument = {
   put: {
     tags: ["Wrapped document"],
-    summary: "",
+    summary: "Receive and valiate wrapped document from dApp and call services to hash and store data.",
+    parameters: [
+      {
+        in: "cookie",
+        name: "access_token",
+        type: "string",
+        require: true,
+        description: "Access token of current user",
+      }
+    ],
     requestBody: {
-
+      require: true,
+      content: {
+        "application/json": {
+          schema: {
+            type: "object",
+            properties: {
+              newWrappedDocument: {
+                $ref: "#/components/schemas/wrappedDocument"
+              },
+              previousHashOfDocument: {
+                type: "string",
+                example: "???"
+              },
+            }
+          }
+        }
+      }
     },
     responses: {
-
+      201: {
+        description: "New wrapped document is successfully created.",
+        content: {
+          "application/json": {
+            schema: { $ref: "#/components/schemas/wrappedDocument" }
+          }
+        }
+      },
+      400: {
+        description: "Missing parameters or invalid input",
+        content: {
+          "application/json": {
+            schema: { $ref: "#/components/schemas/error" },
+            examples: {
+              "Missing parameters": { $ref: "#/components/examples/errorMissingParameters" },
+              "Invalid input": { $ref: "#/components/examples/errorInvalidInput" }
+            }
+          }
+        }
+      },
+      401: {
+        description: "Cannot verify user with the given access token.",
+        content: {
+          "text/plain": {
+            schema: {
+              type: "string",
+              example: "Unauthorized."
+            }
+          },
+        }
+      },
+      403: {
+        description: "User is not allow to modify wrapped document.",
+        content: {
+          "application/json": {
+            schema: { $ref: "#/components/schemas/error" },
+            examples: {
+              "Permission denied": { $ref: "#/components/examples/errorPermissionDenied" }
+            }
+          }
+        }
+      },
+      409: {
+        description: "Wrapped document with the same name is created.",
+        content: {
+          "application/json": {
+            schema: { $ref: "#/components/schemas/error" },
+            examples: {
+              "Not found": { $ref: "#/components/examples/errorNotFound" }
+            }
+          }
+        }
+      }
     }
   }
 }
