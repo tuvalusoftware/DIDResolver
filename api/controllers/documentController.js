@@ -402,17 +402,17 @@ module.exports = {
       newWrappedDocument.assetId = assetId;
 
       // 5. Call DID Controller to store document on DB
-      // const updatingWrappedDocumentStatus = await axios.put(SERVERS.DID_CONTROLLER + "/api/doc",
-      //   {
-      //     fileName,
-      //     wrappedDocument: newWrappedDocument,
-      //     companyName
-      //   });
-      // updatingWrappedDocumentStatus.data.errorCode
-      //   ? res.status(400).json(updatingWrappedDocumentStatus.data)
-      //   : res.status(200).json(newWrappedDocument);
+      const updatingWrappedDocumentStatus = await axios.post(SERVERS.DID_CONTROLLER + "/api/doc",
+        {
+          fileName,
+          wrappedDocument: newWrappedDocument,
+          companyName
+        });
+      updatingWrappedDocumentStatus.data.errorCode
+        ? res.status(400).json(updatingWrappedDocumentStatus.data)
+        : res.status(200).json(newWrappedDocument);
 
-      res.status(200).send("PENDING....");
+      // res.status(200).send("PENDING....");
     }
     catch (err) {
       err.response
