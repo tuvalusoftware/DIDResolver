@@ -246,7 +246,7 @@ module.exports = {
         });
 
       // 3.2. Handle store hash errors 
-      if (mintingNFT.error_code)
+      if (mintingNFT.data.error_code)
         return res.status(400).json(mintingNFT.data);
       if (!mintingNFT) return res.status(400).json(ERRORS.CANNOT_MINT_NFT);
 
@@ -390,7 +390,7 @@ module.exports = {
         })
 
       // 3.2. Handle mintingNFT errors
-      if (!mintingNFT.data.data.result)
+      if (!mintingNFT.data.error_code)
         return res.status(400).json(mintingNFT.data);
       if (!mintingNFT) return res.status(400).json(ERRORS.CANNOT_MINT_NFT);
 
