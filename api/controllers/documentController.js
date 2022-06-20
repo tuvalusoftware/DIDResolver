@@ -123,7 +123,7 @@ module.exports = {
       });
   },
 
-  getAllWrappedDocuments: async function (req, res) {
+  getAllWrappedDocumentsOfUser: async function (req, res) {
     // Receive input data
     const { did } = req.headers;
 

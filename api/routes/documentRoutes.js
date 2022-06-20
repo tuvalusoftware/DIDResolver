@@ -14,6 +14,6 @@ router.post("/wrapped-document", documentController.createWrappedDocument);
 router.put("/wrapped-document", documentController.updateWrappedDocument);
 router.put("/wrapped-document/valid", documentController.validateWrappedDocument);
 router.get("/wrapped-document/exist", documentController.checkWrappedDocumentExistence);
-router.get("/wrapped-document/user", documentController.getAllWrappedDocuments);
+router.get("/wrapped-document/user", documentController.getAllWrappedDocumentsOfUser);
 
 module.exports = router;

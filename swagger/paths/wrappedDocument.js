@@ -42,8 +42,8 @@ module.exports.getWrappedDocument = {
             schema: {
               type: "object",
               properties: {
-                didDoc: { $ref: "#components/schemas/didDocumentOfWrappedDocument" },
-                wrappedDoc: { $ref: "#components/schemas/wrappedDocument" }
+                didDoc: { $ref: "#/components/schemas/didDocumentOfWrappedDocument" },
+                wrappedDoc: { $ref: "#/components/schemas/wrappedDocument" }
               }
             },
           }
@@ -79,6 +79,73 @@ module.exports.getWrappedDocument = {
                   message: "File/Public Key with the given value cannot be found."
                 }
               },
+              "No branch": {
+                value: {
+                  errorCode: 10003,
+                  message: "Company with the given name cannot be found."
+                }
+              },
+            }
+          }
+        }
+      }
+    }
+  }
+}
+
+module.exports.getAllWrappedDocumentsOfUser = {
+  get: {
+    tags: ["Wrapped document"],
+    summary: "Get all wrapped document of a user given user's DID.",
+    parameters: [
+      {
+        in: "header",
+        name: "did",
+        type: "string",
+        require: true,
+        description: "DID string. Syntax: did:method:companyName:publicKey.",
+        example: "did:method:Kukulu:publicKey",
+        // default: "did:method:giabuynh:srs"
+      }
+    ],
+    responses: {
+      200: {
+        description: "Return array containind all wrapped documents of users.",
+        content: {
+          "application/json": {
+            schema: {
+              type: "array",
+              items: {
+                $ref: "#/components/schemas/wrappedDocument"
+              }
+            },
+          }
+        },
+      },
+      400: {
+        description: "Missing parameters or invalid input",
+        content: {
+          "application/json": {
+            schema: { $ref: "#/components/schemas/error" },
+            examples: {
+              "Missing parameters": { $ref: "#/components/examples/errorMissingParameters" },
+              "Invalid input": { $ref: "#/components/examples/errorInvalidInput" }
+            }
+          }
+        }
+      },
+      404: {
+        description: "DID document or/and wrapped document are not found.",
+        content: {
+          "application/json": {
+            schema: {
+              type: "object",
+              properties: {
+                errorCode: { type: "integer" },
+                message: { type: "string" }
+              },
+            },
+            examples: {
               "No branch": {
                 value: {
                   errorCode: 10003,

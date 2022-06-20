@@ -1,5 +1,3 @@
-
-
 module.exports.getDidDocument = {
   get: {
     tags: ["DID document"],
