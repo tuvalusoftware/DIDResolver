@@ -125,7 +125,10 @@ module.exports = {
 
   getAllWrappedDocumentsOfUser: async function (req, res) {
     // Receive input data
+    const { access_token } = req.cookies["access_token"];
     const { did } = req.headers;
+
+    // 
 
     // Handle input errors
     if (!did)
