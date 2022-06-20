@@ -126,6 +126,7 @@ module.exports = {
   checkWrappedDocumentExistence: async function (req, res) {
     // Receive input data
     const { companyname: companyName, filename: fileName } = req.headers;
+    console.log(companyName, fileName);
 
     // Handle input errors
     if (!companyName || !fileName)
@@ -193,6 +194,7 @@ module.exports = {
       // 1.1. Get address of user from the acess token
       // success: 
       //   { data: { address: string } }
+      // error: 401 - unauthorized
       const address = await axios.get(SERVERS.AUTHENTICATION_SERVICE + "/api/auth/verify",
         {
           withCredentials: true,

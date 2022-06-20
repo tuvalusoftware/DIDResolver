@@ -17,22 +17,12 @@ module.exports.responses = {
           $ref: "#/components/schemas/error",
         },
         examples: {
-          "Missing parameters": {
-            value: {
-              errorCode: 400,
-              errorMessage: "Bad request. Missing parameters.",
-              detail: ""
-            }
-          },
-          "Invalid input": {
-            value: {
-              errorCode: 400,
-              errorMessage: "Bad request. Invalid input syntax.",
-              detail: ""
-            }
-          }
+          "Missing parameters": { $ref: "#/components/examples/errorMissingParameters" },
+          "Invalid input": { $ref: "#/components/examples/errorInvalidInput" }
         }
       }
     }
   },
 }
+
+// console.log(this.responses.BadRequest.content);

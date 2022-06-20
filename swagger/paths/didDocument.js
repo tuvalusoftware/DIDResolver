@@ -17,7 +17,7 @@ module.exports.getDidDocument = {
     ],
     responses: {
       200: {
-        description: "OK. Return a conforming DID document.",
+        description: "Return a conforming DID document.",
         content: {
           "application/json": {
             schema: {
@@ -27,10 +27,19 @@ module.exports.getDidDocument = {
         }
       },
       400: {
-        $ref: "#/components/responses/BadRequest"
+        description: "Missing parameters or invalid input.",
+        content: {
+          "application/json": {
+            schema: { $ref: "#/components/schemas/error" },
+            examples: {
+              "Missing parameters": { $ref: "#/components/examples/errorMissingParameters" },
+              "Invalid input": { $ref: "#/components/examples/errorInvalidInput" }
+            }
+          }
+        }
       },
       404: {
-        description: "Not found. Cannot found DID document with a companyName and publicKey included in the given DID string.",
+        description: "Cannot found DID document with a companyName and publicKey included in the given DID string.",
         content: {
           "application/json": {
             example: {
@@ -70,7 +79,7 @@ module.exports.createDidDocument = {
     },
     responses: {
       201: {
-        description: "Created. New DID document is successfully created.",
+        description: "New DID document is successfully created.",
         content: {
           "text/plain": {
             schema: {
@@ -81,7 +90,16 @@ module.exports.createDidDocument = {
         }
       },
       400: {
-        $ref: "#/components/responses/BadRequest"
+        description: "Missing parameters or invalid input",
+        content: {
+          "application/json": {
+            schema: { $ref: "#/components/schemas/error" },
+            examples: {
+              "Missing parameters": { $ref: "#/components/examples/errorMissingParameters" },
+              "Invalid input": { $ref: "#/components/examples/errorInvalidInput" }
+            }
+          }
+        }
       }
     }
   }

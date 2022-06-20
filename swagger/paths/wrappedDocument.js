@@ -42,22 +42,27 @@ module.exports.getWrappedDocument = {
             schema: {
               type: "object",
               properties: {
-                didDoc: {
-                  $ref: "#components/schemas/didDocumentOfWrappedDocument",
-                },
-                wrappedDoc: {
-                  $ref: "#components/schemas/wrappedDocument",
-                }
+                didDoc: { $ref: "#components/schemas/didDocumentOfWrappedDocument" },
+                wrappedDoc: { $ref: "#components/schemas/wrappedDocument" }
               }
-            }
+            },
           }
         },
       },
       400: {
-        $ref: "#/components/responses/BadRequest"
+        description: "Missing parameters or invalid input",
+        content: {
+          "application/json": {
+            schema: { $ref: "#/components/schemas/error" },
+            examples: {
+              "Missing parameters": { $ref: "#/components/examples/errorMissingParameters" },
+              "Invalid input": { $ref: "#/components/examples/errorInvalidInput" }
+            }
+          }
+        }
       },
       404: {
-        description: "Not found. DID document or/and wrapped document are not found.",
+        description: "DID document or/and wrapped document are not found.",
         content: {
           "application/json": {
             schema: {
@@ -112,7 +117,7 @@ module.exports.checkWrappedDocumentExistence = {
     ],
     responses: {
       200: {
-        description: "OK. Return true/false value representing the exsitence of the given wrapped document name in the given company storage.",
+        description: "Return true/false value representing the exsitence of the given wrapped document name in the given company storage.",
         content: {
           "text/plain": {
             schema: {
@@ -122,7 +127,16 @@ module.exports.checkWrappedDocumentExistence = {
         }
       },
       400: {
-        $ref: "#/components/responses/BadRequest"
+        description: "Missing parameters or invalid input",
+        content: {
+          "application/json": {
+            schema: { $ref: "#/components/schemas/error" },
+            examples: {
+              "Missing parameters": { $ref: "#/components/examples/errorMissingParameters" },
+              "Invalid input": { $ref: "#/components/examples/errorInvalidInput" }
+            }
+          }
+        }
       }
     }
   }
@@ -156,10 +170,10 @@ module.exports.createWrappedDocument = {
                 type: "string",
                 example: "???"
               },
-              did: {
-                type: "string",
-                example: ""
-              }
+              // did: {
+              //   type: "string",
+              //   example: ""
+              // }
             }
           }
         }
@@ -167,20 +181,27 @@ module.exports.createWrappedDocument = {
     },
     responses: {
       201: {
-        description: "Created. New wrapped document is successfully created.",
+        description: "New wrapped document is successfully created.",
         content: {
           "application/json": {
-            schema: {
-              $ref: "#/components/schemas/wrappedDocument"
-            }
+            schema: { $ref: "#/components/schemas/wrappedDocument" }
           }
         }
       },
       400: {
-        $ref: "#/components/responses/BadRequest"
+        description: "Missing parameters or invalid input",
+        content: {
+          "application/json": {
+            schema: { $ref: "#/components/schemas/error" },
+            examples: {
+              "Missing parameters": { $ref: "#/components/examples/errorMissingParameters" },
+              "Invalid input": { $ref: "#/components/examples/errorInvalidInput" }
+            }
+          }
+        }
       },
       401: {
-        description: "Unauthorized. Cannot verify user with the given access token.",
+        description: "Cannot verify user with the given access token.",
         content: {
           "text/plain": {
             schema: {
@@ -188,13 +209,32 @@ module.exports.createWrappedDocument = {
               example: "Unauthorized."
             }
           },
+        }
+      },
+      403: {
+        description: "User is not allow to create wrapped document.",
+        content: {
           "application/json": {
-
+            schema: { $ref: "#/components/schemas/error" },
+            examples: {
+              "Permission denied": { $ref: "#/components/examples/errorPermissionDenied" }
+            }
+          }
+        }
+      },
+      409: {
+        description: "Wrapped document with the same name is created.",
+        content: {
+          "application/json": {
+            schema: { $ref: "#/components/schemas/error" },
+            examples: {
+              "Already existed": { $ref: "#/components/examples/errorAlreadyExisted" }
+            }
           }
         }
       }
     }
-  },
+  }
 }
 
 module.exports.updateWrappedDocument = {
