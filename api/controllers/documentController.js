@@ -1,4 +1,5 @@
 const axios = require("axios").default;
+const { Costmdls } = require("@emurgo/cardano-serialization-lib-nodejs");
 const { ERRORS, SERVERS, SHEMAS } = require("../../core/constants");
 const { validateJSONSchema, getAddressFromHexEncoded } = require("../../core/index");
 
@@ -134,9 +135,20 @@ module.exports = {
         detail: "Not found: did"
       });
 
+    // did syntax: did:method:companyName:(uuid4:string:address)
     const didComponents = did.split(":");
-    if (didComponents.length < 4 || didComponents[0] != "did")
-      return res.status(400).json(ERRORS.INVALID_INPUT);
+    if (didComponents.length < 6 || didComponents[0] != "did")
+      return res.status(400).json({
+        ...ERRORS.INVALID_INPUT,
+        detail: "DID syntax: did:method:companyName:(uuid4:string:address)"
+      });
+
+    // Extract data required to call service
+    const companyName = didComponents[2];
+    const publicKey = didComponents.slice(3).join(":");
+    // console.log("Company name", companyName);
+    // console.log("Public key", publicKey);
+
     // Call DID Controller
     // success:
     //   [
@@ -148,8 +160,8 @@ module.exports = {
     await axios
       .get(SERVERS.DID_CONTROLLER + "/api/doc/user", {
         headers: {
-          companyName: didComponents[2],
-          publicKey: didComponents[3]
+          companyName: companyName,
+          publicKey: publicKey
         },
       })
       .then((response) => {
@@ -332,7 +344,10 @@ module.exports = {
   validateWrappedDocument: async function (req, res) {
     const { wrappedDocument } = req.body;
     if (!wrappedDocument)
-      return res.status(400).json(ERRORS.MISSING_PARAMETERS);
+      return res.status(400).json({
+        ...ERRORS.MISSING_PARAMETERS,
+        detail: "Not found: wrappedDocument"
+      });
 
     const valid = validateJSONSchema(SHEMAS.WRAPPED_DOCUMENT, wrappedDocument);
 

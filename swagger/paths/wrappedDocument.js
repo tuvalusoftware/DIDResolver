@@ -104,7 +104,7 @@ module.exports.getAllWrappedDocumentsOfUser = {
         type: "string",
         require: true,
         description: "DID string. Syntax: did:method:companyName:publicKey.",
-        example: "did:method:Kukulu:publicKey",
+        example: "did:method:Kukulu:uuid:string:address",
         // default: "did:method:giabuynh:srs"
       }
     ],
@@ -395,5 +395,46 @@ module.exports.updateWrappedDocument = {
 }
 
 module.exports.validateWrappedDocument = {
-
+  put: {
+    tags: ["Wrapped document"],
+    summary: "Valiate wrapped document.",
+    requestBody: {
+      require: true,
+      content: {
+        "application/json": {
+          schema: {
+            type: "object",
+            properties: {
+              wrappedDocument: { $ref: "#/components/schemas/wrappedDocument" },
+            }
+          }
+        }
+      }
+    },
+    responses: {
+      200: {
+        description: "New wrapped document is successfully created.",
+        content: {
+          "text/plain": {
+            schema: { type: "boolean" }
+          },
+          "application/json": {
+            // schema: { $ref: "#/components/schemas/wrappedDocument" }
+            example: {
+              valid: false,
+              detail: [
+                {
+                  instancePath: "",
+                  schemaPath: "#/required",
+                  keyword: "required",
+                  params: { missingProperty: "signature" },
+                  message: "must have required property 'signature'"
+                }
+              ]
+            }
+          }
+        }
+      },
+    }
+  }
 }
