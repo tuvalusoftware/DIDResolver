@@ -1,5 +1,4 @@
 const axios = require("axios").default;
-const { Costmdls } = require("@emurgo/cardano-serialization-lib-nodejs");
 const { ERRORS, SERVERS, SHEMAS } = require("../../core/constants");
 const { validateJSONSchema, getAddressFromHexEncoded } = require("../../core/index");
 
