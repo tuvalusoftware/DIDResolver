@@ -15,17 +15,17 @@ module.exports.getNFTs = {
       },
       {
         in: "header",
-        name: "policyId",
+        name: "policyid",
         type: "string",
         require: true,
         description: "Policy Id",
-        // default: "did:method:Kukulu:public_key",
+        default: "1050dd64e77e671a0fee81f391080f5f57fefba2e26a816019aa5524",
         // example: "did:method:companyName:publicKey",
       }
     ],
     responses: {
       200: {
-        description: "OK.",
+        description: "",
         content: {
           "application/json": {
             example: {

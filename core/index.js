@@ -37,5 +37,5 @@ module.exports.validateJSONSchema = (schema, object) => {
   const validate = ajv.compile(schema);
   const valid = validate(object);
   console.log(valid);
-  return valid ? { valid } : { valid, detail: validate.errors };
+  return valid ? valid : { valid, detail: validate.errors };
 }

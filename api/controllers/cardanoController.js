@@ -5,10 +5,13 @@ module.exports = {
   getNFTs: async function (req, res) {
     // Receive input data
     const access_token = req.cookies['access_token'];
-    const { policyid } = req.headers;
+    const { policyid: policyId } = req.headers;
 
     // Handle input errors
-    if (!policyid) return res.status(400).json(ERRORS.MISSING_PARAMETERS);
+    if (!policyId) return res.status(400).json({
+      ...ERRORS.MISSING_PARAMETERS,
+      detail: "Not found: policiid"
+    });
 
     // Call Cardano Service
     // success:
@@ -25,7 +28,7 @@ module.exports = {
     // error:
     //   { error_code: number, error_message: string }
     await axios
-      .get(`${SERVERS.ARDANO_SERVICE}/api/getNFTs/${policyid}`,
+      .get(`${SERVERS.CARDANO_SERVICE}/api/getNFTs/${policyId}`,
         {
           withCredentials: true,
           headers: {
