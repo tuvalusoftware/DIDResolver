@@ -9,6 +9,10 @@ module.exports.tags = {
       description: "API for wrapped document"
     },
     {
+      name: "Credential",
+      description: "API for credential"
+    },
+    {
       name: "Others",
       description: "API for :)"
     }
