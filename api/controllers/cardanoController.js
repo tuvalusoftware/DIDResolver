@@ -13,6 +13,18 @@ module.exports = {
       detail: "Not found: policiid"
     });
 
+    // Authentiacate
+    // success: 
+    //   { data: { address: string } }
+    // error: 401 - unauthorized
+    await axios.get(SERVERS.AUTHENTICATION_SERVICE + "/api/auth/verify",
+      {
+        withCredentials: true,
+        headers: {
+          "Cookie": `access_token=${access_token};`
+        }
+      });
+
     // Call Cardano Service
     // success:
     //   {
@@ -63,6 +75,18 @@ module.exports = {
             + (!policyId) ? " policyId" : ""
       });
 
+    // Authentiacate
+    // success: 
+    //   { data: { address: string } }
+    // error: 401 - unauthorized
+    await axios.get(SERVERS.AUTHENTICATION_SERVICE + "/api/auth/verify",
+      {
+        withCredentials: true,
+        headers: {
+          "Cookie": `access_token=${access_token};`
+        }
+      });
+
     // Call Cardano Service
     // succes:
     //   { data: { result: true/false } }
@@ -96,6 +120,18 @@ module.exports = {
           + (!address) ? " address" : ""
             + (!payload) ? " payload" : ""
               + (!signature) ? " signature" : ""
+      });
+
+    // Authentiacate
+    // success: 
+    //   { data: { address: string } }
+    // error: 401 - unauthorized
+    await axios.get(SERVERS.AUTHENTICATION_SERVICE + "/api/auth/verify",
+      {
+        withCredentials: true,
+        headers: {
+          "Cookie": `access_token=${access_token};`
+        }
       });
 
     // Call Cardano Service

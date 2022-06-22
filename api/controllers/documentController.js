@@ -5,6 +5,7 @@ const { validateJSONSchema, getAddressFromHexEncoded } = require("../../core/ind
 module.exports = {
   getDIDDocument: async function (req, res) {
     // Receive input data
+    const access_token = req.cookies['access_token'];
     const { did } = req.headers;
 
     // Handle input errors
@@ -44,6 +45,7 @@ module.exports = {
 
   createDIDDocument: async function (req, res) {
     // Receive input data
+    const access_token = req.cookies['access_token'];
     const { did, didDocument } = req.body;
 
     // Handle input errors
@@ -85,6 +87,7 @@ module.exports = {
 
   getWrappedDocument: async function (req, res) {
     // Receive input data
+    const access_token = req.cookies['access_token'];
     const { did } = req.headers;
     const { only } = req.query;
 
@@ -481,4 +484,3 @@ module.exports = {
     }
   }
 }
-
