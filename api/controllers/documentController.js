@@ -6,17 +6,16 @@ module.exports = {
   getDIDDocument: async function (req, res) {
     // Receive input data
     const { did } = req.headers;
-
     // Handle input errors
     if (!did) return res.status(400).json(ERRORS.MISSING_PARAMETERS);
-
     const didComponents = did.split(":");
-    if (didComponents.length < 4 || didComponents[0] != "did")
-      return res.status(400).json(ERRORS.INVALID_INPUT);
 
+    if (didComponents.length < 6 || didComponents[2] != "did")
+      return res.status(400).json(ERRORS.INVALID_INPUT);
     // Extract data required to call services
-    const companyName = didComponents[2],
-      fileName = didComponents[3];
+    const companyName = didComponents[4],
+      fileName = didComponents[5];
+
 
     // Call DID Controller
     // success:
@@ -87,13 +86,12 @@ module.exports = {
     // Receive input data
     const { did } = req.headers;
     const { only } = req.query;
-
     // Handle input errors
     if (!did)
       return res.status(400).json(ERRORS.MISSING_PARAMETERS);
 
     const didComponents = did.split(":");
-    if (didComponents.length < 4 || didComponents[0] != "did")
+    if (didComponents.length < 6 || didComponents[2] != "did")
       return res.status(400).json(ERRORS.INVALID_INPUT);
     // Call DID Controller
     // success:
@@ -106,8 +104,8 @@ module.exports = {
     await axios
       .get(SERVERS.DID_CONTROLLER + "/api/doc", {
         headers: {
-          companyName: didComponents[2],
-          fileName: didComponents[3]
+          companyName: didComponents[4],
+          fileName: didComponents[5]
         },
         params: { only }
       })
@@ -136,7 +134,7 @@ module.exports = {
 
     // did syntax: did:method:companyName:(uuid4:string:address)
     const didComponents = did.split(":");
-    if (didComponents.length < 6 || didComponents[0] != "did")
+    if (didComponents.length < 4 || didComponents[0] != "did")
       return res.status(400).json({
         ...ERRORS.INVALID_INPUT,
         detail: "DID syntax: did:method:companyName:(uuid4:string:address)"
@@ -144,7 +142,7 @@ module.exports = {
 
     // Extract data required to call service
     const companyName = didComponents[2];
-    const publicKey = didComponents.slice(3).join(":");
+    const publicKey =didComponents[3];
     // console.log("Company name", companyName);
     // console.log("Public key", publicKey);
 
@@ -219,12 +217,13 @@ module.exports = {
 
     //Validate wrapped document format
     const valid = validateJSONSchema(SHEMAS.NEW_WRAPPED_DOCUMENT, wrappedDocument);
-    if (!valid.valid)
+    if (!valid) {
       return res.status(404).json({
         ...ERRORS.INVALID_INPUT,
         detail: "Invalid wrapped document.\n" + valid.detail
       });
-
+    }
+      
     // Extract data required to call services
     const did = wrappedDocument.data.did,
       targetHash = wrappedDocument.signature.targetHash;
@@ -236,7 +235,6 @@ module.exports = {
         detail: "Invalid DID syntax. Check the wrappedDocument.data.did element."
       });
     }
-
     const companyName = didComponents[4],
       fileName = didComponents[5],
       issuerAddress = getAddressFromHexEncoded(encryptedIssuerAddress);
