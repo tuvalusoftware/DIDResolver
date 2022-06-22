@@ -137,5 +137,35 @@ module.exports.SHEMAS = {
       assertId: { type: "string" },
       policyId: { type: "string" },
     }
-  }
+  },
+
+  CREDENTIAL: {
+    type: "object",
+    required: ["issuer", "subject", "credentialSubject", "signature"],
+    properties: {
+      issuer: { type: "string" },
+      subject: { type: "string" },
+      credentialSubject: {
+        type: "object",
+        required: ["object"],
+        properties: {
+          object: { type: "string" },
+          action: {
+            type: "object",
+            properties: {
+              code: { type: "integer" },
+              value: { type: "string" }
+            }
+          }
+        }
+      },
+      signature: { type: "string" },
+      metadata: {
+        type: "object",
+        properties: {
+          dateCreated: { type: "string" }
+        }
+      }
+    }
+  },
 }
