@@ -62,32 +62,7 @@ module.exports.getWrappedDocument = {
         }
       },
       404: {
-        description: "DID document or/and wrapped document are not found.",
-        content: {
-          "application/json": {
-            schema: {
-              type: "object",
-              properties: {
-                errorCode: { type: "integer" },
-                message: { type: "string" }
-              },
-            },
-            examples: {
-              "No file": {
-                value: {
-                  errorCode: 10004,
-                  message: "File/Public Key with the given value cannot be found."
-                }
-              },
-              "No branch": {
-                value: {
-                  errorCode: 10003,
-                  message: "Company with the given name cannot be found."
-                }
-              },
-            }
-          }
-        }
+        $ref: "#/components/responses/NotFound_DIDDocument"
       }
     }
   }
@@ -135,26 +110,7 @@ module.exports.getAllWrappedDocumentsOfUser = {
         }
       },
       404: {
-        description: "DID document or/and wrapped document are not found.",
-        content: {
-          "application/json": {
-            schema: {
-              type: "object",
-              properties: {
-                errorCode: { type: "integer" },
-                message: { type: "string" }
-              },
-            },
-            examples: {
-              "No branch": {
-                value: {
-                  errorCode: 10003,
-                  message: "Company with the given name cannot be found."
-                }
-              },
-            }
-          }
-        }
+        $ref: "#/components/responses/NotFound_DIDDocument"
       }
     }
   }

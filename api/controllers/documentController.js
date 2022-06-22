@@ -226,9 +226,10 @@ module.exports = {
     //Validate wrapped document format
     const valid = validateJSONSchema(SHEMAS.NEW_WRAPPED_DOCUMENT, wrappedDocument);
     if (!valid.valid)
-      return res.status(404).json({
+      return res.status(400).json({
         ...ERRORS.INVALID_INPUT,
-        detail: "Invalid wrapped document.\n" + valid.detail
+        errorMessage: "Bad request. Invalid wrapped document.",
+        detail: valid.detail
       });
 
     // Extract data required to call services
@@ -378,7 +379,8 @@ module.exports = {
     if (!valid.valid)
       return res.status(400).json({
         ...ERRORS.INVALID_INPUT,
-        detail: "Invalid wrapped document.\n" + valid.detail
+        errorMessage: "Bad request. Invalid wrapped document.",
+        detail: valid.detail
       });
 
     // Extract data required to call services
