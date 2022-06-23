@@ -8,5 +8,5 @@ const credentialRoutes = require("./credentialRoutes");
 module.exports = (app) => {
     app.use("/resolver", documentRoutes);
     app.use("/resolver", cardanoRoutes);
-    app.use("/resolver/", credentialRoutes);
+    app.use("/resolver", credentialRoutes);
 }

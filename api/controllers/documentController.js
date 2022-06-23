@@ -233,8 +233,8 @@ module.exports = {
       });
 
     // Extract data required to call services
-    const did = wrappedDocument.data.did,
-      targetHash = wrappedDocument.signature.targetHash;
+    const did = wrappedDocument.data.did;
+    const targetHash = wrappedDocument.signature.targetHash;
 
     const didComponents = did.split(":");
     if (didComponents.length < 6 || didComponents[2] !== "did") {
@@ -325,7 +325,7 @@ module.exports = {
       //   { message: "success" }
       // error:
       //   { errorCode: number, message: string }
-      const storingWrappedDocumentStatus = await axios.post((SERVERS.DID_CONTROLLER + "/api/doc"),
+      const storeWrappedDocumentStatus = await axios.post((SERVERS.DID_CONTROLLER + "/api/doc"),
         {
           fileName,
           wrappedDocument,
@@ -334,8 +334,8 @@ module.exports = {
       );
 
       // 6. Return policyId an assetId if the process is success.
-      storingWrappedDocumentStatus.data.errorCode
-        ? res.status(400).json(storingWrappedDocumentStatus.data)
+      storeWrappedDocumentStatus.data.errorCode
+        ? res.status(400).json(storeWrappedDocumentStatus.data)
         : res.status(201).json(wrappedDocument);
     }
     catch (err) {

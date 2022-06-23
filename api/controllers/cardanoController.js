@@ -63,16 +63,14 @@ module.exports = {
   verifyHash: async function (req, res) {
     // Receive input data
     const access_token = req.cookies['access_token'];
-    const { hashofdocument: hashOfDocument, policyid: policyId } = req.headers;
-    console.log(policyid)
-
+    const { hashofdocument, policyid } = req.headers;
     // Handle input errors
-    if (!hashOfDocument || !policyId)
+    if (!hashofdocument || !policyid)
       return res.status(400).json({
         ...ERRORS.MISSING_PARAMETERS,
         detail: "Not found:"
-          + (!hashOfDocument) ? " hashOfDocument" : ""
-            + (!policyId) ? " policyId" : ""
+          + (!hashofdocument) ? " hashOfDocument" : ""
+            + (!policyid) ? " policyId" : ""
       });
 
     // Authentiacate
@@ -93,7 +91,7 @@ module.exports = {
     // error:
     //   { error_code: number, error_message: string }
     await axios
-      .get(`${SERVERS.CARDANO_SERVICE}/api/verifyHash?policyID=${policyId}&hashOfDocument=${hashOfDocument}`, {
+      .get(`${SERVERS.CARDANO_SERVICE}/api/verifyHash?policyID=${policyid}&hashOfDocument=${hashofdocument}`, {
         withCredentials: true,
         headers: {
           "Cookie": `access_token=${access_token}`
