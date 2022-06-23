@@ -2,8 +2,6 @@
 const axios = require("axios").default;
 const { validateJSONSchema } = require("../../core/index");
 const { ERRORS, SERVERS, SHEMAS } = require("../../core/constants");
-const { stringify } = require("ajv");
-const { response } = require("express");
 
 module.exports = {
   createCredential: async function (req, res) {
