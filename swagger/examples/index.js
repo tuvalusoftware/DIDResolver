@@ -29,6 +29,12 @@ exports.errorPermissionDenied = {
     errorMessage: "Forbidden. Permission denied."
   }
 }
+exports.errorUnverifiedSignature = {
+  value: {
+    error: 403,
+    errorMessage: "Forbidden. Signature is not verified."
+  }
+}
 exports.errorNotFound = {
   value: {
     errorCode: 404,

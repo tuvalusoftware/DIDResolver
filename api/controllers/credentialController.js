@@ -18,8 +18,8 @@ module.exports = {
         detail: "Not found:"
           + (!credential) ? " credential" : ""
             + (!did) ? " did" : ""
-              + (!address) ? " did" : ""
-                + (!payload) ? " did" : ""
+              + (!address) ? " address" : ""
+                + (!payload) ? " payload" : ""
       });
 
     // Validate input

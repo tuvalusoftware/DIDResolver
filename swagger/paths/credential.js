@@ -22,6 +22,14 @@ module.exports.createCredential = {
                 type: "string",
                 example: "did:method:Kukulu:public_key"
               },
+              address: {
+                type: "string",
+                example: "00d86a5efcde8c4129755d0d43b0fd87622a260d45b33bc04140772a532d14a4e1198cebde34e68f82b94f5068de44aa580ebf66cfaaef0698"
+              },
+              payload: {
+                type: "string",
+                example: "7b0a202020202272616e646f6d4e756d626572223a20302e393439343136373338343132363330362c0a202020202274696d657374616d70223a20313635333435313134393334380a7d"
+              },
               credential: {
                 $ref: "#/components/schemas/credential"
               }
@@ -56,6 +64,9 @@ module.exports.createCredential = {
       },
       401: {
         $ref: "#/components/responses/Unauthorized"
+      },
+      403: {
+
       },
       404: {
         $ref: "#/components/responses/NotFound_DIDDocument"
