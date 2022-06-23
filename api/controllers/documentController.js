@@ -296,8 +296,8 @@ module.exports = {
         {
           address: issuerAddress,
           hashOfDocument: targetHash,
-          previousHashOfDocument: "EMPTY",
-          originPolicyId: "EMPTY"
+          previousHashOfDocument: previousHashOfDocument || "EMPTY",
+          originPolicyId: originPolicyId || "EMPTY"
         },
         {
           withCredentials: true,
@@ -445,7 +445,7 @@ module.exports = {
           address: address.data.data.address,
           hashOfDocument: targetHash,
           previousHashOfDocument: previousHashOfDocument,
-          origin: policyId
+          originPolicyId: policyId
         },
         {
           withCredentials: true,
