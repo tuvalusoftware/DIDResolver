@@ -24,6 +24,10 @@ module.exports.ERRORS = {
     errorCode: 403,
     errorMessage: "Forbidden. Permission denied."
   },
+  UNVERIFIED_SIGNATURE: {
+    errorCode: 403,
+    errorMessage: "Forbidden. Signature is not verified."
+  },
   NOT_FOUND: {
     errorCode: 404,
     errorMessage: "Not found. Resource is not found."
