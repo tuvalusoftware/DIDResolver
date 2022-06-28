@@ -9,22 +9,40 @@ module.exports = {
     const { did } = req.headers;
 
     // Handle input errors
-    if (!did) return res.status(400).json(ERRORS.MISSING_PARAMETERS);
+    if (!did) return res.status(200).json({
+      ...ERRORS.MISSING_PARAMETERS,
+      detail: "Not found: did"
+    });
 
     const didComponents = did.split(":");
     if (didComponents.length < 4 || didComponents[0] != "did")
-      return res.status(400).json(ERRORS.INVALID_INPUT);
+      return res.status(200).json(ERRORS.INVALID_INPUT);
 
     // Extract data required to call services
     const companyName = didComponents[2],
       fileName = didComponents[3];
+
+    // Authenticate
+    // success:
+    //   { data: { address: string } }
+    // error: 401 - unauthorized
+    axios
+      .get(SERVERS.AUTHENTICATION_SERVICE + "/api/auth/verify",
+        {
+          withCredentials: true,
+          headers: {
+            "Cookie": `access_token=${access_token};`
+          }
+        })
+      .then((response) => console.log("createCredential..."))
+      .catch((error) => console.log("UNAUTHORIZED"));
 
     // Call DID Controller
     // success:
     //   { ... }
     // error:
     //   { errorCode: number, message: string }
-    await axios
+    axios
       .get(SERVERS.DID_CONTROLLER + "/api/did/",
         {
           headers: {
@@ -34,7 +52,7 @@ module.exports = {
         })
       .then((response) =>
         response.data.errorCode
-          ? res.status(404).json(response.data)
+          ? res.status(200).json(response.data) // 404
           : res.status(200).json(response.data))
       .catch((error) =>
         error.response
@@ -50,22 +68,42 @@ module.exports = {
 
     // Handle input errors
     if (!did || !didDocument)
-      return res.status(400).json(ERRORS.MISSING_PARAMETERS)
+      return res.status(200).json({
+        ...ERRORS.MISSING_PARAMETERS,
+        detail: "Not found:"
+          + (!did) ? " did" : ""
+            + (!didDocument) ? " didDocument" : ""
+      })
 
     const didComponents = did.split(":");
     if (didComponents.length < 4 || didComponents[0] != "did")
-      return res.status(400).json(ERRORS.INVALID_INPUT);
+      return res.status(200).json(ERRORS.INVALID_INPUT);
 
     // Extract data required to call services
     const companyName = didComponents[2],
       fileName = didComponents[3];
+
+    // Authenticate
+    // success:
+    //   { data: { address: string } }
+    // error: 401 - unauthorized
+    axios
+      .get(SERVERS.AUTHENTICATION_SERVICE + "/api/auth/verify",
+        {
+          withCredentials: true,
+          headers: {
+            "Cookie": `access_token=${access_token};`
+          }
+        })
+      .then((response) => console.log("createCredential..."))
+      .catch((error) => console.log("UNAUTHORIZED"));
 
     // Call DID Controller
     // success: 
     //   { message: string }
     // error: 
     //   { errorCode: number, message: string }
-    await axios.post(SERVERS.DID_CONTROLLER + "/api/did/",
+    axios.post(SERVERS.DID_CONTROLLER + "/api/did/",
       {
         companyName: companyName,
         publicKey: fileName,
@@ -74,7 +112,7 @@ module.exports = {
       .then((response) => {
         console.log(response.data);
         response.data.errorCode
-          ? res.status(400).json(response.data)
+          ? res.status(200).json(response.data)
           : res.status(201).send("DID Document created.")
       })
       .catch((error) => {
@@ -93,11 +131,30 @@ module.exports = {
 
     // Handle input errors
     if (!did)
-      return res.status(400).json(ERRORS.MISSING_PARAMETERS);
+      return res.status(400).json({
+        ...ERRORS.MISSING_PARAMETERS,
+        detail: "Not found: did"
+      });
 
     const didComponents = did.split(":");
     if (didComponents.length < 4 || didComponents[0] != "did")
       return res.status(400).json(ERRORS.INVALID_INPUT);
+
+    // Authenticate
+    // success:
+    //   { data: { address: string } }
+    // error: 401 - unauthorized
+    axios
+      .get(SERVERS.AUTHENTICATION_SERVICE + "/api/auth/verify",
+        {
+          withCredentials: true,
+          headers: {
+            "Cookie": `access_token=${access_token};`
+          }
+        })
+      .then((response) => console.log("createCredential..."))
+      .catch((error) => console.log("UNAUTHORIZED"));
+
     // Call DID Controller
     // success:
     //   {
@@ -106,7 +163,7 @@ module.exports = {
     //   }
     // error: 
     //   { errorCode: number, message: string }
-    await axios
+    axios
       .get(SERVERS.DID_CONTROLLER + "/api/doc", {
         headers: {
           companyName: didComponents[2],
@@ -116,7 +173,7 @@ module.exports = {
       })
       .then((response) => {
         response.data.errorCode
-          ? res.status(404).json(response.data)
+          ? res.status(200).json(response.data) // 404
           : res.status(200).json(response.data);
       })
       .catch((error) => {
@@ -131,11 +188,9 @@ module.exports = {
     const { access_token } = req.cookies["access_token"];
     const { did } = req.headers;
 
-    // 
-
     // Handle input errors
     if (!did)
-      return res.status(400).json({
+      return res.status(200).json({
         ...ERRORS.MISSING_PARAMETERS,
         detail: "Not found: did"
       });
@@ -143,7 +198,7 @@ module.exports = {
     // did syntax: did:method:companyName:(uuid4:string:address)
     const didComponents = did.split(":");
     if (didComponents.length < 6 || didComponents[0] != "did")
-      return res.status(400).json({
+      return res.status(200).json({
         ...ERRORS.INVALID_INPUT,
         detail: "DID syntax: did:method:companyName:(uuid4:string:address)"
       });
@@ -154,6 +209,21 @@ module.exports = {
     // console.log("Company name", companyName);
     // console.log("Public key", publicKey);
 
+    // Authenticate
+    // success:
+    //   { data: { address: string } }
+    // error: 401 - unauthorized
+    axios
+      .get(SERVERS.AUTHENTICATION_SERVICE + "/api/auth/verify",
+        {
+          withCredentials: true,
+          headers: {
+            "Cookie": `access_token=${access_token};`
+          }
+        })
+      .then((response) => console.log("createCredential..."))
+      .catch((error) => console.log("UNAUTHORIZED"));
+
     // Call DID Controller
     // success:
     //   [
@@ -162,7 +232,7 @@ module.exports = {
     //   ]
     // error: 
     //   { errorCode: number, message: string }
-    await axios
+    axios
       .get(SERVERS.DID_CONTROLLER + "/api/doc/user", {
         headers: {
           companyName: companyName,
@@ -171,7 +241,7 @@ module.exports = {
       })
       .then((response) => {
         response.data.errorCode
-          ? res.status(404).json(response.data)
+          ? res.status(200).json(response.data)
           : res.status(200).json(response.data);
       })
       .catch((error) => {
@@ -188,19 +258,40 @@ module.exports = {
 
     // Handle input errors
     if (!companyName || !fileName)
-      return res.status(400).json(ERRORS.MISSING_PARAMETERS);
+      return res.status(200).json({
+        ...ERRORS.MISSING_PARAMETERS,
+        detail: "Not found: "
+          + (!companyName) ? " companyName" : ""
+            + (!fileName) ? " fileName" : ""
+      });
+
+    // Authenticate
+    // success:
+    //   { data: { address: string } }
+    // error: 401 - unauthorized
+    axios
+      .get(SERVERS.AUTHENTICATION_SERVICE + "/api/auth/verify",
+        {
+          withCredentials: true,
+          headers: {
+            "Cookie": `access_token=${access_token};`
+          }
+        })
+      .then((response) => console.log("createCredential..."))
+      .catch((error) => console.log("UNAUTHORIZED"));
 
     // Call DID Contoller
     // success:
     //   { isExisted: true/false }
-    await axios.get(SERVERS.DID_CONTROLLER + "/api/doc/exists/",
-      {
-        headers: {
-          companyName,
-          fileName,
-        },
-      })
-      .then((existence) => res.status(200).json(existence.data.isExisted))
+    axios
+      .get(SERVERS.DID_CONTROLLER + "/api/doc/exists/",
+        {
+          headers: {
+            companyName,
+            fileName,
+          },
+        })
+      .then((response) => res.status(200).json(response.data.isExisted))
       .catch((error) =>
         error.response
           ? res.status(400).json(error.response.data)
@@ -226,7 +317,7 @@ module.exports = {
     //Validate wrapped document format
     const valid = validateJSONSchema(SHEMAS.NEW_WRAPPED_DOCUMENT, wrappedDocument);
     if (!valid.valid)
-      return res.status(400).json({
+      return res.status(200).json({
         ...ERRORS.INVALID_INPUT,
         errorMessage: "Bad request. Invalid wrapped document.",
         detail: valid.detail
@@ -238,7 +329,7 @@ module.exports = {
 
     const didComponents = did.split(":");
     if (didComponents.length < 6 || didComponents[2] !== "did") {
-      return res.status(400).json({
+      return res.status(200).json({
         ...ERRORS.INVALID_INPUT,
         detail: "Invalid DID syntax. Check the wrappedDocument.data.did element."
       });
@@ -335,7 +426,7 @@ module.exports = {
 
       // 6. Return policyId an assetId if the process is success.
       storeWrappedDocumentStatus.data.errorCode
-        ? res.status(400).json(storeWrappedDocumentStatus.data)
+        ? res.status(200).json(storeWrappedDocumentStatus.data)
         : res.status(201).json(wrappedDocument);
     }
     catch (err) {
@@ -350,7 +441,7 @@ module.exports = {
   validateWrappedDocument: async function (req, res) {
     const { wrappedDocument } = req.body;
     if (!wrappedDocument)
-      return res.status(400).json({
+      return res.status(200).json({
         ...ERRORS.MISSING_PARAMETERS,
         detail: "Not found: wrappedDocument"
       });
@@ -363,37 +454,32 @@ module.exports = {
   updateWrappedDocument: async function (req, res) {
     // Receive input data
     const access_token = req.cookies["access_token"];
-    var { newWrappedDocument, previousHashOfDocument } = req.body;
+    var { didDocumentOfWrappedDocument, did } = req.body;
 
     // Handle input errors
-    if (!newWrappedDocument || !previousHashOfDocument)
+    if (!didDocumentOfWrappedDocument || !did)
       return res.status(400).json({
         ...ERRORS.MISSING_PARAMETERS,
         detail: "Not found:"
-          + (!newWrappedDocument) ? " wrappedDocument" : ""
-            + (!previousHashOfDocument) ? " previousHashOfDocument" : ""
+          + (!didDocumentOfWrappedDocument) ? " didDocumentOfWrappedDocument" : ""
+            + (!did) ? " did" : ""
       });
 
     // Validate wrapped document format
-    const valid = validateJSONSchema(SHEMAS.WRAPPED_DOCUMENT, newWrappedDocument);
+    const valid = validateJSONSchema(SHEMAS.DID_DOCUMENT_OF_WRAPPED_DOCUMENT, didDocumentOfWrappedDocument);
     if (!valid.valid)
       return res.status(400).json({
         ...ERRORS.INVALID_INPUT,
-        errorMessage: "Bad request. Invalid wrapped document.",
+        errorMessage: "Bad request. Invalid did document of wrapped document.",
         detail: valid.detail
       });
 
     // Extract data required to call services
-    const did = newWrappedDocument.data?.did,
-      targetHash = newWrappedDocument.signature?.targetHash,
-      encryptedControllerAddress = newWrappedDocument.data?.issuers[0]?.address,
-      policyId = newWrappedDocument.policyId;
-
     didComponents = did.split(":");
-    if (didComponents.length < 6 || didComponents[2] != "did")
+    if (didComponents.length < 4 || didComponents[0] != "did")
       return res.status(400).json({
         ...ERRORS.INVALID_INPUT,
-        detail: "Invalid DID syntax. Check the wrappedDocument.data.did element."
+        detail: "Invalid DID syntax."
       });
 
     const companyName = didComponents[2],
@@ -467,17 +553,15 @@ module.exports = {
       newWrappedDocument.assetId = assetId;
 
       // 5. Call DID Controller to store document on DB
-      const updatingWrappedDocumentStatus = await axios.post(SERVERS.DID_CONTROLLER + "/api/doc",
+      const update = await axios.put(SERVERS.DID_CONTROLLER + "/api/doc",
         {
           fileName,
-          wrappedDocument: newWrappedDocument,
+          didDoc: didDocumentOfWrappedDocument,
           companyName
         });
-      updatingWrappedDocumentStatus.data.errorCode
-        ? res.status(400).json(updatingWrappedDocumentStatus.data)
-        : res.status(200).json(newWrappedDocument);
-
-      // res.status(200).send("PENDING....");
+      update.data.errorCode
+        ? res.status(400).json(update.data)
+        : res.status(200).send("Update DID document of wrapped document.");
     }
     catch (err) {
       err.response

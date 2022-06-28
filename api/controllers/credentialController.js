@@ -71,7 +71,7 @@ module.exports = {
         });
 
       if (verifiedSignature.data.error_code)
-        res.status(403).json(ERRORS.UNVERIFIED_SIGNATURE);
+        res.status(200).json(ERRORS.UNVERIFIED_SIGNATURE); // 403
 
       // Call DID Controller to store new credential
       // success:
@@ -86,7 +86,7 @@ module.exports = {
         });
 
       storeCredentialStatus.data.errorCode
-        ? res.status(404).json(storeCredentialStatus.data)
+        ? res.status(200).json(storeCredentialStatus.data)
         : res.status(201).send("Credential created.");
     }
     catch (err) {

@@ -8,22 +8,25 @@ module.exports = {
     const { policyid: policyId } = req.headers;
 
     // Handle input errors
-    if (!policyId) return res.status(400).json({
+    if (!policyId) return res.status(200).json({
       ...ERRORS.MISSING_PARAMETERS,
       detail: "Not found: policiid"
     });
 
-    // Authentiacate
-    // success: 
+    // Authenticate
+    // success:
     //   { data: { address: string } }
     // error: 401 - unauthorized
-    await axios.get(SERVERS.AUTHENTICATION_SERVICE + "/api/auth/verify",
-      {
-        withCredentials: true,
-        headers: {
-          "Cookie": `access_token=${access_token};`
-        }
-      });
+    axios
+      .get(SERVERS.AUTHENTICATION_SERVICE + "/api/auth/verify",
+        {
+          withCredentials: true,
+          headers: {
+            "Cookie": `access_token=${access_token};`
+          }
+        })
+      .then((response) => console.log("createCredential..."))
+      .catch((error) => console.log("UNAUTHORIZED"));
 
     // Call Cardano Service
     // success:
@@ -39,7 +42,7 @@ module.exports = {
     //   }
     // error:
     //   { error_code: number, error_message: string }
-    await axios
+    axios
       .get(`${SERVERS.CARDANO_SERVICE}/api/getNFTs/${policyId}`,
         {
           withCredentials: true,
@@ -50,7 +53,7 @@ module.exports = {
       .then((response) => {
         console.log(response)
         response.error_code
-          ? res.status(400).json(response.data)
+          ? res.status(200).json(response.data)
           : res.status(200).json(response.data);
       })
       .catch(error => {
@@ -66,31 +69,34 @@ module.exports = {
     const { hashofdocument, policyid } = req.headers;
     // Handle input errors
     if (!hashofdocument || !policyid)
-      return res.status(400).json({
+      return res.status(200).json({
         ...ERRORS.MISSING_PARAMETERS,
         detail: "Not found:"
           + (!hashofdocument) ? " hashOfDocument" : ""
             + (!policyid) ? " policyId" : ""
       });
 
-    // Authentiacate
-    // success: 
+    // Authenticate
+    // success:
     //   { data: { address: string } }
     // error: 401 - unauthorized
-    await axios.get(SERVERS.AUTHENTICATION_SERVICE + "/api/auth/verify",
-      {
-        withCredentials: true,
-        headers: {
-          "Cookie": `access_token=${access_token};`
-        }
-      });
+    axios
+      .get(SERVERS.AUTHENTICATION_SERVICE + "/api/auth/verify",
+        {
+          withCredentials: true,
+          headers: {
+            "Cookie": `access_token=${access_token};`
+          }
+        })
+      .then((response) => console.log("createCredential..."))
+      .catch((error) => console.log("UNAUTHORIZED"));
 
     // Call Cardano Service
     // succes:
     //   { data: { result: true/false } }
     // error:
     //   { error_code: number, error_message: string }
-    await axios
+    axios
       .get(`${SERVERS.CARDANO_SERVICE}/api/verifyHash?policyID=${policyid}&hashOfDocument=${hashofdocument}`, {
         withCredentials: true,
         headers: {
@@ -112,7 +118,7 @@ module.exports = {
 
     // Handle input error
     if (!address || !payload || !signature)
-      return res.status(400).json({
+      return res.status(200).json({
         ...ERRORS.MISSING_PARAMETERS,
         detail: "Not found:"
           + (!address) ? " address" : ""
@@ -120,24 +126,27 @@ module.exports = {
               + (!signature) ? " signature" : ""
       });
 
-    // Authentiacate
-    // success: 
+    // Authenticate
+    // success:
     //   { data: { address: string } }
     // error: 401 - unauthorized
-    await axios.get(SERVERS.AUTHENTICATION_SERVICE + "/api/auth/verify",
-      {
-        withCredentials: true,
-        headers: {
-          "Cookie": `access_token=${access_token};`
-        }
-      });
+    axios
+      .get(SERVERS.AUTHENTICATION_SERVICE + "/api/auth/verify",
+        {
+          withCredentials: true,
+          headers: {
+            "Cookie": `access_token=${access_token};`
+          }
+        })
+      .then((response) => console.log("createCredential..."))
+      .catch((error) => console.log("UNAUTHORIZED"));
 
     // Call Cardano Service
     // success:
     //   { data: { result: true/false } }
     // error:
     //   { error_code: number, error_message: string }      
-    await axios.post(SERVERS.CARDANO_SERVICE + "/api/verifySignature",
+    axios.post(SERVERS.CARDANO_SERVICE + "/api/verifySignature",
       {
         address: address,
         payload: payload,

@@ -172,4 +172,16 @@ module.exports.SHEMAS = {
       }
     }
   },
+
+  DID_DOCUMENT_OF_WRAPPED_DOCUMENT: {
+    type: "object",
+    required: ["controller", "did", "owner", "holder", "url"],
+    properties: {
+      controller: { type: "string" },
+      did: { type: "string" },
+      owner: { type: "string" },
+      holder: { type: "string" },
+      url: { type: "string" }
+    }
+  }
 }
