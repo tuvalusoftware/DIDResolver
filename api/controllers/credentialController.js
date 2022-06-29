@@ -7,42 +7,58 @@ module.exports = {
   createCredential: async function (req, res) {
     // Receive input data
     const access_token = req.cookies['access_token'];
-    const { credential, did, address, payload } = req.body;
+    const { indexOfCres, credential, payload, did } = req.body;
 
     // Handle input error
-    if (!credential || !did || !address || !payload)
-      return res.status(400).json({
+    if (!indexOfCres || !credential || !payload || !did)
+      return res.status(200).json({
         ...ERRORS.MISSING_PARAMETERS,
         detail: "Not found:"
-          + (!credential) ? " credential" : ""
-            + (!did) ? " did" : ""
-              + (!address) ? " address" : ""
-                + (!payload) ? " payload" : ""
+          + (!indexOfCres) ? " indexOfCres" : ""
+            + (!credential) ? " credential" : ""
+              + (!payload) ? " payload" : ""
+                + (!did) ? " did" : ""
       });
 
     // Validate input
     const didComponents = did.split(":");
     if (didComponents.length < 4 || didComponents[0] !== "did")
-      return res.status(400).json({
+      return res.status(200).json({
         ...ERRORS.INVALID_INPUT,
         detail: "Invalid DID syntax."
       })
+    const companyName = didComponents[2],
+      fileName = didComponents[3];
 
-    const valid = validateJSONSchema(SHEMAS.CREDENTIAL, credential);
+    var valid = validateJSONSchema(SHEMAS.CREDENTIAL, credential);
     console.log(valid.detail);
     if (!valid.valid)
-      return res.status(400).json({
+      return res.status(200).json({
         ...ERRORS.INVALID_INPUT,
         errorMessage: "Bad request. Invalid credential.",
         detail: valid.detail
       });
 
+    const documents = axios.get(SERVERS.DID_CONTROLLER + "/api/doc",
+      {
+        headers: {
+          companyName,
+          fileName
+        }
+      });
+    const didDocument = documents.didDoc,
+      wrappedDocument = documents.wrappedDoc;
+
+    const originPolicyId = wrappedDocument.policyId,
+      hashOfDocument = wrappedDocument.signature.targetHash;
+
     try {
-      // Authentiacte
+      // 1. Validate permission to create credential
+      // 1.1. Get address of current user from access token
       // success:
       //   { data: { address: string } }
       // error: 401 - unauthorized
-      await axios.get(SERVERS.AUTHENTICATION_SERVICE + "/api/auth/verify",
+      const address = await axios.get(SERVERS.AUTHENTICATION_SERVICE + "/api/auth/verify",
         {
           withCredentials: true,
           headers: {
@@ -52,7 +68,10 @@ module.exports = {
       // .then((response) => console.log("createCredential..."))
       // .catch((error) => console.log("UNAUTHORIZED"));
 
-      // Call Cardano Service to verify signature
+      // 1.2. Compare user addrss with controller address (from did document of wrapped document)??
+
+
+      // 2. Call Cardano Service to verify signature
       // success:
       //   { data: { result: true/false } }
       // error:
@@ -73,16 +92,24 @@ module.exports = {
       if (verifiedSignature.data.error_code)
         res.status(200).json(ERRORS.UNVERIFIED_SIGNATURE); // 403
 
-      // Call DID Controller to store new credential
+      // 3. Call Cardano Service to store new credential
       // success:
-      //   { message: "success" }
+      //   {
+      //     data: 
+      //     {
+      //       result: true,
+      //       token: { policyId: string, assetId: string }
+      //     }
+      //   }
       // error:
-      //   { errorCode: number, message: string }      
-      const storeCredentialStatus = await axios.post(SERVERS.DID_CONTROLLER + "/api/credential",
+      //   { errorCode: number, message: string }
+      const storeCredentialStatus = await axios.post(SERVERS.CARDANO_SERVICE + "/api/storeCredential",
         {
-          companyName: didComponents[2],
-          publicKey: didComponents[3],
-          credential: credential
+          address: address.data.data.address,
+          hashOfDocument,
+          originPolicyId,
+          indexOfCres,
+          credentials: [{ ...credential }]
         });
 
       storeCredentialStatus.data.errorCode

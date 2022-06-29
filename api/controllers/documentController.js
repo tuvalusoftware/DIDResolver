@@ -131,14 +131,14 @@ module.exports = {
 
     // Handle input errors
     if (!did)
-      return res.status(400).json({
+      return res.status(200).json({
         ...ERRORS.MISSING_PARAMETERS,
         detail: "Not found: did"
       });
 
     const didComponents = did.split(":");
     if (didComponents.length < 4 || didComponents[0] != "did")
-      return res.status(400).json(ERRORS.INVALID_INPUT);
+      return res.status(200).json(ERRORS.INVALID_INPUT);
 
     // Authenticate
     // success:
@@ -367,7 +367,7 @@ module.exports = {
           },
         });
       if (existence.data.isExisted) {
-        return res.status(409).json(ERRORS.ALREADY_EXSISTED);
+        return res.status(200).json(ERRORS.ALREADY_EXSISTED); // 409
       }
       // console.log(1, access_token)
 
@@ -450,123 +450,4 @@ module.exports = {
 
     return res.status(200).send(valid);
   },
-
-  updateWrappedDocument: async function (req, res) {
-    // Receive input data
-    const access_token = req.cookies["access_token"];
-    var { didDocumentOfWrappedDocument, did } = req.body;
-
-    // Handle input errors
-    if (!didDocumentOfWrappedDocument || !did)
-      return res.status(400).json({
-        ...ERRORS.MISSING_PARAMETERS,
-        detail: "Not found:"
-          + (!didDocumentOfWrappedDocument) ? " didDocumentOfWrappedDocument" : ""
-            + (!did) ? " did" : ""
-      });
-
-    // Validate wrapped document format
-    const valid = validateJSONSchema(SHEMAS.DID_DOCUMENT_OF_WRAPPED_DOCUMENT, didDocumentOfWrappedDocument);
-    if (!valid.valid)
-      return res.status(400).json({
-        ...ERRORS.INVALID_INPUT,
-        errorMessage: "Bad request. Invalid did document of wrapped document.",
-        detail: valid.detail
-      });
-
-    // Extract data required to call services
-    didComponents = did.split(":");
-    if (didComponents.length < 4 || didComponents[0] != "did")
-      return res.status(400).json({
-        ...ERRORS.INVALID_INPUT,
-        detail: "Invalid DID syntax."
-      });
-
-    const companyName = didComponents[2],
-      fileName = didComponents[3],
-      controllerAddress = getAddressFromHexEncoded(encryptedControllerAddress);
-
-    try {
-      // 1. Validate permission to update document
-      // 1.1. Get address of current user from access token
-      // success:
-      //   { data: { address: string }  }
-      const address = await axios.get(SERVERS.AUTHENTICATION_SERVICE + "/api/auth/verify",
-        {
-          withCredentials: true,
-          headers: {
-            "Cookie": `access_token=${access_token};`
-          }
-        })
-
-      // 1.2. Compare controller address with user address
-      if (controllerAddress !== address.data.data.address)
-        return res.status(403).send(ERRORS.PERMISSION_DENIED);
-
-      // 2. Check if document is not exist on DB 
-      const existence = await axios.get(SERVERS.DID_CONTROLLER + "/api/doc/exists/",
-        {
-          headers: {
-            companyName,
-            fileName
-          }
-        });
-      if (!existence.data.isExisted)
-        return res.status(404).json(ERRORS.NOT_FOUND);
-
-      // 3. Mint hash
-      // 3.1. Call Cardano Service
-      // success:
-      //   {
-      //     data:
-      //       {
-      //         result: true,
-      //         token: { policyId: string, assetId: string }
-      //       }
-      //   }
-      // error:
-      //   { error_code: number, error_message: string }
-      const mintingNFT = await axios.put(SERVERS.CARDANO_SERVICE + "/api/storeHash/",
-        {
-          address: address.data.data.address,
-          hashOfDocument: targetHash,
-          previousHashOfDocument: previousHashOfDocument,
-          originPolicyId: policyId
-        },
-        {
-          withCredentials: true,
-          headers: {
-            "Cookie": `access_token=${access_token}`
-          }
-        })
-
-      // 3.2. Handle mintingNFT errors
-      if (!mintingNFT.data.error_code)
-        return res.status(400).json(mintingNFT.data);
-      if (!mintingNFT) return res.status(400).json(ERRORS.CANNOT_MINT_NFT);
-
-      // 3.3. Extract assetId
-      const mintingNFTStatus = mintingNFT.data.data.result;
-      assetId = mintingNFTStatus ? mintingNFT.data.data.token.assetId : "No assetId";
-
-      // 4. Update new assetId for document
-      newWrappedDocument.assetId = assetId;
-
-      // 5. Call DID Controller to store document on DB
-      const update = await axios.put(SERVERS.DID_CONTROLLER + "/api/doc",
-        {
-          fileName,
-          didDoc: didDocumentOfWrappedDocument,
-          companyName
-        });
-      update.data.errorCode
-        ? res.status(400).json(update.data)
-        : res.status(200).send("Update DID document of wrapped document.");
-    }
-    catch (err) {
-      err.response
-        ? res.status(400).json(err.response.data)
-        : res.status(400).json(err);
-    }
-  }
 }
