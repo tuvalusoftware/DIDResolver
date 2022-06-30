@@ -5,7 +5,7 @@ const { validateJSONSchema, getAddressFromHexEncoded } = require("../../core/ind
 module.exports = {
   getDIDDocument: async function (req, res) {
     // Receive input data
-    const access_token = req.cookies['access_token'];
+    const { access_token } = req.cookies;
     const { did } = req.headers;
 
     // Handle input errors
@@ -63,7 +63,7 @@ module.exports = {
 
   createDIDDocument: async function (req, res) {
     // Receive input data
-    const access_token = req.cookies['access_token'];
+    const { access_token } = req.cookies;
     const { did, didDocument } = req.body;
 
     // Handle input errors
@@ -125,7 +125,7 @@ module.exports = {
 
   getWrappedDocument: async function (req, res) {
     // Receive input data
-    const access_token = req.cookies['access_token'];
+    const { access_token } = req.cookies;
     const { did } = req.headers;
     const { only } = req.query;
 
@@ -253,6 +253,7 @@ module.exports = {
 
   checkWrappedDocumentExistence: async function (req, res) {
     // Receive input data
+    const { access_token } = req.cookies;
     const { companyname: companyName, filename: fileName } = req.headers;
     console.log(companyName, fileName);
 
@@ -301,7 +302,7 @@ module.exports = {
 
   createWrappedDocument: async function (req, res) {
     // Get access-token from request and receive input data
-    const access_token = req.cookies['access_token'];
+    const { access_token } = req.cookies;
     var { wrappedDocument, issuerAddress: encryptedIssuerAddress } = req.body;
 
     // Handle input errors
@@ -439,6 +440,7 @@ module.exports = {
   },
 
   validateWrappedDocument: async function (req, res) {
+    const { access_token } = req.cookies;
     const { wrappedDocument } = req.body;
     if (!wrappedDocument)
       return res.status(200).json({

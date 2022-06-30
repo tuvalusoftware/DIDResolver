@@ -6,7 +6,7 @@ const { ERRORS, SERVERS, SHEMAS } = require("../../core/constants");
 module.exports = {
   createCredential: async function (req, res) {
     // Receive input data
-    const access_token = req.cookies["access_token"];
+    const { access_token } = req.cookies;
     const { indexOfCres, credential, payload, did } = req.body;
 
     // Handle input error

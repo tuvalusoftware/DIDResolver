@@ -4,7 +4,7 @@ const { ERRORS, SERVERS } = require("../../core/constants");
 module.exports = {
   getNFTs: async function (req, res) {
     // Receive input data
-    const access_token = req.cookies['access_token'];
+    const { access_token } = req.cookies;
     const { policyid: policyId } = req.headers;
 
     // Handle input errors
@@ -64,7 +64,7 @@ module.exports = {
 
   verifyHash: async function (req, res) {
     // Receive input data
-    const access_token = req.cookies['access_token'];
+    const { access_token } = req.cookies;
     const { hashofdocument, policyid } = req.headers;
     // Handle input errors
     if (!hashofdocument || !policyid)
@@ -112,7 +112,7 @@ module.exports = {
 
   verifySignature: async function (req, res) {
     // Receive input data
-    const access_token = req.cookies['access_token'];
+    const { access_token } = req.cookies;
     const { address, payload, signature } = req.headers;
 
     // Handle input error
