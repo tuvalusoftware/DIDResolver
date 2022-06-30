@@ -104,7 +104,7 @@ module.exports.createCredential = {
             properties: {
               did: {
                 type: "string",
-                example: "did:method:Kukulu:public_key"
+                example: "did:method:Kukulu:file_name"
               },
               indexOfCres: {
                 type: "integer",
