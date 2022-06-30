@@ -39,7 +39,7 @@ module.exports = {
 
   getPublicKeyFromAddress: (req, res) => {
     const { address } = req.query;
-
+    
     res.status(200).json({
       publicKey: getPublicKeyFromAddress(address)
     })
