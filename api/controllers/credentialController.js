@@ -31,14 +31,12 @@ module.exports = {
       fileName = didComponents[3];
 
     var valid = validateJSONSchema(SHEMAS.CREDENTIAL, credential);
-    console.log(valid.detail);
     if (!valid.valid)
       return res.status(200).json({
         ...ERRORS.INVALID_INPUT,
         errorMessage: "Bad request. Invalid credential.",
         detail: valid.detail
       });
-
     try {
       // 1. Get wrapped document and did document of wrapped odcument
       // 1.1. Get did document and wrapped document of did document
@@ -46,16 +44,15 @@ module.exports = {
       //   { wrappedDoc: {}, didDoc: {} }
       // error: 
       //   { errorCode: number, message: string }
-      const documents = axios.get(SERVERS.DID_CONTROLLER + "/api/doc",
+      const documents = await axios.get(SERVERS.DID_CONTROLLER + "/api/doc",
         {
           headers: {
             companyName,
             fileName
           }
         });
-      const didDocument = documents.didDoc,
-        wrappedDocument = documents.wrappedDoc;
-
+      const didDocument = documents.data.didDoc,
+        wrappedDocument = documents.data.wrappedDoc;
       const originPolicyId = wrappedDocument.policyId,
         hashOfDocument = wrappedDocument.signature.targetHash;
 
@@ -73,7 +70,6 @@ module.exports = {
         })
       // .then((response) => console.log("createCredential..."))
       // .catch((error) => console.log("UNAUTHORIZED"));
-
       // 3.2. Compare user address with public key from issuer did in credential
       publicKey = getPublicKeyFromAddress(address.data.data.address);
       issuerDidComponents = credential.issuer.split(":");
@@ -89,7 +85,7 @@ module.exports = {
       //   { data: { result: true/false } }
       // error:
       //   { error_code: stringify, error_message: string }
-      const verifiedSignature = await axios.post(SERVERS.CARDANO_SERVICE + "api/verifySignature",
+      const verifiedSignature = await axios.post(SERVERS.CARDANO_SERVICE + "/api/verifySignature",
         {
           address: address.data.data.address,
           payload,
@@ -98,12 +94,11 @@ module.exports = {
         {
           withCredentials: true,
           headers: {
-            "Cookie": `access_token=${access_token}`
+            "Cookie": `access_token=${access_token};`
           }
         });
-
       if (verifiedSignature.data.error_code)
-        res.status(200).json(ERRORS.UNVERIFIED_SIGNATURE); // 403
+        return res.status(200).json(ERRORS.UNVERIFIED_SIGNATURE); // 403
 
       // 3. Call Cardano Service to store new credential
       // success:
@@ -116,15 +111,21 @@ module.exports = {
       //   }
       // error:
       //   { errorCode: number, message: string }
-      const storeCredentialStatus = await axios.post(SERVERS.CARDANO_SERVICE + "/api/storeCredential",
+      console.log('nef')
+      const storeCredentialStatus = await axios.put(SERVERS.CARDANO_SERVICE + "/api/storeCredentials",
         {
           address: address.data.data.address,
           hashOfDocument,
           originPolicyId,
           indexOfCres,
           credentials: [{ ...credential }]
+        }, 
+        {
+          withCredentials: true,
+          headers: {
+            "Cookie": `access_token=${access_token};`
+          }
         });
-
       storeCredentialStatus.data.errorCode
         ? res.status(200).json(storeCredentialStatus.data)
         : res.status(201).send("Credential created.");
