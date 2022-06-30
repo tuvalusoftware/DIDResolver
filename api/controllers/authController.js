@@ -1,10 +1,17 @@
 const axios = require("axios").default;
 const { ERRORS, SERVERS } = require("../../core/constants");
+const { getPublicKeyFromAddress } = require("../../core/index");
 
 module.exports = {
   ensureAuthenticated: (req, res, next) => {
-    if (!req.cookies["access_token"]) return res.status(401).json(ERRORS.UNAUTHORIZED);
+    if (!req.cookies["access_token"])
+      return res.status(401).json(ERRORS.UNAUTHORIZED);
+
     const token = req.cookies["access_token"];
+    // Call Auth Service
+    // success:
+    //   { data: { address: string } }
+    // error: 401 - unauthorized
     axios
       .get(
         `${SERVERS.AUTHENTICATION_SERVICE}/api/auth/verify`,
@@ -28,5 +35,13 @@ module.exports = {
           next(error);
         }
       );
+  },
+
+  getPublicKeyFromAddress: (req, res) => {
+    const { address } = req.query;
+
+    res.status(200).json({
+      publicKey: getPublicKeyFromAddress(address)
+    })
   }
 };

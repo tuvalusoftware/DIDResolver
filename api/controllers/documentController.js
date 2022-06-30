@@ -22,21 +22,6 @@ module.exports = {
     const companyName = didComponents[2],
       fileName = didComponents[3];
 
-    // Authenticate
-    // success:
-    //   { data: { address: string } }
-    // error: 401 - unauthorized
-    axios
-      .get(SERVERS.AUTHENTICATION_SERVICE + "/api/auth/verify",
-        {
-          withCredentials: true,
-          headers: {
-            "Cookie": `access_token=${access_token};`
-          }
-        })
-      .then((response) => console.log("createCredential..."))
-      .catch((error) => console.log("UNAUTHORIZED"));
-
     // Call DID Controller
     // success:
     //   { ... }
@@ -83,21 +68,6 @@ module.exports = {
     const companyName = didComponents[2],
       fileName = didComponents[3];
 
-    // Authenticate
-    // success:
-    //   { data: { address: string } }
-    // error: 401 - unauthorized
-    axios
-      .get(SERVERS.AUTHENTICATION_SERVICE + "/api/auth/verify",
-        {
-          withCredentials: true,
-          headers: {
-            "Cookie": `access_token=${access_token};`
-          }
-        })
-      .then((response) => console.log("createCredential..."))
-      .catch((error) => console.log("UNAUTHORIZED"));
-
     // Call DID Controller
     // success: 
     //   { message: string }
@@ -139,21 +109,6 @@ module.exports = {
     const didComponents = did.split(":");
     if (didComponents.length < 4 || didComponents[0] != "did")
       return res.status(200).json(ERRORS.INVALID_INPUT);
-
-    // Authenticate
-    // success:
-    //   { data: { address: string } }
-    // error: 401 - unauthorized
-    axios
-      .get(SERVERS.AUTHENTICATION_SERVICE + "/api/auth/verify",
-        {
-          withCredentials: true,
-          headers: {
-            "Cookie": `access_token=${access_token};`
-          }
-        })
-      .then((response) => console.log("createCredential..."))
-      .catch((error) => console.log("UNAUTHORIZED"));
 
     // Call DID Controller
     // success:
@@ -209,21 +164,6 @@ module.exports = {
     // console.log("Company name", companyName);
     // console.log("Public key", publicKey);
 
-    // Authenticate
-    // success:
-    //   { data: { address: string } }
-    // error: 401 - unauthorized
-    axios
-      .get(SERVERS.AUTHENTICATION_SERVICE + "/api/auth/verify",
-        {
-          withCredentials: true,
-          headers: {
-            "Cookie": `access_token=${access_token};`
-          }
-        })
-      .then((response) => console.log("createCredential..."))
-      .catch((error) => console.log("UNAUTHORIZED"));
-
     // Call DID Controller
     // success:
     //   [
@@ -265,21 +205,6 @@ module.exports = {
           + (!companyName) ? " companyName" : ""
             + (!fileName) ? " fileName" : ""
       });
-
-    // Authenticate
-    // success:
-    //   { data: { address: string } }
-    // error: 401 - unauthorized
-    axios
-      .get(SERVERS.AUTHENTICATION_SERVICE + "/api/auth/verify",
-        {
-          withCredentials: true,
-          headers: {
-            "Cookie": `access_token=${access_token};`
-          }
-        })
-      .then((response) => console.log("createCredential..."))
-      .catch((error) => console.log("UNAUTHORIZED"));
 
     // Call DID Contoller
     // success:
@@ -440,7 +365,6 @@ module.exports = {
   },
 
   validateWrappedDocument: async function (req, res) {
-    const { access_token } = req.cookies;
     const { wrappedDocument } = req.body;
     if (!wrappedDocument)
       return res.status(200).json({

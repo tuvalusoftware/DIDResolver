@@ -1,9 +1,14 @@
+const { getPublicKeyFromAddress } = require("./auth");
 const { createCredential } = require("./credential");
 const { getDidDocument, createDidDocument } = require("./didDocument");
 const { getNFTs, verifyHash, verifySignature } = require("./others");
 const { checkWrappedDocumentExistence, getWrappedDocument, createWrappedDocument, getAllWrappedDocumentsOfUser, validateWrappedDocument, updateWrappedDocument } = require("./wrappedDocument");
 
 module.exports.paths = {
+  "auth/public-key/": {
+    ...getPublicKeyFromAddress,
+  },
+
   "/did-document/": {
     ...getDidDocument,
     ...createDidDocument,

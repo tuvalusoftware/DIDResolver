@@ -13,21 +13,6 @@ module.exports = {
       detail: "Not found: policyid"
     });
 
-    // Authenticate
-    // success:
-    //   { data: { address: string } }
-    // error: 401 - unauthorized
-    axios
-      .get(SERVERS.AUTHENTICATION_SERVICE + "/api/auth/verify",
-        {
-          withCredentials: true,
-          headers: {
-            "Cookie": `access_token=${access_token};`
-          }
-        })
-      .then((response) => console.log("createCredential..."))
-      .catch((error) => console.log("UNAUTHORIZED"));
-
     // Call Cardano Service
     // success:
     //   {
@@ -75,21 +60,6 @@ module.exports = {
             + (!policyid) ? " policyId" : ""
       });
 
-    // Authenticate
-    // success:
-    //   { data: { address: string } }
-    // error: 401 - unauthorized
-    axios
-      .get(SERVERS.AUTHENTICATION_SERVICE + "/api/auth/verify",
-        {
-          withCredentials: true,
-          headers: {
-            "Cookie": `access_token=${access_token};`
-          }
-        })
-      .then((response) => console.log("createCredential..."))
-      .catch((error) => console.log("UNAUTHORIZED"));
-
     // Call Cardano Service
     // succes:
     //   { data: { result: true/false } }
@@ -124,21 +94,6 @@ module.exports = {
             + (!payload) ? " payload" : ""
               + (!signature) ? " signature" : ""
       });
-
-    // Authenticate
-    // success:
-    //   { data: { address: string } }
-    // error: 401 - unauthorized
-    axios
-      .get(SERVERS.AUTHENTICATION_SERVICE + "/api/auth/verify",
-        {
-          withCredentials: true,
-          headers: {
-            "Cookie": `access_token=${access_token};`
-          }
-        })
-      .then((response) => console.log("createCredential..."))
-      .catch((error) => console.log("UNAUTHORIZED"));
 
     // Call Cardano Service
     // success:
