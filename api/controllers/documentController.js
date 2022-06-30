@@ -228,7 +228,7 @@ module.exports = {
   createWrappedDocument: async function (req, res) {
     // Get access-token from request and receive input data
     const { access_token } = req.cookies;
-    var { wrappedDocument, issuerAddress: encryptedIssuerAddress } = req.body;
+    var { wrappedDocument, issuerAddress: encryptedIssuerAddress, previousHashOfDocument, originPolicyId } = req.body;
 
     // Handle input errors
     if (!wrappedDocument || !encryptedIssuerAddress) {
