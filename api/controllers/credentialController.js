@@ -1,6 +1,8 @@
-
 const axios = require("axios").default;
-const { validateJSONSchema, getPublicKeyFromAddress } = require("../../core/index");
+const {
+  validateJSONSchema,
+  getPublicKeyFromAddress,
+} = require("../../core/index");
 const { ERRORS, SERVERS, SHEMAS } = require("../../core/constants");
 
 module.exports = {
@@ -13,11 +15,16 @@ module.exports = {
     if (!indexOfCres || !credential || !payload || !did)
       return res.status(200).json({
         ...ERRORS.MISSING_PARAMETERS,
-        detail: "Not found:"
-          + (!indexOfCres) ? " indexOfCres" : ""
-            + (!credential) ? " credential" : ""
-              + (!payload) ? " payload" : ""
-                + (!did) ? " did" : ""
+        detail:
+          "Not found:" + !indexOfCres
+            ? " indexOfCres"
+            : "" + !credential
+            ? " credential"
+            : "" + !payload
+            ? " payload"
+            : "" + !did
+            ? " did"
+            : "",
       });
 
     // Validate input
@@ -25,8 +32,8 @@ module.exports = {
     if (didComponents.length < 4 || didComponents[0] !== "did")
       return res.status(200).json({
         ...ERRORS.INVALID_INPUT,
-        detail: "Invalid DID syntax."
-      })
+        detail: "Invalid DID syntax.",
+      });
     const companyName = didComponents[2],
       fileName = didComponents[3];
 
@@ -35,22 +42,21 @@ module.exports = {
       return res.status(200).json({
         ...ERRORS.INVALID_INPUT,
         errorMessage: "Bad request. Invalid credential.",
-        detail: valid.detail
+        detail: valid.detail,
       });
     try {
       // 1. Get wrapped document and did document of wrapped odcument
       // 1.1. Get did document and wrapped document of did document
-      // sucess: 
+      // sucess:
       //   { wrappedDoc: {}, didDoc: {} }
-      // error: 
+      // error:
       //   { errorCode: number, message: string }
-      const documents = await axios.get(SERVERS.DID_CONTROLLER + "/api/doc",
-        {
-          headers: {
-            companyName,
-            fileName
-          }
-        });
+      const documents = await axios.get(SERVERS.DID_CONTROLLER + "/api/doc", {
+        headers: {
+          companyName,
+          fileName,
+        },
+      });
       const didDocument = documents.data.didDoc,
         wrappedDocument = documents.data.wrappedDoc;
       const originPolicyId = wrappedDocument.policyId,
@@ -61,13 +67,15 @@ module.exports = {
       // success:
       //   { data: { address: string } }
       // error: 401 - unauthorized
-      const address = await axios.get(SERVERS.AUTHENTICATION_SERVICE + "/api/auth/verify",
+      const address = await axios.get(
+        SERVERS.AUTHENTICATION_SERVICE + "/api/auth/verify",
         {
           withCredentials: true,
           headers: {
-            "Cookie": `access_token=${access_token};`
-          }
-        })
+            Cookie: `access_token=${access_token};`,
+          },
+        }
+      );
       // .then((response) => console.log("createCredential..."))
       // .catch((error) => console.log("UNAUTHORIZED"));
       // 3.2. Compare user address with public key from issuer did in credential
@@ -85,25 +93,27 @@ module.exports = {
       //   { data: { result: true/false } }
       // error:
       //   { error_code: stringify, error_message: string }
-      const verifiedSignature = await axios.post(SERVERS.CARDANO_SERVICE + "/api/verifySignature",
+      const verifiedSignature = await axios.post(
+        SERVERS.CARDANO_SERVICE + "/api/verifySignature",
         {
           address: address.data.data.address,
           payload,
-          signature: credential.signature
+          signature: credential.signature,
         },
         {
           withCredentials: true,
           headers: {
-            "Cookie": `access_token=${access_token};`
-          }
-        });
+            Cookie: `access_token=${access_token};`,
+          },
+        }
+      );
       if (verifiedSignature.data.error_code)
         return res.status(200).json(ERRORS.UNVERIFIED_SIGNATURE); // 403
 
       // 3. Call Cardano Service to store new credential
       // success:
       //   {
-      //     data: 
+      //     data:
       //     {
       //       result: true,
       //       token: { policyId: string, assetId: string }
@@ -111,29 +121,41 @@ module.exports = {
       //   }
       // error:
       //   { errorCode: number, message: string }
-      console.log('nef')
-      const storeCredentialStatus = await axios.put(SERVERS.CARDANO_SERVICE + "/api/storeCredentials",
+
+      // * Cancel request after 4 seconds if no response from Cardano Service
+      const source = axios.CancelToken.source();
+      let storeCredentialStatus = null;
+      setTimeout(() => {
+        if (storeCredentialStatus === null) {
+          source.cancel();
+        }
+      }, 4000);
+
+      storeCredentialStatus = await axios.put(
+        SERVERS.CARDANO_SERVICE + "/api/storeCredentials",
         {
-          address: address.data.data.address,
+          address: address?.data?.data?.address,
           hashOfDocument,
           originPolicyId,
           indexOfCres,
-          credentials: [{ ...credential }]
-        }, 
+          credentials: [{ ...credential }],
+        },
         {
+          cancelToken: source.token,
           withCredentials: true,
           headers: {
-            "Cookie": `access_token=${access_token};`
-          }
-        });
+            Cookie: `access_token=${access_token};`,
+          },
+        }
+      );
       storeCredentialStatus.data.errorCode
         ? res.status(200).json(storeCredentialStatus.data)
         : res.status(201).send("Credential created.");
-    }
-    catch (err) {
+    } catch (err) {
+      console.log(err);
       err.response
         ? res.status(400).json(err.response.data)
         : res.status(400).json(err);
     }
   },
-}
+};
