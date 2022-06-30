@@ -26,7 +26,4 @@ module.exports.validateJSONSchema = (schema, object) => {
   return valid ? { valid } : { valid, detail: validate.errors };
 }
 
-const address = "addr_test1qzzp29y39n4h2rt4df5yre8aqgrh9k74ytrsgvfyl6a9q76dp4edq4f6udeq8gq52tnawke2j5ltxzexkp0vhc2rxufq4rhth0";
-console.log(this.getPublicKeyFromAddress(address));
-
 
