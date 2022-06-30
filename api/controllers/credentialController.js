@@ -1,12 +1,12 @@
 
 const axios = require("axios").default;
-const { validateJSONSchema } = require("../../core/index");
+const { validateJSONSchema, getPublicKeyFromAddress } = require("../../core/index");
 const { ERRORS, SERVERS, SHEMAS } = require("../../core/constants");
 
 module.exports = {
   createCredential: async function (req, res) {
     // Receive input data
-    const access_token = req.cookies['access_token'];
+    const access_token = req.cookies["access_token"];
     const { indexOfCres, credential, payload, did } = req.body;
 
     // Handle input error
@@ -39,22 +39,28 @@ module.exports = {
         detail: valid.detail
       });
 
-    const documents = axios.get(SERVERS.DID_CONTROLLER + "/api/doc",
-      {
-        headers: {
-          companyName,
-          fileName
-        }
-      });
-    const didDocument = documents.didDoc,
-      wrappedDocument = documents.wrappedDoc;
-
-    const originPolicyId = wrappedDocument.policyId,
-      hashOfDocument = wrappedDocument.signature.targetHash;
-
     try {
-      // 1. Validate permission to create credential
-      // 1.1. Get address of current user from access token
+      // 1. Get wrapped document and did document of wrapped odcument
+      // 1.1. Get did document and wrapped document of did document
+      // sucess: 
+      //   { wrappedDoc: {}, didDoc: {} }
+      // error: 
+      //   { errorCode: number, message: string }
+      const documents = axios.get(SERVERS.DID_CONTROLLER + "/api/doc",
+        {
+          headers: {
+            companyName,
+            fileName
+          }
+        });
+      const didDocument = documents.didDoc,
+        wrappedDocument = documents.wrappedDoc;
+
+      const originPolicyId = wrappedDocument.policyId,
+        hashOfDocument = wrappedDocument.signature.targetHash;
+
+      // 3. Validate permission to create credential
+      // 3.1. Get address of current user from access token
       // success:
       //   { data: { address: string } }
       // error: 401 - unauthorized
@@ -68,17 +74,24 @@ module.exports = {
       // .then((response) => console.log("createCredential..."))
       // .catch((error) => console.log("UNAUTHORIZED"));
 
-      // 1.2. Compare user addrss with controller address (from did document of wrapped document)??
+      // 3.2. Compare user address with public key from issuer did in credential
+      publicKey = getPublicKeyFromAddress(address.data.data.address);
+      issuerDidComponents = credential.issuer.split(":");
+      if (publicKey !== issuerDidComponents[issuerDidComponents.length - 1])
+        return res.status(200).json(ERRORS.PERMISSION_DENIED); // 403
 
+      // 3.3. Compare user address with controller address (from did document of wrapped document)??
+      if (publicKey !== didDocument.owner && publicKey !== didDocument.holder)
+        return res.status(200).json(ERRORS.PERMISSION_DENIED); // 403
 
-      // 2. Call Cardano Service to verify signature
+      // 4. Call Cardano Service to verify signature
       // success:
       //   { data: { result: true/false } }
       // error:
       //   { error_code: stringify, error_message: string }
       const verifiedSignature = await axios.post(SERVERS.CARDANO_SERVICE + "api/verifySignature",
         {
-          address,
+          address: address.data.data.address,
           payload,
           signature: credential.signature
         },
