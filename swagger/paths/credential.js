@@ -106,9 +106,9 @@ module.exports.createCredential = {
                 type: "string",
                 example: "did:method:Kukulu:public_key"
               },
-              address: {
-                type: "string",
-                example: "00d86a5efcde8c4129755d0d43b0fd87622a260d45b33bc04140772a532d14a4e1198cebde34e68f82b94f5068de44aa580ebf66cfaaef0698"
+              indexOfCres: {
+                type: "integer",
+                example: 1
               },
               payload: {
                 type: "string",

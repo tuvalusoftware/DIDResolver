@@ -12,7 +12,7 @@ module.exports.paths = {
   "/wrapped-document/": {
     ...getWrappedDocument,
     ...createWrappedDocument,
-    ...updateWrappedDocument
+    // ...updateWrappedDocument
   },
   "/wrapped-document/exist/": {
     ...checkWrappedDocumentExistence
