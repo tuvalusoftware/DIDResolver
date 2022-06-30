@@ -145,15 +145,16 @@ module.exports.SHEMAS = {
 
   CREDENTIAL: {
     type: "object",
-    required: ["issuer", "subject", "credentialSubject", "signature"],
+    required: ["issuer", "credentialSubject", "signature"],
     properties: {
       issuer: { type: "string" },
-      subject: { type: "string" },
       credentialSubject: {
         type: "object",
         required: ["object"],
         properties: {
           object: { type: "string" },
+          newOwner: { type: "string" },
+          newHolder: { type: "string" },
           action: {
             type: "object",
             properties: {
