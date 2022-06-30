@@ -14,7 +14,7 @@ module.exports.getAddressFromHexEncoded = (hexAddress) => {
 
 module.exports.getPublicKeyFromAddress = (bech32Address) => {
   const address = cardanoSerialization.Address.from_bech32(bech32Address);
-  const publicKey = cardanoSerialization.BaseAddress.from_address(address).payment_cred().to_keyhash();
+  const publicKey = Buffer.from(address.to_bytes(), "hex").toString("hex");
   return publicKey;
 }
 
@@ -25,3 +25,8 @@ module.exports.validateJSONSchema = (schema, object) => {
   console.log(valid);
   return valid ? { valid } : { valid, detail: validate.errors };
 }
+
+const address = "addr_test1qzzp29y39n4h2rt4df5yre8aqgrh9k74ytrsgvfyl6a9q76dp4edq4f6udeq8gq52tnawke2j5ltxzexkp0vhc2rxufq4rhth0";
+console.log(this.getPublicKeyFromAddress(address));
+
+
