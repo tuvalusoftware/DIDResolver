@@ -185,7 +185,7 @@ module.exports = {
 
   getAllWrappedDocumentsOfUser: async function (req, res) {
     // Receive input data
-    const { access_token } = req.cookies["access_token"];
+    const { access_token } = req.cookies;
     const { did } = req.headers;
 
     // Handle input errors
@@ -195,17 +195,17 @@ module.exports = {
         detail: "Not found: did"
       });
 
-    // did syntax: did:method:companyName:(uuid4:string:address)
+    // did syntax: did:method:companyName:publicKey
     const didComponents = did.split(":");
-    if (didComponents.length < 6 || didComponents[0] != "did")
+    if (didComponents.length < 4 || didComponents[0] != "did")
       return res.status(200).json({
         ...ERRORS.INVALID_INPUT,
-        detail: "DID syntax: did:method:companyName:(uuid4:string:address)"
+        detail: "DID syntax: did:method:companyName:publicKey"
       });
 
     // Extract data required to call service
     const companyName = didComponents[2];
-    const publicKey = didComponents.slice(3).join(":");
+    const publicKey = didComponents[3];
     // console.log("Company name", companyName);
     // console.log("Public key", publicKey);
 

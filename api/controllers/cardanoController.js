@@ -10,7 +10,7 @@ module.exports = {
     // Handle input errors
     if (!policyId) return res.status(200).json({
       ...ERRORS.MISSING_PARAMETERS,
-      detail: "Not found: policiid"
+      detail: "Not found: policyid"
     });
 
     // Authenticate
@@ -51,7 +51,6 @@ module.exports = {
           }
         })
       .then((response) => {
-        console.log(response)
         response.error_code
           ? res.status(200).json(response.data)
           : res.status(200).json(response.data);
