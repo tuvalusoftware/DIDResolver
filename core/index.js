@@ -1,6 +1,5 @@
 const cardanoSerialization = require("@emurgo/cardano-serialization-lib-nodejs");
 const Ajv = require("ajv");
-const { ERRORS } = require("./constants");
 
 module.exports.validateDIDSyntax = (did) => {
   const didComponents = did.split(":");
