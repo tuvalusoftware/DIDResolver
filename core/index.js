@@ -27,3 +27,8 @@ module.exports.validateJSONSchema = (schema, object) => {
 }
 
 
+// const schema = require("../swagger/schemas/didDocumentOfWrappedDocument");
+// const example = schema.example;
+
+// const valid = this.validateJSONSchema(schema, example);
+

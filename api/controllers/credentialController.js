@@ -20,12 +20,12 @@ module.exports = {
           "Not found:" + !indexOfCres
             ? " indexOfCres"
             : "" + !credential
-            ? " credential"
-            : "" + !payload
-            ? " payload"
-            : "" + !did
-            ? " did"
-            : "",
+              ? " credential"
+              : "" + !payload
+                ? " payload"
+                : "" + !did
+                  ? " did"
+                  : "",
       });
 
     // Validate input
@@ -38,13 +38,14 @@ module.exports = {
     const companyName = didComponents[2],
       fileName = didComponents[3];
 
-    // var valid = validateJSONSchema(SHEMAS.CREDENTIAL, credential);
-    // if (!valid.valid)
-    //   return res.status(200).json({
-    //     ...ERRORS.INVALID_INPUT,
-    //     errorMessage: "Bad request. Invalid credential.",
-    //     detail: valid.detail,
-    //   });
+    var valid = validateJSONSchema(SHEMAS.CREDENTIAL, credential);
+    if (!valid.valid)
+      return res.status(200).json({
+        ...ERRORS.INVALID_INPUT,
+        errorMessage: "Bad request. Invalid credential.",
+        detail: valid.detail,
+      });
+
     try {
       // 1. Get wrapped document and did document of wrapped odcument
       // 1.1. Get did document and wrapped document of did document

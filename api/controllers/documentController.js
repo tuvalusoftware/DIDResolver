@@ -1,4 +1,5 @@
 const axios = require("axios").default;
+const { response } = require("express");
 const { ERRORS, SERVERS, SHEMAS } = require("../../core/constants");
 const { validateJSONSchema, getAddressFromHexEncoded } = require("../../core/index");
 
@@ -376,4 +377,32 @@ module.exports = {
 
     return res.status(200).send(valid);
   },
+
+  transferWrappedDocument: async function (req, res) {
+    const { did, didDoc: didDocumentOfWrappedDocument } = req.body;
+
+    if (!did || !didDocumentOfWrappedDocument)
+      return res.status(200).json(ERRORS.MISSING_PARAMETERS);
+
+    didComponents = did.split(":");
+    if (didComponents.length < 4 || didComponents[0] !== "did")
+      res.status(200).json(ERRORS.INVALID_INPUT);
+
+    const valid = validateJSONSchema(SHEMAS.DID_DOCUMENT_OF_WRAPPED_DOCUMENT, didDocumentOfWrappedDocument);
+    if (!valid.valid)
+      return res.status(200).json({
+        ...ERRORS.INVALID_INPUT,
+        errorMessage: "Bad request. Invalid did document.",
+        detail: valid.detail
+      });
+
+    axios.put(SERVERS.DID_CONTROLLER + "/api/doc",
+      {
+        companyName: didComponents[2],
+        fileName: didComponents[3],
+        didDoc: didDocumentOfWrappedDocument
+      })
+      .then((response) => res.status(200).json(response.data))
+      .catch((error) => res.status(400).json(error));
+  }
 }
