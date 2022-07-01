@@ -3,7 +3,7 @@ const LOCAL_HOST = "http://localhost"
 
 module.exports.SERVERS = {
   DID_CONTROLLER: `${HOST}:9000`,
-  CARDANO_SERVICE: `${HOST}:10000`,
+  CARDANO_SERVICE: `http://192.168.1.17:10000`,
   AUTHENTICATION_SERVICE: `${HOST}:12000`,
 }
 
