@@ -39,9 +39,14 @@ module.exports = {
 
   getPublicKeyFromAddress: (req, res) => {
     const { address } = req.query;
-    
-    res.status(200).json({
-      publicKey: getPublicKeyFromAddress(address)
-    })
+
+    try {
+      res.status(200).json({
+        publicKey: getPublicKeyFromAddress(address)
+      });
+    }
+    catch (error) {
+      res.status(400).json(error);
+    }
   }
 };
