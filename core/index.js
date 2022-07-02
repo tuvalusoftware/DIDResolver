@@ -18,17 +18,20 @@ module.exports.getPublicKeyFromAddress = (bech32Address) => {
   return publicKey;
 }
 
-module.exports.validateJSONSchema = (schema, object) => {
+module.exports.validateJSONSchema = (rawSchema, object) => {
+  const schema = (({ example, ...props }) => props)(rawSchema);
+
   const ajv = new Ajv();
   const validate = ajv.compile(schema);
+
   const valid = validate(object);
   console.log(valid);
   return valid ? { valid } : { valid, detail: validate.errors };
 }
 
+// var schema = require("../swagger/schemas/didDocumentOfWrappedDocument");
+// const clone = (({ example, ...o }) => o)(schema);
+// const example = (({ did, ...o }) => o)(schema.example);
 
-// const schema = require("../swagger/schemas/didDocumentOfWrappedDocument");
-// const example = schema.example;
-
-// const valid = this.validateJSONSchema(schema, example);
-
+// const valid = this.validateJSONSchema(clone, example);
+// console.log(valid);
