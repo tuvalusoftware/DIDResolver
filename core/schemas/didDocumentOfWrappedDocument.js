@@ -1,14 +1,15 @@
 module.exports = {
   type: "object",
+  required: ["did"],
   properties: {
     controller: {
       type: "array",
       description: "???",
-      items: { type: "string" },
+      items: { type: "string", description: "controller_public_key" },
     },
     did: {
       type: "string",
-      description: "DID of..."
+      description: "DID of DID document of wrapped document"
     },
     owner: {
       type: "string",
@@ -21,7 +22,6 @@ module.exports = {
     ulr: {
       type: "string",
       description: "???",
-      example: "document_name.document"
     }
   },
   example: {

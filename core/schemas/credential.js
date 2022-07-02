@@ -50,7 +50,7 @@ module.exports = {
       object: "did:method:Kukulu:file_name",
       newHolder: "did:method:Kukulu:0po9olki87ujmnhy65tgbvfr43edcxsw21qaz",
       action: {
-        code: 3000,
+        code: 2,
         value: "changeHoldership"
       }
     },

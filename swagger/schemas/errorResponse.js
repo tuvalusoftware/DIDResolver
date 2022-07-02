@@ -1,5 +1,6 @@
 module.exports = {
   type: "object",
+  required: ["errorCode", "errorMessage"],
   properties: {
     errorCode: {
       type: "integer",
@@ -10,6 +11,5 @@ module.exports = {
     detail: {
       type: "string",
     }
-  },
-  required: ["errorCode", "errorMessage"]
+  }
 }
