@@ -35,11 +35,7 @@ module.exports = {
             "Cookie": `access_token=${access_token}`
           }
         })
-      .then((response) => {
-        response.error_code
-          ? res.status(200).json(response.data)
-          : res.status(200).json(response.data);
-      })
+      .then((response) => res.status(200).json(response.data))
       .catch(error => {
         return error.response
           ? res.status(400).json(error.response.data)

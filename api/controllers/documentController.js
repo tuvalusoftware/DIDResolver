@@ -1,12 +1,10 @@
 const axios = require("axios").default;
-const { response } = require("express");
 const { ERRORS, SERVERS, SHEMAS } = require("../../core/constants");
 const { validateJSONSchema, getAddressFromHexEncoded } = require("../../core/index");
 
 module.exports = {
   getDIDDocument: async function (req, res) {
     // Receive input data
-    const { access_token } = req.cookies;
     const { did } = req.headers;
 
     // Handle input errors
@@ -36,10 +34,7 @@ module.exports = {
             publicKey: fileName,
           },
         })
-      .then((response) =>
-        response.data.errorCode
-          ? res.status(200).json(response.data) // 404
-          : res.status(200).json(response.data))
+      .then((response) => res.status(200).json(response.data)) // 404
       .catch((error) =>
         error.response
           ? res.status(400).json(error.response.data)
@@ -49,7 +44,6 @@ module.exports = {
 
   createDIDDocument: async function (req, res) {
     // Receive input data
-    const { access_token } = req.cookies;
     const { did, didDocument } = req.body;
 
     // Handle input errors
@@ -96,7 +90,6 @@ module.exports = {
 
   getWrappedDocument: async function (req, res) {
     // Receive input data
-    const { access_token } = req.cookies;
     const { did } = req.headers;
     const { only } = req.query;
 
@@ -127,11 +120,7 @@ module.exports = {
         },
         params: { only }
       })
-      .then((response) => {
-        response.data.errorCode
-          ? res.status(200).json(response.data) // 404
-          : res.status(200).json(response.data);
-      })
+      .then((response) => res.status(200).json(response.data)) // 404
       .catch((error) => {
         error.response
           ? res.status(400).json(error.response.data)
@@ -141,7 +130,6 @@ module.exports = {
 
   getAllWrappedDocumentsOfUser: async function (req, res) {
     // Receive input data
-    const { access_token } = req.cookies;
     const { did } = req.headers;
 
     // Handle input errors
@@ -162,8 +150,6 @@ module.exports = {
     // Extract data required to call service
     const companyName = didComponents[2];
     const publicKey = didComponents[3];
-    // console.log("Company name", companyName);
-    // console.log("Public key", publicKey);
 
     // Call DID Controller
     // success:
@@ -180,11 +166,7 @@ module.exports = {
           publicKey: publicKey
         },
       })
-      .then((response) => {
-        response.data.errorCode
-          ? res.status(200).json(response.data)
-          : res.status(200).json(response.data);
-      })
+      .then((response) => res.status(200).json(response.data))
       .catch((error) => {
         error.response
           ? res.status(400).json(error.response.data)
@@ -194,9 +176,7 @@ module.exports = {
 
   checkWrappedDocumentExistence: async function (req, res) {
     // Receive input data
-    const { access_token } = req.cookies;
     const { companyname: companyName, filename: fileName } = req.headers;
-    console.log(companyName, fileName);
 
     // Handle input errors
     if (!companyName || !fileName)
@@ -281,7 +261,7 @@ module.exports = {
         });
       // 1.2 Compare issuer address with user address
       if (issuerAddress !== address.data.data.address)
-        return res.status(403).send(ERRORS.PERMISSION_DENIED);
+        return res.status(200).send(ERRORS.PERMISSION_DENIED); // 403
 
       // 2. Check if document is already stored on DB (true/false).
       // success: 
@@ -293,10 +273,8 @@ module.exports = {
             fileName,
           },
         });
-      if (existence.data.isExisted) {
+      if (existence.data.isExisted)
         return res.status(200).json(ERRORS.ALREADY_EXSISTED); // 409
-      }
-      // console.log(1, access_token)
 
       // 3. Storing hash on Cardano blockchain
       // 3.1. Call Cardano Service 
@@ -325,9 +303,8 @@ module.exports = {
         });
 
       // 3.2. Handle store hash errors 
-      if (mintingNFT.data.error_code)
-        return res.status(400).json(mintingNFT.data);
-      if (!mintingNFT) return res.status(400).json(ERRORS.CANNOT_MINT_NFT);
+      if (mintingNFT.data.error_code) return res.status(200).json(mintingNFT.data);
+      if (!mintingNFT) return res.status(200).json(ERRORS.CANNOT_MINT_NFT);
 
       // 3.3. Extract policyId and assetId
       const mintingNFTStatus = (mintingNFT.data.data.result) ? mintingNFT.data.data.result : false;
@@ -357,8 +334,6 @@ module.exports = {
         : res.status(201).json(wrappedDocument);
     }
     catch (err) {
-      console.log("CATCH ERROR");
-      console.log(err);
       err.response
         ? res.status(400).json(err.response.data)
         : res.status(400).json(err);

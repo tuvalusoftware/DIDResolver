@@ -16,16 +16,11 @@ module.exports = {
     if (!indexOfCres || !credential || !payload || !did)
       return res.status(200).json({
         ...ERRORS.MISSING_PARAMETERS,
-        detail:
-          "Not found:" + !indexOfCres
-            ? " indexOfCres"
-            : "" + !credential
-              ? " credential"
-              : "" + !payload
-                ? " payload"
-                : "" + !did
-                  ? " did"
-                  : "",
+        detail: "Not found:"
+          + !indexOfCres ? " indexOfCres" : ""
+            + !credential ? " credential" : ""
+              + !payload ? " payload" : ""
+                + !did ? " did" : "",
       });
 
     // Validate input
@@ -69,15 +64,15 @@ module.exports = {
       // success:
       //   { data: { address: string } }
       // error: 401 - unauthorized
-      const address = await axios.get(
-        SERVERS.AUTHENTICATION_SERVICE + "/api/auth/verify",
-        {
-          withCredentials: true,
-          headers: {
-            Cookie: `access_token=${access_token};`,
-          },
-        }
-      );
+      const address = await axios
+        .get(SERVERS.AUTHENTICATION_SERVICE + "/api/auth/verify",
+          {
+            withCredentials: true,
+            headers: {
+              Cookie: `access_token=${access_token};`,
+            },
+          }
+        );
       // .then((response) => console.log("createCredential..."))
       // .catch((error) => console.log("UNAUTHORIZED"));
       // 3.2. Compare user address with public key from issuer did in credential
@@ -111,11 +106,11 @@ module.exports = {
       );
 
       console.log(verifiedSignature.data);
-      if (
-        !verifiedSignature.data.data.result ||
-        verifiedSignature.data.error_code
-      )
-        return res.status(200).json(ERRORS.UNVERIFIED_SIGNATURE); // 403
+      if (!verifiedSignature.data.data.result || verifiedSignature.data.error_code)
+        return res.status(200).json({
+          ...ERRORS.UNVERIFIED_SIGNATURE,
+          detail: verifiedSignature.data
+        }); // 403
 
       // 3. Call Cardano Service to store new credential
       // success:
@@ -140,8 +135,7 @@ module.exports = {
 
       console.log([{ ...credential }]);
 
-      storeCredentialStatus = await axios.put(
-        SERVERS.CARDANO_SERVICE + "/api/storeCredentials",
+      storeCredentialStatus = await axios.put(SERVERS.CARDANO_SERVICE + "/api/storeCredentials",
         {
           address: address?.data?.data?.address,
           hashOfDocument,
@@ -161,12 +155,10 @@ module.exports = {
           },
         }
       );
-      if (!verifiedSignature.data.data.result ||
-        verifiedSignature.data.error_code)
-        return res.status(400).json(storeCredentialStatus.data);
+
       storeCredentialStatus?.data?.data?.result
-        ? res.status(200).json(storeCredentialStatus.data)
-        : res.status(201).send("Credential created.");
+        ? res.status(201).send("Credential created.")
+        : res.status(200).send(storeCredentialStatus.data);
     } catch (err) {
       err.response
         ? res.status(400).json(err.response.data)
