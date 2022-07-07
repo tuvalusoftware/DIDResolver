@@ -1,6 +1,6 @@
 module.exports = {
   type: "object",
-  required: ["did"],
+  required: ["did", "controller", "url", "owner", "holder"],
   properties: {
     controller: {
       type: ["array", "null"],
@@ -20,7 +20,7 @@ module.exports = {
       type: "string",
       description: "Holder public key.",
     },
-    ulr: {
+    url: {
       type: "string",
       description: "???",
     }

@@ -1,14 +1,15 @@
 module.exports = {
   type: "object",
-  required: ["issuer", "subject", "credentialSubject", "signature"],
+  // required: ["issuer", "credentialSubject", "signature"],
   properties: {
     issuer: {
       type: "string",
-      description: "DID of owner."
+      description: "DID of who issues this credential."
     },
     credentialSubject: {
       type: "object",
-      description: "???",
+      description: "Claims",
+      // required: ["object", "action"],
       properties: {
         object: {
           type: "string",
@@ -26,7 +27,7 @@ module.exports = {
           type: "object",
           description: "Define the action subject can do with the document.",
           properties: {
-            code: "integer",
+            code: { type: "integer" },
             value: { type: "string" }
           }
         }

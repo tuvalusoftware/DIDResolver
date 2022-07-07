@@ -8,6 +8,8 @@ module.exports.SERVERS = {
   AUTHENTICATION_SERVICE: `${HOST}:12000`,
 }
 
+module.exports.SCHEMAS = SCHEMAS;
+
 module.exports.ERRORS = {
   MISSING_PARAMETERS: {
     errorCode: 400,
@@ -46,5 +48,3 @@ module.exports.ERRORS = {
     errorMessage: "Bad request. Cannot fetch NFT metadata. Check your assetId or policyId."
   }
 }
-
-module.exports.SCHEMAS = SCHEMAS;

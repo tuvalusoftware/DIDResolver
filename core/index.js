@@ -2,12 +2,20 @@ const cardanoSerialization = require("@emurgo/cardano-serialization-lib-nodejs")
 const Ajv = require("ajv");
 
 module.exports.validateDIDSyntax = (did, isSalted) => {
-  const maxLength = (isSalted) ? 6 : 4;
+  // DID syntax: did:method:companyName:fileNameOrPublicKey
+  // Salted DID: uuid:string:did:method:companyName:fileNameOrPublicKey
+  const maxLength = (isSalted) ? 6 : 4,
+    didPosition = (isSalted) ? 2 : 0,
+    didComponents = did.split(":");
 
-  const didComponents = did.split(":");
-  if (didComponents.length < 4 || didComponents[0] !== "did")
-    return { valid: false }
-  return { valid: true, companyName: didComponents[2], fileNameOrPublicKey: didComponents[3] }
+  if (didComponents.length < maxLength || didComponents[didPosition] !== "did")
+    return { valid: false };
+
+  return {
+    valid: true,
+    companyName: didComponents[didPosition + 2],
+    fileNameOrPublicKey: didComponents[didPosition + 3]
+  }
 }
 
 module.exports.getAddressFromHexEncoded = (hexAddress) => {
@@ -21,19 +29,21 @@ module.exports.getPublicKeyFromAddress = (bech32Address) => {
 }
 
 module.exports.validateJSONSchema = (rawSchema, object) => {
+  console.log("-- Validating object...")
   const schema = (({ example, ...props }) => props)(rawSchema);
+  console.log(schema)
 
   const ajv = new Ajv();
   const validate = ajv.compile(schema);
 
   const valid = validate(object);
-  console.log(valid);
+  // console.log(valid);
   return valid ? { valid } : { valid, detail: validate.errors };
 }
 
-// var schema = require("../swagger/schemas/didDocumentOfWrappedDocument");
+// var schema = require("./schemas/credential");
 // const clone = (({ example, ...o }) => o)(schema);
-// const example = (({ did, ...o }) => o)(schema.example);
+// const example = (({ ...o }) => o)(schema.example);
 
 // const valid = this.validateJSONSchema(clone, example);
 // console.log(valid);
