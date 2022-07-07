@@ -1,13 +1,11 @@
 const axios = require("axios").default;
-const {
-  validateJSONSchema,
-  getPublicKeyFromAddress,
-} = require("../../core/index");
+const { validateJSONSchema, getPublicKeyFromAddress, validateDIDSyntax } = require("../../core/index");
 const { ERRORS, SERVERS, SHEMAS } = require("../../core/constants");
 const sha256 = require("js-sha256").sha256;
 
 module.exports = {
   createCredential: async function (req, res) {
+    console.log("CREDENTIAL CREATING...");
     // Receive input data
     const { access_token } = req.cookies;
     const { indexOfCres, credential, payload, did } = req.body;
@@ -20,10 +18,14 @@ module.exports = {
           + !indexOfCres ? " indexOfCres" : ""
             + !credential ? " credential" : ""
               + !payload ? " payload" : ""
-                + !did ? " did" : "",
+                + !did ? " did" : ""
       });
 
     // Validate input
+    // 0.1. Validate did
+    const validDid = validateDIDSyntax(did);
+    console.log(validDid);
+
     const didComponents = did.split(":");
     if (didComponents.length < 4 || didComponents[0] !== "did")
       return res.status(200).json({

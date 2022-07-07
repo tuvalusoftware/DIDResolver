@@ -1,8 +1,22 @@
 const schemas = require("./schemas");
+const examples = require("./examples");
+
 
 module.exports.schemas = {
   ...schemas
 }
+
+module.exports.examples = {
+  ...examples
+}
+
+// module.exports.securitySchemes = {
+//   cookieAuth: {
+//     type: "apiKey",
+//     in: "cookie",
+//     name: "access_token"
+//   }
+// }
 
 module.exports.responses = {
   BadRequest: {

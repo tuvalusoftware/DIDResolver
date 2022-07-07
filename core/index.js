@@ -1,7 +1,9 @@
 const cardanoSerialization = require("@emurgo/cardano-serialization-lib-nodejs");
 const Ajv = require("ajv");
 
-module.exports.validateDIDSyntax = (did) => {
+module.exports.validateDIDSyntax = (did, isSalted) => {
+  const maxLength = (isSalted) ? 6 : 4;
+
   const didComponents = did.split(":");
   if (didComponents.length < 4 || didComponents[0] !== "did")
     return { valid: false }

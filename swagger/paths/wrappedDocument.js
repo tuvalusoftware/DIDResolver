@@ -10,7 +10,6 @@ module.exports.getWrappedDocument = {
         require: true,
         description: "DID string. Syntax: did:method:companyName:publicKey.",
         example: "did:method:Kukulu:file_name",
-        // default: "did:method:giabuynh:srs"
       },
       {
         in: "query",

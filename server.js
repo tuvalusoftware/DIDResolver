@@ -39,6 +39,7 @@ app.use("/api-docs", swaggerUi.serve, swaggerUi.setup(swaggerDocument, swaggerOp
 const server = http.createServer(app);
 const routes = require("./api/routes");
 routes(app);
+
 app.use((err, res) => {
   res.json({
     error_code: err.error_code || err.message,

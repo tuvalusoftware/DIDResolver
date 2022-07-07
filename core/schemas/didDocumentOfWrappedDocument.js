@@ -3,8 +3,9 @@ module.exports = {
   required: ["did"],
   properties: {
     controller: {
-      type: "array",
-      description: "???",
+      type: ["array", "null"],
+      description: "Public keys of who can transfer the wrapped document.",
+      nullable: true,
       items: { type: "string", description: "controller_public_key" },
     },
     did: {
