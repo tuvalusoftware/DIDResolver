@@ -31,13 +31,11 @@ module.exports.getPublicKeyFromAddress = (bech32Address) => {
 module.exports.validateJSONSchema = (rawSchema, object) => {
   console.log("-- Validating object...")
   const schema = (({ example, ...props }) => props)(rawSchema);
-  console.log(schema)
 
   const ajv = new Ajv();
   const validate = ajv.compile(schema);
 
   const valid = validate(object);
-  // console.log(valid);
   return valid ? { valid } : { valid, detail: validate.errors };
 }
 
