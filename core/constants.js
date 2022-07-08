@@ -12,39 +12,39 @@ module.exports.SCHEMAS = SCHEMAS;
 
 module.exports.ERRORS = {
   MISSING_PARAMETERS: {
-    errorCode: 400,
-    errorMessage: "Bad request. Missing parameters."
+    error_code: 400,
+    error_message: "Bad request. Missing parameters."
   },
   INVALID_INPUT: {
-    errorCode: 400,
-    errorMessage: "Bad request. Invalid input syntax."
+    error_code: 400,
+    error_message: "Bad request. Invalid input syntax."
   },
   UNAUTHORIZED: {
-    errorCode: 401,
-    errorMessage: "Unauthorized. Access token is invalid."
+    error_code: 401,
+    error_message: "Unauthorized. Access token is invalid."
   },
   PERMISSION_DENIED: {
-    errorCode: 403,
-    errorMessage: "Forbidden. Permission denied."
+    error_code: 403,
+    error_message: "Forbidden. Permission denied."
   },
   UNVERIFIED_SIGNATURE: {
-    errorCode: 403,
-    errorMessage: "Forbidden. Signature is not verified."
+    error_code: 403,
+    error_message: "Forbidden. Signature is not verified."
   },
   NOT_FOUND: {
-    errorCode: 404,
-    errorMessage: "Not found. Resource is not found."
+    error_code: 404,
+    error_message: "Not found. Resource is not found."
   },
   ALREADY_EXSISTED: {
-    errorCode: 409,
-    errorMessage: "Conflict. Resource already exsited."
+    error_code: 409,
+    error_message: "Conflict. Resource already exsited."
   },
   CANNOT_MINT_NFT: {
-    errorCode: 500,
-    errorMessage: "Error. Cannot mint NFT."
+    error_code: 500,
+    error_message: "Error. Cannot mint NFT."
   },
   CANNOT_FETCH_NFT: {
-    errorCode: 400,
-    errorMessage: "Bad request. Cannot fetch NFT metadata. Check your assetId or policyId."
+    error_code: 400,
+    error_message: "Bad request. Cannot fetch NFT metadata. Check your assetId or policyId."
   }
 }

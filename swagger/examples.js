@@ -1,56 +1,49 @@
+const { ERRORS } = require("../core/constants");
+
 exports.errorMissingParameters = {
   value: {
-    errorCode: 400,
-    errorMessage: "Bad request. Missing parameters.",
+    ...ERRORS.MISSING_PARAMETERS,
     detail: "Not found: did"
   }
 }
 exports.errorInvalidInput = {
   value: {
-    errorCode: 400,
-    errorMessage: "Bad request. Invalid input syntax.",
+    ...ERRORS.INVALID_INPUT,
     detail: ""
   }
 }
 exports.errorUnauthorized = {
   value: {
-    errorCode: 401,
-    errorMessage: "Unauthorized. Access token is invalid."
+    ...ERRORS.UNAUTHORIZED
   }
 }
 exports.errorPermissionDenied = {
   value: {
-    errorCode: 403,
-    errorMessage: "Forbidden. Permission denied."
+    ...ERRORS.PERMISSION_DENIED
   }
 }
 exports.errorUnverifiedSignature = {
   value: {
-    error: 403,
-    errorMessage: "Forbidden. Signature is not verified."
+    ...ERRORS.UNVERIFIED_SIGNATURE
   }
 }
 exports.errorNotFound = {
   value: {
-    errorCode: 404,
-    errorMessage: "Not found. Resource is not found."
+    ...ERRORS.NOT_FOUND
   }
 }
 exports.errorAlreadyExisted = {
   value: {
-    errorCode: 409,
-    errorMessage: "Conflict. Resource already exsited."
+    ...ERRORS.ALREADY_EXSISTED
   }
 }
 exports.errorMintNFT = {
   value: {
-    errorCode: 500,
-    errorMessage: "Error. Cannot mint NFT."
+    ...ERRORS.CANNOT_MINT_NFT
   }
 }
 exports.errorFetchNFT = {
   value: {
-    errorCode: 400,
-    errorMessage: "Bad request. Cannot fetch NFT metadata. Check your assetId or policyId."
+    ...ERRORS.CANNOT_FETCH_NFT
   }
 }
