@@ -1,11 +1,11 @@
 const axios = require("axios").default;
 const { validateJSONSchema, getPublicKeyFromAddress, validateDIDSyntax } = require("../../core/index");
-const { ERRORS, SERVERS, SHEMAS } = require("../../core/constants");
+const { ERRORS, SERVERS, SCHEMAS } = require("../../core/constants");
 const sha256 = require("js-sha256").sha256;
 
 module.exports = {
   createCredential: async function (req, res) {
-    console.log("CREDENTIAL CREATING...");
+    console.log("Creating credential...");
     // Receive input data
     const { access_token } = req.cookies;
     const { indexOfCres, credential, payload, did } = req.body;
@@ -22,20 +22,19 @@ module.exports = {
       });
 
     // Validate input
-    // 0.1. Validate did
-    const validDid = validateDIDSyntax(did);
-    console.log(validDid);
+    // 0.1. Validate DID syntax
+    const validDid = validateDIDSyntax(did, false);
 
-    const didComponents = did.split(":");
-    if (didComponents.length < 4 || didComponents[0] !== "did")
+    if (!validDid.valid)
       return res.status(200).json({
         ...ERRORS.INVALID_INPUT,
         detail: "Invalid DID syntax.",
       });
-    const companyName = didComponents[2],
-      fileName = didComponents[3];
+    const companyName = validDid.companyName,
+      fileName = validDid.fileNameOrPublicKey;
 
-    var valid = validateJSONSchema(SHEMAS.CREDENTIAL, credential);
+    // 0.2. Validate credential
+    var valid = validateJSONSchema(SCHEMAS.CREDENTIAL, credential);
     if (!valid.valid)
       return res.status(200).json({
         ...ERRORS.INVALID_INPUT,
@@ -49,7 +48,7 @@ module.exports = {
       // sucess:
       //   { wrappedDoc: {}, didDoc: {} }
       // error:
-      //   { errorCode: number, message: string }
+      //   { error_code: number, message: string }
       const documents = await axios.get(SERVERS.DID_CONTROLLER + "/api/doc", {
         headers: {
           companyName,
@@ -75,16 +74,23 @@ module.exports = {
             },
           }
         );
-      // .then((response) => console.log("createCredential..."))
-      // .catch((error) => console.log("UNAUTHORIZED"));
+
       // 3.2. Compare user address with public key from issuer did in credential
+      // credential.issuer: did:method:companyName:publicKey
+      console.log("-- Checking permission: current vs issuer of credential");
       publicKey = getPublicKeyFromAddress(address.data.data.address);
       issuerDidComponents = credential.issuer.split(":");
+      console.log(publicKey, issuerDidComponents[issuerDidComponents.length - 1]);
       if (publicKey !== issuerDidComponents[issuerDidComponents.length - 1])
         return res.status(200).json(ERRORS.PERMISSION_DENIED); // 403
 
-      // 3.3. Compare user address with controller address (from did document of wrapped document)??
-      if (publicKey !== didDocument.owner && publicKey !== didDocument.holder)
+      // 3.3. Compare user address with controller address (from did document of wrapped document)
+      // ?? BO MAY DANG SUA TOI CHO NAY THI TEST DEO DUOC ._. 
+      // ?? BO MAY SE QUAY LAI SAU
+      console.log("-- Checking permission: current vs controller of DID document")
+      console.log(didDocument.controller.indexOf(publicKey));
+      if (didDocument.controller.indexOf(publicKey) < 0)
+        // if (publicKey !== didDocument.owner && publicKey !== didDocument.holder)
         return res.status(200).json(ERRORS.PERMISSION_DENIED); // 403
 
       // 4. Call Cardano Service to verify signature
@@ -124,7 +130,7 @@ module.exports = {
       //     }
       //   }
       // error:
-      //   { errorCode: number, message: string }
+      //   { error_code: number, message: string }
 
       // * Cancel request after 4 seconds if no response from Cardano Service
       const source = axios.CancelToken.source();

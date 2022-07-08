@@ -1,37 +1,42 @@
 const axios = require("axios").default;
 const { ERRORS, SERVERS, SHEMAS } = require("../../core/constants");
-const { validateJSONSchema, getAddressFromHexEncoded } = require("../../core/index");
+const { validateJSONSchema, getAddressFromHexEncoded, validateDIDSyntax } = require("../../core/index");
 
 module.exports = {
   getDIDDocument: async function (req, res) {
+    console.log("Fetching DID document...")
     // Receive input data
     const { did } = req.headers;
 
-    // Handle input errors
+    // Check missing paramters
     if (!did) return res.status(200).json({
       ...ERRORS.MISSING_PARAMETERS,
       detail: "Not found: did"
     });
 
-    const didComponents = did.split(":");
-    if (didComponents.length < 4 || didComponents[0] != "did")
-      return res.status(200).json(ERRORS.INVALID_INPUT);
+    // Validate DID syntax
+    const validDid = validateDIDSyntax(did, isSalted = false),
+      companyName = validDid.companyName,
+      publicKey = validDid.fileNameOrPublicKey;
 
-    // Extract data required to call services
-    const companyName = didComponents[2],
-      fileName = didComponents[3];
+    if (!validDid.valid)
+      return res.status(200).json({
+        ...ERRORS.INVALID_INPUT,
+        detail: "Invalid DID syntax.",
+      });
 
     // Call DID Controller
+    console.log("-- Fetching user/company's DID document")
     // success:
     //   { ... }
     // error:
-    //   { errorCode: number, message: string }
+    //   { error_code: number, message: string }
     axios
       .get(SERVERS.DID_CONTROLLER + "/api/did/",
         {
           headers: {
             companyName: companyName,
-            publicKey: fileName,
+            publicKey: publicKey,
           },
         })
       .then((response) => res.status(200).json(response.data)) // 404
@@ -46,7 +51,7 @@ module.exports = {
     // Receive input data
     const { did, didDocument } = req.body;
 
-    // Handle input errors
+    // Check missing parameters
     if (!did || !didDocument)
       return res.status(200).json({
         ...ERRORS.MISSING_PARAMETERS,
@@ -55,28 +60,32 @@ module.exports = {
             + (!didDocument) ? " didDocument" : ""
       })
 
-    const didComponents = did.split(":");
-    if (didComponents.length < 4 || didComponents[0] != "did")
-      return res.status(200).json(ERRORS.INVALID_INPUT);
+    // Validate DID syntax
+    const validDid = validateDIDSyntax(did, isSalted = false),
+      companyName = validDid.companyName,
+      publicKey = validDid.fileNameOrPublicKey;
 
-    // Extract data required to call services
-    const companyName = didComponents[2],
-      fileName = didComponents[3];
+    if (!validDid.valid)
+      return res.status(200).json({
+        ...ERRORS.INVALID_INPUT,
+        detail: "Invalid DID syntax.",
+      });
 
     // Call DID Controller
+    console.log("-- Creating DID document...");
     // success: 
     //   { message: string }
     // error: 
-    //   { errorCode: number, message: string }
+    //   { error_code: number, message: string }
     axios.post(SERVERS.DID_CONTROLLER + "/api/did/",
       {
         companyName: companyName,
-        publicKey: fileName,
+        publicKey: publicKey,
         content: didDocument,
       })
       .then((response) => {
         console.log(response.data);
-        response.data.errorCode
+        response.data.error_code
           ? res.status(200).json(response.data)
           : res.status(201).send("DID Document created.")
       })
@@ -93,15 +102,18 @@ module.exports = {
     const { did } = req.headers;
     const { only } = req.query;
 
-    // Handle input errors
+    // Check missing parameters
     if (!did)
       return res.status(200).json({
         ...ERRORS.MISSING_PARAMETERS,
         detail: "Not found: did"
       });
 
-    const didComponents = did.split(":");
-    if (didComponents.length < 4 || didComponents[0] != "did")
+    // Validate DID syntax
+    const validDid = validateDIDSyntax(did, isSalted = false),
+      companyName = validDid.companyName,
+      fileName = validDid.fileNameOrPublicKey;
+    if (!validDid.valid)
       return res.status(200).json(ERRORS.INVALID_INPUT);
 
     // Call DID Controller
@@ -111,12 +123,12 @@ module.exports = {
     //     wrappedDoc: {}
     //   }
     // error: 
-    //   { errorCode: number, message: string }
+    //   { error_code: number, message: string }
     axios
       .get(SERVERS.DID_CONTROLLER + "/api/doc", {
         headers: {
-          companyName: didComponents[2],
-          fileName: didComponents[3]
+          companyName,
+          fileName
         },
         params: { only }
       })
@@ -139,17 +151,12 @@ module.exports = {
         detail: "Not found: did"
       });
 
-    // did syntax: did:method:companyName:publicKey
-    const didComponents = did.split(":");
-    if (didComponents.length < 4 || didComponents[0] != "did")
-      return res.status(200).json({
-        ...ERRORS.INVALID_INPUT,
-        detail: "DID syntax: did:method:companyName:publicKey"
-      });
-
-    // Extract data required to call service
-    const companyName = didComponents[2];
-    const publicKey = didComponents[3];
+    // Validate DID syntax
+    const validDID = validateDIDSyntax(did, isSalted = false),
+      companyName = validDID.companyName,
+      publicKey = validDID.fileNameOrPublicKey;
+    if (!validDID.valid)
+      return res.status(200).json(ERRORS.INVALID_INPUT);
 
     // Call DID Controller
     // success:
@@ -158,7 +165,7 @@ module.exports = {
     //     {...}
     //   ]
     // error: 
-    //   { errorCode: number, message: string }
+    //   { error_code: number, message: string }
     axios
       .get(SERVERS.DID_CONTROLLER + "/api/doc/user", {
         headers: {
@@ -213,7 +220,7 @@ module.exports = {
 
     // Handle input errors
     if (!wrappedDocument || !encryptedIssuerAddress) {
-      return res.status(400).json({
+      return res.status(200).json({
         ...ERRORS.MISSING_PARAMETERS,
         detail: "Not found:"
           + (!wrappedDocument) ? " wrappedDocument" : ""
@@ -230,21 +237,19 @@ module.exports = {
         detail: valid.detail
       });
 
-    // Extract data required to call services
-    const did = wrappedDocument.data.did;
-    const targetHash = wrappedDocument.signature.targetHash;
-
-    const didComponents = did.split(":");
-    if (didComponents.length < 6 || didComponents[2] !== "did") {
+    // Validate DID syntax
+    const did = wrappedDocument.data.did,
+      validDid = validateDIDSyntax(did, isSalted = true),
+      companyName = validDid.companyName,
+      fileName = validDid.fileNameOrPublicKey;
+    if (!validDid.valid)
       return res.status(200).json({
         ...ERRORS.INVALID_INPUT,
         detail: "Invalid DID syntax. Check the wrappedDocument.data.did element."
       });
-    }
 
-    const companyName = didComponents[4],
-      fileName = didComponents[5],
-      issuerAddress = getAddressFromHexEncoded(encryptedIssuerAddress);
+    const issuerAddress = getAddressFromHexEncoded(encryptedIssuerAddress),
+      targetHash = wrappedDocument.signature.targetHash;;
 
     try {
       // 1. Validate permission to create document
@@ -319,7 +324,7 @@ module.exports = {
       // success:
       //   { message: "success" }
       // error:
-      //   { errorCode: number, message: string }
+      //   { error_code: number, message: string }
       const storeWrappedDocumentStatus = await axios.post((SERVERS.DID_CONTROLLER + "/api/doc"),
         {
           fileName,
@@ -329,7 +334,7 @@ module.exports = {
       );
 
       // 6. Return policyId an assetId if the process is success.
-      storeWrappedDocumentStatus.data.errorCode
+      storeWrappedDocumentStatus.data.error_code
         ? res.status(200).json(storeWrappedDocumentStatus.data)
         : res.status(201).json(wrappedDocument);
     }
@@ -356,11 +361,15 @@ module.exports = {
   transferWrappedDocument: async function (req, res) {
     const { did, didDoc: didDocumentOfWrappedDocument } = req.body;
 
+    // Check missing parameters
     if (!did || !didDocumentOfWrappedDocument)
       return res.status(200).json(ERRORS.MISSING_PARAMETERS);
 
-    didComponents = did.split(":");
-    if (didComponents.length < 4 || didComponents[0] !== "did")
+    // Validate DID syntax
+    const validDid = validateDIDSyntax(did, false),
+      companyName = validDid.companyName,
+      fileName = validDid.fileNameOrPublicKey;
+    if (!validDid.valid)
       res.status(200).json(ERRORS.INVALID_INPUT);
 
     const valid = validateJSONSchema(SHEMAS.DID_DOCUMENT_OF_WRAPPED_DOCUMENT, didDocumentOfWrappedDocument);
@@ -373,8 +382,8 @@ module.exports = {
 
     axios.put(SERVERS.DID_CONTROLLER + "/api/doc",
       {
-        companyName: didComponents[2],
-        fileName: didComponents[3],
+        companyName: companyName,
+        fileName: fileName,
         didDoc: didDocumentOfWrappedDocument
       })
       .then((response) => res.status(200).json(response.data))

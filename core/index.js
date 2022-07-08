@@ -2,6 +2,7 @@ const cardanoSerialization = require("@emurgo/cardano-serialization-lib-nodejs")
 const Ajv = require("ajv");
 
 module.exports.validateDIDSyntax = (did, isSalted) => {
+  console.log("-- Validating DID...");
   // DID syntax: did:method:companyName:fileNameOrPublicKey
   // Salted DID: uuid:string:did:method:companyName:fileNameOrPublicKey
   const maxLength = (isSalted) ? 6 : 4,
