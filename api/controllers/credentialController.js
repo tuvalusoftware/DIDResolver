@@ -47,7 +47,7 @@ module.exports = {
     if (!valid.valid)
       return res.status(200).json({
         ...ERRORS.INVALID_INPUT,
-        errorMessage: "Bad request. Invalid credential.",
+        error_message: "Bad request. Invalid credential.",
         detail: valid.detail,
       });
 

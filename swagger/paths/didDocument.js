@@ -1,7 +1,8 @@
 module.exports.getDidDocument = {
   get: {
     tags: ["DID document"],
-    summary: "Resolve DID - Takes a DID of a company or user as input and produces a conforming DID document as output.",
+    summary:
+      "Resolve DID - Takes a DID of a company or user as input and produces a conforming DID document as output.",
     parameters: [
       {
         in: "header",
@@ -11,7 +12,7 @@ module.exports.getDidDocument = {
         description: "DID string. Syntax: did:method:companyName:publicKey.",
         default: "did:method:Kukulu:public_key",
         // example: "did:method:companyName:publicKey",
-      }
+      },
     ],
     responses: {
       200: {
@@ -19,10 +20,10 @@ module.exports.getDidDocument = {
         content: {
           "application/json": {
             schema: {
-              $ref: "#/components/schemas/didDocument"
+              $ref: "#/components/schemas/didDocument",
             },
-          }
-        }
+          },
+        },
       },
       400: {
         description: "Missing parameters or invalid input.",
@@ -30,26 +31,31 @@ module.exports.getDidDocument = {
           "application/json": {
             schema: { $ref: "#/components/schemas/error" },
             examples: {
-              "Missing parameters": { $ref: "#/components/examples/errorMissingParameters" },
-              "Invalid input": { $ref: "#/components/examples/errorInvalidInput" }
-            }
-          }
-        }
+              "Missing parameters": {
+                $ref: "#/components/examples/errorMissingParameters",
+              },
+              "Invalid input": {
+                $ref: "#/components/examples/errorInvalidInput",
+              },
+            },
+          },
+        },
       },
       404: {
-        description: "Cannot found DID document with a companyName and publicKey included in the given DID string.",
+        description:
+          "Cannot found DID document with a companyName and publicKey included in the given DID string.",
         content: {
           "application/json": {
             example: {
-              errorCode: 404,
-              message: "File/Public Key with the given value cannot be found."
-            }
-          }
-        }
-      }
-    }
-  }
-}
+              error_code: 404,
+              message: "File/Public Key with the given value cannot be found.",
+            },
+          },
+        },
+      },
+    },
+  },
+};
 
 module.exports.createDidDocument = {
   post: {
@@ -65,15 +71,15 @@ module.exports.createDidDocument = {
             properties: {
               did: {
                 type: "string",
-                example: "did:method:Kukulu:public_key"
+                example: "did:method:Kukulu:public_key",
               },
               didDocument: {
-                $ref: "#/components/schemas/didDocument"
-              }
-            }
+                $ref: "#/components/schemas/didDocument",
+              },
+            },
           },
-        }
-      }
+        },
+      },
     },
     responses: {
       201: {
@@ -82,10 +88,10 @@ module.exports.createDidDocument = {
           "text/plain": {
             schema: {
               type: "string",
-              example: "DID Document created."
-            }
-          }
-        }
+              example: "DID Document created.",
+            },
+          },
+        },
       },
       400: {
         description: "Missing parameters or invalid input",
@@ -93,12 +99,16 @@ module.exports.createDidDocument = {
           "application/json": {
             schema: { $ref: "#/components/schemas/error" },
             examples: {
-              "Missing parameters": { $ref: "#/components/examples/errorMissingParameters" },
-              "Invalid input": { $ref: "#/components/examples/errorInvalidInput" }
-            }
-          }
-        }
-      }
-    }
-  }
-}
+              "Missing parameters": {
+                $ref: "#/components/examples/errorMissingParameters",
+              },
+              "Invalid input": {
+                $ref: "#/components/examples/errorInvalidInput",
+              },
+            },
+          },
+        },
+      },
+    },
+  },
+};
