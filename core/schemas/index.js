@@ -4,3 +4,4 @@ exports.DID_DOCUMENT_OF_WRAPPED_DOCUMENT = require("./didDocumentOfWrappedDocume
 
 exports.CREDENTIAL = require("./credential");
 
+exports.NOTIFICATION = require("./notification");
