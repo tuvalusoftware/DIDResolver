@@ -1,14 +1,13 @@
 const schemas = require("./schemas");
 const examples = require("./examples");
 
-
 module.exports.schemas = {
-  ...schemas
-}
+  ...schemas,
+};
 
 module.exports.examples = {
-  ...examples
-}
+  ...examples,
+};
 
 // module.exports.securitySchemes = {
 //   cookieAuth: {
@@ -26,11 +25,13 @@ module.exports.responses = {
           $ref: "#/components/schemas/error",
         },
         examples: {
-          "Missing parameters": { $ref: "#/components/examples/errorMissingParameters" },
-          "Invalid input": { $ref: "#/components/examples/errorInvalidInput" }
-        }
-      }
-    }
+          "Missing parameters": {
+            $ref: "#/components/examples/errorMissingParameters",
+          },
+          "Invalid input": { $ref: "#/components/examples/errorInvalidInput" },
+        },
+      },
+    },
   },
   Unauthorized: {
     description: "Cannot verify user with the given access token.",
@@ -38,10 +39,10 @@ module.exports.responses = {
       "text/plain": {
         schema: {
           type: "string",
-          example: "Unauthorized."
-        }
-      }
-    }
+          example: "Unauthorized.",
+        },
+      },
+    },
   },
   NotFound_DIDDocument: {
     description: "DID document or/and wrapped document are not found.",
@@ -50,25 +51,26 @@ module.exports.responses = {
         schema: {
           type: "object",
           properties: {
-            errorCode: { type: "integer" },
-            message: { type: "string" }
+            error_code: { type: "integer" },
+            error_message: { type: "string" },
           },
         },
         examples: {
           "No file": {
             value: {
-              errorCode: 10004,
-              message: "File/Public Key with the given value cannot be found."
-            }
+              error_code: 10004,
+              error_message:
+                "File/Public Key with the given value cannot be found.",
+            },
           },
           "No branch": {
             value: {
-              errorCode: 10003,
-              message: "Company with the given name cannot be found."
-            }
+              error_code: 10003,
+              error_message: "Company with the given name cannot be found.",
+            },
           },
-        }
-      }
-    }
-  }
-}
+        },
+      },
+    },
+  },
+};

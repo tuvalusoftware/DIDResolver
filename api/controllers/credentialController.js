@@ -1,5 +1,9 @@
 const axios = require("axios").default;
-const { validateJSONSchema, getPublicKeyFromAddress, validateDIDSyntax } = require("../../core/index");
+const {
+  validateJSONSchema,
+  getPublicKeyFromAddress,
+  validateDIDSyntax,
+} = require("../../core/index");
 const { ERRORS, SERVERS, SCHEMAS } = require("../../core/constants");
 const sha256 = require("js-sha256").sha256;
 
@@ -14,11 +18,16 @@ module.exports = {
     if (!indexOfCres || !credential || !payload || !did)
       return res.status(200).json({
         ...ERRORS.MISSING_PARAMETERS,
-        detail: "Not found:"
-          + !indexOfCres ? " indexOfCres" : ""
-            + !credential ? " credential" : ""
-              + !payload ? " payload" : ""
-                + !did ? " did" : ""
+        detail:
+          "Not found:" + !indexOfCres
+            ? " indexOfCres"
+            : "" + !credential
+            ? " credential"
+            : "" + !payload
+            ? " payload"
+            : "" + !did
+            ? " did"
+            : "",
       });
 
     // Validate input
@@ -38,7 +47,7 @@ module.exports = {
     if (!valid.valid)
       return res.status(200).json({
         ...ERRORS.INVALID_INPUT,
-        errorMessage: "Bad request. Invalid credential.",
+        error_message: "Bad request. Invalid credential.",
         detail: valid.detail,
       });
 
@@ -65,29 +74,34 @@ module.exports = {
       // success:
       //   { data: { address: string } }
       // error: 401 - unauthorized
-      const address = await axios
-        .get(SERVERS.AUTHENTICATION_SERVICE + "/api/auth/verify",
-          {
-            withCredentials: true,
-            headers: {
-              Cookie: `access_token=${access_token};`,
-            },
-          }
-        );
+      const address = await axios.get(
+        SERVERS.AUTHENTICATION_SERVICE + "/api/auth/verify",
+        {
+          withCredentials: true,
+          headers: {
+            Cookie: `access_token=${access_token};`,
+          },
+        }
+      );
 
       // 3.2. Compare user address with public key from issuer did in credential
       // credential.issuer: did:method:companyName:publicKey
       console.log("-- Checking permission: current vs issuer of credential");
       publicKey = getPublicKeyFromAddress(address.data.data.address);
       issuerDidComponents = credential.issuer.split(":");
-      console.log(publicKey, issuerDidComponents[issuerDidComponents.length - 1]);
+      console.log(
+        publicKey,
+        issuerDidComponents[issuerDidComponents.length - 1]
+      );
       if (publicKey !== issuerDidComponents[issuerDidComponents.length - 1])
         return res.status(200).json(ERRORS.PERMISSION_DENIED); // 403
 
       // 3.3. Compare user address with controller address (from did document of wrapped document)
-      // ?? BO MAY DANG SUA TOI CHO NAY THI TEST DEO DUOC ._. 
+      // ?? BO MAY DANG SUA TOI CHO NAY THI TEST DEO DUOC ._.
       // ?? BO MAY SE QUAY LAI SAU
-      console.log("-- Checking permission: current vs controller of DID document")
+      console.log(
+        "-- Checking permission: current vs controller of DID document"
+      );
       console.log(didDocument.controller.indexOf(publicKey));
       if (didDocument.controller.indexOf(publicKey) < 0)
         // if (publicKey !== didDocument.owner && publicKey !== didDocument.holder)
@@ -114,10 +128,13 @@ module.exports = {
       );
 
       console.log(verifiedSignature.data);
-      if (!verifiedSignature.data.data.result || verifiedSignature.data.error_code)
+      if (
+        !verifiedSignature.data.data.result ||
+        verifiedSignature.data.error_code
+      )
         return res.status(200).json({
           ...ERRORS.UNVERIFIED_SIGNATURE,
-          detail: verifiedSignature.data
+          detail: verifiedSignature.data,
         }); // 403
 
       // 3. Call Cardano Service to store new credential
@@ -143,7 +160,8 @@ module.exports = {
 
       console.log([{ ...credential }]);
 
-      storeCredentialStatus = await axios.put(SERVERS.CARDANO_SERVICE + "/api/storeCredentials",
+      storeCredentialStatus = await axios.put(
+        SERVERS.CARDANO_SERVICE + "/api/storeCredentials",
         {
           address: address?.data?.data?.address,
           hashOfDocument,
