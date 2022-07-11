@@ -251,7 +251,7 @@ module.exports = {
     if (!valid.valid)
       return res.status(200).json({
         ...ERRORS.INVALID_INPUT,
-        errorMessage: "Bad request. Invalid wrapped document.",
+        error_message: "Bad request. Invalid wrapped document.",
         detail: valid.detail,
       });
 
@@ -414,7 +414,7 @@ module.exports = {
     if (!valid.valid)
       return res.status(200).json({
         ...ERRORS.INVALID_INPUT,
-        errorMessage: "Bad request. Invalid did document.",
+        error_message: "Bad request. Invalid did document.",
         detail: valid.detail,
       });
 
