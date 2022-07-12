@@ -1,4 +1,4 @@
-const { default: axios } = require("axios");
+const axios = require("axios").default;
 const { validateJSONSchema, validateDIDSyntax } = require("../../core");
 const { ERRORS, SCHEMAS, SERVERS } = require("../../core/constants");
 
