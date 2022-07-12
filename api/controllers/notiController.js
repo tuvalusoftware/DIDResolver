@@ -3,7 +3,7 @@ const { validateJSONSchema, validateDIDSyntax } = require("../../core");
 const { ERRORS, SCHEMAS, SERVERS } = require("../../core/constants");
 
 module.exports = {
-  createNotification: (req, res) => {
+  createNotification: async (req, res) => {
     console.log("Create notification....");
 
     const { notification } = req.body;
@@ -40,7 +40,7 @@ module.exports = {
 
         // Call DID Controller to check if DID of receiver and sender exist
         // success:
-        const existence = axios.get(SERVERS.DID_CONTROLLER + "/api/did", {
+        const existence = await axios.get(SERVERS.DID_CONTROLLER + "/api/did", {
           headers: { companyName, publicKey },
         });
 
@@ -53,10 +53,12 @@ module.exports = {
       //   { message: string }
       // error:
       //   { error_code: Number, error_message: string }
-      const storeNotificationStatus = await axios.post(SERVERS.DID_CONTROLLER + "/api/message/", 
-      {
-        message: notification
-      });
+      const storeNotificationStatus = await axios.post(
+        SERVERS.DID_CONTROLLER + "/api/message/",
+        {
+          message: notification,
+        }
+      );
       // Handle some error
       if (storeNotificationStatus.error_code)
         return res.status(200).json(storeNotificationStatus);
