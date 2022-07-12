@@ -49,20 +49,23 @@ module.exports = {
       }
 
       // Call DID Controller
-      console.log("STORING NOTIFICATION");
+      // success:
+      //   { message: string }
+      // error:
+      //   { error_code: Number, error_message: string }
+      const storeNotificationStatus = await axios.post(SERVERS.DID_CONTROLLER + "/api/message/", 
+      {
+        message: notification
+      });
       // Handle some error
+      if (storeNotificationStatus.error_code)
+        return res.status(200).json(storeNotificationStatus);
       return res.status(201).send("Notification created.");
     } catch (err) {
       err.response
         ? res.status(400).json(err.response.data)
         : res.status(400).json(err);
     }
-    // res.status(200).send("Create notification");
-  },
-
-  changeNotificationStatus: (req, res) => {
-    console.log("Changing notification status...");
-    res.status(200).send("Change status");
   },
 
   revokeNotification: (req, res) => {
