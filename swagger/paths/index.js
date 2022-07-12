@@ -1,8 +1,16 @@
 const { getPublicKeyFromAddress } = require("./auth");
 const { createCredential } = require("./credential");
 const { getDidDocument, createDidDocument } = require("./didDocument");
+const { createNotification } = require("./noti");
 const { getNFTs, verifyHash, verifySignature } = require("./others");
-const { checkWrappedDocumentExistence, getWrappedDocument, createWrappedDocument, getAllWrappedDocumentsOfUser, validateWrappedDocument, updateWrappedDocument } = require("./wrappedDocument");
+const {
+  checkWrappedDocumentExistence,
+  getWrappedDocument,
+  createWrappedDocument,
+  getAllWrappedDocumentsOfUser,
+  validateWrappedDocument,
+  updateWrappedDocument,
+} = require("./wrappedDocument");
 
 module.exports.paths = {
   "auth/public-key/": {
@@ -20,26 +28,30 @@ module.exports.paths = {
     // ...updateWrappedDocument
   },
   "/wrapped-document/exist/": {
-    ...checkWrappedDocumentExistence
+    ...checkWrappedDocumentExistence,
   },
   "/wrapped-document/valid/": {
-    ...validateWrappedDocument
+    ...validateWrappedDocument,
   },
   "/wrapped-document/user": {
-    ...getAllWrappedDocumentsOfUser
+    ...getAllWrappedDocumentsOfUser,
   },
 
   "/credential/": {
-    ...createCredential
+    ...createCredential,
+  },
+
+  "/noti": {
+    ...createNotification,
   },
 
   "/nfts/": {
-    ...getNFTs
+    ...getNFTs,
   },
   "/hash/verify/": {
-    ...verifyHash
+    ...verifyHash,
   },
   "/signature/verify/": {
-    ...verifySignature
-  }
-}
+    ...verifySignature,
+  },
+};

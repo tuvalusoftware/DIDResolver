@@ -7,7 +7,12 @@ module.exports.createNotification = {
       content: {
         "application/json": {
           schema: {
-            $ref: "#/components/schemas/notification",
+            type: "object",
+            properties: {
+              notification: {
+                $ref: "#/components/schemas/notification",
+              },
+            },
           },
         },
       },
