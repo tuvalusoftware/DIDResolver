@@ -16,23 +16,21 @@ module.exports = {
     //   { data: { address: string } }
     // error: 401 - unauthorized
     axios
-      .get(
-        `${SERVERS.AUTHENTICATION_SERVICE}/api/auth/verify`,
-        {
-          withCredentials: true,
-          headers: {
-            "Cookie": `access_token=${token};`,
-          },
-        }
-      )
-      .then((response) => {
-        var response = response.data;
-        req.userData = {
-          token,
-          address: response.address,
-        };
-        next();
-      },
+      .get(`${SERVERS.AUTHENTICATION_SERVICE}/api/auth/verify`, {
+        withCredentials: true,
+        headers: {
+          Cookie: `access_token=${token};`,
+        },
+      })
+      .then(
+        (response) => {
+          var response = response.data;
+          req.userData = {
+            token,
+            address: response.address,
+          };
+          next();
+        },
         (error) => {
           console.log(error);
           next(error);
@@ -45,11 +43,10 @@ module.exports = {
 
     try {
       res.status(200).json({
-        publicKey: getPublicKeyFromAddress(address)
+        publicKey: getPublicKeyFromAddress(address),
       });
-    }
-    catch (error) {
+    } catch (error) {
       res.status(400).json(error);
     }
-  }
+  },
 };
