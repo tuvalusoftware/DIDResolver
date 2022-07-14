@@ -39,6 +39,7 @@ module.exports = {
   },
 
   getPublicKeyFromAddress: (req, res) => {
+    console.log("Get public key from address...");
     const { address } = req.query;
 
     try {

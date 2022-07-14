@@ -3,8 +3,8 @@ const { ERRORS, SERVERS } = require("../../core/constants");
 
 module.exports = {
   setCookie: async (req, res, next) => {
-    const { accessToken } = req.headers;
-    res.cookie("access_token", accessToken);
+    const { access_token } = req.headers;
+    res.cookie("access_token", access_token);
     res.send("Set Cookie Successfully.");
   },
 

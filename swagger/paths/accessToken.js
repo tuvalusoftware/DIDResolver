@@ -11,7 +11,7 @@ module.exports.setCookie = {
         descrption: "Access token",
       },
     ],
-    response: {
+    responses: {
       200: {
         description: "",
         content: {
@@ -31,7 +31,7 @@ module.exports.clearCookie = {
   delete: {
     tags: ["Access token"],
     summary: "Clear access_token",
-    response: {
+    responses: {
       200: {
         descrption: "",
         content: {
