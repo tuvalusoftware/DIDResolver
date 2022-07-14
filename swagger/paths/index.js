@@ -1,3 +1,4 @@
+const { setCookie, clearCookie } = require("./accessToken");
 const { getPublicKeyFromAddress } = require("./auth");
 const { createCredential } = require("./credential");
 const { getDidDocument, createDidDocument } = require("./didDocument");
@@ -9,11 +10,15 @@ const {
   createWrappedDocument,
   getAllWrappedDocumentsOfUser,
   validateWrappedDocument,
-  updateWrappedDocument,
 } = require("./wrappedDocument");
 
 module.exports.paths = {
-  "auth/public-key/": {
+  "/": {
+    ...setCookie,
+    ...clearCookie,
+  },
+
+  "/auth/public-key/": {
     ...getPublicKeyFromAddress,
   },
 

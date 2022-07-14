@@ -8,6 +8,7 @@ module.exports.setCookie = {
         name: "access_token",
         type: "string",
         require: true,
+        descrption: "Access token",
       },
     ],
     response: {
@@ -17,7 +18,27 @@ module.exports.setCookie = {
           "text/plain": {
             schema: {
               type: "string",
-              example: "Set cookie sucessfully.",
+              example: "Set Cookie Successfully.",
+            },
+          },
+        },
+      },
+    },
+  },
+};
+
+module.exports.clearCookie = {
+  delete: {
+    tags: ["Access token"],
+    summary: "Clear access_token",
+    response: {
+      200: {
+        descrption: "",
+        content: {
+          "text/plain": {
+            schema: {
+              type: "string",
+              example: "Clear Cookie Successfully.",
             },
           },
         },

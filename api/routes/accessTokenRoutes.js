@@ -1,10 +1,10 @@
 const express = require("express");
-const authController = require("../controllers/authController");
+const accessTokenController = require("../controllers/accessTokenController");
 const router = express.Router();
 
 router
   .route("/")
-  .post(authController.setCookie)
-  .get(authController.clearCookie);
+  .post(accessTokenController.setCookie)
+  .delete(accessTokenController.clearCookie);
 
 module.exports = router;
