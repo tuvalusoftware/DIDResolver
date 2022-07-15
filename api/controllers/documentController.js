@@ -1,5 +1,5 @@
 const axios = require("axios").default;
-const { ERRORS, SERVERS, SHEMAS } = require("../../core/constants");
+const { ERRORS, SERVERS, SCHEMAS } = require("../../core/constants");
 const {
   validateJSONSchema,
   getAddressFromHexEncoded,
@@ -245,7 +245,7 @@ module.exports = {
 
     //Validate wrapped document format
     const valid = validateJSONSchema(
-      SHEMAS.NEW_WRAPPED_DOCUMENT,
+      SCHEMAS.NEW_WRAPPED_DOCUMENT,
       wrappedDocument
     );
     if (!valid.valid)
@@ -389,7 +389,7 @@ module.exports = {
         detail: "Not found: wrappedDocument",
       });
 
-    const valid = validateJSONSchema(SHEMAS.WRAPPED_DOCUMENT, wrappedDocument);
+    const valid = validateJSONSchema(SCHEMAS.WRAPPED_DOCUMENT, wrappedDocument);
 
     return res.status(200).send(valid);
   },
@@ -408,7 +408,7 @@ module.exports = {
     if (!validDid.valid) res.status(200).json(ERRORS.INVALID_INPUT);
 
     const valid = validateJSONSchema(
-      SHEMAS.DID_DOCUMENT_OF_WRAPPED_DOCUMENT,
+      SCHEMAS.DID_DOCUMENT_OF_WRAPPED_DOCUMENT,
       didDocumentOfWrappedDocument
     );
     if (!valid.valid)
