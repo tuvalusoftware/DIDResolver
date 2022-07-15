@@ -43,7 +43,7 @@ module.exports = {
       fileName = validDid.fileNameOrPublicKey;
 
     // 0.2. Validate credential
-    var valid = validateJSONSchema(SCHEMAS.CREDENTIAL, credential);
+    const valid = validateJSONSchema(SCHEMAS.CREDENTIAL, credential);
     if (!valid.valid)
       return res.status(200).json({
         ...ERRORS.INVALID_INPUT,
@@ -87,8 +87,8 @@ module.exports = {
       // 3.2. Compare user address with public key from issuer did in credential
       // credential.issuer: did:method:companyName:publicKey
       console.log("-- Checking permission: current vs issuer of credential");
-      publicKey = getPublicKeyFromAddress(address.data.data.address);
-      issuerDidComponents = credential.issuer.split(":");
+      const publicKey = getPublicKeyFromAddress(address.data.data.address),
+        issuerDidComponents = credential.issuer.split(":");
       console.log(
         publicKey,
         issuerDidComponents[issuerDidComponents.length - 1]
@@ -138,7 +138,7 @@ module.exports = {
           detail: verifiedSignature.data,
         }); // 403
 
-      // 3. Call Cardano Service to store new credential
+      // 5. Call Cardano Service to store new credential
       // success:
       //   {
       //     data:
@@ -152,16 +152,16 @@ module.exports = {
 
       // * Cancel request after 4 seconds if no response from Cardano Service
       const source = axios.CancelToken.source();
-      let storeCredentialStatus = null;
+      let mintingNFT = null;
       setTimeout(() => {
-        if (storeCredentialStatus === null) {
+        if (mintingNFT === null) {
           source.cancel();
         }
       }, 8000);
 
       console.log([{ ...credential }]);
 
-      storeCredentialStatus = await axios.put(
+      mintingNFT = await axios.put(
         SERVERS.CARDANO_SERVICE + "/api/storeCredentials",
         {
           address: address?.data?.data?.address,
@@ -183,9 +183,32 @@ module.exports = {
         }
       );
 
-      storeCredentialStatus?.data?.data?.result
-        ? res.status(201).send("Credential created.")
-        : res.status(200).send(storeCredentialStatus.data);
+      if (mintingNFT?.data?.data?.result) {
+        // 7. Call DID_CONTROLLER
+        // success:
+        //   {}
+        // error:
+        //   { error_code: number, error_message: string}
+        const storeCredentialStatus = await axios.post(
+          SERVERS.DID_CONTROLLER,
+          {
+            address: address?.data?.data?.address,
+            hash: hashOfDocument,
+            content: { credential },
+          },
+          {
+            withCredentials: true,
+            headers: {
+              Cookie: `access_token=${access_token};`,
+            },
+          }
+        );
+
+        storeCredentialStatus.data.error_code
+          ? res.status(200).json(storeCredentialStatus.data)
+          : res.status(201).send("Credential created.");
+      }
+      res.status(200).send(mintingNFT.data);
     } catch (err) {
       err.response
         ? res.status(400).json(err.response.data)
