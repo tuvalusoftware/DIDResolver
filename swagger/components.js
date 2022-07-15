@@ -1,43 +1,74 @@
+const schemas = require("./schemas");
+const examples = require("./examples");
+
+
 module.exports.schemas = {
-    errorMessageDIDController: {
-        type: "object",
-        properties: {
-            errorCode: {
-                type: "integer",
-                summary: "Error Code.",
-            },
-            message: {
-                type: "string",
-                summary: "Error message from DIDController.",
-            }
-        }
-    },
-    didDocument: {
-        type: "object",
-        properties: {
-            name: {
-                type: "string",
-                description: "Name of DID document, usually is DID string.",
-                example: "did:method:giabuynh:srs"
-            },
-            content: {
-                type: "object",
-                properties: {
-                    
-                },
-                description: "Example content in JSON format.",
-                example: {
-                    date: "10-10-2000"
-                }
-            }
-        }
-    },
+  ...schemas
 }
 
 module.exports.examples = {
-    didDocumentContent: {
-        controller: "someonePublicKey",
-        id: "did:method:giabynh:srs",
-        date: "10-10-2000"
+  ...examples
+}
+
+// module.exports.securitySchemes = {
+//   cookieAuth: {
+//     type: "apiKey",
+//     in: "cookie",
+//     name: "access_token"
+//   }
+// }
+
+module.exports.responses = {
+  BadRequest: {
+    content: {
+      "application/json": {
+        schema: {
+          $ref: "#/components/schemas/error",
+        },
+        examples: {
+          "Missing parameters": { $ref: "#/components/examples/errorMissingParameters" },
+          "Invalid input": { $ref: "#/components/examples/errorInvalidInput" }
+        }
+      }
     }
+  },
+  Unauthorized: {
+    description: "Cannot verify user with the given access token.",
+    content: {
+      "text/plain": {
+        schema: {
+          type: "string",
+          example: "Unauthorized."
+        }
+      }
+    }
+  },
+  NotFound_DIDDocument: {
+    description: "DID document or/and wrapped document are not found.",
+    content: {
+      "application/json": {
+        schema: {
+          type: "object",
+          properties: {
+            errorCode: { type: "integer" },
+            message: { type: "string" }
+          },
+        },
+        examples: {
+          "No file": {
+            value: {
+              errorCode: 10004,
+              message: "File/Public Key with the given value cannot be found."
+            }
+          },
+          "No branch": {
+            value: {
+              errorCode: 10003,
+              message: "Company with the given name cannot be found."
+            }
+          },
+        }
+      }
+    }
+  }
 }
