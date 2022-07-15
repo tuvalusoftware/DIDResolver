@@ -190,7 +190,7 @@ module.exports = {
         // error:
         //   { error_code: number, error_message: string}
         const storeCredentialStatus = await axios.post(
-          SERVERS.DID_CONTROLLER,
+          SERVERS.DID_CONTROLLER + "/api/credential",
           {
             address: address?.data?.data?.address,
             hash: hashOfDocument,
