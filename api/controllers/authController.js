@@ -50,7 +50,6 @@ module.exports = {
       res.status(200).json({
         publicKey: getPublicKeyFromAddress(address),
         user: user,
-        // ?? update api for user field
       });
     } catch (error) {
       res.status(400).json(error);
