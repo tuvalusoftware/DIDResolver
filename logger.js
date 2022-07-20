@@ -1,5 +1,4 @@
 const { createLogger, format, transports } = require("winston");
-const { ERRORS } = require("./core/constants");
 
 const customLogLevel = (logLevel) => {
   return {
@@ -27,6 +26,7 @@ let infoLogConfigs = {
     new transports.File({
       filename: "logs/server.log",
     }),
+    new transports.Console(),
   ],
   format: formatConfig,
 };
@@ -36,6 +36,7 @@ const debugLogConfigs = {
     new transports.File({
       filename: "logs/debug.log",
     }),
+    new transports.Console(),
   ],
   format: formatConfig,
 };

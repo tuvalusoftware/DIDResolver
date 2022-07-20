@@ -8,10 +8,11 @@ const {
 const { ERRORS, SERVERS, SCHEMAS } = require("../../core/constants");
 const sha256 = require("js-sha256").sha256;
 const aesjs = require("aes-js");
+const Logger = require("../../logger");
 
 module.exports = {
   createCredential: async function (req, res) {
-    console.log("Creating credential...");
+    Logger.apiInfo(req, res, `Createding credential...`);
     // Receive input data
     const { access_token } = req.cookies;
     const { indexOfCres, credential, payload, did } = req.body;
@@ -23,11 +24,12 @@ module.exports = {
       payload,
       did,
     });
-    if (undefinedVar.undefined)
+    if (undefinedVar.undefined) {
       return res.status(200).json({
         ...ERRORS.MISSING_PARAMETERS,
         detail: undefinedVar.detail,
       });
+    }
 
     // Validate input
     // 0.1. Validate DID syntax
@@ -92,8 +94,9 @@ module.exports = {
         publicKey,
         issuerDidComponents[issuerDidComponents.length - 1]
       );
-      if (publicKey !== issuerDidComponents[issuerDidComponents.length - 1])
+      if (publicKey !== issuerDidComponents[issuerDidComponents.length - 1]) {
         return res.status(200).json(ERRORS.PERMISSION_DENIED); // 403
+      }
 
       // 3.3. Compare user address with controller address (from did document of wrapped document)
       // ?? BO MAY DANG SUA TOI CHO NAY THI TEST DEO DUOC ._.

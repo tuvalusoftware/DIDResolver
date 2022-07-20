@@ -32,6 +32,7 @@ module.exports = {
   getPublicKeyFromAddress: (bech32Address) => {
     const address = cardanoSerialization.Address.from_bech32(bech32Address);
     const publicKey = Buffer.from(address.to_bytes(), "hex").toString("hex");
+    console.log(publicKey);
     return publicKey;
   },
 
@@ -59,6 +60,6 @@ module.exports = {
       }
     }
 
-    return flag ? { undefined: true, detail } : { undefined: true };
+    return flag ? { undefined: true, detail } : { undefined: false };
   },
 };

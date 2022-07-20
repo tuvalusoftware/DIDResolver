@@ -1,11 +1,15 @@
 const axios = require("axios").default;
+const Logger = require("../../logger");
 const { ERRORS, SERVERS } = require("../../core/constants");
 const { getPublicKeyFromAddress } = require("../../core/index");
 
 module.exports = {
   ensureAuthenticated: (req, res, next) => {
-    // console.log("AUTHENTICATING...");
-    // console.log(req.cookies);
+    Logger.apiInfo(
+      req,
+      res,
+      `Authenticating access token ${req.cookies["access_token"]}`
+    );
 
     if (!req.cookies["access_token"])
       return res.status(401).json(ERRORS.UNAUTHORIZED);
@@ -39,13 +43,14 @@ module.exports = {
   },
 
   getPublicKeyFromAddress: (req, res) => {
-    // console.log("Get public key from address...");
     const { address, user } = req.query;
+    Logger.apiInfo(req, res, `Get user publicKey form address ${address}.`);
 
     try {
       res.status(200).json({
         publicKey: getPublicKeyFromAddress(address),
         user: user,
+        // ?? update api for user field
       });
     } catch (error) {
       res.status(400).json(error);
