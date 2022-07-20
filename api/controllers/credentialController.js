@@ -3,9 +3,11 @@ const {
   validateJSONSchema,
   getPublicKeyFromAddress,
   validateDIDSyntax,
+  checkUndefinedVar,
 } = require("../../core/index");
 const { ERRORS, SERVERS, SCHEMAS } = require("../../core/constants");
 const sha256 = require("js-sha256").sha256;
+const aesjs = require("aes-js");
 
 module.exports = {
   createCredential: async function (req, res) {
@@ -15,19 +17,16 @@ module.exports = {
     const { indexOfCres, credential, payload, did } = req.body;
 
     // Handle input error
-    if (!indexOfCres || !credential || !payload || !did)
+    const undefinedVar = checkUndefinedVar({
+      indexOfCres,
+      credential,
+      payload,
+      did,
+    });
+    if (undefinedVar.undefined)
       return res.status(200).json({
         ...ERRORS.MISSING_PARAMETERS,
-        detail:
-          "Not found:" + !indexOfCres
-            ? " indexOfCres"
-            : "" + !credential
-            ? " credential"
-            : "" + !payload
-            ? " payload"
-            : "" + !did
-            ? " did"
-            : "",
+        detail: undefinedVar.detail,
       });
 
     // Validate input

@@ -4,8 +4,8 @@ const { getPublicKeyFromAddress } = require("../../core/index");
 
 module.exports = {
   ensureAuthenticated: (req, res, next) => {
-    console.log("AUTHENTICATING...");
-    console.log(req.cookies);
+    // console.log("AUTHENTICATING...");
+    // console.log(req.cookies);
 
     if (!req.cookies["access_token"])
       return res.status(401).json(ERRORS.UNAUTHORIZED);
@@ -39,7 +39,7 @@ module.exports = {
   },
 
   getPublicKeyFromAddress: (req, res) => {
-    console.log("Get public key from address...");
+    // console.log("Get public key from address...");
     const { address, user } = req.query;
 
     try {

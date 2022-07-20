@@ -4,6 +4,7 @@ const {
   validateJSONSchema,
   getAddressFromHexEncoded,
   validateDIDSyntax,
+  checkUndefinedVar,
 } = require("../../core/index");
 
 module.exports = {
@@ -13,14 +14,15 @@ module.exports = {
     const { did } = req.headers;
 
     // Check missing paramters
-    if (!did)
+    const undefinedVar = checkUndefinedVar({ did });
+    if (undefinedVar.undefined)
       return res.status(200).json({
         ...ERRORS.MISSING_PARAMETERS,
-        detail: "Not found: did",
+        detail: undefinedVar.detail,
       });
 
     // Validate DID syntax
-    const validDid = validateDIDSyntax(did, (isSalted = false)),
+    const validDid = validateDIDSyntax(did, false),
       companyName = validDid.companyName,
       publicKey = validDid.fileNameOrPublicKey;
 
@@ -56,19 +58,15 @@ module.exports = {
     const { did, didDocument } = req.body;
 
     // Check missing parameters
-    if (!did || !didDocument)
+    const undefinedVar = checkUndefinedVar({ did, didDocument });
+    if (undefinedVar.undefined)
       return res.status(200).json({
         ...ERRORS.MISSING_PARAMETERS,
-        detail:
-          "Not found:" + !did
-            ? " did"
-            : "" + !didDocument
-            ? " didDocument"
-            : "",
+        detail: undefinedVar.detail,
       });
 
     // Validate DID syntax
-    const validDid = validateDIDSyntax(did, (isSalted = false)),
+    const validDid = validateDIDSyntax(did, false),
       companyName = validDid.companyName,
       publicKey = validDid.fileNameOrPublicKey;
 
@@ -110,14 +108,15 @@ module.exports = {
     const { only } = req.query;
 
     // Check missing parameters
-    if (!did)
+    const undefinedVar = checkUndefinedVar({ did });
+    if (undefinedVar.undefined)
       return res.status(200).json({
         ...ERRORS.MISSING_PARAMETERS,
-        detail: "Not found: did",
+        detail: undefinedVar.detail,
       });
 
     // Validate DID syntax
-    const validDid = validateDIDSyntax(did, (isSalted = false)),
+    const validDid = validateDIDSyntax(did, false),
       companyName = validDid.companyName,
       fileName = validDid.fileNameOrPublicKey;
     if (!validDid.valid) return res.status(200).json(ERRORS.INVALID_INPUT);
@@ -151,10 +150,11 @@ module.exports = {
     const { did } = req.headers;
 
     // Handle input errors
-    if (!did)
+    const undefinedVar = checkUndefinedVar({ did });
+    if (undefinedVar.undefined)
       return res.status(200).json({
         ...ERRORS.MISSING_PARAMETERS,
-        detail: "Not found: did",
+        detail: undefinedVar.detail,
       });
 
     // Validate DID syntax
@@ -191,15 +191,11 @@ module.exports = {
     const { companyname: companyName, filename: fileName } = req.headers;
 
     // Handle input errors
-    if (!companyName || !fileName)
+    const undefinedVar = checkUndefinedVar({ companyName, fileName });
+    if (undefinedVar.undefined)
       return res.status(200).json({
         ...ERRORS.MISSING_PARAMETERS,
-        detail:
-          "Not found: " + !companyName
-            ? " companyName"
-            : "" + !fileName
-            ? " fileName"
-            : "",
+        detail: undefinedVar.detail,
       });
 
     // Call DID Contoller
@@ -223,7 +219,7 @@ module.exports = {
   createWrappedDocument: async function (req, res) {
     // Get access-token from request and receive input data
     const { access_token } = req.cookies;
-    var {
+    let {
       wrappedDocument,
       issuerAddress: encryptedIssuerAddress,
       previousHashOfDocument,
@@ -231,15 +227,14 @@ module.exports = {
     } = req.body;
 
     // Handle input errors
-    if (!wrappedDocument || !encryptedIssuerAddress) {
+    const undefinedVar = checkUndefinedVar({
+      wrappedDocument,
+      encryptedIssuerAddress,
+    });
+    if (undefinedVar.undefined) {
       return res.status(200).json({
         ...ERRORS.MISSING_PARAMETERS,
-        detail:
-          "Not found:" + !wrappedDocument
-            ? " wrappedDocument"
-            : "" + !encryptedIssuerAddress
-            ? " issuerAddress"
-            : "",
+        detail: undefinedVar.detail,
       });
     }
 
@@ -383,10 +378,11 @@ module.exports = {
 
   validateWrappedDocument: async function (req, res) {
     const { wrappedDocument } = req.body;
-    if (!wrappedDocument)
+    const undefinedVar = checkUndefinedVar({ wrappedDocument });
+    if (undefinedVar.undefined)
       return res.status(200).json({
         ...ERRORS.MISSING_PARAMETERS,
-        detail: "Not found: wrappedDocument",
+        detail: undefinedVar.detail,
       });
 
     const valid = validateJSONSchema(SHEMAS.WRAPPED_DOCUMENT, wrappedDocument);
@@ -398,8 +394,15 @@ module.exports = {
     const { did, didDoc: didDocumentOfWrappedDocument } = req.body;
 
     // Check missing parameters
-    if (!did || !didDocumentOfWrappedDocument)
-      return res.status(200).json(ERRORS.MISSING_PARAMETERS);
+    const undefinedVar = checkUndefinedVar({
+      did,
+      didDoc: didDocumentOfWrappedDocument,
+    });
+    if (undefinedVar.undefined)
+      return res.status(200).json({
+        ...ERRORS.MISSING_PARAMETERS,
+        detail: undefinedVar.detail,
+      });
 
     // Validate DID syntax
     const validDid = validateDIDSyntax(did, false),
