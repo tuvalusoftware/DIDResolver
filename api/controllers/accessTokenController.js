@@ -1,6 +1,4 @@
-const axios = require("axios").default;
-const { Logger } = require("../../logger");
-const { ERRORS, SERVERS } = require("../../core/constants");
+const Logger = require("../../logger");
 
 module.exports = {
   setCookie: async (req, res, next) => {

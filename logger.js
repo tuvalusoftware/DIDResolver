@@ -1,7 +1,7 @@
 const { createLogger, format, transports } = require("winston");
 const { ERRORS } = require("./core/constants");
 
-const customeLogLevel = (logLevel) => {
+const customLogLevel = (logLevel) => {
   return {
     error: "ERROR",
     warn: "WARN",
@@ -42,14 +42,14 @@ const debugLogConfigs = {
 
 const infoLogger = createLogger(infoLogConfigs);
 
-exports = {
-  info(message) {
+module.exports = {
+  info: (message) => {
     infoLogger.info(message);
   },
-  apiInfo(req, res, message) {
+  apiInfo: (req, res, message) => {
     infoLogger.info(`[${req.method} - ${req.originalUrl}] ${message}`);
   },
-  apiError(err, req, res) {
+  apiError: (err, req, res) => {
     infoLogger.error(
       `[${req.method} - ${req.originalUrl}] ${err.error_message}`
     );
