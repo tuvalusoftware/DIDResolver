@@ -12,7 +12,6 @@ const Logger = require("../../logger");
 
 module.exports = {
   createCredential: async function (req, res) {
-    Logger.apiInfo(req, res, `Createding credential...`);
     // Receive input data
     const { access_token } = req.cookies;
     const { indexOfCres, credential, payload, did } = req.body;
@@ -24,17 +23,15 @@ module.exports = {
       payload,
       did,
     });
-    if (undefinedVar.undefined) {
+    if (undefinedVar.undefined)
       return res.status(200).json({
         ...ERRORS.MISSING_PARAMETERS,
         detail: undefinedVar.detail,
       });
-    }
 
-    // Validate input
+    // 0. Validate input
     // 0.1. Validate DID syntax
     const validDid = validateDIDSyntax(did, false);
-
     if (!validDid.valid)
       return res.status(200).json({
         ...ERRORS.INVALID_INPUT,
@@ -53,16 +50,22 @@ module.exports = {
       });
 
     try {
-      // 1. Get wrapped document and did document of wrapped odcument
-      // 1.1. Get did document and wrapped document of did document
+      // * 1. Get wrapped document and did document of wrapped odcument
+      Logger.apiInfo(
+        req,
+        res,
+        `Get wrappedDoc and didDoc of ${companyName}:${fileName}`
+      );
       // sucess:
       //   { wrappedDoc: {}, didDoc: {} }
       // error:
       //   { error_code: number, message: string }
       const documents = await axios.get(SERVERS.DID_CONTROLLER + "/api/doc", {
+        withCredentials: true,
         headers: {
           companyName,
           fileName,
+          Cookie: `access_token=${access_token};`,
         },
       });
       const didDocument = documents.data.didDoc,
@@ -70,8 +73,8 @@ module.exports = {
       const originPolicyId = wrappedDocument.policyId,
         hashOfDocument = wrappedDocument.signature.targetHash;
 
-      // 3. Validate permission to create credential
-      // 3.1. Get address of current user from access token
+      // * 2. Validate permission to create credential
+      // * 2.1. Get address of current user from access token
       // success:
       //   { data: { address: string } }
       // error: 401 - unauthorized
@@ -85,23 +88,26 @@ module.exports = {
         }
       );
 
-      // 3.2. Compare user address with public key from issuer did in credential
-      // credential.issuer: did:method:companyName:publicKey
-      console.log("-- Checking permission: current vs issuer of credential");
+      // * 2.2. Compare user address with public key from issuer did in credential
+      // credential.issuer: did:method:companyName:publicKey --> Compare this with publicKey(address)
       const publicKey = getPublicKeyFromAddress(address.data.data.address),
         issuerDidComponents = credential.issuer.split(":");
-      console.log(
-        publicKey,
-        issuerDidComponents[issuerDidComponents.length - 1]
-      );
       if (publicKey !== issuerDidComponents[issuerDidComponents.length - 1]) {
+        Logger.apiError(
+          req,
+          res,
+          `Unmatch publicKkey.\n
+            from credential.issuer: ${
+              issuerDidComponents[issuerDidComponents.length - 1]
+            }\n
+            from address: ${publicKey}`
+        );
         return res.status(200).json(ERRORS.PERMISSION_DENIED); // 403
       }
 
-      // 3.3. Compare user address with controller address (from did document of wrapped document)
-      // ?? BO MAY DANG SUA TOI CHO NAY THI TEST DEO DUOC ._.
-      // ?? BO MAY SE QUAY LAI SAU
-      // ?? XIN ACCESS_TOKEN CUA HAOOOO EVERYTIME TEST CAI LZZZ QUE NAY
+      // * 2.3. Compare user address with controller address (from did document of wrapped document)
+      // ?? XIN ACCESS_TOKEN CUA HAOOOO EVERYTIME TEST CAI NAY
+      // ?? DANG UPDATE TOI DAY
       console.log(
         "-- Checking permission: current vs controller of DID document"
       );

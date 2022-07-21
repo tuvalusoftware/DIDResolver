@@ -36,26 +36,26 @@ const debugLogConfigs = {
     new transports.File({
       filename: "logs/debug.log",
     }),
-    new transports.Console(),
+    // new transports.Console(),
   ],
   format: formatConfig,
 };
 
-const infoLogger = createLogger(infoLogConfigs);
+const infoLogger = createLogger(infoLogConfigs),
+  debugLogger = createLogger(debugLogConfigs);
 
 module.exports = {
   info: (message) => {
     infoLogger.info(message);
   },
-  apiInfo: (req, res, message) => {
-    infoLogger.info(`[${req.method} - ${req.originalUrl}] ${message}`);
+  error: (error) => {
+    infoLogger.error(error);
   },
-  apiError: (err, req, res) => {
-    infoLogger.error(
-      `[${req.method} - ${req.originalUrl}] ${err.error_message}`
-    );
-    debugLogger.error(
-      `[${req.method} - ${req.originalUrl}] ${err.error_message}`
-    );
+  apiInfo: (req, res, message) => {
+    infoLogger.info(`[${req.method} - ${req.originalUrl}]\n${message}`);
+  },
+  apiError: (req, res, error) => {
+    infoLogger.error(`[${req.method} - ${req.originalUrl}]\n${error}`);
+    debugLogger.error(`[${req.method} - ${req.originalUrl}]\n${error}`);
   },
 };

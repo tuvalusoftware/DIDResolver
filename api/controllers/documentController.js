@@ -1,5 +1,6 @@
 const axios = require("axios").default;
 const { ERRORS, SERVERS, SHEMAS } = require("../../core/constants");
+const Logger = require("../../logger");
 const {
   validateJSONSchema,
   getAddressFromHexEncoded,
@@ -9,8 +10,8 @@ const {
 
 module.exports = {
   getDIDDocument: async function (req, res) {
-    console.log("Fetching DID document...");
     // Receive input data
+    const { access_token } = req.cookies;
     const { did } = req.headers;
 
     // Check missing paramters
@@ -25,7 +26,6 @@ module.exports = {
     const validDid = validateDIDSyntax(did, false),
       companyName = validDid.companyName,
       publicKey = validDid.fileNameOrPublicKey;
-
     if (!validDid.valid)
       return res.status(200).json({
         ...ERRORS.INVALID_INPUT,
@@ -33,28 +33,36 @@ module.exports = {
       });
 
     // Call DID Controller
-    console.log("-- Fetching user/company's DID document");
     // success:
     //   { ... }
     // error:
     //   { error_code: number, message: string }
     axios
       .get(SERVERS.DID_CONTROLLER + "/api/did/", {
+        withCredentials: true,
         headers: {
           companyName: companyName,
           publicKey: publicKey,
+          Cookie: `access_token=${access_token}`,
         },
       })
-      .then((response) => res.status(200).json(response.data)) // 404
-      .catch((error) =>
-        error.response
+      .then((response) => {
+        Logger.apiInfo(req, res, `Success.\n${response.data}`);
+        return res.status(200).json(response.data);
+      }) // 404
+      .catch((error) => {
+        Logger.apiError(req, res, `${error}`);
+        return error.response
           ? res.status(400).json(error.response.data)
-          : res.status(400).json(error)
-      );
+          : res.status(400).json(error);
+      });
   },
+
+  // ?? UPDATE TOI DAY
 
   createDIDDocument: async function (req, res) {
     // Receive input data
+    const { access_token } = req.cookies;
     const { did, didDocument } = req.body;
 
     // Check missing parameters
@@ -77,17 +85,25 @@ module.exports = {
       });
 
     // Call DID Controller
-    console.log("-- Creating DID document...");
     // success:
     //   { message: string }
     // error:
     //   { error_code: number, message: string }
     axios
-      .post(SERVERS.DID_CONTROLLER + "/api/did/", {
-        companyName: companyName,
-        publicKey: publicKey,
-        content: didDocument,
-      })
+      .post(
+        SERVERS.DID_CONTROLLER + "/api/did/",
+        {
+          companyName: companyName,
+          publicKey: publicKey,
+          content: didDocument,
+        },
+        {
+          withCredentials: true,
+          headers: {
+            Cookie: `access_token=${access_token}`,
+          },
+        }
+      )
       .then((response) => {
         console.log(response.data);
         response.data.error_code
@@ -104,6 +120,7 @@ module.exports = {
 
   getWrappedDocument: async function (req, res) {
     // Receive input data
+    const { access_token } = req.cookies;
     const { did } = req.headers;
     const { only } = req.query;
 
@@ -131,9 +148,11 @@ module.exports = {
     //   { error_code: number, message: string }
     axios
       .get(SERVERS.DID_CONTROLLER + "/api/doc", {
+        withCredentials: true,
         headers: {
           companyName,
           fileName,
+          Cookie: `access_token=${access_token}`,
         },
         params: { only },
       })
@@ -147,6 +166,7 @@ module.exports = {
 
   getAllWrappedDocumentsOfUser: async function (req, res) {
     // Receive input data
+    const { access_token } = req.cookies;
     const { did } = req.headers;
 
     // Handle input errors
@@ -173,9 +193,11 @@ module.exports = {
     //   { error_code: number, message: string }
     axios
       .get(SERVERS.DID_CONTROLLER + "/api/doc/user", {
+        withCredentials: true,
         headers: {
           companyName: companyName,
           publicKey: publicKey,
+          Cookie: `access_token=${access_token}`,
         },
       })
       .then((response) => res.status(200).json(response.data))
@@ -188,6 +210,7 @@ module.exports = {
 
   checkWrappedDocumentExistence: async function (req, res) {
     // Receive input data
+    const { access_token } = req.cookies;
     const { companyname: companyName, filename: fileName } = req.headers;
 
     // Handle input errors
@@ -203,9 +226,11 @@ module.exports = {
     //   { isExisted: true/false }
     axios
       .get(SERVERS.DID_CONTROLLER + "/api/doc/exists/", {
+        withCredentials: true,
         headers: {
           companyName,
           fileName,
+          Cookie: `access_token=${access_token}`,
         },
       })
       .then((response) => res.status(200).json(response.data.isExisted))
@@ -275,9 +300,7 @@ module.exports = {
         SERVERS.AUTHENTICATION_SERVICE + "/api/auth/verify",
         {
           withCredentials: true,
-          headers: {
-            Cookie: `access_token=${access_token};`,
-          },
+          headers: { Cookie: `access_token=${access_token};` },
         }
       );
       // 1.2 Compare issuer address with user address
@@ -290,9 +313,11 @@ module.exports = {
       const existence = await axios.get(
         SERVERS.DID_CONTROLLER + "/api/doc/exists/",
         {
+          withCredentials: true,
           headers: {
             companyName,
             fileName,
+            Cookie: `access_token=${access_token};`,
           },
         }
       );
@@ -362,6 +387,10 @@ module.exports = {
           fileName,
           wrappedDocument,
           companyName,
+        },
+        {
+          withCredentials: true,
+          headers: { Cookie: `access_token=${access_token};` },
         }
       );
 

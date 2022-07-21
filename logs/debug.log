@@ -1,0 +1,9 @@
+[ERROR]: [Jul-21-2022 15:15:43]: 	[GET - /resolver/auth/public-key/?address=asfaf&user=usser]
+AxiosError: Request failed with status code 401
+
+[ERROR]: [Jul-21-2022 15:16:11]: 	[GET - /resolver/auth/public-key/?address=asfaf&user=usser]
+AxiosError: Request failed with status code 401
+
+[ERROR]: [Jul-21-2022 15:17:54]: 	[GET - /resolver/auth/public-key/?address=a&user=a]
+AxiosError: Request failed with status code 401
+

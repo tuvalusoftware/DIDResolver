@@ -1,6 +1,7 @@
 const axios = require("axios").default;
 const { checkUndefinedVar } = require("../../core");
 const { ERRORS, SERVERS } = require("../../core/constants");
+const Logger = require("../../logger");
 
 module.exports = {
   getNFTs: async function (req, res) {
@@ -37,8 +38,12 @@ module.exports = {
           Cookie: `access_token=${access_token}`,
         },
       })
-      .then((response) => res.status(200).json(response.data))
+      .then((response) => {
+        Logger.apiInfo(req, res, `Success: \n ${response.data}`);
+        return res.status(200).json(response.data);
+      })
       .catch((error) => {
+        Logger.apiError(req, res, error);
         return error.response
           ? res.status(400).json(error.response.data)
           : res.status(400).json(error);
@@ -73,8 +78,12 @@ module.exports = {
           },
         }
       )
-      .then((response) => res.status(200).json(response.data))
+      .then((response) => {
+        Logger.apiInfo(req, res, `Success: \n ${response.data}`);
+        return res.status(200).json(response.data);
+      })
       .catch((error) => {
+        Logger.apiError(req, res, error);
         return error.response
           ? res.status(400).json(error.response.data)
           : res.status(400).json(error);
@@ -114,8 +123,12 @@ module.exports = {
           },
         }
       )
-      .then((response) => res.status(200).json(response.data))
+      .then((response) => {
+        Logger.apiInfo(req, res, `Success: \n ${response.data}`);
+        return res.status(200).json(response.data);
+      })
       .catch((error) => {
+        Logger.apiError(req, res, error);
         return error.response
           ? res.status(400).json(error.response.data)
           : res.status(400).json(error);

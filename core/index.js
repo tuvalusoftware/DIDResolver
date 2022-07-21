@@ -1,9 +1,9 @@
 const cardanoSerialization = require("@emurgo/cardano-serialization-lib-nodejs");
 const Ajv = require("ajv");
+const Logger = require("../logger");
 
 module.exports = {
   validateDIDSyntax: (did, isSalted) => {
-    console.log("-- Validating DID...");
     // DID syntax: did:method:companyName:fileNameOrPublicKey
     // Salted DID: uuid:string:did:method:companyName:fileNameOrPublicKey
     const maxLength = isSalted ? 6 : 4,
@@ -13,8 +13,14 @@ module.exports = {
     if (
       didComponents.length < maxLength ||
       didComponents[didPosition] !== "did"
-    )
+    ) {
+      Logger.error(
+        `Invalid DID syntax. Given did: ${did} should be ${
+          isSalted ? "salted" : "unsalted"
+        }.`
+      );
       return { valid: false };
+    }
 
     return {
       valid: true,
@@ -32,18 +38,17 @@ module.exports = {
   getPublicKeyFromAddress: (bech32Address) => {
     const address = cardanoSerialization.Address.from_bech32(bech32Address);
     const publicKey = Buffer.from(address.to_bytes(), "hex").toString("hex");
-    console.log(publicKey);
     return publicKey;
   },
 
   validateJSONSchema: (rawSchema, object) => {
-    console.log("-- Validating object...");
     const schema = (({ example, ...props }) => props)(rawSchema);
 
     const ajv = new Ajv();
     const validate = ajv.compile(schema);
 
     const valid = validate(object);
+    if (!valid) Logger.error(`Invalid object.\n${validate.errors}`);
     return valid ? { valid } : { valid, detail: validate.errors };
   },
 
@@ -60,6 +65,7 @@ module.exports = {
       }
     }
 
+    if (flag) Logger.error(`${detail}`);
     return flag ? { undefined: true, detail } : { undefined: false };
   },
 };
