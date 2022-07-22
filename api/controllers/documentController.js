@@ -58,8 +58,6 @@ module.exports = {
       });
   },
 
-  // ?? UPDATE TOI DAY
-
   createDIDDocument: async function (req, res) {
     // Receive input data
     const { access_token } = req.cookies;
@@ -77,7 +75,6 @@ module.exports = {
     const validDid = validateDIDSyntax(did, false),
       companyName = validDid.companyName,
       publicKey = validDid.fileNameOrPublicKey;
-
     if (!validDid.valid)
       return res.status(200).json({
         ...ERRORS.INVALID_INPUT,
@@ -105,13 +102,13 @@ module.exports = {
         }
       )
       .then((response) => {
-        console.log(response.data);
+        Logger.apiInfo(req, res, `Success.\n${response.data}`);
         response.data.error_code
           ? res.status(200).json(response.data)
           : res.status(201).send("DID Document created.");
       })
       .catch((error) => {
-        console.log(error);
+        Logger.apiError(req, res, `${error}`);
         error.response
           ? res.status(400).json(error.response.data)
           : res.status(400).json(error);
@@ -156,8 +153,12 @@ module.exports = {
         },
         params: { only },
       })
-      .then((response) => res.status(200).json(response.data)) // 404
+      .then((response) => {
+        Logger.apiInfo(req, res, `Success.\n${response.data}`);
+        return res.status(200).json(response.data);
+      }) // 404
       .catch((error) => {
+        Logger.apiError(req, res, `${error}`);
         error.response
           ? res.status(400).json(error.response.data)
           : res.status(400).json(error);
@@ -178,7 +179,7 @@ module.exports = {
       });
 
     // Validate DID syntax
-    const validDID = validateDIDSyntax(did, (isSalted = false)),
+    const validDID = validateDIDSyntax(did, false),
       companyName = validDID.companyName,
       publicKey = validDID.fileNameOrPublicKey;
     if (!validDID.valid) return res.status(200).json(ERRORS.INVALID_INPUT);
@@ -200,8 +201,12 @@ module.exports = {
           Cookie: `access_token=${access_token}`,
         },
       })
-      .then((response) => res.status(200).json(response.data))
+      .then((response) => {
+        Logger.apiInfo(req, res, `Success.\n${response.data}`);
+        return res.status(200).json(response.data);
+      })
       .catch((error) => {
+        Logger.apiError(req, res, `${error}`);
         error.response
           ? res.status(400).json(error.response.data)
           : res.status(400).json(error);
@@ -233,12 +238,16 @@ module.exports = {
           Cookie: `access_token=${access_token}`,
         },
       })
-      .then((response) => res.status(200).json(response.data.isExisted))
-      .catch((error) =>
+      .then((response) => {
+        Logger.apiInfo(req, res, `Success.\n${response.data}`);
+        return res.status(200).json(response.data.isExisted);
+      })
+      .catch((error) => {
+        Logger.apiError(req, res, `${error}`);
         error.response
           ? res.status(400).json(error.response.data)
-          : res.status(400).json(error)
-      );
+          : res.status(400).json(error);
+      });
   },
 
   createWrappedDocument: async function (req, res) {
@@ -277,7 +286,7 @@ module.exports = {
 
     // Validate DID syntax
     const did = wrappedDocument.data.did,
-      validDid = validateDIDSyntax(did, (isSalted = true)),
+      validDid = validateDIDSyntax(did, true),
       companyName = validDid.companyName,
       fileName = validDid.fileNameOrPublicKey;
     if (!validDid.valid)
@@ -304,8 +313,14 @@ module.exports = {
         }
       );
       // 1.2 Compare issuer address with user address
-      if (issuerAddress !== address.data.data.address)
+      if (issuerAddress !== address.data.data.address) {
+        Logger.apiError(
+          req,
+          res,
+          `Address ${address.data.data.address} is not issuerAddress ${issuerAddress}`
+        );
         return res.status(200).send(ERRORS.PERMISSION_DENIED); // 403
+      }
 
       // 2. Check if document is already stored on DB (true/false).
       // success:
@@ -321,8 +336,14 @@ module.exports = {
           },
         }
       );
-      if (existence.data.isExisted)
+      if (existence.data.isExisted) {
+        Logger.apiError(
+          req,
+          res,
+          `Wrapped document with name ${fileName} already existed.`
+        );
         return res.status(200).json(ERRORS.ALREADY_EXSISTED); // 409
+      }
 
       // 3. Storing hash on Cardano blockchain
       // 3.1. Call Cardano Service
@@ -353,9 +374,14 @@ module.exports = {
       );
 
       // 3.2. Handle store hash errors
-      if (mintingNFT.data.error_code)
+      if (!mintingNFT) {
+        Logger.apiError(req, res, `mintingNFT = ${mintingNFT}`);
+        return res.status(200).json(ERRORS.CANNOT_MINT_NFT);
+      }
+      if (mintingNFT.data.error_code) {
+        Logger.apiError(req, res, mintingNFT.data);
         return res.status(200).json(mintingNFT.data);
-      if (!mintingNFT) return res.status(200).json(ERRORS.CANNOT_MINT_NFT);
+      }
 
       // 3.3. Extract policyId and assetId
       const mintingNFTStatus = mintingNFT.data.data.result
@@ -381,6 +407,7 @@ module.exports = {
       //   { message: "success" }
       // error:
       //   { error_code: number, message: string }
+      // ?? CHECK LAI CAI NAY
       const storeWrappedDocumentStatus = await axios.post(
         SERVERS.DID_CONTROLLER + "/api/doc",
         {

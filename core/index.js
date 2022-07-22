@@ -30,14 +30,17 @@ module.exports = {
   },
 
   getAddressFromHexEncoded: (hexAddress) => {
-    return cardanoSerialization.Address.from_bytes(
+    const address = cardanoSerialization.Address.from_bytes(
       Buffer.from(hexAddress, "hex")
     ).to_bech32();
+    Logger.info(`Address from hex: ${address}`);
+    return address;
   },
 
   getPublicKeyFromAddress: (bech32Address) => {
     const address = cardanoSerialization.Address.from_bech32(bech32Address);
     const publicKey = Buffer.from(address.to_bytes(), "hex").toString("hex");
+    Logger.info(`Publickey from address ${bech32Address} is ${publicKey}`);
     return publicKey;
   },
 

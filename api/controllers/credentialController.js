@@ -107,7 +107,7 @@ module.exports = {
 
       // * 2.3. Compare user address with controller address (from did document of wrapped document)
       // ?? XIN ACCESS_TOKEN CUA HAOOOO EVERYTIME TEST CAI NAY
-      // ?? DANG UPDATE TOI DAY
+      // ?? UPDATE TOI DAY
       console.log(
         "-- Checking permission: current vs controller of DID document"
       );
