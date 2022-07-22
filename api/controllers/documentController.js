@@ -539,10 +539,15 @@ module.exports = {
       const total = wrappedDocuments.data.length,
         maxPage =
           (total - (total % itemsPerPage)) / itemsPerPage +
-          (total % itemsPerPage ? 1 : 0),
-        startIndex = (pageNumber - 1) * itemsPerPage,
-        endIndex = parseInt(itemsPerPage) + parseInt(startIndex),
-        result = wrappedDocuments.data.slice(startIndex, endIndex),
+          (total % itemsPerPage ? 1 : 0);
+
+      pageNumber = pageNumber > maxPage ? maxPage : pageNumber;
+
+      const startIndex = (pageNumber - 1) * itemsPerPage;
+      let endIndex = parseInt(itemsPerPage) + parseInt(startIndex);
+      endIndex = endIndex > total ? total : endIndex;
+
+      const result = wrappedDocuments.data.slice(startIndex, endIndex),
         _logResult = _logWrappedDocuments.slice(startIndex, endIndex);
 
       Logger.apiInfo(
