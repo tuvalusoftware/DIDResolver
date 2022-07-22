@@ -166,3 +166,272 @@ Authenticating access token eyJhbGciOiJSUzI1NiIsInR5cCICJ9.eyJkYXRhIjp7ImFkZHJlc
 [ERROR]: [Jul-21-2022 15:17:54]: 	[GET - /resolver/auth/public-key/?address=a&user=a]
 AxiosError: Request failed with status code 401
 
+[INFO]: [Jul-22-2022 15:44:06]: 	[POST - /resolver/]
+Set cookie: access_token=eyJhbGciOiJSUzI1NiIsInR5cCI6IkpXVCJ9.eyJkYXRhIjp7ImFkZHJlc3MiOiJhZGRyX3Rlc3QxcXB5dzhrc2RhZ3V1OTA1cmgzN2xrazQyYWhma3R0MHI5bmhudDB2bjlsYWw4bnM5dTVoZ2toa3k2dGhzbnJuNDBmYWFtbnd0ZDd1eDJ3cDQzdHg5cW5sejlzbnFxdmdtNDIifSwiaWF0IjoxNjU4NDc5NDM1LCJleHAiOjE2NjEwNzE0MzV9.pIZKwzDzHq5U4dfhkgU1nikLQSu_o5e6x8n3dBYs2e3Pj59QNIj7WkiAVk6M5fbTW4nxert5MqqO2XFzcvHzz4hs8KdNnCxH4VSzO22ZCxdS5c_7PXfoBtAON3soh40-1rtMI8uQg3GjHagezKViWnRoW1rx0WlMxyFMLhRJi4nh6J2BiWzLiV0xs94Jc3c6zUwfcX0f4SwKb0hq2cFCmHQaCWxNLgOT5lAhykAuzRvNyCBF3IhYNfEz0TBBCpGp5gXzOfLocXq2t_Jwvw_FUxo_9ur0SZW35kyFVjPqn-rWb1a10ULYzOsePPVkjEW6nDCUSNISFEo3lJds1nvX_w.
+
+[INFO]: [Jul-22-2022 15:47:04]: 	[POST - /resolver/]
+Set cookie: access_token=eyJhbGciOiJSUzI1NiIsInR5cCI6IkpXVCJ9.eyJkYXRhIjp7ImFkZHJlc3MiOiJhZGRyX3Rlc3QxcXB5dzhrc2RhZ3V1OTA1cmgzN2xrazQyYWhma3R0MHI5bmhudDB2bjlsYWw4bnM5dTVoZ2toa3k2dGhzbnJuNDBmYWFtbnd0ZDd1eDJ3cDQzdHg5cW5sejlzbnFxdmdtNDIifSwiaWF0IjoxNjU4NDc5NDM1LCJleHAiOjE2NjEwNzE0MzV9.pIZKwzDzHq5U4dfhkgU1nikLQSu_o5e6x8n3dBYs2e3Pj59QNIj7WkiAVk6M5fbTW4nxert5MqqO2XFzcvHzz4hs8KdNnCxH4VSzO22ZCxdS5c_7PXfoBtAON3soh40-1rtMI8uQg3GjHagezKViWnRoW1rx0WlMxyFMLhRJi4nh6J2BiWzLiV0xs94Jc3c6zUwfcX0f4SwKb0hq2cFCmHQaCWxNLgOT5lAhykAuzRvNyCBF3IhYNfEz0TBBCpGp5gXzOfLocXq2t_Jwvw_FUxo_9ur0SZW35kyFVjPqn-rWb1a10ULYzOsePPVkjEW6nDCUSNISFEo3lJds1nvX_w.
+
+[INFO]: [Jul-22-2022 15:47:15]: 	[GET - /resolver/wrapped-document/search?comanyName=Kukulu&searchString=Fucking&pageNumber=1&itemsPerPage=5]
+Successfull authentication.
+
+[ERROR]: [Jul-22-2022 15:47:15]: 	Not found: companyName
+
+[INFO]: [Jul-22-2022 15:49:16]: 	[GET - /resolver/wrapped-document/search?comanyName=Kukulu&searchString=Fucking&pageNumber=1&itemsPerPage=5]
+Successfull authentication.
+
+[ERROR]: [Jul-22-2022 15:49:16]: 	Not found: companyName
+
+[INFO]: [Jul-22-2022 15:50:28]: 	[GET - /resolver/wrapped-document/search?comanyName=Kukulu&searchString=Fucking&pageNumber=1&itemsPerPage=5]
+Successfull authentication.
+
+[ERROR]: [Jul-22-2022 15:50:28]: 	Not found: companyName
+
+[INFO]: [Jul-22-2022 15:50:54]: 	[GET - /resolver/wrapped-document/search?comanyName=Kukulu&searchString=Fucking&pageNumber=1&itemsPerPage=5]
+Successfull authentication.
+
+[ERROR]: [Jul-22-2022 15:50:54]: 	Not found: companyName
+
+[INFO]: [Jul-22-2022 15:52:45]: 	[GET - /resolver/wrapped-document/search?comanyName=Kukulu&searchString=Fucking&pageNumber=1&itemsPerPage=5]
+Successfull authentication.
+
+[ERROR]: [Jul-22-2022 15:52:45]: 	Not found: companyName
+
+[INFO]: [Jul-22-2022 15:52:59]: 	[GET - /resolver/wrapped-document/search?companyName=Kukulu&searchString=HAO&pageNumber=1&itemsPerPage=5]
+Successfull authentication.
+
+[ERROR]: [Jul-22-2022 15:52:59]: 	[GET - /resolver/wrapped-document/search?companyName=Kukulu&searchString=HAO&pageNumber=1&itemsPerPage=5]
+TypeError: wrappedDocuments.slice is not a function
+
+[INFO]: [Jul-22-2022 15:53:31]: 	[GET - /resolver/wrapped-document/search?companyName=Kukulu&searchString=HAO&pageNumber=1&itemsPerPage=5]
+Successfull authentication.
+
+[INFO]: [Jul-22-2022 15:53:47]: 	[GET - /resolver/wrapped-document/search?companyName=Kukulu&searchString=HAO&pageNumber=1&itemsPerPage=5]
+Successfull authentication.
+
+[INFO]: [Jul-22-2022 15:54:07]: 	[GET - /resolver/wrapped-document/search?companyName=Kukulu&searchString=HAO&pageNumber=1&itemsPerPage=5]
+Successfull authentication.
+
+[INFO]: [Jul-22-2022 15:54:36]: 	[GET - /resolver/wrapped-document/search?companyName=Kukulu&searchString=HAO&pageNumber=1&itemsPerPage=5]
+Successfull authentication.
+
+[INFO]: [Jul-22-2022 15:56:00]: 	[GET - /resolver/wrapped-document/search?companyName=Kukulu&searchString=HAO&pageNumber=1&itemsPerPage=5]
+Successfull authentication.
+
+[INFO]: [Jul-22-2022 15:56:26]: 	[GET - /resolver/wrapped-document/search?companyName=Kukulu&searchString=HAO&pageNumber=1&itemsPerPage=5]
+Successfull authentication.
+
+[INFO]: [Jul-22-2022 15:56:38]: 	[GET - /resolver/wrapped-document/search?companyName=Kukulu&searchString=HAO&pageNumber=1&itemsPerPage=5]
+Successfull authentication.
+
+[INFO]: [Jul-22-2022 15:56:46]: 	[GET - /resolver/wrapped-document/search?companyName=Kukulu&searchString=HAO&pageNumber=1&itemsPerPage=5]
+Successfull authentication.
+
+[INFO]: [Jul-22-2022 15:57:00]: 	[GET - /resolver/wrapped-document/search?companyName=Kukulu&searchString=a&pageNumber=1&itemsPerPage=5]
+Successfull authentication.
+
+[INFO]: [Jul-22-2022 15:57:12]: 	[GET - /resolver/wrapped-document/search?companyName=Kukulu&searchString=a&pageNumber=1&itemsPerPage=5]
+Successfull authentication.
+
+[INFO]: [Jul-22-2022 15:57:58]: 	[GET - /resolver/wrapped-document/search?companyName=Kukulu&searchString=a&pageNumber=1&itemsPerPage=5]
+Successfull authentication.
+
+[INFO]: [Jul-22-2022 15:58:06]: 	[GET - /resolver/wrapped-document/search?companyName=Kukulu&searchString=a&pageNumber=1&itemsPerPage=2]
+Successfull authentication.
+
+[INFO]: [Jul-22-2022 15:58:10]: 	[GET - /resolver/wrapped-document/search?companyName=Kukulu&searchString=a&pageNumber=1&itemsPerPage=3]
+Successfull authentication.
+
+[INFO]: [Jul-22-2022 16:00:04]: 	[GET - /resolver/wrapped-document/search?companyName=Kukulu&searchString=a&pageNumber=1&itemsPerPage=3]
+Successfull authentication.
+
+[INFO]: [Jul-22-2022 16:01:05]: 	[GET - /resolver/wrapped-document/search?companyName=Kukulu&searchString=a&pageNumber=1&itemsPerPage=3]
+Successfull authentication.
+
+[INFO]: [Jul-22-2022 16:03:37]: 	[GET - /resolver/wrapped-document/search?companyName=Kukulu&searchString=a&pageNumber=1&itemsPerPage=3]
+Successfull authentication.
+
+[INFO]: [Jul-22-2022 16:07:07]: 	[GET - /resolver/wrapped-document/search?companyName=Kukulu&searchString=a&pageNumber=2&itemsPerPage=3]
+Successfull authentication.
+
+[INFO]: [Jul-22-2022 16:07:46]: 	[GET - /resolver/wrapped-document/search?companyName=Kukulu&searchString=a&pageNumber=1&itemsPerPage=3]
+Successfull authentication.
+
+[INFO]: [Jul-22-2022 16:08:30]: 	[GET - /resolver/wrapped-document/search?companyName=Kukulu&searchString=a&pageNumber=1&itemsPerPage=3]
+Successfull authentication.
+
+[INFO]: [Jul-22-2022 16:09:02]: 	[GET - /resolver/wrapped-document/search?companyName=Kukulu&searchString=a&pageNumber=1&itemsPerPage=3]
+Successfull authentication.
+
+[INFO]: [Jul-22-2022 16:09:49]: 	[GET - /resolver/wrapped-document/search?companyName=Kukulu&searchString=a&pageNumber=1&itemsPerPage=3]
+Successfull authentication.
+
+[INFO]: [Jul-22-2022 16:10:34]: 	[GET - /resolver/wrapped-document/search?companyName=Kukulu&searchString=a&pageNumber=1&itemsPerPage=3]
+Successfull authentication.
+
+[INFO]: [Jul-22-2022 16:11:03]: 	[GET - /resolver/wrapped-document/search?companyName=Kukulu&searchString=a&pageNumber=1&itemsPerPage=3]
+Successfull authentication.
+
+[INFO]: [Jul-22-2022 16:11:43]: 	[GET - /resolver/wrapped-document/search?companyName=Kukulu&searchString=a&pageNumber=1&itemsPerPage=3]
+Successfull authentication.
+
+[INFO]: [Jul-22-2022 16:12:49]: 	[GET - /resolver/wrapped-document/search?companyName=Kukulu&searchString=a&pageNumber=1&itemsPerPage=3]
+Successfull authentication.
+
+[INFO]: [Jul-22-2022 16:13:03]: 	[GET - /resolver/wrapped-document/search?companyName=Kukulu&searchString=a&pageNumber=1&itemsPerPage=3]
+Successfull authentication.
+
+[INFO]: [Jul-22-2022 16:13:33]: 	[GET - /resolver/wrapped-document/search?companyName=Kukulu&searchString=a&pageNumber=1&itemsPerPage=3]
+Successfull authentication.
+
+[INFO]: [Jul-22-2022 16:14:18]: 	[GET - /resolver/wrapped-document/search?companyName=Kukulu&searchString=a&pageNumber=1&itemsPerPage=3]
+Successfull authentication.
+
+[INFO]: [Jul-22-2022 16:14:40]: 	[GET - /resolver/wrapped-document/search?companyName=Kukulu&searchString=a&pageNumber=1&itemsPerPage=3]
+Successfull authentication.
+
+[INFO]: [Jul-22-2022 16:15:46]: 	[GET - /resolver/wrapped-document/search?companyName=Kukulu&searchString=a&pageNumber=1&itemsPerPage=3]
+Successfull authentication.
+
+[INFO]: [Jul-22-2022 16:16:25]: 	[GET - /resolver/wrapped-document/search?companyName=Kukulu&searchString=a&pageNumber=1&itemsPerPage=3]
+Successfull authentication.
+
+[INFO]: [Jul-22-2022 16:23:18]: 	[GET - /resolver/wrapped-document/search?companyName=Kukulu&searchString=a&pageNumber=1&itemsPerPage=3]
+Successfull authentication.
+
+[INFO]: [Jul-22-2022 16:23:19]: 	[GET - /resolver/wrapped-document/search?companyName=Kukulu&searchString=a&pageNumber=1&itemsPerPage=3]
+Page: 1 of 2.
+
+        Display3 of 4 results. From 0 to 3
+
+        [object Object],[object Object],[object Object]
+
+[INFO]: [Jul-22-2022 16:24:32]: 	[GET - /resolver/wrapped-document/search?companyName=Kukulu&searchString=a&pageNumber=1&itemsPerPage=3]
+Successfull authentication.
+
+[INFO]: [Jul-22-2022 16:24:33]: 	[GET - /resolver/wrapped-document/search?companyName=Kukulu&searchString=a&pageNumber=1&itemsPerPage=3]
+Page: 1 of 2.
+Display 3 of 4 results. From 0 to 3.
+[{"data":{"name":"a1567bdd-4a3a-4deb-b1ef-885433491774:string:Bill of Lading","title":"9f892b00-3d03-47b1-b33b-2d4ad97abce6:string:Test Title By Caps","remarks":"56f69a42-889a-4d73-9dcc-6442958b3b95:string:Test Remarks By Caps","fileName":"620a0bb2-1598-4114-a97b-37b56fbbf83a:string:cover-letter Hao6","companyName":"1ab0be15-728c-4ae8-8521-ad1fddc03a0f:string:HAOCUTECOMPANY","did":"8c3dcdb1-f16a-497c-92ad-26b934aaf0b0:string:did:fuixlabs:HAOCUTECOMPANY:cover-letter Hao6","issuers":[{"identityProofType":{"type":"3685eeda-9b3a-456d-992f-48aaff2cec22:string:DID","did":"a99c2d4b-7e7b-4281-b4fb-7016c90f5add:string:xxxx"},"tokenRegistry":"d2b9d8b7-b268-4b9e-a6a5-b6156552ac6a:string:dasdasdsaeiu201u32901djsakjdsalkdsa","address":"32529a91-b5f6-44cb-a964-1730cc62fb28:string:0071fc0cc009dab1ec32a25ee2d242c9e269ae967b8ffe80d9ddfd4ecfe24b09415e7642ee02ff59f2aabc9f106cb49595ff2e04a11b4259e3"}]},"signature":{"type":"SHA3MerkleProof","targetHash":"bb74ee3c478d90ab97d06014840dc472c315cc41e8517c56c5efee39bf8c108c","proof":[{"signature":"845869a3012704582000b0095f60c72bb8e49d9facf8ddd99c5443d9f17d82b3cbbcc31dd144e99acf676164647265737358390071fc0cc009dab1ec32a25ee2d242c9e269ae967b8ffe80d9ddfd4ecfe24b09415e7642ee02ff59f2aabc9f106cb49595ff2e04a11b4259e3a166686173686564f458d07b2261646472657373223a22303037316663306363303039646162316563333261323565653264323432633965323639616539363762386666653830643964646664346563666532346230393431356537363432656530326666353966326161626339663130366362343935393566663265303461313162343235396533222c2274617267657448617368223a2262623734656533633437386439306162393764303630313438343064633437326333313563633431653835313763353663356566656533396266386331303863227d58406db0206ed95090a5031b5bbbcfe77eaed85f7e4acb9bbdf8b995d14f4eee12a0a35623f349980a327fb7fc40f47b9b5d61158925edd8fea5242f67fb41bf6400"}],"merkleRoot":"bb74ee3c478d90ab97d06014840dc472c315cc41e8517c56c5efee39bf8c108c"},"policyId":"d1082d0b547424c25487edc8f45d19041d1f64cba052b4f61ac6487c","assetId":"d1082d0b547424c25487edc8f45d19041d1f64cba052b4f61ac6487c3964316238393761323763636139653733613333386630626135383231333139"},{"data":{"name":"a1567bdd-4a3a-4deb-b1ef-885433491774:string:Bill of Lading","title":"9f892b00-3d03-47b1-b33b-2d4ad97abce6:string:My Fucking Titile","remarks":"56f69a42-889a-4d73-9dcc-6442958b3b95:string:Test Remarks By Caps","fileName":"620a0bb2-1598-4114-a97b-37b56fbbf83a:string:cover-letter Hao6","companyName":"1ab0be15-728c-4ae8-8521-ad1fddc03a0f:string:HAOCUTECOMPANY","did":"8c3dcdb1-f16a-497c-92ad-26b934aaf0b0:string:did:fuixlabs:HAOCUTECOMPANY:cover-letter Hao6","issuers":[{"identityProofType":{"type":"3685eeda-9b3a-456d-992f-48aaff2cec22:string:DID","did":"a99c2d4b-7e7b-4281-b4fb-7016c90f5add:string:xxxx"},"tokenRegistry":"d2b9d8b7-b268-4b9e-a6a5-b6156552ac6a:string:dasdasdsaeiu201u32901djsakjdsalkdsa","address":"32529a91-b5f6-44cb-a964-1730cc62fb28:string:0071fc0cc009dab1ec32a25ee2d242c9e269ae967b8ffe80d9ddfd4ecfe24b09415e7642ee02ff59f2aabc9f106cb49595ff2e04a11b4259e3"}]},"signature":{"type":"SHA3MerkleProof","targetHash":"bb74ee3c478d90ab97d06014840dc472c315cc41e8517c56c5efee39bf8c108c","proof":[{"signature":"845869a3012704582000b0095f60c72bb8e49d9facf8ddd99c5443d9f17d82b3cbbcc31dd144e99acf676164647265737358390071fc0cc009dab1ec32a25ee2d242c9e269ae967b8ffe80d9ddfd4ecfe24b09415e7642ee02ff59f2aabc9f106cb49595ff2e04a11b4259e3a166686173686564f458d07b2261646472657373223a22303037316663306363303039646162316563333261323565653264323432633965323639616539363762386666653830643964646664346563666532346230393431356537363432656530326666353966326161626339663130366362343935393566663265303461313162343235396533222c2274617267657448617368223a2262623734656533633437386439306162393764303630313438343064633437326333313563633431653835313763353663356566656533396266386331303863227d58406db0206ed95090a5031b5bbbcfe77eaed85f7e4acb9bbdf8b995d14f4eee12a0a35623f349980a327fb7fc40f47b9b5d61158925edd8fea5242f67fb41bf6400"}],"merkleRoot":"bb74ee3c478d90ab97d06014840dc472c315cc41e8517c56c5efee39bf8c108c"},"policyId":"d1082d0b547424c25487edc8f45d19041d1f64cba052b4f61ac6487c","assetId":"d1082d0b547424c25487edc8f45d19041d1f64cba052b4f61ac6487c3964316238393761323763636139653733613333386630626135383231333139"},{"data":{"name":"a1567bdd-4a3a-4deb-b1ef-885433491774:string:Bill of Lading","title":"9f892b00-3d03-47b1-b33b-2d4ad97abce6:string:Hello From Bao Title By              Caps","remarks":"56f69a42-889a-4d73-9dcc-6442958b3b95:string:Test Remarks By Caps","fileName":"620a0bb2-1598-4114-a97b-37b56fbbf83a:string:cover-letter Hao6","companyName":"1ab0be15-728c-4ae8-8521-ad1fddc03a0f:string:HAOCUTECOMPANY","did":"8c3dcdb1-f16a-497c-92ad-26b934aaf0b0:string:did:fuixlabs:HAOCUTECOMPANY:cover-letter Hao6","issuers":[{"identityProofType":{"type":"3685eeda-9b3a-456d-992f-48aaff2cec22:string:DID","did":"a99c2d4b-7e7b-4281-b4fb-7016c90f5add:string:xxxx"},"tokenRegistry":"d2b9d8b7-b268-4b9e-a6a5-b6156552ac6a:string:dasdasdsaeiu201u32901djsakjdsalkdsa","address":"32529a91-b5f6-44cb-a964-1730cc62fb28:string:0071fc0cc009dab1ec32a25ee2d242c9e269ae967b8ffe80d9ddfd4ecfe24b09415e7642ee02ff59f2aabc9f106cb49595ff2e04a11b4259e3"}]},"signature":{"type":"SHA3MerkleProof","targetHash":"bb74ee3c478d90ab97d06014840dc472c315cc41e8517c56c5efee39bf8c108c","proof":[{"signature":"845869a3012704582000b0095f60c72bb8e49d9facf8ddd99c5443d9f17d82b3cbbcc31dd144e99acf676164647265737358390071fc0cc009dab1ec32a25ee2d242c9e269ae967b8ffe80d9ddfd4ecfe24b09415e7642ee02ff59f2aabc9f106cb49595ff2e04a11b4259e3a166686173686564f458d07b2261646472657373223a22303037316663306363303039646162316563333261323565653264323432633965323639616539363762386666653830643964646664346563666532346230393431356537363432656530326666353966326161626339663130366362343935393566663265303461313162343235396533222c2274617267657448617368223a2262623734656533633437386439306162393764303630313438343064633437326333313563633431653835313763353663356566656533396266386331303863227d58406db0206ed95090a5031b5bbbcfe77eaed85f7e4acb9bbdf8b995d14f4eee12a0a35623f349980a327fb7fc40f47b9b5d61158925edd8fea5242f67fb41bf6400"}],"merkleRoot":"bb74ee3c478d90ab97d06014840dc472c315cc41e8517c56c5efee39bf8c108c"},"policyId":"d1082d0b547424c25487edc8f45d19041d1f64cba052b4f61ac6487c","assetId":"d1082d0b547424c25487edc8f45d19041d1f64cba052b4f61ac6487c3964316238393761323763636139653733613333386630626135383231333139"}]
+
+[INFO]: [Jul-22-2022 16:29:59]: 	[GET - /resolver/wrapped-document/search?companyName=Kukulu&searchString=a&pageNumber=1&itemsPerPage=3]
+Successfull authentication.
+
+[INFO]: [Jul-22-2022 16:30:00]: 	[GET - /resolver/wrapped-document/search?companyName=Kukulu&searchString=a&pageNumber=1&itemsPerPage=3]
+Page: 1 of 2.
+Display 3 of 4 results. From 0 to 3.
+[{"data":{"name":"a1567bdd-4a3a-4deb-b1ef-885433491774:string:Bill of Lading","title":"9f892b00-3d03-47b1-b33b-2d4ad97abce6:string:Test Title By Caps","remarks":"56f69a42-889a-4d73-9dcc-6442958b3b95:string:Test Remarks By Caps","fileName":"620a0bb2-1598-4114-a97b-37b56fbbf83a:string:cover-letter Hao6","companyName":"1ab0be15-728c-4ae8-8521-ad1fddc03a0f:string:HAOCUTECOMPANY","did":"8c3dcdb1-f16a-497c-92ad-26b934aaf0b0:string:did:fuixlabs:HAOCUTECOMPANY:cover-letter Hao6","issuers":[{"identityProofType":{"type":"3685eeda-9b3a-456d-992f-48aaff2cec22:string:DID","did":"a99c2d4b-7e7b-4281-b4fb-7016c90f5add:string:xxxx"},"tokenRegistry":"d2b9d8b7-b268-4b9e-a6a5-b6156552ac6a:string:dasdasdsaeiu201u32901djsakjdsalkdsa","address":"32529a91-b5f6-44cb-a964-1730cc62fb28:string:0071fc0cc009dab1ec32a25ee2d242c9e269ae967b8ffe80d9ddfd4ecfe24b09415e7642ee02ff59f2aabc9f106cb49595ff2e04a11b4259e3"}]},"signature":{"type":"SHA3MerkleProof","targetHash":"bb74ee3c478d90ab97d06014840dc472c315cc41e8517c56c5efee39bf8c108c","proof":[{"signature":"845869a3012704582000b0095f60c72bb8e49d9facf8ddd99c5443d9f17d82b3cbbcc31dd144e99acf676164647265737358390071fc0cc009dab1ec32a25ee2d242c9e269ae967b8ffe80d9ddfd4ecfe24b09415e7642ee02ff59f2aabc9f106cb49595ff2e04a11b4259e3a166686173686564f458d07b2261646472657373223a22303037316663306363303039646162316563333261323565653264323432633965323639616539363762386666653830643964646664346563666532346230393431356537363432656530326666353966326161626339663130366362343935393566663265303461313162343235396533222c2274617267657448617368223a2262623734656533633437386439306162393764303630313438343064633437326333313563633431653835313763353663356566656533396266386331303863227d58406db0206ed95090a5031b5bbbcfe77eaed85f7e4acb9bbdf8b995d14f4eee12a0a35623f349980a327fb7fc40f47b9b5d61158925edd8fea5242f67fb41bf6400"}],"merkleRoot":"bb74ee3c478d90ab97d06014840dc472c315cc41e8517c56c5efee39bf8c108c"},"policyId":"d1082d0b547424c25487edc8f45d19041d1f64cba052b4f61ac6487c","assetId":"d1082d0b547424c25487edc8f45d19041d1f64cba052b4f61ac6487c3964316238393761323763636139653733613333386630626135383231333139"},{"data":{"name":"a1567bdd-4a3a-4deb-b1ef-885433491774:string:Bill of Lading","title":"9f892b00-3d03-47b1-b33b-2d4ad97abce6:string:My Fucking Titile","remarks":"56f69a42-889a-4d73-9dcc-6442958b3b95:string:Test Remarks By Caps","fileName":"620a0bb2-1598-4114-a97b-37b56fbbf83a:string:cover-letter Hao6","companyName":"1ab0be15-728c-4ae8-8521-ad1fddc03a0f:string:HAOCUTECOMPANY","did":"8c3dcdb1-f16a-497c-92ad-26b934aaf0b0:string:did:fuixlabs:HAOCUTECOMPANY:cover-letter Hao6","issuers":[{"identityProofType":{"type":"3685eeda-9b3a-456d-992f-48aaff2cec22:string:DID","did":"a99c2d4b-7e7b-4281-b4fb-7016c90f5add:string:xxxx"},"tokenRegistry":"d2b9d8b7-b268-4b9e-a6a5-b6156552ac6a:string:dasdasdsaeiu201u32901djsakjdsalkdsa","address":"32529a91-b5f6-44cb-a964-1730cc62fb28:string:0071fc0cc009dab1ec32a25ee2d242c9e269ae967b8ffe80d9ddfd4ecfe24b09415e7642ee02ff59f2aabc9f106cb49595ff2e04a11b4259e3"}]},"signature":{"type":"SHA3MerkleProof","targetHash":"bb74ee3c478d90ab97d06014840dc472c315cc41e8517c56c5efee39bf8c108c","proof":[{"signature":"845869a3012704582000b0095f60c72bb8e49d9facf8ddd99c5443d9f17d82b3cbbcc31dd144e99acf676164647265737358390071fc0cc009dab1ec32a25ee2d242c9e269ae967b8ffe80d9ddfd4ecfe24b09415e7642ee02ff59f2aabc9f106cb49595ff2e04a11b4259e3a166686173686564f458d07b2261646472657373223a22303037316663306363303039646162316563333261323565653264323432633965323639616539363762386666653830643964646664346563666532346230393431356537363432656530326666353966326161626339663130366362343935393566663265303461313162343235396533222c2274617267657448617368223a2262623734656533633437386439306162393764303630313438343064633437326333313563633431653835313763353663356566656533396266386331303863227d58406db0206ed95090a5031b5bbbcfe77eaed85f7e4acb9bbdf8b995d14f4eee12a0a35623f349980a327fb7fc40f47b9b5d61158925edd8fea5242f67fb41bf6400"}],"merkleRoot":"bb74ee3c478d90ab97d06014840dc472c315cc41e8517c56c5efee39bf8c108c"},"policyId":"d1082d0b547424c25487edc8f45d19041d1f64cba052b4f61ac6487c","assetId":"d1082d0b547424c25487edc8f45d19041d1f64cba052b4f61ac6487c3964316238393761323763636139653733613333386630626135383231333139"},{"data":{"name":"a1567bdd-4a3a-4deb-b1ef-885433491774:string:Bill of Lading","title":"9f892b00-3d03-47b1-b33b-2d4ad97abce6:string:Hello From Bao Title By              Caps","remarks":"56f69a42-889a-4d73-9dcc-6442958b3b95:string:Test Remarks By Caps","fileName":"620a0bb2-1598-4114-a97b-37b56fbbf83a:string:cover-letter Hao6","companyName":"1ab0be15-728c-4ae8-8521-ad1fddc03a0f:string:HAOCUTECOMPANY","did":"8c3dcdb1-f16a-497c-92ad-26b934aaf0b0:string:did:fuixlabs:HAOCUTECOMPANY:cover-letter Hao6","issuers":[{"identityProofType":{"type":"3685eeda-9b3a-456d-992f-48aaff2cec22:string:DID","did":"a99c2d4b-7e7b-4281-b4fb-7016c90f5add:string:xxxx"},"tokenRegistry":"d2b9d8b7-b268-4b9e-a6a5-b6156552ac6a:string:dasdasdsaeiu201u32901djsakjdsalkdsa","address":"32529a91-b5f6-44cb-a964-1730cc62fb28:string:0071fc0cc009dab1ec32a25ee2d242c9e269ae967b8ffe80d9ddfd4ecfe24b09415e7642ee02ff59f2aabc9f106cb49595ff2e04a11b4259e3"}]},"signature":{"type":"SHA3MerkleProof","targetHash":"bb74ee3c478d90ab97d06014840dc472c315cc41e8517c56c5efee39bf8c108c","proof":[{"signature":"845869a3012704582000b0095f60c72bb8e49d9facf8ddd99c5443d9f17d82b3cbbcc31dd144e99acf676164647265737358390071fc0cc009dab1ec32a25ee2d242c9e269ae967b8ffe80d9ddfd4ecfe24b09415e7642ee02ff59f2aabc9f106cb49595ff2e04a11b4259e3a166686173686564f458d07b2261646472657373223a22303037316663306363303039646162316563333261323565653264323432633965323639616539363762386666653830643964646664346563666532346230393431356537363432656530326666353966326161626339663130366362343935393566663265303461313162343235396533222c2274617267657448617368223a2262623734656533633437386439306162393764303630313438343064633437326333313563633431653835313763353663356566656533396266386331303863227d58406db0206ed95090a5031b5bbbcfe77eaed85f7e4acb9bbdf8b995d14f4eee12a0a35623f349980a327fb7fc40f47b9b5d61158925edd8fea5242f67fb41bf6400"}],"merkleRoot":"bb74ee3c478d90ab97d06014840dc472c315cc41e8517c56c5efee39bf8c108c"},"policyId":"d1082d0b547424c25487edc8f45d19041d1f64cba052b4f61ac6487c","assetId":"d1082d0b547424c25487edc8f45d19041d1f64cba052b4f61ac6487c3964316238393761323763636139653733613333386630626135383231333139"}]
+
+[INFO]: [Jul-22-2022 16:30:13]: 	[GET - /resolver/wrapped-document/search?companyName=Kukulu&searchString=a&pageNumber=1&itemsPerPage=3]
+Successfull authentication.
+
+[INFO]: [Jul-22-2022 16:30:14]: 	[GET - /resolver/wrapped-document/search?companyName=Kukulu&searchString=a&pageNumber=1&itemsPerPage=3]
+Page: 1 of 2.
+Display 3 of 4 results. From 0 to 3.
+[{"data":{"name":"a1567bdd-4a3a-4deb-b1ef-885433491774:string:Bill of Lading","title":"9f892b00-3d03-47b1-b33b-2d4ad97abce6:string:Test Title By Caps","remarks":"56f69a42-889a-4d73-9dcc-6442958b3b95:string:Test Remarks By Caps","fileName":"620a0bb2-1598-4114-a97b-37b56fbbf83a:string:cover-letter Hao6","companyName":"1ab0be15-728c-4ae8-8521-ad1fddc03a0f:string:HAOCUTECOMPANY","did":"8c3dcdb1-f16a-497c-92ad-26b934aaf0b0:string:did:fuixlabs:HAOCUTECOMPANY:cover-letter Hao6","issuers":[{"identityProofType":{"type":"3685eeda-9b3a-456d-992f-48aaff2cec22:string:DID","did":"a99c2d4b-7e7b-4281-b4fb-7016c90f5add:string:xxxx"},"tokenRegistry":"d2b9d8b7-b268-4b9e-a6a5-b6156552ac6a:string:dasdasdsaeiu201u32901djsakjdsalkdsa","address":"32529a91-b5f6-44cb-a964-1730cc62fb28:string:0071fc0cc009dab1ec32a25ee2d242c9e269ae967b8ffe80d9ddfd4ecfe24b09415e7642ee02ff59f2aabc9f106cb49595ff2e04a11b4259e3"}]},"signature":{"type":"SHA3MerkleProof","targetHash":"bb74ee3c478d90ab97d06014840dc472c315cc41e8517c56c5efee39bf8c108c","proof":[{"signature":"845869a3012704582000b0095f60c72bb8e49d9facf8ddd99c5443d9f17d82b3cbbcc31dd144e99acf676164647265737358390071fc0cc009dab1ec32a25ee2d242c9e269ae967b8ffe80d9ddfd4ecfe24b09415e7642ee02ff59f2aabc9f106cb49595ff2e04a11b4259e3a166686173686564f458d07b2261646472657373223a22303037316663306363303039646162316563333261323565653264323432633965323639616539363762386666653830643964646664346563666532346230393431356537363432656530326666353966326161626339663130366362343935393566663265303461313162343235396533222c2274617267657448617368223a2262623734656533633437386439306162393764303630313438343064633437326333313563633431653835313763353663356566656533396266386331303863227d58406db0206ed95090a5031b5bbbcfe77eaed85f7e4acb9bbdf8b995d14f4eee12a0a35623f349980a327fb7fc40f47b9b5d61158925edd8fea5242f67fb41bf6400"}],"merkleRoot":"bb74ee3c478d90ab97d06014840dc472c315cc41e8517c56c5efee39bf8c108c"},"policyId":"d1082d0b547424c25487edc8f45d19041d1f64cba052b4f61ac6487c","assetId":"d1082d0b547424c25487edc8f45d19041d1f64cba052b4f61ac6487c3964316238393761323763636139653733613333386630626135383231333139"},{"data":{"name":"a1567bdd-4a3a-4deb-b1ef-885433491774:string:Bill of Lading","title":"9f892b00-3d03-47b1-b33b-2d4ad97abce6:string:My Fucking Titile","remarks":"56f69a42-889a-4d73-9dcc-6442958b3b95:string:Test Remarks By Caps","fileName":"620a0bb2-1598-4114-a97b-37b56fbbf83a:string:cover-letter Hao6","companyName":"1ab0be15-728c-4ae8-8521-ad1fddc03a0f:string:HAOCUTECOMPANY","did":"8c3dcdb1-f16a-497c-92ad-26b934aaf0b0:string:did:fuixlabs:HAOCUTECOMPANY:cover-letter Hao6","issuers":[{"identityProofType":{"type":"3685eeda-9b3a-456d-992f-48aaff2cec22:string:DID","did":"a99c2d4b-7e7b-4281-b4fb-7016c90f5add:string:xxxx"},"tokenRegistry":"d2b9d8b7-b268-4b9e-a6a5-b6156552ac6a:string:dasdasdsaeiu201u32901djsakjdsalkdsa","address":"32529a91-b5f6-44cb-a964-1730cc62fb28:string:0071fc0cc009dab1ec32a25ee2d242c9e269ae967b8ffe80d9ddfd4ecfe24b09415e7642ee02ff59f2aabc9f106cb49595ff2e04a11b4259e3"}]},"signature":{"type":"SHA3MerkleProof","targetHash":"bb74ee3c478d90ab97d06014840dc472c315cc41e8517c56c5efee39bf8c108c","proof":[{"signature":"845869a3012704582000b0095f60c72bb8e49d9facf8ddd99c5443d9f17d82b3cbbcc31dd144e99acf676164647265737358390071fc0cc009dab1ec32a25ee2d242c9e269ae967b8ffe80d9ddfd4ecfe24b09415e7642ee02ff59f2aabc9f106cb49595ff2e04a11b4259e3a166686173686564f458d07b2261646472657373223a22303037316663306363303039646162316563333261323565653264323432633965323639616539363762386666653830643964646664346563666532346230393431356537363432656530326666353966326161626339663130366362343935393566663265303461313162343235396533222c2274617267657448617368223a2262623734656533633437386439306162393764303630313438343064633437326333313563633431653835313763353663356566656533396266386331303863227d58406db0206ed95090a5031b5bbbcfe77eaed85f7e4acb9bbdf8b995d14f4eee12a0a35623f349980a327fb7fc40f47b9b5d61158925edd8fea5242f67fb41bf6400"}],"merkleRoot":"bb74ee3c478d90ab97d06014840dc472c315cc41e8517c56c5efee39bf8c108c"},"policyId":"d1082d0b547424c25487edc8f45d19041d1f64cba052b4f61ac6487c","assetId":"d1082d0b547424c25487edc8f45d19041d1f64cba052b4f61ac6487c3964316238393761323763636139653733613333386630626135383231333139"},{"data":{"name":"a1567bdd-4a3a-4deb-b1ef-885433491774:string:Bill of Lading","title":"9f892b00-3d03-47b1-b33b-2d4ad97abce6:string:Hello From Bao Title By              Caps","remarks":"56f69a42-889a-4d73-9dcc-6442958b3b95:string:Test Remarks By Caps","fileName":"620a0bb2-1598-4114-a97b-37b56fbbf83a:string:cover-letter Hao6","companyName":"1ab0be15-728c-4ae8-8521-ad1fddc03a0f:string:HAOCUTECOMPANY","did":"8c3dcdb1-f16a-497c-92ad-26b934aaf0b0:string:did:fuixlabs:HAOCUTECOMPANY:cover-letter Hao6","issuers":[{"identityProofType":{"type":"3685eeda-9b3a-456d-992f-48aaff2cec22:string:DID","did":"a99c2d4b-7e7b-4281-b4fb-7016c90f5add:string:xxxx"},"tokenRegistry":"d2b9d8b7-b268-4b9e-a6a5-b6156552ac6a:string:dasdasdsaeiu201u32901djsakjdsalkdsa","address":"32529a91-b5f6-44cb-a964-1730cc62fb28:string:0071fc0cc009dab1ec32a25ee2d242c9e269ae967b8ffe80d9ddfd4ecfe24b09415e7642ee02ff59f2aabc9f106cb49595ff2e04a11b4259e3"}]},"signature":{"type":"SHA3MerkleProof","targetHash":"bb74ee3c478d90ab97d06014840dc472c315cc41e8517c56c5efee39bf8c108c","proof":[{"signature":"845869a3012704582000b0095f60c72bb8e49d9facf8ddd99c5443d9f17d82b3cbbcc31dd144e99acf676164647265737358390071fc0cc009dab1ec32a25ee2d242c9e269ae967b8ffe80d9ddfd4ecfe24b09415e7642ee02ff59f2aabc9f106cb49595ff2e04a11b4259e3a166686173686564f458d07b2261646472657373223a22303037316663306363303039646162316563333261323565653264323432633965323639616539363762386666653830643964646664346563666532346230393431356537363432656530326666353966326161626339663130366362343935393566663265303461313162343235396533222c2274617267657448617368223a2262623734656533633437386439306162393764303630313438343064633437326333313563633431653835313763353663356566656533396266386331303863227d58406db0206ed95090a5031b5bbbcfe77eaed85f7e4acb9bbdf8b995d14f4eee12a0a35623f349980a327fb7fc40f47b9b5d61158925edd8fea5242f67fb41bf6400"}],"merkleRoot":"bb74ee3c478d90ab97d06014840dc472c315cc41e8517c56c5efee39bf8c108c"},"policyId":"d1082d0b547424c25487edc8f45d19041d1f64cba052b4f61ac6487c","assetId":"d1082d0b547424c25487edc8f45d19041d1f64cba052b4f61ac6487c3964316238393761323763636139653733613333386630626135383231333139"}]
+
+[INFO]: [Jul-22-2022 16:30:26]: 	[GET - /resolver/wrapped-document/search?companyName=Kukulu&searchString=a&pageNumber=1&itemsPerPage=3]
+Successfull authentication.
+
+[INFO]: [Jul-22-2022 16:32:44]: 	[GET - /resolver/wrapped-document/search?companyName=Kukulu&searchString=a&pageNumber=1&itemsPerPage=3]
+Successfull authentication.
+
+[INFO]: [Jul-22-2022 16:36:07]: 	[GET - /resolver/wrapped-document/search?companyName=Kukulu&searchString=a&pageNumber=1&itemsPerPage=3]
+Successfull authentication.
+
+[INFO]: [Jul-22-2022 16:52:44]: 	[GET - /resolver/wrapped-document/search?companyName=Kukulu&searchString=a&pageNumber=1&itemsPerPage=3]
+Successfull authentication.
+
+[INFO]: [Jul-22-2022 16:53:28]: 	[GET - /resolver/wrapped-document/search?companyName=Kukulu&searchString=a&pageNumber=1&itemsPerPage=3]
+Successfull authentication.
+
+[INFO]: [Jul-22-2022 16:53:54]: 	[GET - /resolver/wrapped-document/search?companyName=Kukulu&searchString=a&pageNumber=1&itemsPerPage=3]
+Successfull authentication.
+
+[ERROR]: [Jul-22-2022 16:53:55]: 	[GET - /resolver/wrapped-document/search?companyName=Kukulu&searchString=a&pageNumber=1&itemsPerPage=3]
+ReferenceError: data is not defined
+
+[INFO]: [Jul-22-2022 16:55:09]: 	[GET - /resolver/wrapped-document/search?companyName=Kukulu&searchString=a&pageNumber=1&itemsPerPage=3]
+Successfull authentication.
+
+[ERROR]: [Jul-22-2022 16:55:10]: 	[GET - /resolver/wrapped-document/search?companyName=Kukulu&searchString=a&pageNumber=1&itemsPerPage=3]
+ReferenceError: data is not defined
+
+[INFO]: [Jul-22-2022 16:59:14]: 	[GET - /resolver/wrapped-document/search?companyName=Kukulu&searchString=a&pageNumber=1&itemsPerPage=3]
+Successfull authentication.
+
+[ERROR]: [Jul-22-2022 16:59:15]: 	[GET - /resolver/wrapped-document/search?companyName=Kukulu&searchString=a&pageNumber=1&itemsPerPage=3]
+ReferenceError: Cannot access 'result' before initialization
+
+[INFO]: [Jul-22-2022 16:59:37]: 	[GET - /resolver/wrapped-document/search?companyName=Kukulu&searchString=a&pageNumber=1&itemsPerPage=3]
+Successfull authentication.
+
+[ERROR]: [Jul-22-2022 16:59:38]: 	[GET - /resolver/wrapped-document/search?companyName=Kukulu&searchString=a&pageNumber=1&itemsPerPage=3]
+ReferenceError: Cannot access 'result' before initialization
+
+[INFO]: [Jul-22-2022 16:59:51]: 	[GET - /resolver/wrapped-document/search?companyName=Kukulu&searchString=a&pageNumber=1&itemsPerPage=3]
+Successfull authentication.
+
+[INFO]: [Jul-22-2022 17:00:07]: 	[GET - /resolver/wrapped-document/search?companyName=Kukulu&searchString=a&pageNumber=1&itemsPerPage=3]
+Successfull authentication.
+
+[ERROR]: [Jul-22-2022 17:00:08]: 	[GET - /resolver/wrapped-document/search?companyName=Kukulu&searchString=a&pageNumber=1&itemsPerPage=3]
+ReferenceError: Cannot access 'result' before initialization
+
+[INFO]: [Jul-22-2022 17:00:36]: 	[GET - /resolver/wrapped-document/search?companyName=Kukulu&searchString=a&pageNumber=1&itemsPerPage=3]
+Successfull authentication.
+
+[INFO]: [Jul-22-2022 17:02:51]: 	[GET - /resolver/wrapped-document/search?companyName=SAMPLE_COMPANY_NAME&searchString=a&pageNumber=1&itemsPerPage=3]
+Successfull authentication.
+
+[INFO]: [Jul-22-2022 17:04:08]: 	[GET - /resolver/wrapped-document/search?companyName=SAMPLE_COMPANY_NAME&searchString=a&pageNumber=1&itemsPerPage=3]
+Successfull authentication.
+
+[INFO]: [Jul-22-2022 17:05:08]: 	[GET - /resolver/wrapped-document/search?companyName=SAMPLE_COMPANY_NAME&searchString=a]
+Successfull authentication.
+
+[INFO]: [Jul-22-2022 17:05:09]: 	[GET - /resolver/wrapped-document/search?companyName=SAMPLE_COMPANY_NAME&searchString=a]
+Page: 1 of 2.
+Display 2 of 4 results. From 0 to 2.
+["2a54e6eb-d470-4b07-90a3-cd6d96971b49:string:cover-letter Hao1","5ddd1b93-f3c6-47b4-9a3f-166947c7a1b6:string:cover-letter Hao3"]
+
+[INFO]: [Jul-22-2022 17:06:13]: 	[GET - /resolver/wrapped-document/search?companyName=SAMPLE_COMPANY_NAME&searchString=a]
+Successfull authentication.
+
+[INFO]: [Jul-22-2022 17:06:14]: 	[GET - /resolver/wrapped-document/search?companyName=SAMPLE_COMPANY_NAME&searchString=a]
+Page: 1 of 2.
+Display 2 of 4 results. From 0 to 1.
+["2a54e6eb-d470-4b07-90a3-cd6d96971b49:string:cover-letter Hao1"]
+
+[INFO]: [Jul-22-2022 17:06:30]: 	[GET - /resolver/wrapped-document/search?companyName=SAMPLE_COMPANY_NAME&searchString=a]
+Successfull authentication.
+
+[INFO]: [Jul-22-2022 17:06:31]: 	[GET - /resolver/wrapped-document/search?companyName=SAMPLE_COMPANY_NAME&searchString=a]
+Page: 1 of 2.
+Display 2 of 4 results. From 0 to 2.
+["2a54e6eb-d470-4b07-90a3-cd6d96971b49:string:cover-letter Hao1","5ddd1b93-f3c6-47b4-9a3f-166947c7a1b6:string:cover-letter Hao3"]
+
+[INFO]: [Jul-22-2022 17:06:46]: 	[GET - /resolver/wrapped-document/search?companyName=SAMPLE_COMPANY_NAME&searchString=a&itemsPerPage=1]
+Successfull authentication.
+
+[INFO]: [Jul-22-2022 17:06:47]: 	[GET - /resolver/wrapped-document/search?companyName=SAMPLE_COMPANY_NAME&searchString=a&itemsPerPage=1]
+Page: 1 of 4.
+Display 1 of 4 results. From 0 to 1.
+["2a54e6eb-d470-4b07-90a3-cd6d96971b49:string:cover-letter Hao1"]
+
+[INFO]: [Jul-22-2022 17:06:51]: 	[GET - /resolver/wrapped-document/search?companyName=SAMPLE_COMPANY_NAME&searchString=a&itemsPerPage=2]
+Successfull authentication.
+
+[INFO]: [Jul-22-2022 17:06:52]: 	[GET - /resolver/wrapped-document/search?companyName=SAMPLE_COMPANY_NAME&searchString=a&itemsPerPage=2]
+Page: 1 of 2.
+Display 2 of 4 results. From 0 to 2.
+["2a54e6eb-d470-4b07-90a3-cd6d96971b49:string:cover-letter Hao1","5ddd1b93-f3c6-47b4-9a3f-166947c7a1b6:string:cover-letter Hao3"]
+
+[INFO]: [Jul-22-2022 17:07:01]: 	[GET - /resolver/wrapped-document/search?companyName=SAMPLE_COMPANY_NAME&searchString=a&itemsPerPage=3]
+Successfull authentication.
+
+[INFO]: [Jul-22-2022 17:07:01]: 	[GET - /resolver/wrapped-document/search?companyName=SAMPLE_COMPANY_NAME&searchString=a&itemsPerPage=3]
+Page: 1 of 2.
+Display 3 of 4 results. From 0 to 3.
+["2a54e6eb-d470-4b07-90a3-cd6d96971b49:string:cover-letter Hao1","5ddd1b93-f3c6-47b4-9a3f-166947c7a1b6:string:cover-letter Hao3","4b22901d-f9df-4958-a03b-70751bc18946:string:cover-letter Hao4"]
+

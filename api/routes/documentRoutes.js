@@ -10,9 +10,25 @@ router.post("/did-document", documentController.createDIDDocument);
 
 router.get("/wrapped-document", documentController.getWrappedDocument);
 router.post("/wrapped-document", documentController.createWrappedDocument);
-router.put("/wrapped-document/valid", documentController.validateWrappedDocument);
-router.get("/wrapped-document/exist", documentController.checkWrappedDocumentExistence);
-router.get("/wrapped-document/user", documentController.getAllWrappedDocumentsOfUser);
-router.put("/wrapped-document/transfer", documentController.transferWrappedDocument);
+router.put(
+  "/wrapped-document/valid",
+  documentController.validateWrappedDocument
+);
+router.get(
+  "/wrapped-document/exist",
+  documentController.checkWrappedDocumentExistence
+);
+router.get(
+  "/wrapped-document/user",
+  documentController.getAllWrappedDocumentsOfUser
+);
+router.put(
+  "/wrapped-document/transfer",
+  documentController.transferWrappedDocument
+);
+router.get(
+  "/wrapped-document/search",
+  documentController.searchWrappedDocument
+);
 
 module.exports = router;

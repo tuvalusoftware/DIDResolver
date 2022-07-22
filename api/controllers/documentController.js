@@ -6,6 +6,7 @@ const {
   getAddressFromHexEncoded,
   validateDIDSyntax,
   checkUndefinedVar,
+  getFieldsFromItems,
 } = require("../../core/index");
 
 module.exports = {
@@ -426,6 +427,7 @@ module.exports = {
         ? res.status(200).json(storeWrappedDocumentStatus.data)
         : res.status(201).json(wrappedDocument);
     } catch (err) {
+      Logger.apiError(req, res, `${err}`);
       err.response
         ? res.status(400).json(err.response.data)
         : res.status(400).json(err);
@@ -485,5 +487,83 @@ module.exports = {
       })
       .then((response) => res.status(200).json(response.data))
       .catch((error) => res.status(400).json(error));
+  },
+
+  searchWrappedDocument: async function (req, res) {
+    // Receive input data
+    const { access_token } = req.cookies;
+    let { companyName, searchString, pageNumber, itemsPerPage } = req.query;
+
+    // Check missing paramters
+    const undefinedVar = checkUndefinedVar({
+      companyName,
+      searchString,
+    });
+    if (undefinedVar.undefined)
+      return res.status(200).json({
+        ...ERRORS.MISSING_PARAMETERS,
+        detail: undefinedVar.detail,
+      });
+
+    pageNumber = pageNumber ? pageNumber : 1;
+    itemsPerPage = itemsPerPage ? itemsPerPage : 5;
+
+    try {
+      // Call DID Controller
+      // success:
+      //   [
+      //     {
+      //       data:{ name: string, title: string, fileName: string, did: string, issuers: [] },
+      //       signature: {},
+      //       policyId: string,
+      //       assetId: string
+      //     }
+      //   ]
+      // error:
+      //   { error_code: number, message: string }
+
+      const wrappedDocuments = await axios.get(
+        `${SERVERS.DID_CONTROLLER}/api/doc/search-content?companyName=${companyName}&searchString=${searchString}`,
+        {
+          withCredentials: true,
+          Cookie: `access_token=${access_token};`,
+        }
+      );
+
+      const _logWrappedDocuments = ((arrayOfItems) => {
+        let fileNames = [];
+        for (const item of arrayOfItems) fileNames.push(item.data.fileName);
+        return fileNames;
+      })(wrappedDocuments.data);
+
+      const total = wrappedDocuments.data.length,
+        maxPage =
+          (total - (total % itemsPerPage)) / itemsPerPage +
+          (total % itemsPerPage ? 1 : 0),
+        startIndex = (pageNumber - 1) * itemsPerPage,
+        endIndex = parseInt(itemsPerPage) + parseInt(startIndex),
+        result = wrappedDocuments.data.slice(startIndex, endIndex),
+        _logResult = _logWrappedDocuments.slice(startIndex, endIndex);
+
+      Logger.apiInfo(
+        req,
+        res,
+        `Page: ${pageNumber} of ${maxPage}.\nDisplay ${itemsPerPage} of ${total} results. From ${startIndex} to ${endIndex}.\n${JSON.stringify(
+          _logResult
+        )}`
+      );
+
+      return res.status(200).json({
+        total,
+        maxPage,
+        currentPage: pageNumber,
+        result,
+      });
+    } catch (err) {
+      Logger.apiError(req, res, `${err}`);
+      err.response
+        ? res.status(400).json(err.response.data)
+        : res.status(400).json(err);
+    }
   },
 };

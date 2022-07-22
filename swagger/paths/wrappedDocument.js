@@ -407,3 +407,69 @@ module.exports.validateWrappedDocument = {
     },
   },
 };
+
+// ?? UPDATE CAI NAY
+module.exports.transferWrappedDocument = {};
+
+module.exports.searchWrappedDocument = {
+  get: {
+    tags: ["Wrapped document"],
+    summary: "Get all wrapped document of a user given user's DID.",
+    parameters: [
+      {
+        in: "query",
+        name: "companyName",
+        type: "string",
+        require: true,
+        description: "Company name.",
+        example: "SAMPLE_COMPANY_NAME",
+      },
+      {
+        in: "query",
+        name: "searchString",
+        type: "string",
+        require: true,
+        description: "Keyword to search.",
+        example: "a",
+      },
+      {
+        in: "query",
+        name: "pageNumber",
+        type: "integer",
+        require: false,
+        description: "Optional parameter. Default: 1.",
+      },
+      {
+        in: "query",
+        name: "itemsPerPage",
+        type: "integer",
+        require: false,
+        description: "Optional parameter. Default: 5.",
+      },
+    ],
+    responses: {
+      200: {
+        description: "Return list of wrapped documents.",
+        content: {
+          "application/json": {
+            schema: {
+              type: "array",
+              items: { $ref: "#/components/schemas/wrappedDocument" },
+            },
+          },
+        },
+      },
+      401: {
+        description: "Cannot verify user with the given access token.",
+        content: {
+          "text/plain": {
+            schema: {
+              type: "string",
+              example: "Unauthorized.",
+            },
+          },
+        },
+      },
+    },
+  },
+};

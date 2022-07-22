@@ -71,4 +71,14 @@ module.exports = {
     if (flag) Logger.error(`${detail}`);
     return flag ? { undefined: true, detail } : { undefined: false };
   },
+
+  getFieldsFromItems: (arrayOfItems, fieldName) => {
+    console.log(arrayOfItems);
+    console.log(fieldName);
+    let result = [];
+    for (let i in arrayOfItems) {
+      result.push(arrayOfItems[i][data][fieldName]);
+    }
+    return result;
+  },
 };

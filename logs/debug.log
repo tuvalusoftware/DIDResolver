@@ -7,3 +7,21 @@ AxiosError: Request failed with status code 401
 [ERROR]: [Jul-21-2022 15:17:54]: 	[GET - /resolver/auth/public-key/?address=a&user=a]
 AxiosError: Request failed with status code 401
 
+[ERROR]: [Jul-22-2022 15:52:59]: 	[GET - /resolver/wrapped-document/search?companyName=Kukulu&searchString=HAO&pageNumber=1&itemsPerPage=5]
+TypeError: wrappedDocuments.slice is not a function
+
+[ERROR]: [Jul-22-2022 16:53:55]: 	[GET - /resolver/wrapped-document/search?companyName=Kukulu&searchString=a&pageNumber=1&itemsPerPage=3]
+ReferenceError: data is not defined
+
+[ERROR]: [Jul-22-2022 16:55:10]: 	[GET - /resolver/wrapped-document/search?companyName=Kukulu&searchString=a&pageNumber=1&itemsPerPage=3]
+ReferenceError: data is not defined
+
+[ERROR]: [Jul-22-2022 16:59:15]: 	[GET - /resolver/wrapped-document/search?companyName=Kukulu&searchString=a&pageNumber=1&itemsPerPage=3]
+ReferenceError: Cannot access 'result' before initialization
+
+[ERROR]: [Jul-22-2022 16:59:38]: 	[GET - /resolver/wrapped-document/search?companyName=Kukulu&searchString=a&pageNumber=1&itemsPerPage=3]
+ReferenceError: Cannot access 'result' before initialization
+
+[ERROR]: [Jul-22-2022 17:00:08]: 	[GET - /resolver/wrapped-document/search?companyName=Kukulu&searchString=a&pageNumber=1&itemsPerPage=3]
+ReferenceError: Cannot access 'result' before initialization
+
