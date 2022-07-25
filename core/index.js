@@ -2,7 +2,6 @@ const cardanoSerialization = require("@emurgo/cardano-serialization-lib-nodejs")
 const Ajv = require("ajv");
 
 module.exports.validateDIDSyntax = (did, isSalted) => {
-  console.log("-- Validating DID...");
   // DID syntax: did:method:companyName:fileNameOrPublicKey
   // Salted DID: uuid:string:did:method:companyName:fileNameOrPublicKey
   const maxLength = (isSalted) ? 6 : 4,
@@ -30,7 +29,6 @@ module.exports.getPublicKeyFromAddress = (bech32Address) => {
 }
 
 module.exports.validateJSONSchema = (rawSchema, object) => {
-  console.log("-- Validating object...")
   const schema = (({ example, ...props }) => props)(rawSchema);
 
   const ajv = new Ajv();

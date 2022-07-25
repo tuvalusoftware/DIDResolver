@@ -1,12 +1,9 @@
 const axios = require("axios").default;
 const { ERRORS, SERVERS } = require("../../core/constants");
-const { getPublicKeyFromAddress } = require("../../core/index");
+const { getPublicKeyFromAddress, getAddressFromHexEncoded } = require("../../core/index");
 
 module.exports = {
   ensureAuthenticated: (req, res, next) => {
-    console.log("AUTHENTICATING...");
-    console.log(req.cookies);
-
     if (!req.cookies["access_token"])
       return res.status(401).json(ERRORS.UNAUTHORIZED);
 
@@ -32,16 +29,13 @@ module.exports = {
           next();
         },
         (error) => {
-          console.log(error);
           next(error);
         }
       );
   },
 
   getPublicKeyFromAddress: (req, res) => {
-    console.log("Get public key from address...");
     const { address, user } = req.query;
-
     try {
       res.status(200).json({
         publicKey: getPublicKeyFromAddress(address),
@@ -50,5 +44,28 @@ module.exports = {
     } catch (error) {
       res.status(400).json(error);
     }
+  },
+
+  verifyToken: (req, res) => {
+    if (!req.cookies["access_token"])
+      return res.status(401).json(ERRORS.UNAUTHORIZED);
+    const token = req.cookies["access_token"];
+    axios
+      .get(`${SERVERS.AUTHENTICATION_SERVICE}/api/auth/verify`, {
+        withCredentials: true,
+        headers: {
+          Cookie: `access_token=${token};`,
+        },
+      })
+      .then(
+        (response) => {
+          res.status(200).json({
+            address: getPublicKeyFromAddress(response?.data?.data?.address),
+          });
+        },
+        (error) => {
+          res.status(400).json(error);
+        }
+      );
   },
 };

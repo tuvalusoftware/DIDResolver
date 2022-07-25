@@ -14,5 +14,6 @@ router.put("/wrapped-document/valid", documentController.validateWrappedDocument
 router.get("/wrapped-document/exist", documentController.checkWrappedDocumentExistence);
 router.get("/wrapped-document/user", documentController.getAllWrappedDocumentsOfUser);
 router.put("/wrapped-document/transfer", documentController.transferWrappedDocument);
+router.delete("/wrapped-document/revoke", documentController.revokeDocument);
 
 module.exports = router;

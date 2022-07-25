@@ -6,5 +6,6 @@ const router = express.Router();
 router.use(authController.ensureAuthenticated);
 
 router.post("/credential", credentialController.createCredential);
+router.get('/credential', credentialController.getCredential)
 
 module.exports = router;

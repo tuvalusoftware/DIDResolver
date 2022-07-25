@@ -8,17 +8,14 @@ const {
 
 module.exports = {
   getDIDDocument: async function (req, res) {
-    console.log("Fetching DID document...");
     // Receive input data
     const { did } = req.headers;
-
     // Check missing paramters
     if (!did)
       return res.status(200).json({
         ...ERRORS.MISSING_PARAMETERS,
         detail: "Not found: did",
       });
-
     // Validate DID syntax
     const validDid = validateDIDSyntax(did, (isSalted = false)),
       companyName = validDid.companyName,
@@ -43,11 +40,15 @@ module.exports = {
           publicKey: publicKey,
         },
       })
-      .then((response) => res.status(200).json(response.data)) // 404
-      .catch((error) =>
+      .then((response) => {
+        res.status(200).json(response.data)
+      }) // 404
+      .catch((error) => {
         error.response
           ? res.status(400).json(error.response.data)
           : res.status(400).json(error)
+      }
+        
       );
   },
 
@@ -108,20 +109,17 @@ module.exports = {
     // Receive input data
     const { did } = req.headers;
     const { only } = req.query;
-
     // Check missing parameters
     if (!did)
       return res.status(200).json({
         ...ERRORS.MISSING_PARAMETERS,
         detail: "Not found: did",
       });
-
     // Validate DID syntax
     const validDid = validateDIDSyntax(did, (isSalted = false)),
       companyName = validDid.companyName,
       fileName = validDid.fileNameOrPublicKey;
     if (!validDid.valid) return res.status(200).json(ERRORS.INVALID_INPUT);
-
     // Call DID Controller
     // success:
     //   {
@@ -138,7 +136,9 @@ module.exports = {
         },
         params: { only },
       })
-      .then((response) => res.status(200).json(response.data)) // 404
+      .then((response) =>  {
+        res.status(200).json(response.data)
+      }) // 404
       .catch((error) => {
         error.response
           ? res.status(400).json(error.response.data)
@@ -212,7 +212,10 @@ module.exports = {
           fileName,
         },
       })
-      .then((response) => res.status(200).json(response.data.isExisted))
+      .then((response) => {
+        console.log('OK')
+        res.status(200).json(response.data.isExisted)
+      })
       .catch((error) =>
         error.response
           ? res.status(400).json(error.response.data)
@@ -226,9 +229,10 @@ module.exports = {
     var {
       wrappedDocument,
       issuerAddress: encryptedIssuerAddress,
-      previousHashOfDocument,
-      originPolicyId,
+      mintingNFTConfig,
     } = req.body;
+
+    console.log(1)
 
     // Handle input errors
     if (!wrappedDocument || !encryptedIssuerAddress) {
@@ -243,17 +247,19 @@ module.exports = {
       });
     }
 
+    console.log(2)
+
     //Validate wrapped document format
-    const valid = validateJSONSchema(
-      SCHEMAS.NEW_WRAPPED_DOCUMENT,
-      wrappedDocument
-    );
-    if (!valid.valid)
-      return res.status(200).json({
-        ...ERRORS.INVALID_INPUT,
-        error_message: "Bad request. Invalid wrapped document.",
-        detail: valid.detail,
-      });
+    // const valid = validateJSONSchema(
+    //   SCHEMAS.NEW_WRAPPED_DOCUMENT,
+    //   wrappedDocument
+    // );
+    // if (!valid.valid)
+    //   return res.status(200).json({
+    //     ...ERRORS.INVALID_INPUT,
+    //     error_message: "Bad request. Invalid wrapped document.",
+    //     detail: valid.detail,
+    //   });
 
     // Validate DID syntax
     const did = wrappedDocument.data.did,
@@ -285,10 +291,11 @@ module.exports = {
           },
         }
       );
+
+      console.log(3)
       // 1.2 Compare issuer address with user address
       if (issuerAddress !== address.data.data.address)
         return res.status(200).send(ERRORS.PERMISSION_DENIED); // 403
-
       // 2. Check if document is already stored on DB (true/false).
       // success:
       //   { isExisted: true/false }
@@ -301,6 +308,7 @@ module.exports = {
           },
         }
       );
+      console.log(4)
       if (existence.data.isExisted)
         return res.status(200).json(ERRORS.ALREADY_EXSISTED); // 409
 
@@ -316,45 +324,57 @@ module.exports = {
       //   }
       // error:
       //   { error_code: number, error_message: string } }
-      const mintingNFT = await axios.put(
-        SERVERS.CARDANO_SERVICE + "/api/storeHash/",
-        {
-          address: issuerAddress,
-          hashOfDocument: targetHash,
-          previousHashOfDocument: previousHashOfDocument || "EMPTY",
-          originPolicyId: originPolicyId || "EMPTY",
-        },
-        {
-          withCredentials: true,
-          headers: {
-            Cookie: `access_token=${access_token};`,
-          },
-        }
-      );
+
+      console.log(5)
+      let mintBody = {
+        hash: targetHash,
+      };
+      let mintingNFT;
+      if (mintingNFTConfig) {
+        mintBody = {
+          newHash: targetHash,
+          config: {...mintingNFTConfig, burn: false},
+        };
+        mintingNFT = await axios.put(
+          SERVERS.CARDANO_SERVICE + "/api/v2/hash/",
+          mintBody,
+          {
+            withCredentials: true,
+            headers: {
+              Cookie: `access_token=${access_token};`,
+            },
+          }
+        );
+      } else {
+        console.log('Create')
+        mintingNFT = await axios.post(
+          SERVERS.CARDANO_SERVICE + "/api/v2/hash/",
+          mintBody,
+          {
+            withCredentials: true,
+            headers: {
+              Cookie: `access_token=${access_token};`,
+            },
+          }
+        );
+      }
+      console.log('TUTU', mintingNFT)
 
       // 3.2. Handle store hash errors
-      if (mintingNFT.data.error_code)
+      if (mintingNFT.data.code !== 0)
         return res.status(200).json(mintingNFT.data);
       if (!mintingNFT) return res.status(200).json(ERRORS.CANNOT_MINT_NFT);
-
       // 3.3. Extract policyId and assetId
-      const mintingNFTStatus = mintingNFT.data.data.result
-        ? mintingNFT.data.data.result
+      const _mintingNFTConfig = mintingNFT.data.data
+        ? mintingNFT.data.data
         : false;
-      const policyId = mintingNFTStatus
-        ? mintingNFT.data.data.token.policyId
-        : "No policyId";
-      const assetId = mintingNFTStatus
-        ? mintingNFT.data.data.token.assetId
-        : "No assetId";
-
+        console.log('TUTU2')
       // 4. Add policy Id and assert Id to wrapped document
       wrappedDocument = {
         ...wrappedDocument,
-        policyId: policyId,
-        assetId: assetId,
+        mintingNFTConfig: _mintingNFTConfig,
       };
-
+      console.log('TUTU3')
       // 5. Storing wrapped document on DB
       // Call DID Controller
       // success:
@@ -369,12 +389,13 @@ module.exports = {
           companyName,
         }
       );
-
+      console.log('TUTU4', storeWrappedDocumentStatus)
       // 6. Return policyId an assetId if the process is success.
       storeWrappedDocumentStatus.data.error_code
         ? res.status(200).json(storeWrappedDocumentStatus.data)
         : res.status(201).json(wrappedDocument);
     } catch (err) {
+      console.log(err)
       err.response
         ? res.status(400).json(err.response.data)
         : res.status(400).json(err);
@@ -426,5 +447,38 @@ module.exports = {
       })
       .then((response) => res.status(200).json(response.data))
       .catch((error) => res.status(400).json(error));
+  },
+
+  revokeDocument: async function (req, res) {
+    console.log('Call')
+    const { config } = req.body;
+    console.log(req.body)
+    const { access_token } = req.cookies;
+    if (!config)
+      return res.status(200).json({
+        ...ERRORS.MISSING_PARAMETERS,
+        detail: "Not found: config",
+      });
+    try {
+      const deleteDocumentResult = await axios.delete(
+        SERVERS.CARDANO_SERVICE + "/api/v2/hash",
+        {
+          withCredentials: true,
+          headers: {
+            Cookie: `access_token=${access_token};`,
+          },
+          data: {
+            config
+          }
+        },
+      );
+      console.log('here', deleteDocumentResult.data)
+      res.status(200).json(deleteDocumentResult.data);
+    } catch (err) {
+      console.log(err)
+      err.response
+        ? res.status(400).json(err.response.data)
+        : res.status(400).json(err);
+    }
   },
 };

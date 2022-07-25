@@ -5,5 +5,6 @@ const router = express.Router();
 router.use(authController.ensureAuthenticated);
 
 router.get("/auth/public-key", authController.getPublicKeyFromAddress);
+router.get('/auth/verify', authController.verifyToken);
 
 module.exports = router;

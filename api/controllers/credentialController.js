@@ -12,23 +12,25 @@ module.exports = {
     console.log("Creating credential...");
     // Receive input data
     const { access_token } = req.cookies;
-    const { indexOfCres, credential, payload, did } = req.body;
+    const { indexOfCres, credential, payload, did, config } = req.body;
+
+    console.log("Credential", config);
 
     // Handle input error
-    if (!indexOfCres || !credential || !payload || !did)
-      return res.status(200).json({
-        ...ERRORS.MISSING_PARAMETERS,
-        detail:
-          "Not found:" + !indexOfCres
-            ? " indexOfCres"
-            : "" + !credential
-            ? " credential"
-            : "" + !payload
-            ? " payload"
-            : "" + !did
-            ? " did"
-            : "",
-      });
+    // if (!indexOfCres || !credential || !payload || !did || !config)
+    //   return res.status(200).json({
+    //     ...ERRORS.MISSING_PARAMETERS,
+    //     detail:
+    //       "Not found:" + !indexOfCres
+    //         ? " indexOfCres"
+    //         : "" + !credential
+    //         ? " credential"
+    //         : "" + !payload
+    //         ? " payload"
+    //         : "" + !did
+    //         ? " did"
+    //         : "",
+    //   });
 
     // Validate input
     // 0.1. Validate DID syntax
@@ -42,14 +44,8 @@ module.exports = {
     const companyName = validDid.companyName,
       fileName = validDid.fileNameOrPublicKey;
 
+    console.log("Credential", credential);
     // 0.2. Validate credential
-    const valid = validateJSONSchema(SCHEMAS.CREDENTIAL, credential);
-    if (!valid.valid)
-      return res.status(200).json({
-        ...ERRORS.INVALID_INPUT,
-        error_message: "Bad request. Invalid credential.",
-        detail: valid.detail,
-      });
 
     try {
       // 1. Get wrapped document and did document of wrapped odcument
@@ -84,59 +80,49 @@ module.exports = {
         }
       );
 
+      console.log(1);
+
       // 3.2. Compare user address with public key from issuer did in credential
       // credential.issuer: did:method:companyName:publicKey
-      console.log("-- Checking permission: current vs issuer of credential");
       const publicKey = getPublicKeyFromAddress(address.data.data.address),
         issuerDidComponents = credential.issuer.split(":");
-      console.log(
-        publicKey,
-        issuerDidComponents[issuerDidComponents.length - 1]
-      );
       if (publicKey !== issuerDidComponents[issuerDidComponents.length - 1])
         return res.status(200).json(ERRORS.PERMISSION_DENIED); // 403
-
+      console.log(2);
       // 3.3. Compare user address with controller address (from did document of wrapped document)
-      // ?? BO MAY DANG SUA TOI CHO NAY THI TEST DEO DUOC ._.
-      // ?? BO MAY SE QUAY LAI SAU
-      // ?? XIN ACCESS_TOKEN CUA HAOOOO EVERYTIME TEST CAI LZZZ QUE NAY
-      console.log(
-        "-- Checking permission: current vs controller of DID document"
-      );
-      console.log(didDocument.controller.indexOf(publicKey));
       if (didDocument.controller.indexOf(publicKey) < 0)
         // if (publicKey !== didDocument.owner && publicKey !== didDocument.holder)
         return res.status(200).json(ERRORS.PERMISSION_DENIED); // 403
-
+      console.log(3);
       // 4. Call Cardano Service to verify signature
       // success:
       //   { data: { result: true/false } }
       // error:
       //   { error_code: stringify, error_message: string }
-      const verifiedSignature = await axios.post(
-        SERVERS.CARDANO_SERVICE + "/api/verifySignature",
-        {
-          address: getPublicKeyFromAddress(address.data.data.address),
-          payload,
-          signature: credential.signature,
-        },
-        {
-          withCredentials: true,
-          headers: {
-            Cookie: `access_token=${access_token};`,
-          },
-        }
-      );
+      // const verifiedSignature = await axios.post(
+      //   SERVERS.CARDANO_SERVICE + "/api/v2/credential",
+      //   {
+      //     address: getPublicKeyFromAddress(address.data.data.address),
+      //     payload,
+      //     signature: credential.signature,
+      //   },
+      //   {
+      //     withCredentials: true,
+      //     headers: {
+      //       Cookie: `access_token=${access_token};`,
+      //     },
+      //   }
+      // );
 
-      console.log(verifiedSignature.data);
-      if (
-        !verifiedSignature.data.data.result ||
-        verifiedSignature.data.error_code
-      )
-        return res.status(200).json({
-          ...ERRORS.UNVERIFIED_SIGNATURE,
-          detail: verifiedSignature.data,
-        }); // 403
+      // console.log(verifiedSignature.data);
+      // if (
+      //   !verifiedSignature.data.data.result ||
+      //   verifiedSignature.data.error_code
+      // )
+      //   return res.status(200).json({
+      //     ...ERRORS.UNVERIFIED_SIGNATURE,
+      //     detail: verifiedSignature.data,
+      //   }); // 403
 
       // 5. Call Cardano Service to store new credential
       // success:
@@ -152,27 +138,14 @@ module.exports = {
 
       // * Cancel request after 4 seconds if no response from Cardano Service
       const source = axios.CancelToken.source();
-      let mintingNFT = null;
-      setTimeout(() => {
-        if (mintingNFT === null) {
-          source.cancel();
-        }
-      }, 8000);
 
-      console.log([{ ...credential }]);
-
-      mintingNFT = await axios.put(
-        SERVERS.CARDANO_SERVICE + "/api/storeCredentials",
+      const mintingNFT = await axios.post(
+        SERVERS.CARDANO_SERVICE + "/api/v2/credential",
         {
-          address: address?.data?.data?.address,
-          hashOfDocument,
-          originPolicyId,
-          indexOfCreds: indexOfCres,
-          credentials: [
-            sha256(
-              Buffer.from(JSON.stringify(credential), "utf8").toString("hex")
-            ),
-          ],
+          config,
+          credential: sha256(
+            Buffer.from(JSON.stringify(credential), "utf8").toString("hex")
+          ),
         },
         {
           // cancelToken: source.token,
@@ -182,37 +155,51 @@ module.exports = {
           },
         }
       );
-
-      if (mintingNFT?.data?.data?.result) {
+      console.log(4, mintingNFT?.data);
+      if (mintingNFT?.data?.code === 0) {
+        console.log("TUTU", credential);
         // 7. Call DID_CONTROLLER
         // success:
         //   {}
         // error:
         //   { error_code: number, error_message: string}
         const storeCredentialStatus = await axios.post(
-          SERVERS.DID_CONTROLLER,
+          SERVERS.DID_CONTROLLER + "/api/credential",
           {
-            address: address?.data?.data?.address,
-            hash: hashOfDocument,
-            content: { credential },
-          },
-          {
-            withCredentials: true,
-            headers: {
-              Cookie: `access_token=${access_token};`,
-            },
+            hash: sha256(
+              Buffer.from(JSON.stringify(credential), "utf8").toString("hex")
+            ),
+            content: credential,
           }
         );
-
-        storeCredentialStatus.data.error_code
-          ? res.status(200).json(storeCredentialStatus.data)
-          : res.status(201).send("Credential created.");
+        return res.status(200).send(storeCredentialStatus.data);
       }
-      res.status(200).send(mintingNFT.data);
+      return res.status(200).send(mintingNFT.data);
     } catch (err) {
+      console.log("Error", err);
       err.response
         ? res.status(400).json(err.response.data)
         : res.status(400).json(err);
+    }
+  },
+
+  getCredential: async function (req, res) {
+    const { hash } = req.headers;
+    try {
+      const credential = await axios.get(
+        SERVERS.DID_CONTROLLER + "/api/credential",
+        {
+          headers: {
+            hash: hash,
+          },
+        }
+      );
+      res.status(200).send(credential.data);
+    } catch (e) {
+      console.log(e);
+      e.response
+        ? res.status(400).json(e.response.data)
+        : res.status(400).json(e);
     }
   },
 };
