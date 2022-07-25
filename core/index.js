@@ -44,13 +44,8 @@ module.exports = {
     return publicKey;
   },
 
-<<<<<<< HEAD
-module.exports.validateJSONSchema = (rawSchema, object) => {
-  const schema = (({ example, ...props }) => props)(rawSchema);
-=======
   validateJSONSchema: (rawSchema, object) => {
     const schema = (({ example, ...props }) => props)(rawSchema);
->>>>>>> c456e4991fd6fd44e66290c1f54bebabee2169f1
 
     const ajv = new Ajv();
     const validate = ajv.compile(schema);

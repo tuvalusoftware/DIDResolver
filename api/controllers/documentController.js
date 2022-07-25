@@ -1,5 +1,5 @@
 const axios = require("axios").default;
-const { ERRORS, SERVERS, SHEMAS } = require("../../core/constants");
+const { ERRORS, SERVERS, SCHEMAS } = require("../../core/constants");
 const Logger = require("../../logger");
 const {
   validateJSONSchema,
