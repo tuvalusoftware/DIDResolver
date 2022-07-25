@@ -1,26 +1,30 @@
 const axios = require("axios").default;
-const { ERRORS, SERVERS, SCHEMAS } = require("../../core/constants");
+const { ERRORS, SERVERS, SHEMAS } = require("../../core/constants");
+const Logger = require("../../logger");
 const {
   validateJSONSchema,
   getAddressFromHexEncoded,
   validateDIDSyntax,
+  checkUndefinedVar,
+  getFieldsFromItems,
 } = require("../../core/index");
 
 module.exports = {
   getDIDDocument: async function (req, res) {
     // Receive input data
+    const { access_token } = req.cookies;
     const { did } = req.headers;
     // Check missing paramters
-    if (!did)
+    const undefinedVar = checkUndefinedVar({ did });
+    if (undefinedVar.undefined)
       return res.status(200).json({
         ...ERRORS.MISSING_PARAMETERS,
-        detail: "Not found: did",
+        detail: undefinedVar.detail,
       });
     // Validate DID syntax
-    const validDid = validateDIDSyntax(did, (isSalted = false)),
+    const validDid = validateDIDSyntax(did, false),
       companyName = validDid.companyName,
       publicKey = validDid.fileNameOrPublicKey;
-
     if (!validDid.valid)
       return res.status(200).json({
         ...ERRORS.INVALID_INPUT,
@@ -28,51 +32,48 @@ module.exports = {
       });
 
     // Call DID Controller
-    console.log("-- Fetching user/company's DID document");
     // success:
     //   { ... }
     // error:
     //   { error_code: number, message: string }
     axios
       .get(SERVERS.DID_CONTROLLER + "/api/did/", {
+        withCredentials: true,
         headers: {
           companyName: companyName,
           publicKey: publicKey,
+          Cookie: `access_token=${access_token}`,
         },
       })
       .then((response) => {
-        res.status(200).json(response.data)
+        Logger.apiInfo(req, res, `Success.\n${response.data}`);
+        return res.status(200).json(response.data);
       }) // 404
       .catch((error) => {
-        error.response
+        Logger.apiError(req, res, `${error}`);
+        return error.response
           ? res.status(400).json(error.response.data)
-          : res.status(400).json(error)
-      }
-        
-      );
+          : res.status(400).json(error);
+      });
   },
 
   createDIDDocument: async function (req, res) {
     // Receive input data
+    const { access_token } = req.cookies;
     const { did, didDocument } = req.body;
 
     // Check missing parameters
-    if (!did || !didDocument)
+    const undefinedVar = checkUndefinedVar({ did, didDocument });
+    if (undefinedVar.undefined)
       return res.status(200).json({
         ...ERRORS.MISSING_PARAMETERS,
-        detail:
-          "Not found:" + !did
-            ? " did"
-            : "" + !didDocument
-            ? " didDocument"
-            : "",
+        detail: undefinedVar.detail,
       });
 
     // Validate DID syntax
-    const validDid = validateDIDSyntax(did, (isSalted = false)),
+    const validDid = validateDIDSyntax(did, false),
       companyName = validDid.companyName,
       publicKey = validDid.fileNameOrPublicKey;
-
     if (!validDid.valid)
       return res.status(200).json({
         ...ERRORS.INVALID_INPUT,
@@ -80,25 +81,33 @@ module.exports = {
       });
 
     // Call DID Controller
-    console.log("-- Creating DID document...");
     // success:
     //   { message: string }
     // error:
     //   { error_code: number, message: string }
     axios
-      .post(SERVERS.DID_CONTROLLER + "/api/did/", {
-        companyName: companyName,
-        publicKey: publicKey,
-        content: didDocument,
-      })
+      .post(
+        SERVERS.DID_CONTROLLER + "/api/did/",
+        {
+          companyName: companyName,
+          publicKey: publicKey,
+          content: didDocument,
+        },
+        {
+          withCredentials: true,
+          headers: {
+            Cookie: `access_token=${access_token}`,
+          },
+        }
+      )
       .then((response) => {
-        console.log(response.data);
+        Logger.apiInfo(req, res, `Success.\n${response.data}`);
         response.data.error_code
           ? res.status(200).json(response.data)
           : res.status(201).send("DID Document created.");
       })
       .catch((error) => {
-        console.log(error);
+        Logger.apiError(req, res, `${error}`);
         error.response
           ? res.status(400).json(error.response.data)
           : res.status(400).json(error);
@@ -107,16 +116,18 @@ module.exports = {
 
   getWrappedDocument: async function (req, res) {
     // Receive input data
+    const { access_token } = req.cookies;
     const { did } = req.headers;
     const { only } = req.query;
     // Check missing parameters
-    if (!did)
+    const undefinedVar = checkUndefinedVar({ did });
+    if (undefinedVar.undefined)
       return res.status(200).json({
         ...ERRORS.MISSING_PARAMETERS,
-        detail: "Not found: did",
+        detail: undefinedVar.detail,
       });
     // Validate DID syntax
-    const validDid = validateDIDSyntax(did, (isSalted = false)),
+    const validDid = validateDIDSyntax(did, false),
       companyName = validDid.companyName,
       fileName = validDid.fileNameOrPublicKey;
     if (!validDid.valid) return res.status(200).json(ERRORS.INVALID_INPUT);
@@ -130,16 +141,20 @@ module.exports = {
     //   { error_code: number, message: string }
     axios
       .get(SERVERS.DID_CONTROLLER + "/api/doc", {
+        withCredentials: true,
         headers: {
           companyName,
           fileName,
+          Cookie: `access_token=${access_token}`,
         },
         params: { only },
       })
-      .then((response) =>  {
-        res.status(200).json(response.data)
+      .then((response) => {
+        Logger.apiInfo(req, res, `Success.\n${response.data}`);
+        return res.status(200).json(response.data);
       }) // 404
       .catch((error) => {
+        Logger.apiError(req, res, `${error}`);
         error.response
           ? res.status(400).json(error.response.data)
           : res.status(400).json(error);
@@ -148,17 +163,19 @@ module.exports = {
 
   getAllWrappedDocumentsOfUser: async function (req, res) {
     // Receive input data
+    const { access_token } = req.cookies;
     const { did } = req.headers;
 
     // Handle input errors
-    if (!did)
+    const undefinedVar = checkUndefinedVar({ did });
+    if (undefinedVar.undefined)
       return res.status(200).json({
         ...ERRORS.MISSING_PARAMETERS,
-        detail: "Not found: did",
+        detail: undefinedVar.detail,
       });
 
     // Validate DID syntax
-    const validDID = validateDIDSyntax(did, (isSalted = false)),
+    const validDID = validateDIDSyntax(did, false),
       companyName = validDID.companyName,
       publicKey = validDID.fileNameOrPublicKey;
     if (!validDID.valid) return res.status(200).json(ERRORS.INVALID_INPUT);
@@ -173,13 +190,19 @@ module.exports = {
     //   { error_code: number, message: string }
     axios
       .get(SERVERS.DID_CONTROLLER + "/api/doc/user", {
+        withCredentials: true,
         headers: {
           companyName: companyName,
           publicKey: publicKey,
+          Cookie: `access_token=${access_token}`,
         },
       })
-      .then((response) => res.status(200).json(response.data))
+      .then((response) => {
+        Logger.apiInfo(req, res, `Success.\n${response.data}`);
+        return res.status(200).json(response.data);
+      })
       .catch((error) => {
+        Logger.apiError(req, res, `${error}`);
         error.response
           ? res.status(400).json(error.response.data)
           : res.status(400).json(error);
@@ -188,18 +211,15 @@ module.exports = {
 
   checkWrappedDocumentExistence: async function (req, res) {
     // Receive input data
+    const { access_token } = req.cookies;
     const { companyname: companyName, filename: fileName } = req.headers;
 
     // Handle input errors
-    if (!companyName || !fileName)
+    const undefinedVar = checkUndefinedVar({ companyName, fileName });
+    if (undefinedVar.undefined)
       return res.status(200).json({
         ...ERRORS.MISSING_PARAMETERS,
-        detail:
-          "Not found: " + !companyName
-            ? " companyName"
-            : "" + !fileName
-            ? " fileName"
-            : "",
+        detail: undefinedVar.detail,
       });
 
     // Call DID Contoller
@@ -207,47 +227,49 @@ module.exports = {
     //   { isExisted: true/false }
     axios
       .get(SERVERS.DID_CONTROLLER + "/api/doc/exists/", {
+        withCredentials: true,
         headers: {
           companyName,
           fileName,
+          Cookie: `access_token=${access_token}`,
         },
       })
       .then((response) => {
-        console.log('OK')
-        res.status(200).json(response.data.isExisted)
+        Logger.apiInfo(req, res, `Success.\n${response.data}`);
+        return res.status(200).json(response.data.isExisted);
       })
-      .catch((error) =>
+      .catch((error) => {
+        Logger.apiError(req, res, `${error}`);
         error.response
           ? res.status(400).json(error.response.data)
-          : res.status(400).json(error)
-      );
+          : res.status(400).json(error);
+      });
   },
 
   createWrappedDocument: async function (req, res) {
     // Get access-token from request and receive input data
     const { access_token } = req.cookies;
-    var {
+    let {
       wrappedDocument,
       issuerAddress: encryptedIssuerAddress,
       mintingNFTConfig,
     } = req.body;
 
-    console.log(1)
+    console.log(1);
 
     // Handle input errors
-    if (!wrappedDocument || !encryptedIssuerAddress) {
+    const undefinedVar = checkUndefinedVar({
+      wrappedDocument,
+      encryptedIssuerAddress,
+    });
+    if (undefinedVar.undefined) {
       return res.status(200).json({
         ...ERRORS.MISSING_PARAMETERS,
-        detail:
-          "Not found:" + !wrappedDocument
-            ? " wrappedDocument"
-            : "" + !encryptedIssuerAddress
-            ? " issuerAddress"
-            : "",
+        detail: undefinedVar.detail,
       });
     }
 
-    console.log(2)
+    console.log(2);
 
     //Validate wrapped document format
     // const valid = validateJSONSchema(
@@ -263,7 +285,7 @@ module.exports = {
 
     // Validate DID syntax
     const did = wrappedDocument.data.did,
-      validDid = validateDIDSyntax(did, (isSalted = true)),
+      validDid = validateDIDSyntax(did, true),
       companyName = validDid.companyName,
       fileName = validDid.fileNameOrPublicKey;
     if (!validDid.valid)
@@ -286,31 +308,43 @@ module.exports = {
         SERVERS.AUTHENTICATION_SERVICE + "/api/auth/verify",
         {
           withCredentials: true,
-          headers: {
-            Cookie: `access_token=${access_token};`,
-          },
+          headers: { Cookie: `access_token=${access_token};` },
         }
       );
 
-      console.log(3)
+      console.log(3);
       // 1.2 Compare issuer address with user address
-      if (issuerAddress !== address.data.data.address)
+      if (issuerAddress !== address.data.data.address) {
+        Logger.apiError(
+          req,
+          res,
+          `Address ${address.data.data.address} is not issuerAddress ${issuerAddress}`
+        );
         return res.status(200).send(ERRORS.PERMISSION_DENIED); // 403
+      }
+
       // 2. Check if document is already stored on DB (true/false).
       // success:
       //   { isExisted: true/false }
       const existence = await axios.get(
         SERVERS.DID_CONTROLLER + "/api/doc/exists/",
         {
+          withCredentials: true,
           headers: {
             companyName,
             fileName,
+            Cookie: `access_token=${access_token};`,
           },
         }
       );
-      console.log(4)
-      if (existence.data.isExisted)
+      if (existence.data.isExisted) {
+        Logger.apiError(
+          req,
+          res,
+          `Wrapped document with name ${fileName} already existed.`
+        );
         return res.status(200).json(ERRORS.ALREADY_EXSISTED); // 409
+      }
 
       // 3. Storing hash on Cardano blockchain
       // 3.1. Call Cardano Service
@@ -325,7 +359,7 @@ module.exports = {
       // error:
       //   { error_code: number, error_message: string } }
 
-      console.log(5)
+      console.log(5);
       let mintBody = {
         hash: targetHash,
       };
@@ -333,7 +367,7 @@ module.exports = {
       if (mintingNFTConfig) {
         mintBody = {
           newHash: targetHash,
-          config: {...mintingNFTConfig, burn: false},
+          config: { ...mintingNFTConfig, burn: false },
         };
         mintingNFT = await axios.put(
           SERVERS.CARDANO_SERVICE + "/api/v2/hash/",
@@ -346,7 +380,7 @@ module.exports = {
           }
         );
       } else {
-        console.log('Create')
+        console.log("Create");
         mintingNFT = await axios.post(
           SERVERS.CARDANO_SERVICE + "/api/v2/hash/",
           mintBody,
@@ -358,7 +392,7 @@ module.exports = {
           }
         );
       }
-      console.log('TUTU', mintingNFT)
+      console.log("TUTU", mintingNFT);
 
       // 3.2. Handle store hash errors
       if (mintingNFT.data.code !== 0)
@@ -368,34 +402,39 @@ module.exports = {
       const _mintingNFTConfig = mintingNFT.data.data
         ? mintingNFT.data.data
         : false;
-        console.log('TUTU2')
+      console.log("TUTU2");
       // 4. Add policy Id and assert Id to wrapped document
       wrappedDocument = {
         ...wrappedDocument,
         mintingNFTConfig: _mintingNFTConfig,
       };
-      console.log('TUTU3')
+      console.log("TUTU3");
       // 5. Storing wrapped document on DB
       // Call DID Controller
       // success:
       //   { message: "success" }
       // error:
       //   { error_code: number, message: string }
+      // ?? CHECK LAI CAI NAY
       const storeWrappedDocumentStatus = await axios.post(
         SERVERS.DID_CONTROLLER + "/api/doc",
         {
           fileName,
           wrappedDocument,
           companyName,
+        },
+        {
+          withCredentials: true,
+          headers: { Cookie: `access_token=${access_token};` },
         }
       );
-      console.log('TUTU4', storeWrappedDocumentStatus)
+      console.log("TUTU4", storeWrappedDocumentStatus);
       // 6. Return policyId an assetId if the process is success.
       storeWrappedDocumentStatus.data.error_code
         ? res.status(200).json(storeWrappedDocumentStatus.data)
         : res.status(201).json(wrappedDocument);
     } catch (err) {
-      console.log(err)
+      Logger.apiError(req, res, `${err}`);
       err.response
         ? res.status(400).json(err.response.data)
         : res.status(400).json(err);
@@ -404,10 +443,11 @@ module.exports = {
 
   validateWrappedDocument: async function (req, res) {
     const { wrappedDocument } = req.body;
-    if (!wrappedDocument)
+    const undefinedVar = checkUndefinedVar({ wrappedDocument });
+    if (undefinedVar.undefined)
       return res.status(200).json({
         ...ERRORS.MISSING_PARAMETERS,
-        detail: "Not found: wrappedDocument",
+        detail: undefinedVar.detail,
       });
 
     const valid = validateJSONSchema(SCHEMAS.WRAPPED_DOCUMENT, wrappedDocument);
@@ -419,8 +459,15 @@ module.exports = {
     const { did, didDoc: didDocumentOfWrappedDocument } = req.body;
 
     // Check missing parameters
-    if (!did || !didDocumentOfWrappedDocument)
-      return res.status(200).json(ERRORS.MISSING_PARAMETERS);
+    const undefinedVar = checkUndefinedVar({
+      did,
+      didDoc: didDocumentOfWrappedDocument,
+    });
+    if (undefinedVar.undefined)
+      return res.status(200).json({
+        ...ERRORS.MISSING_PARAMETERS,
+        detail: undefinedVar.detail,
+      });
 
     // Validate DID syntax
     const validDid = validateDIDSyntax(did, false),
@@ -450,9 +497,8 @@ module.exports = {
   },
 
   revokeDocument: async function (req, res) {
-    console.log('Call')
     const { config } = req.body;
-    console.log(req.body)
+    console.log(req.body);
     const { access_token } = req.cookies;
     if (!config)
       return res.status(200).json({
@@ -468,14 +514,94 @@ module.exports = {
             Cookie: `access_token=${access_token};`,
           },
           data: {
-            config
-          }
-        },
+            config,
+          },
+        }
       );
-      console.log('here', deleteDocumentResult.data)
+      console.log("here", deleteDocumentResult.data);
       res.status(200).json(deleteDocumentResult.data);
     } catch (err) {
-      console.log(err)
+      console.log(err);
+    }
+  },
+
+  searchWrappedDocument: async function (req, res) {
+    // Receive input data
+    const { access_token } = req.cookies;
+    let { companyName, searchString, pageNumber, itemsPerPage } = req.query;
+
+    // Check missing paramters
+    const undefinedVar = checkUndefinedVar({
+      companyName,
+      searchString,
+    });
+    if (undefinedVar.undefined)
+      return res.status(200).json({
+        ...ERRORS.MISSING_PARAMETERS,
+        detail: undefinedVar.detail,
+      });
+
+    pageNumber = pageNumber ? pageNumber : 1;
+    itemsPerPage = itemsPerPage ? itemsPerPage : 5;
+
+    try {
+      // Call DID Controller
+      // success:
+      //   [
+      //     {
+      //       data:{ name: string, title: string, fileName: string, did: string, issuers: [] },
+      //       signature: {},
+      //       policyId: string,
+      //       assetId: string
+      //     }
+      //   ]
+      // error:
+      //   { error_code: number, message: string }
+
+      const wrappedDocuments = await axios.get(
+        `${SERVERS.DID_CONTROLLER}/api/doc/search-content?companyName=${companyName}&searchString=${searchString}`,
+        {
+          withCredentials: true,
+          Cookie: `access_token=${access_token};`,
+        }
+      );
+
+      const _logWrappedDocuments = ((arrayOfItems) => {
+        let fileNames = [];
+        for (const item of arrayOfItems) fileNames.push(item.data.fileName);
+        return fileNames;
+      })(wrappedDocuments.data);
+
+      const total = wrappedDocuments.data.length,
+        maxPage =
+          (total - (total % itemsPerPage)) / itemsPerPage +
+          (total % itemsPerPage ? 1 : 0);
+
+      pageNumber = pageNumber > maxPage ? maxPage : pageNumber;
+
+      const startIndex = (pageNumber - 1) * itemsPerPage;
+      let endIndex = parseInt(itemsPerPage) + parseInt(startIndex);
+      endIndex = endIndex > total ? total : endIndex;
+
+      const result = wrappedDocuments.data.slice(startIndex, endIndex),
+        _logResult = _logWrappedDocuments.slice(startIndex, endIndex);
+
+      Logger.apiInfo(
+        req,
+        res,
+        `Page: ${pageNumber} of ${maxPage}.\nDisplay ${itemsPerPage} of ${total} results. From ${startIndex} to ${endIndex}.\n${JSON.stringify(
+          _logResult
+        )}`
+      );
+
+      return res.status(200).json({
+        total,
+        maxPage,
+        currentPage: pageNumber,
+        result,
+      });
+    } catch (err) {
+      Logger.apiError(req, res, `${err}`);
       err.response
         ? res.status(400).json(err.response.data)
         : res.status(400).json(err);

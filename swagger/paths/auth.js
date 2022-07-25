@@ -10,6 +10,13 @@ module.exports.getPublicKeyFromAddress = {
         require: true,
         description: "Address.",
       },
+      {
+        in: "query",
+        name: "user",
+        type: "string",
+        require: false,
+        description: "User.",
+      },
     ],
     responses: {
       200: {
@@ -19,6 +26,7 @@ module.exports.getPublicKeyFromAddress = {
             schema: {
               example: {
                 publicKey: "something",
+                user: "something",
               },
             },
           },

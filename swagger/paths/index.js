@@ -10,6 +10,8 @@ const {
   createWrappedDocument,
   getAllWrappedDocumentsOfUser,
   validateWrappedDocument,
+  searchWrappedDocument,
+  transferWrappedDocument,
 } = require("./wrappedDocument");
 
 module.exports.paths = {
@@ -40,6 +42,12 @@ module.exports.paths = {
   },
   "/wrapped-document/user": {
     ...getAllWrappedDocumentsOfUser,
+  },
+  // "wrapped-document/transfer": {
+  //   ...transferWrappedDocument
+  // },
+  "/wrapped-document/search": {
+    ...searchWrappedDocument,
   },
 
   "/credential/": {

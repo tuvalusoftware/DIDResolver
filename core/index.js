@@ -1,46 +1,89 @@
 const cardanoSerialization = require("@emurgo/cardano-serialization-lib-nodejs");
 const Ajv = require("ajv");
+const Logger = require("../logger");
 
-module.exports.validateDIDSyntax = (did, isSalted) => {
-  // DID syntax: did:method:companyName:fileNameOrPublicKey
-  // Salted DID: uuid:string:did:method:companyName:fileNameOrPublicKey
-  const maxLength = (isSalted) ? 6 : 4,
-    didPosition = (isSalted) ? 2 : 0,
-    didComponents = did.split(":");
+module.exports = {
+  validateDIDSyntax: (did, isSalted) => {
+    // DID syntax: did:method:companyName:fileNameOrPublicKey
+    // Salted DID: uuid:string:did:method:companyName:fileNameOrPublicKey
+    const maxLength = isSalted ? 6 : 4,
+      didPosition = isSalted ? 2 : 0,
+      didComponents = did.split(":");
 
-  if (didComponents.length < maxLength || didComponents[didPosition] !== "did")
-    return { valid: false };
+    if (
+      didComponents.length < maxLength ||
+      didComponents[didPosition] !== "did"
+    ) {
+      Logger.error(
+        `Invalid DID syntax. Given did: ${did} should be ${
+          isSalted ? "salted" : "unsalted"
+        }.`
+      );
+      return { valid: false };
+    }
 
-  return {
-    valid: true,
-    companyName: didComponents[didPosition + 2],
-    fileNameOrPublicKey: didComponents[didPosition + 3]
-  }
-}
+    return {
+      valid: true,
+      companyName: didComponents[didPosition + 2],
+      fileNameOrPublicKey: didComponents[didPosition + 3],
+    };
+  },
 
-module.exports.getAddressFromHexEncoded = (hexAddress) => {
-  return cardanoSerialization.Address.from_bytes(Buffer.from(hexAddress, 'hex')).to_bech32();
-};
+  getAddressFromHexEncoded: (hexAddress) => {
+    const address = cardanoSerialization.Address.from_bytes(
+      Buffer.from(hexAddress, "hex")
+    ).to_bech32();
+    Logger.info(`Address from hex: ${address}`);
+    return address;
+  },
 
-module.exports.getPublicKeyFromAddress = (bech32Address) => {
-  const address = cardanoSerialization.Address.from_bech32(bech32Address);
-  const publicKey = Buffer.from(address.to_bytes(), "hex").toString("hex");
-  return publicKey;
-}
+  getPublicKeyFromAddress: (bech32Address) => {
+    const address = cardanoSerialization.Address.from_bech32(bech32Address);
+    const publicKey = Buffer.from(address.to_bytes(), "hex").toString("hex");
+    Logger.info(`Publickey from address ${bech32Address} is ${publicKey}`);
+    return publicKey;
+  },
 
+<<<<<<< HEAD
 module.exports.validateJSONSchema = (rawSchema, object) => {
   const schema = (({ example, ...props }) => props)(rawSchema);
+=======
+  validateJSONSchema: (rawSchema, object) => {
+    const schema = (({ example, ...props }) => props)(rawSchema);
+>>>>>>> c456e4991fd6fd44e66290c1f54bebabee2169f1
 
-  const ajv = new Ajv();
-  const validate = ajv.compile(schema);
+    const ajv = new Ajv();
+    const validate = ajv.compile(schema);
 
-  const valid = validate(object);
-  return valid ? { valid } : { valid, detail: validate.errors };
-}
+    const valid = validate(object);
+    if (!valid) Logger.error(`Invalid object.\n${validate.errors}`);
+    return valid ? { valid } : { valid, detail: validate.errors };
+  },
 
-// var schema = require("./schemas/credential");
-// const clone = (({ example, ...o }) => o)(schema);
-// const example = (({ ...o }) => o)(schema.example);
+  checkUndefinedVar: (object) => {
+    let detail = "Not found:",
+      flag = false;
+    const keys = Object.keys(object),
+      values = Object.values(object);
 
-// const valid = this.validateJSONSchema(clone, example);
-// console.log(valid);
+    for (let i in keys) {
+      if (values[i] == undefined) {
+        detail += " " + keys[i];
+        flag = true;
+      }
+    }
+
+    if (flag) Logger.error(`${detail}`);
+    return flag ? { undefined: true, detail } : { undefined: false };
+  },
+
+  getFieldsFromItems: (arrayOfItems, fieldName) => {
+    console.log(arrayOfItems);
+    console.log(fieldName);
+    let result = [];
+    for (let i in arrayOfItems) {
+      result.push(arrayOfItems[i][data][fieldName]);
+    }
+    return result;
+  },
+};

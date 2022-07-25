@@ -1,5 +1,9 @@
 const axios = require("axios").default;
-const { validateJSONSchema, validateDIDSyntax } = require("../../core");
+const {
+  validateJSONSchema,
+  validateDIDSyntax,
+  checkUndefinedVar,
+} = require("../../core");
 const { ERRORS, SCHEMAS, SERVERS } = require("../../core/constants");
 
 module.exports = {
@@ -9,10 +13,11 @@ module.exports = {
     const { notification } = req.body;
 
     // Check missing parameters
-    if (!notification)
+    const undefinedVar = checkUndefinedVar({ notification });
+    if (undefinedVar.undefined)
       return res.status(200).json({
         ...ERRORS.MISSING_PARAMETERS,
-        detail: "Not found: notification",
+        detail: undefinedVar.detail,
       });
 
     // Validate notification
@@ -27,7 +32,7 @@ module.exports = {
     try {
       // Check if receiver and sender exist
       const dids = [notification.receiver, notification.sender];
-      for (did in dids) {
+      for (let did in dids) {
         const validDid = validateDIDSyntax(did, false),
           companyName = validDid.companyName,
           publicKey = validDid.fileNameOrPublicKey;

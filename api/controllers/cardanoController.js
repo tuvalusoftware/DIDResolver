@@ -1,5 +1,7 @@
 const axios = require("axios").default;
+const { checkUndefinedVar } = require("../../core");
 const { ERRORS, SERVERS } = require("../../core/constants");
+const Logger = require("../../logger");
 
 module.exports = {
   getNFTs: async function (req, res) {
@@ -9,12 +11,13 @@ module.exports = {
     const { policyid: policyId } = req.headers;
     console.log(1)
     // Handle input errors
-    if (!policyId)
+    const undefinedVar = checkUndefinedVar({ policyId });
+    if (undefinedVar.undefined)
       return res.status(200).json({
         ...ERRORS.MISSING_PARAMETERS,
-        detail: "Not found: policyid",
+        detail: undefinedVar.detail,
       });
-      console.log(2)
+
     // Call Cardano Service
     // success:
     //   {
@@ -57,16 +60,13 @@ module.exports = {
     // Receive input data
     const { access_token } = req.cookies;
     const { hashofdocument, policyid } = req.headers;
+
     // Handle input errors
-    if (!hashofdocument || !policyid)
+    const undefinedVar = checkUndefinedVar({ hashofdocument, policyid });
+    if (undefinedVar.undefined)
       return res.status(200).json({
         ...ERRORS.MISSING_PARAMETERS,
-        detail:
-          "Not found:" + !hashofdocument
-            ? " hashOfDocument"
-            : "" + !policyid
-            ? " policyId"
-            : "",
+        detail: undefinedVar.detail,
       });
 
     // Call Cardano Service
@@ -74,7 +74,6 @@ module.exports = {
     //   { data: { result: true/false } }
     // error:
     //   { error_code: number, error_message: string }
-    console.log('Start')
     axios
       .post(
         `${SERVERS.CARDANO_SERVICE}/api/v2/fetch/nft`,
@@ -89,10 +88,11 @@ module.exports = {
         }
       )
       .then((response) => {
-        return res.status(200).json(response.data)
+        Logger.apiInfo(req, res, `Success: \n ${response.data}`);
+        return res.status(200).json(response.data);
       })
       .catch((error) => {
-        console.log(2, error)
+        Logger.apiError(req, res, error);
         return error.response
           ? res.status(400).json(error.response.data)
           : res.status(400).json(error);
@@ -105,17 +105,11 @@ module.exports = {
     const { address, payload, signature, key } = req.headers;
 
     // Handle input error
-    if (!address || !payload || !signature)
+    const undefinedVar = checkUndefinedVar({ address, payload, signature });
+    if (undefinedVar.undefined)
       return res.status(200).json({
         ...ERRORS.MISSING_PARAMETERS,
-        detail:
-          "Not found:" + !address
-            ? " address"
-            : "" + !payload
-            ? " payload"
-            : "" + !signature
-            ? " signature"
-            : "",
+        detail: undefinedVar.detail,
       });
 
     // Call Cardano Service
@@ -140,11 +134,11 @@ module.exports = {
         }
       )
       .then((response) => {
-        console.log(response.data)
-        res.status(200).json(response.data)
+        Logger.apiInfo(req, res, `Success: \n ${response.data}`);
+        return res.status(200).json(response.data);
       })
       .catch((error) => {
-        console.log('Error')
+        Logger.apiError(req, res, error);
         return error.response
           ? res.status(400).json(error.response.data)
           : res.status(400).json(error);
