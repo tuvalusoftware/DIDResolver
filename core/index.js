@@ -6,6 +6,7 @@ module.exports = {
   validateDIDSyntax: (did, isSalted) => {
     // DID syntax: did:method:companyName:fileNameOrPublicKey
     // Salted DID: uuid:string:did:method:companyName:fileNameOrPublicKey
+    Logger.info(`Validate did ${did}`);
     const maxLength = isSalted ? 6 : 4,
       didPosition = isSalted ? 2 : 0,
       didComponents = did.split(":");
@@ -73,8 +74,6 @@ module.exports = {
   },
 
   getFieldsFromItems: (arrayOfItems, fieldName) => {
-    console.log(arrayOfItems);
-    console.log(fieldName);
     let result = [];
     for (let i in arrayOfItems) {
       result.push(arrayOfItems[i][data][fieldName]);

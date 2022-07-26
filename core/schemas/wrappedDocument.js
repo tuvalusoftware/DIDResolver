@@ -17,16 +17,16 @@ module.exports = {
                 type: "object",
                 properties: {
                   type: { type: "string" },
-                  location: { type: "string" }
-                }
+                  location: { type: "string" },
+                },
               },
               did: { type: "string" },
               tokenRegistry: { type: "string" },
-              address: { type: "string" }
-            }
-          }
-        }
-      }
+              address: { type: "string" },
+            },
+          },
+        },
+      },
     },
     signature: {
       type: "object",
@@ -35,11 +35,11 @@ module.exports = {
         type: { type: "string" },
         targetHash: { type: "string" },
         proof: { type: "array" },
-        merkleRoot: { type: "string" }
-      }
+        merkleRoot: { type: "string" },
+      },
     },
     assetId: { type: "string" },
-    policyId: { type: "string" }
+    policyId: { type: "string" },
   },
   example: {
     vesion: "https://schema.openattestation.com/2.0/schema.json",
@@ -49,21 +49,22 @@ module.exports = {
         {
           identityProof: {
             type: "UUIDv4:string:...",
-            location: "UUIDv4:string:fuixlabx.com"
+            location: "UUIDv4:string:fuixlabx.com",
           },
           did: "UUIDv4:string:...",
           tokenRegistry: "UUIDv4:string:...",
-          address: "addr_test1qq53em6pdpswwc7mmeq50848emp4u7gmhp2dft4ud0lhar54000k46cgk82rmlfjysyxyvh9qkj7vtuc69ulgdypcnssjk3hur"
-        }
-      ]
+          address:
+            "addr_test1qq53em6pdpswwc7mmeq50848emp4u7gmhp2dft4ud0lhar54000k46cgk82rmlfjysyxyvh9qkj7vtuc69ulgdypcnssjk3hur",
+        },
+      ],
     },
     signature: {
       type: "SHA3MerkleRoot",
       targetHash: "string",
       proof: [],
-      merkleRoot: "string"
+      merkleRoot: "string",
     },
     assetId: "",
-    policyId: ""
-  }
-}
+    policyId: "",
+  },
+};

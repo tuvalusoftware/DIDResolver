@@ -8913,3 +8913,34 @@ Successfull authentication.
 Success.
 [object Object]
 
+[INFO]: [Jul-26-2022 09:44:15]: 	[GET - /resolver/wrapped-document/user]
+Successfull authentication.
+
+[INFO]: [Jul-26-2022 09:44:16]: 	[GET - /resolver/wrapped-document/user]
+Success.
+
+
+[INFO]: [Jul-26-2022 09:44:40]: 	[GET - /resolver/wrapped-document/user]
+Successfull authentication.
+
+[INFO]: [Jul-26-2022 09:44:41]: 	[GET - /resolver/wrapped-document/user]
+Success.
+
+
+[INFO]: [Jul-26-2022 09:49:46]: 	[POST - /resolver/wrapped-document/]
+Successfull authentication.
+
+[INFO]: [Jul-26-2022 09:51:30]: 	[GET - /resolver/wrapped-document/]
+Successfull authentication.
+
+[INFO]: [Jul-26-2022 09:51:31]: 	[GET - /resolver/wrapped-document/]
+Success.
+[object Object]
+
+[INFO]: [Jul-26-2022 09:54:14]: 	[GET - /resolver/wrapped-document/exist/]
+Successfull authentication.
+
+[INFO]: [Jul-26-2022 09:54:14]: 	[GET - /resolver/wrapped-document/exist/]
+Success.
+[object Object]
+
