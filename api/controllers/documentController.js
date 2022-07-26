@@ -13,53 +13,51 @@ const hlogger = require("heroku-logger");
 module.exports = {
   getDIDDocument: async function (req, res) {
     // Receive input data
-    console.log("I luv youuu <3");
-    hlogger.info("I loaf youuu :>");
+    // console.log("I luv youuu <3");
+    // res.status(200).send("Phak u");
+    const { access_token } = req.cookies;
+    const { did } = req.headers;
 
-    res.status(200).send("Phak u");
-    // const { access_token } = req.cookies;
-    // const { did } = req.headers;
-    // // Check missing paramters
-    // const undefinedVar = checkUndefinedVar({ did });
-    // if (undefinedVar.undefined)
-    //   return res.status(200).json({
-    //     ...ERRORS.MISSING_PARAMETERS,
-    //     detail: undefinedVar.detail,
-    //   });
-    // // Validate DID syntax
-    // const validDid = validateDIDSyntax(did, false),
-    //   companyName = validDid.companyName,
-    //   publicKey = validDid.fileNameOrPublicKey;
-    // if (!validDid.valid)
-    //   return res.status(200).json({
-    //     ...ERRORS.INVALID_INPUT,
-    //     detail: "Invalid DID syntax.",
-    //   });
+    try {
+      // Check missing paramters
+      const undefinedVar = checkUndefinedVar({ did });
+      if (undefinedVar.undefined)
+        return res.status(200).json({
+          ...ERRORS.MISSING_PARAMETERS,
+          detail: undefinedVar.detail,
+        });
+      // Validate DID syntax
+      const validDid = validateDIDSyntax(did, false),
+        companyName = validDid.companyName,
+        publicKey = validDid.fileNameOrPublicKey;
+      if (!validDid.valid)
+        return res.status(200).json({
+          ...ERRORS.INVALID_INPUT,
+          detail: "Invalid DID syntax.",
+        });
 
-    // // Call DID Controller
-    // // success:
-    // //   { ... }
-    // // error:
-    // //   { error_code: number, message: string }
-    // axios
-    //   .get(SERVERS.DID_CONTROLLER + "/api/did/", {
-    //     withCredentials: true,
-    //     headers: {
-    //       companyName: companyName,
-    //       publicKey: publicKey,
-    //       Cookie: `access_token=${access_token}`,
-    //     },
-    //   })
-    //   .then((response) => {
-    //     Logger.apiInfo(req, res, `Success.\n${response.data}`);
-    //     return res.status(200).json(response.data);
-    //   }) // 404
-    //   .catch((error) => {
-    //     Logger.apiError(req, res, `${error}`);
-    //     return error.response
-    //       ? res.status(400).json(error.response.data)
-    //       : res.status(400).json(error);
-    //   });
+      // Call DID Controller
+      // success:
+      //   { ... }
+      // error:
+      //   { error_code: number, message: string }
+      const { data } = await axios.get(SERVERS.DID_CONTROLLER + "/api/did/", {
+        withCredentials: true,
+        headers: {
+          companyName: companyName,
+          publicKey: publicKey,
+          Cookie: `access_token=${access_token}`,
+        },
+      });
+
+      Logger.apiInfo(req, res, `Success.\n${JSON.stringify(data)}`);
+      return res.status(200).json(data); // 404
+    } catch (error) {
+      Logger.apiError(req, res, `${JSON.stringify(error)}`);
+      return error.response
+        ? res.status(400).json(error.response.data)
+        : res.status(400).json(error);
+    }
   },
 
   createDIDDocument: async function (req, res) {

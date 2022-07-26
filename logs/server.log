@@ -9415,3 +9415,33 @@ Successfull authentication.
 Success.
 [object Object]
 
+[INFO]: [Jul-26-2022 21:30:09]: 	[GET - /resolver/did-document/]
+Successfull authentication.
+
+[INFO]: [Jul-26-2022 21:44:29]: 	[GET - /resolver/did-document/]
+Successfull authentication.
+
+[INFO]: [Jul-26-2022 21:44:29]: 	Valid did.
+
+[INFO]: [Jul-26-2022 21:44:29]: 	[GET - /resolver/did-document/]
+Success.
+[object Object]
+
+[INFO]: [Jul-26-2022 21:44:50]: 	[GET - /resolver/did-document/]
+Successfull authentication.
+
+[INFO]: [Jul-26-2022 21:44:50]: 	Valid did.
+
+[INFO]: [Jul-26-2022 21:44:50]: 	[GET - /resolver/did-document/]
+Success.
+[object Object]
+
+[INFO]: [Jul-26-2022 21:45:21]: 	[GET - /resolver/did-document/]
+Successfull authentication.
+
+[INFO]: [Jul-26-2022 21:45:21]: 	Valid did.
+
+[INFO]: [Jul-26-2022 21:45:22]: 	[GET - /resolver/did-document/]
+Success.
+{"name":"public_key","content":{"controller":"publicKey","did":"did:company:publicKey","date":"10-10-2000"}}
+
