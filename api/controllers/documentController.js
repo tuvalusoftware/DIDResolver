@@ -8,11 +8,13 @@ const {
   checkUndefinedVar,
   getFieldsFromItems,
 } = require("../../core/index");
+const hlogger = require("heroku-logger");
 
 module.exports = {
   getDIDDocument: async function (req, res) {
     // Receive input data
     console.log("I luv youuu <3");
+    hlogger.info("I loaf youuu :>");
     const { access_token } = req.cookies;
     const { did } = req.headers;
     // Check missing paramters
