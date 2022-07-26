@@ -9406,3 +9406,12 @@ Successfull authentication.
 Success.
 [object Object]
 
+[INFO]: [Jul-26-2022 15:01:16]: 	[GET - /resolver/wrapped-document/]
+Successfull authentication.
+
+[INFO]: [Jul-26-2022 15:01:16]: 	Valid did.
+
+[INFO]: [Jul-26-2022 15:01:17]: 	[GET - /resolver/wrapped-document/]
+Success.
+[object Object]
+
