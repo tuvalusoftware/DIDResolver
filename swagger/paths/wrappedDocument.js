@@ -412,7 +412,30 @@ module.exports.validateWrappedDocument = {
 };
 
 // ?? UPDATE CAI NAY
-module.exports.transferWrappedDocument = {};
+module.exports.transferWrappedDocument = {
+  put: {
+    tags: ["Wrapped document"],
+    summary: "",
+    requestBody: {
+      require: true,
+      content: {
+        "application/json": {
+          schema: {
+            type: "object",
+            properties: {
+              did: {
+                type: "string",
+                description: "DID of wrapped document.",
+                example: "did:method:Kukulu:file_name",
+              },
+              did: { $ref: "#/components/schemas/wrappedDocument" },
+            },
+          },
+        },
+      },
+    },
+  },
+};
 
 module.exports.searchWrappedDocument = {
   get: {
