@@ -35,12 +35,11 @@ module.exports = {
   },
 
   getAddressFromHexEncoded: (hexAddress) => {
-    console.log(hexAddress);
     const address = cardanoSerialization.Address.from_bytes(
       Buffer.from(hexAddress, "hex")
     ).to_bech32();
 
-    Logger.info(`Address from hex: ${address}`);
+    Logger.info(`Address from hex (${hexAddress}): ${address}`);
     return address;
   },
 

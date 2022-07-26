@@ -307,7 +307,7 @@ module.exports = {
           headers: { Cookie: `access_token=${access_token};` },
         }
       );
-      console.log(address.data.data.address);
+      Logger.apiInfo(req, res, `Address of user: ${address}`);
 
       // 1.2 Compare issuer address with user address
       if (issuerAddress !== address.data.data.address) {

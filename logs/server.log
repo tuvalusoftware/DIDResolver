@@ -9037,3 +9037,372 @@ Unmatch publicKkey.
 
             from address: 0048e3da0dea39c2be83bc7dfb5aaaedd365ade32cef35bd932ffbf3ce05e52e8b5ec4d2ef098e757a7bddcdcb6fb86538358acc504fe22c26
 
+[INFO]: [Jul-26-2022 14:19:47]: 	[GET - /resolver/wrapped-document/user/]
+Successfull authentication.
+
+[INFO]: [Jul-26-2022 14:19:47]: 	Valid did.
+
+[INFO]: [Jul-26-2022 14:19:48]: 	[GET - /resolver/wrapped-document/user/]
+Success.
+
+
+[INFO]: [Jul-26-2022 14:19:59]: 	[GET - /resolver/wrapped-document/exist/]
+Successfull authentication.
+
+[INFO]: [Jul-26-2022 14:20:00]: 	[GET - /resolver/wrapped-document/exist/]
+Success.
+[object Object]
+
+[INFO]: [Jul-26-2022 14:20:13]: 	[GET - /resolver/wrapped-document/exist/]
+Successfull authentication.
+
+[INFO]: [Jul-26-2022 14:20:14]: 	[GET - /resolver/wrapped-document/exist/]
+Success.
+[object Object]
+
+[INFO]: [Jul-26-2022 14:20:14]: 	[POST - /resolver/wrapped-document]
+Successfull authentication.
+
+[INFO]: [Jul-26-2022 14:20:14]: 	Valid did.
+
+[INFO]: [Jul-26-2022 14:20:14]: 	Address from hex: addr_test1qz8k09x4jrcnsfazdlpnsfygwept6el7en2tz2w7xu6dj35er5h52xrexjdfyx75psgp2lzr3uwf4wmmf2lda5t8gv0qzyrawv
+
+[INFO]: [Jul-26-2022 14:20:14]: 	[undefined - undefined]
+undefined
+
+[INFO]: [Jul-26-2022 14:20:21]: 	[GET - /resolver/wrapped-document/user/]
+Successfull authentication.
+
+[INFO]: [Jul-26-2022 14:20:21]: 	Valid did.
+
+[INFO]: [Jul-26-2022 14:20:22]: 	[GET - /resolver/wrapped-document/user/]
+Success.
+[object Object]
+
+[INFO]: [Jul-26-2022 14:20:22]: 	[GET - /resolver/hash/verify/]
+Successfull authentication.
+
+[INFO]: [Jul-26-2022 14:20:23]: 	[GET - /resolver/hash/verify/]
+Successfull authentication.
+
+[INFO]: [Jul-26-2022 14:20:23]: 	[GET - /resolver/hash/verify/]
+Success: 
+ [object Object]
+
+[INFO]: [Jul-26-2022 14:20:23]: 	[GET - /resolver/wrapped-document/?only=doc]
+Successfull authentication.
+
+[INFO]: [Jul-26-2022 14:20:23]: 	Valid did.
+
+[INFO]: [Jul-26-2022 14:20:24]: 	[GET - /resolver/wrapped-document/?only=doc]
+Success.
+[object Object]
+
+[INFO]: [Jul-26-2022 14:20:24]: 	[GET - /resolver/nfts/]
+Successfull authentication.
+
+[INFO]: [Jul-26-2022 14:20:25]: 	[GET - /resolver/nfts/]
+Successfull authentication.
+
+[INFO]: [Jul-26-2022 14:20:29]: 	[GET - /resolver/wrapped-document/user/]
+Successfull authentication.
+
+[INFO]: [Jul-26-2022 14:20:29]: 	Valid did.
+
+[INFO]: [Jul-26-2022 14:20:29]: 	[GET - /resolver/wrapped-document/user/]
+Success.
+[object Object]
+
+[INFO]: [Jul-26-2022 14:20:29]: 	[GET - /resolver/hash/verify/]
+Successfull authentication.
+
+[INFO]: [Jul-26-2022 14:20:30]: 	[GET - /resolver/hash/verify/]
+Successfull authentication.
+
+[INFO]: [Jul-26-2022 14:20:30]: 	[GET - /resolver/hash/verify/]
+Success: 
+ [object Object]
+
+[INFO]: [Jul-26-2022 14:20:30]: 	[GET - /resolver/wrapped-document/?only=doc]
+Successfull authentication.
+
+[INFO]: [Jul-26-2022 14:20:30]: 	Valid did.
+
+[INFO]: [Jul-26-2022 14:20:31]: 	[GET - /resolver/wrapped-document/?only=doc]
+Success.
+[object Object]
+
+[INFO]: [Jul-26-2022 14:20:31]: 	[GET - /resolver/nfts/]
+Successfull authentication.
+
+[INFO]: [Jul-26-2022 14:20:31]: 	[GET - /resolver/nfts/]
+Successfull authentication.
+
+[INFO]: [Jul-26-2022 14:20:36]: 	[GET - /resolver/wrapped-document/user/]
+Successfull authentication.
+
+[INFO]: [Jul-26-2022 14:20:36]: 	Valid did.
+
+[INFO]: [Jul-26-2022 14:20:37]: 	[GET - /resolver/wrapped-document/user/]
+Success.
+[object Object]
+
+[INFO]: [Jul-26-2022 14:20:37]: 	[GET - /resolver/hash/verify/]
+Successfull authentication.
+
+[INFO]: [Jul-26-2022 14:20:37]: 	[GET - /resolver/hash/verify/]
+Successfull authentication.
+
+[INFO]: [Jul-26-2022 14:20:38]: 	[GET - /resolver/hash/verify/]
+Success: 
+ [object Object]
+
+[INFO]: [Jul-26-2022 14:20:38]: 	[GET - /resolver/wrapped-document/?only=doc]
+Successfull authentication.
+
+[INFO]: [Jul-26-2022 14:20:38]: 	Valid did.
+
+[INFO]: [Jul-26-2022 14:20:39]: 	[GET - /resolver/wrapped-document/?only=doc]
+Success.
+[object Object]
+
+[INFO]: [Jul-26-2022 14:20:39]: 	[GET - /resolver/nfts/]
+Successfull authentication.
+
+[INFO]: [Jul-26-2022 14:20:39]: 	[GET - /resolver/nfts/]
+Successfull authentication.
+
+[INFO]: [Jul-26-2022 14:20:49]: 	[GET - /resolver/wrapped-document/search?companyName=COMPANY_NAME&pageNumber=1&searchString=COA]
+Successfull authentication.
+
+[INFO]: [Jul-26-2022 14:20:50]: 	[GET - /resolver/wrapped-document/search?companyName=COMPANY_NAME&pageNumber=1&searchString=COA]
+Page: 1 of 1.
+Display 5 of 4 results. From 0 to 4.
+["4641dc1c-6dc0-4dba-93a6-15752740dc76:string:Certificate of Analysis (COA)","d436194f-e21f-4f3a-855f-07c2cee2d384:string:Certificate of Analysis (COA)4","d3755ed4-f651-403b-b740-6bd37054aa25:string:Certificate of Analysis (COA)a","544536f2-fecb-4389-84ed-afce1aee7561:string:Certificate of Analysis (COA)xxx"]
+
+[INFO]: [Jul-26-2022 14:20:50]: 	[GET - /resolver/nfts/]
+Successfull authentication.
+
+[INFO]: [Jul-26-2022 14:20:50]: 	[GET - /resolver/nfts/]
+Successfull authentication.
+
+[INFO]: [Jul-26-2022 14:20:51]: 	[GET - /resolver/nfts/]
+Successfull authentication.
+
+[INFO]: [Jul-26-2022 14:20:51]: 	[GET - /resolver/nfts/]
+Successfull authentication.
+
+[INFO]: [Jul-26-2022 14:20:53]: 	[GET - /resolver/nfts/]
+Successfull authentication.
+
+[INFO]: [Jul-26-2022 14:20:53]: 	[GET - /resolver/nfts/]
+Successfull authentication.
+
+[INFO]: [Jul-26-2022 14:20:54]: 	[GET - /resolver/nfts/]
+Successfull authentication.
+
+[INFO]: [Jul-26-2022 14:20:54]: 	[GET - /resolver/nfts/]
+Successfull authentication.
+
+[INFO]: [Jul-26-2022 14:21:14]: 	[GET - /resolver/wrapped-document/user/]
+Successfull authentication.
+
+[INFO]: [Jul-26-2022 14:21:14]: 	Valid did.
+
+[INFO]: [Jul-26-2022 14:21:16]: 	[GET - /resolver/wrapped-document/user/]
+Success.
+[object Object]
+
+[INFO]: [Jul-26-2022 14:21:16]: 	[GET - /resolver/hash/verify/]
+Successfull authentication.
+
+[INFO]: [Jul-26-2022 14:21:16]: 	[GET - /resolver/hash/verify/]
+Successfull authentication.
+
+[INFO]: [Jul-26-2022 14:21:16]: 	[GET - /resolver/hash/verify/]
+Success: 
+ [object Object]
+
+[INFO]: [Jul-26-2022 14:21:17]: 	[GET - /resolver/wrapped-document/?only=doc]
+Successfull authentication.
+
+[INFO]: [Jul-26-2022 14:21:17]: 	Valid did.
+
+[INFO]: [Jul-26-2022 14:21:17]: 	[GET - /resolver/wrapped-document/?only=doc]
+Success.
+[object Object]
+
+[INFO]: [Jul-26-2022 14:21:17]: 	[GET - /resolver/nfts/]
+Successfull authentication.
+
+[INFO]: [Jul-26-2022 14:21:18]: 	[GET - /resolver/nfts/]
+Successfull authentication.
+
+[INFO]: [Jul-26-2022 14:22:14]: 	[GET - /resolver/wrapped-document/user/]
+Successfull authentication.
+
+[INFO]: [Jul-26-2022 14:22:14]: 	Valid did.
+
+[INFO]: [Jul-26-2022 14:22:14]: 	[GET - /resolver/wrapped-document/user/]
+Success.
+[object Object]
+
+[INFO]: [Jul-26-2022 14:22:15]: 	[GET - /resolver/hash/verify/]
+Successfull authentication.
+
+[INFO]: [Jul-26-2022 14:22:15]: 	[GET - /resolver/hash/verify/]
+Successfull authentication.
+
+[INFO]: [Jul-26-2022 14:22:15]: 	[GET - /resolver/hash/verify/]
+Success: 
+ [object Object]
+
+[INFO]: [Jul-26-2022 14:22:15]: 	[GET - /resolver/wrapped-document/?only=doc]
+Successfull authentication.
+
+[INFO]: [Jul-26-2022 14:22:15]: 	Valid did.
+
+[INFO]: [Jul-26-2022 14:22:16]: 	[GET - /resolver/wrapped-document/?only=doc]
+Success.
+[object Object]
+
+[INFO]: [Jul-26-2022 14:22:16]: 	[GET - /resolver/nfts/]
+Successfull authentication.
+
+[INFO]: [Jul-26-2022 14:22:16]: 	[GET - /resolver/nfts/]
+Successfull authentication.
+
+[INFO]: [Jul-26-2022 14:22:18]: 	[GET - /resolver/wrapped-document/?only=did]
+Successfull authentication.
+
+[INFO]: [Jul-26-2022 14:22:18]: 	Valid did.
+
+[INFO]: [Jul-26-2022 14:22:19]: 	[GET - /resolver/wrapped-document/?only=did]
+Success.
+[object Object]
+
+[INFO]: [Jul-26-2022 14:22:26]: 	[GET - /resolver/wrapped-document/search?companyName=COMPANY_NAME&pageNumber=1&searchString=COA]
+Successfull authentication.
+
+[INFO]: [Jul-26-2022 14:22:27]: 	[GET - /resolver/wrapped-document/search?companyName=COMPANY_NAME&pageNumber=1&searchString=COA]
+Page: 1 of 1.
+Display 5 of 4 results. From 0 to 4.
+["4641dc1c-6dc0-4dba-93a6-15752740dc76:string:Certificate of Analysis (COA)","d436194f-e21f-4f3a-855f-07c2cee2d384:string:Certificate of Analysis (COA)4","d3755ed4-f651-403b-b740-6bd37054aa25:string:Certificate of Analysis (COA)a","544536f2-fecb-4389-84ed-afce1aee7561:string:Certificate of Analysis (COA)xxx"]
+
+[INFO]: [Jul-26-2022 14:22:27]: 	[GET - /resolver/nfts/]
+Successfull authentication.
+
+[INFO]: [Jul-26-2022 14:22:27]: 	[GET - /resolver/nfts/]
+Successfull authentication.
+
+[INFO]: [Jul-26-2022 14:22:28]: 	[GET - /resolver/nfts/]
+Successfull authentication.
+
+[INFO]: [Jul-26-2022 14:22:28]: 	[GET - /resolver/nfts/]
+Successfull authentication.
+
+[INFO]: [Jul-26-2022 14:22:29]: 	[GET - /resolver/nfts/]
+Successfull authentication.
+
+[INFO]: [Jul-26-2022 14:22:29]: 	[GET - /resolver/nfts/]
+Successfull authentication.
+
+[INFO]: [Jul-26-2022 14:22:30]: 	[GET - /resolver/nfts/]
+Successfull authentication.
+
+[INFO]: [Jul-26-2022 14:22:30]: 	[GET - /resolver/nfts/]
+Successfull authentication.
+
+[INFO]: [Jul-26-2022 14:22:31]: 	[GET - /resolver/wrapped-document/?only=did]
+Successfull authentication.
+
+[INFO]: [Jul-26-2022 14:22:31]: 	Valid did.
+
+[INFO]: [Jul-26-2022 14:22:32]: 	[GET - /resolver/wrapped-document/?only=did]
+Success.
+[object Object]
+
+[INFO]: [Jul-26-2022 14:23:40]: 	[GET - /resolver/wrapped-document/user/]
+Successfull authentication.
+
+[INFO]: [Jul-26-2022 14:23:40]: 	Valid did.
+
+[INFO]: [Jul-26-2022 14:23:41]: 	[GET - /resolver/wrapped-document/user/]
+Success.
+[object Object]
+
+[INFO]: [Jul-26-2022 14:23:41]: 	[GET - /resolver/hash/verify/]
+Successfull authentication.
+
+[INFO]: [Jul-26-2022 14:23:41]: 	[GET - /resolver/hash/verify/]
+Successfull authentication.
+
+[INFO]: [Jul-26-2022 14:23:41]: 	[GET - /resolver/hash/verify/]
+Success: 
+ [object Object]
+
+[INFO]: [Jul-26-2022 14:23:41]: 	[GET - /resolver/wrapped-document/?only=doc]
+Successfull authentication.
+
+[INFO]: [Jul-26-2022 14:23:41]: 	Valid did.
+
+[INFO]: [Jul-26-2022 14:23:42]: 	[GET - /resolver/wrapped-document/?only=doc]
+Success.
+[object Object]
+
+[INFO]: [Jul-26-2022 14:23:42]: 	[GET - /resolver/nfts/]
+Successfull authentication.
+
+[INFO]: [Jul-26-2022 14:23:42]: 	[GET - /resolver/nfts/]
+Successfull authentication.
+
+[INFO]: [Jul-26-2022 14:24:58]: 	[GET - /resolver/wrapped-document/?only=did]
+Successfull authentication.
+
+[INFO]: [Jul-26-2022 14:24:58]: 	Valid did.
+
+[INFO]: [Jul-26-2022 14:24:59]: 	[GET - /resolver/wrapped-document/?only=did]
+Success.
+[object Object]
+
+[INFO]: [Jul-26-2022 14:25:04]: 	[GET - /resolver/wrapped-document/search?companyName=COMPANY_NAME&pageNumber=1&searchString=COA]
+Successfull authentication.
+
+[INFO]: [Jul-26-2022 14:25:05]: 	[GET - /resolver/wrapped-document/search?companyName=COMPANY_NAME&pageNumber=1&searchString=COA]
+Page: 1 of 1.
+Display 5 of 4 results. From 0 to 4.
+["4641dc1c-6dc0-4dba-93a6-15752740dc76:string:Certificate of Analysis (COA)","d436194f-e21f-4f3a-855f-07c2cee2d384:string:Certificate of Analysis (COA)4","d3755ed4-f651-403b-b740-6bd37054aa25:string:Certificate of Analysis (COA)a","544536f2-fecb-4389-84ed-afce1aee7561:string:Certificate of Analysis (COA)xxx"]
+
+[INFO]: [Jul-26-2022 14:25:05]: 	[GET - /resolver/nfts/]
+Successfull authentication.
+
+[INFO]: [Jul-26-2022 14:25:05]: 	[GET - /resolver/nfts/]
+Successfull authentication.
+
+[INFO]: [Jul-26-2022 14:25:06]: 	[GET - /resolver/nfts/]
+Successfull authentication.
+
+[INFO]: [Jul-26-2022 14:25:06]: 	[GET - /resolver/nfts/]
+Successfull authentication.
+
+[INFO]: [Jul-26-2022 14:25:07]: 	[GET - /resolver/nfts/]
+Successfull authentication.
+
+[INFO]: [Jul-26-2022 14:25:07]: 	[GET - /resolver/nfts/]
+Successfull authentication.
+
+[INFO]: [Jul-26-2022 14:25:08]: 	[GET - /resolver/nfts/]
+Successfull authentication.
+
+[INFO]: [Jul-26-2022 14:25:08]: 	[GET - /resolver/nfts/]
+Successfull authentication.
+
+[INFO]: [Jul-26-2022 14:25:12]: 	[GET - /resolver/wrapped-document/?only=did]
+Successfull authentication.
+
+[INFO]: [Jul-26-2022 14:25:12]: 	Valid did.
+
+[INFO]: [Jul-26-2022 14:25:12]: 	[GET - /resolver/wrapped-document/?only=did]
+Success.
+[object Object]
+

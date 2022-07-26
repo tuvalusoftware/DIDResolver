@@ -14,6 +14,10 @@ module.exports = {
       url: "/resolver",
       description: "Local server",
     },
+    {
+      url: "https://enigmatic-sands-00024.herokuapp.com/18.139.84.180:8000/resolver",
+      description: "Remote server",
+    },
   ],
   schemes: ["http", "https"],
   ...tags,
