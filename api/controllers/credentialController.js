@@ -14,22 +14,21 @@ module.exports = {
   createCredential: async function (req, res) {
     // Receive input data
     const { access_token } = req.cookies;
-    const { indexOfCres, credential, payload, did, config } = req.body;
+    const { credential, did, config } = req.body;
 
-    console.log("Credential", config);
+    // console.log("Credential", config);
 
     // Handle input error
-    // const undefinedVar = checkUndefinedVar({
-    //   indexOfCres,
-    //   credential,
-    //   payload,
-    //   did,
-    // });
-    // if (undefinedVar.undefined)
-    //   return res.status(200).json({
-    //     ...ERRORS.MISSING_PARAMETERS,
-    //     detail: undefinedVar.detail,
-    //   });
+    const undefinedVar = checkUndefinedVar({
+      credential,
+      did,
+      config,
+    });
+    if (undefinedVar.undefined)
+      return res.status(200).json({
+        ...ERRORS.MISSING_PARAMETERS,
+        detail: undefinedVar.detail,
+      });
 
     // 0. Validate input
     // 0.1. Validate DID syntax
@@ -42,8 +41,14 @@ module.exports = {
     const companyName = validDid.companyName,
       fileName = validDid.fileNameOrPublicKey;
 
-    console.log("Credential", credential);
     // 0.2. Validate credential
+    // ? CHECK THIS
+    const valid = validateJSONSchema(SCHEMAS.CREDENTIAL, credential);
+    if (!valid.valid)
+      return res.status(200).json({
+        ...ERRORS.INVALID_INPUT,
+        detail: valid.detail,
+      });
 
     try {
       // * 1. Get wrapped document and did document of wrapped odcument
@@ -111,7 +116,6 @@ module.exports = {
       if (didDocument.controller.indexOf(publicKey) < 0)
         // if (publicKey !== didDocument.owner && publicKey !== didDocument.holder)
         return res.status(200).json(ERRORS.PERMISSION_DENIED); // 403
-      console.log(3);
       // 4. Call Cardano Service to verify signature
       // success:
       //   { data: { result: true/false } }
@@ -173,9 +177,8 @@ module.exports = {
           },
         }
       );
-      console.log(4, mintingNFT?.data);
+
       if (mintingNFT?.data?.code === 0) {
-        console.log("TUTU", credential);
         // 7. Call DID_CONTROLLER
         // success:
         //   {}

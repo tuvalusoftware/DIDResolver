@@ -1,3 +1,5 @@
+const mintingNFTConfig = require("./config");
+
 module.exports = {
   type: "object",
   required: ["issuer", "credentialSubject", "signature"],
@@ -44,14 +46,15 @@ module.exports = {
         dateCreated: { type: "string" },
       },
     },
-    mintingNFTconfig: {
-      type: "object",
-      description: "Config of the credential, in other to create a new one.",
-      properties: {
-        type: { type: "string" },
-        asset: { type: "string" },
-        policy: { type: "object" },
-      },
+    mintingNFTConfig: {
+      // type: "object",
+      // description: "Config of the credential, in other to create a new one.",
+      // properties: {
+      //   type: { type: "string" },
+      //   asset: { type: "string" },
+      //   policy: { type: "object" },
+      // },
+      ...(({ example, ...props }) => props)(mintingNFTConfig),
     },
   },
   example: {
@@ -69,11 +72,8 @@ module.exports = {
       dateCreated: "22-06-2022",
       status: "",
     },
-    mintingNFTconfig: {
-      type: "credentail",
-      policy: {},
-      asset:
-        "ed9f068881fd29842e8b5267ae8220aca2c2953617ce07c7895cfd30127148bdcb294e220f0c9aef41a307be8e910157901d2bf349492e7919708208",
+    mintingNFTConfig: {
+      ...mintingNFTConfig.example,
     },
   },
 };

@@ -31,3 +31,10 @@ access_token not found
 [ERROR]: [Jul-25-2022 11:31:58]: 	[GET - /resolver/wrapped-document/search?companyName=COMPANY_NAME&pageNumber=eyJhbGciOiJSUzI1NiIsInR5cCI6IkpXVCJ9.eyJkYXRhIjp7ImFkZHJlc3MiOiJhZGRyX3Rlc3QxcXBscjVkMDN5anlzMnhheDg5bDg2dzhlc2tldnE0dnhsbG1xbjQweHF6ejM1bXB3dmxuamM1emNoMGhrcTY3NDV6cXNoa3U0ZXl4ZmQ5NTAyZG52OWp6OHRrNnE0N3o2dzYifSwicmVtZW1iZXJNZSI6dHJ1ZSwiaWF0IjoxNjU4NzE4ODQzLCJleHAiOjE2NjEzMTA4NDN9.QFLiXpjBlikS_Ee4qFsZOpH4nGhDi9zSwUWTjn78CNIa5tdUOAKjQ-H3QFbMWxzkcayHCWf_hJyQb_a_k0vkbAs-_b_ytd96UvXuS_5xP7Oz-Pt1ReLxiVNUmXdf-Gj3R3ZfL_QzSDkLYQTQxIQuaPBSANHE2TBOZ7QP4mzUMpamrW78NumLg9Bm3E8MXBeYvqhxRjM5L1DyzdGNAfOgN2NlWDWr9tb2X2hpaMt-wx6uCELe1N6yFeAwNPMG9oPb0ZFajrC9PPjdeJfoDj0a66wVfgcR9y47PbRkeuIlAN_iE9uRk86h-4t5JYO-gGyO0hzYKE7WgTXemrH5j8W_zA&searchString=1]
 access_token not found
 
+[ERROR]: [Jul-26-2022 14:07:40]: 	[POST - /resolver/credential/]
+Unmatch publicKkey.
+
+            from credential.issuer: zaq12wsxcde34rfvbgt56yhnmju78iko9olp0
+
+            from address: 0048e3da0dea39c2be83bc7dfb5aaaedd365ade32cef35bd932ffbf3ce05e52e8b5ec4d2ef098e757a7bddcdcb6fb86538358acc504fe22c26
+

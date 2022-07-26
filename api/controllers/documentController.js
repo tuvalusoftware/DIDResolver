@@ -255,8 +255,6 @@ module.exports = {
       mintingNFTConfig,
     } = req.body;
 
-    console.log(1);
-
     // Handle input errors
     const undefinedVar = checkUndefinedVar({
       wrappedDocument,
@@ -268,8 +266,6 @@ module.exports = {
         detail: undefinedVar.detail,
       });
     }
-
-    console.log(2);
 
     //Validate wrapped document format
     // const valid = validateJSONSchema(
@@ -284,15 +280,14 @@ module.exports = {
     //   });
 
     // Validate DID syntax
-    const did = wrappedDocument.data.did,
+    const did = wrappedDocument.data?.did,
       validDid = validateDIDSyntax(did, true),
       companyName = validDid.companyName,
       fileName = validDid.fileNameOrPublicKey;
     if (!validDid.valid)
       return res.status(200).json({
         ...ERRORS.INVALID_INPUT,
-        detail:
-          "Invalid DID syntax. Check the wrappedDocument.data.did element.",
+        detail: "Invalid DID syntax. Check did element.",
       });
 
     const issuerAddress = getAddressFromHexEncoded(encryptedIssuerAddress),
@@ -300,6 +295,7 @@ module.exports = {
 
     try {
       // 1. Validate permission to create document
+      Logger.apiInfo("Check user permission.");
       // 1.1. Get address of user from the acess token
       // success:
       //   { data: { address: string } }
@@ -311,8 +307,8 @@ module.exports = {
           headers: { Cookie: `access_token=${access_token};` },
         }
       );
+      console.log(address.data.data.address);
 
-      console.log(3);
       // 1.2 Compare issuer address with user address
       if (issuerAddress !== address.data.data.address) {
         Logger.apiError(
@@ -359,7 +355,6 @@ module.exports = {
       // error:
       //   { error_code: number, error_message: string } }
 
-      console.log(5);
       let mintBody = {
         hash: targetHash,
       };
@@ -380,7 +375,6 @@ module.exports = {
           }
         );
       } else {
-        console.log("Create");
         mintingNFT = await axios.post(
           SERVERS.CARDANO_SERVICE + "/api/v2/hash/",
           mintBody,
@@ -392,7 +386,6 @@ module.exports = {
           }
         );
       }
-      console.log("TUTU", mintingNFT);
 
       // 3.2. Handle store hash errors
       if (mintingNFT.data.code !== 0)
@@ -402,13 +395,11 @@ module.exports = {
       const _mintingNFTConfig = mintingNFT.data.data
         ? mintingNFT.data.data
         : false;
-      console.log("TUTU2");
       // 4. Add policy Id and assert Id to wrapped document
       wrappedDocument = {
         ...wrappedDocument,
         mintingNFTConfig: _mintingNFTConfig,
       };
-      console.log("TUTU3");
       // 5. Storing wrapped document on DB
       // Call DID Controller
       // success:
@@ -428,7 +419,6 @@ module.exports = {
           headers: { Cookie: `access_token=${access_token};` },
         }
       );
-      console.log("TUTU4", storeWrappedDocumentStatus);
       // 6. Return policyId an assetId if the process is success.
       storeWrappedDocumentStatus.data.error_code
         ? res.status(200).json(storeWrappedDocumentStatus.data)
@@ -498,7 +488,6 @@ module.exports = {
 
   revokeDocument: async function (req, res) {
     const { config } = req.body;
-    console.log(req.body);
     const { access_token } = req.cookies;
     if (!config)
       return res.status(200).json({
@@ -518,10 +507,10 @@ module.exports = {
           },
         }
       );
-      console.log("here", deleteDocumentResult.data);
       res.status(200).json(deleteDocumentResult.data);
     } catch (err) {
       console.log(err);
+      res.status(400).json(err);
     }
   },
 

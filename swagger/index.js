@@ -7,7 +7,7 @@ module.exports = {
   info: {
     version: "1.0.0",
     title: "DID Resolver",
-    description: "DID resolver for Cardano project | Fuixlabs"
+    description: "DID resolver for Cardano project | Fuixlabs",
   },
   servers: [
     {
@@ -15,10 +15,10 @@ module.exports = {
       description: "Local server",
     },
   ],
-  schemes: ["http"],
+  schemes: ["http", "https"],
   ...tags,
   components: {
-    ...components
+    ...components,
   },
   ...paths,
-}
+};

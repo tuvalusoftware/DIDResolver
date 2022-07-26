@@ -8944,3 +8944,96 @@ Successfull authentication.
 Success.
 [object Object]
 
+[INFO]: [Jul-26-2022 10:15:59]: 	[POST - /resolver/wrapped-document/]
+Successfull authentication.
+
+[INFO]: [Jul-26-2022 10:17:03]: 	[GET - /resolver/wrapped-document/]
+Successfull authentication.
+
+[INFO]: [Jul-26-2022 10:17:03]: 	Validate did did:method:Kukulu:file_name
+
+[INFO]: [Jul-26-2022 10:17:04]: 	[GET - /resolver/wrapped-document/]
+Success.
+[object Object]
+
+[INFO]: [Jul-26-2022 10:17:38]: 	[POST - /resolver/wrapped-document/]
+Successfull authentication.
+
+[INFO]: [Jul-26-2022 10:20:29]: 	[POST - /resolver/wrapped-document/]
+Successfull authentication.
+
+[ERROR]: [Jul-26-2022 10:20:29]: 	Undefined did.
+
+[INFO]: [Jul-26-2022 10:27:04]: 	[POST - /resolver/wrapped-document/]
+Successfull authentication.
+
+[ERROR]: [Jul-26-2022 10:27:04]: 	Undefined did.
+
+[INFO]: [Jul-26-2022 10:28:20]: 	[POST - /resolver/wrapped-document/]
+Successfull authentication.
+
+[INFO]: [Jul-26-2022 10:28:43]: 	[POST - /resolver/wrapped-document/]
+Successfull authentication.
+
+[ERROR]: [Jul-26-2022 10:28:43]: 	Undefined did.
+
+[INFO]: [Jul-26-2022 10:33:21]: 	[POST - /resolver/wrapped-document/]
+Successfull authentication.
+
+[ERROR]: [Jul-26-2022 10:33:21]: 	Undefined did.
+
+[INFO]: [Jul-26-2022 10:33:30]: 	[POST - /resolver/wrapped-document/]
+Successfull authentication.
+
+[INFO]: [Jul-26-2022 10:34:38]: 	[POST - /resolver/wrapped-document/]
+Successfull authentication.
+
+[INFO]: [Jul-26-2022 10:37:41]: 	[POST - /resolver/wrapped-document/]
+Successfull authentication.
+
+[INFO]: [Jul-26-2022 10:38:11]: 	[POST - /resolver/wrapped-document/]
+Successfull authentication.
+
+[INFO]: [Jul-26-2022 10:40:23]: 	[POST - /resolver/wrapped-document/]
+Successfull authentication.
+
+[INFO]: [Jul-26-2022 10:40:47]: 	[POST - /resolver/wrapped-document/]
+Successfull authentication.
+
+[INFO]: [Jul-26-2022 10:41:09]: 	[POST - /resolver/wrapped-document/]
+Successfull authentication.
+
+[INFO]: [Jul-26-2022 10:41:40]: 	[POST - /resolver/wrapped-document/]
+Successfull authentication.
+
+[INFO]: [Jul-26-2022 10:42:00]: 	[POST - /resolver/wrapped-document/]
+Successfull authentication.
+
+[INFO]: [Jul-26-2022 10:42:50]: 	[POST - /resolver/wrapped-document/]
+Successfull authentication.
+
+[ERROR]: [Jul-26-2022 10:42:50]: 	Not found: wrappedDocument encryptedIssuerAddress
+
+[INFO]: [Jul-26-2022 14:07:38]: 	[POST - /resolver/credential/]
+Successfull authentication.
+
+[INFO]: [Jul-26-2022 14:07:39]: 	[POST - /resolver/credential/]
+Successfull authentication.
+
+[INFO]: [Jul-26-2022 14:07:39]: 	[POST - /resolver/credential/]
+Successfull authentication.
+
+[INFO]: [Jul-26-2022 14:07:39]: 	Valid did.
+
+[INFO]: [Jul-26-2022 14:07:39]: 	[POST - /resolver/credential/]
+Get wrappedDoc and didDoc of Kukulu:file_name
+
+[INFO]: [Jul-26-2022 14:07:40]: 	Publickey from address addr_test1qpyw8ksdaguu905rh37lkk42ahfktt0r9nhnt0vn9lal8ns9u5hgkhky6thsnrn40faamnwtd7ux2wp43tx9qnlz9snqqvgm42 is 0048e3da0dea39c2be83bc7dfb5aaaedd365ade32cef35bd932ffbf3ce05e52e8b5ec4d2ef098e757a7bddcdcb6fb86538358acc504fe22c26
+
+[ERROR]: [Jul-26-2022 14:07:40]: 	[POST - /resolver/credential/]
+Unmatch publicKkey.
+
+            from credential.issuer: zaq12wsxcde34rfvbgt56yhnmju78iko9olp0
+
+            from address: 0048e3da0dea39c2be83bc7dfb5aaaedd365ade32cef35bd932ffbf3ce05e52e8b5ec4d2ef098e757a7bddcdcb6fb86538358acc504fe22c26
+

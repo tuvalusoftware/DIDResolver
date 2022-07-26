@@ -200,6 +200,9 @@ module.exports.createWrappedDocument = {
                 type: "string",
                 example: "???",
               },
+              mintingNFTConfig: {
+                $ref: "#/components/schemas/mintingNFTConfig",
+              },
               // did: {
               //   type: "string",
               //   example: ""

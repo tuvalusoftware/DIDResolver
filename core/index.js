@@ -6,7 +6,10 @@ module.exports = {
   validateDIDSyntax: (did, isSalted) => {
     // DID syntax: did:method:companyName:fileNameOrPublicKey
     // Salted DID: uuid:string:did:method:companyName:fileNameOrPublicKey
-    Logger.info(`Validate did ${did}`);
+    if (!did) {
+      Logger.error("Undefined did.");
+      return { valid: false, detail: "Undefined did." };
+    }
     const maxLength = isSalted ? 6 : 4,
       didPosition = isSalted ? 2 : 0,
       didComponents = did.split(":");
@@ -23,6 +26,7 @@ module.exports = {
       return { valid: false };
     }
 
+    Logger.info("Valid did.");
     return {
       valid: true,
       companyName: didComponents[didPosition + 2],
@@ -31,9 +35,11 @@ module.exports = {
   },
 
   getAddressFromHexEncoded: (hexAddress) => {
+    console.log(hexAddress);
     const address = cardanoSerialization.Address.from_bytes(
       Buffer.from(hexAddress, "hex")
     ).to_bech32();
+
     Logger.info(`Address from hex: ${address}`);
     return address;
   },
