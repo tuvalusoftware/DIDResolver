@@ -63,6 +63,12 @@ module.exports = {
         SERVERS.DID_CONTROLLER + "/api/message/",
         {
           message: notification,
+        },
+        {
+          withCredentials: true,
+          headers: {
+            Cookie: `access_token=${access_token};`,
+          },
         }
       );
       // Handle some error

@@ -189,6 +189,12 @@ module.exports = {
               Buffer.from(JSON.stringify(credential), "utf8").toString("hex")
             ),
             content: credential,
+          },
+          {
+            withCredentials: true,
+            headers: {
+              Cookie: `access_token=${access_token};`,
+            },
           }
         );
         return res.status(200).send(storeCredentialStatus.data);
@@ -208,8 +214,10 @@ module.exports = {
       const credential = await axios.get(
         SERVERS.DID_CONTROLLER + "/api/credential",
         {
+          withCredentials: true,
           headers: {
             hash: hash,
+            Cookie: `access_token=${access_token};`,
           },
         }
       );
