@@ -8,7 +8,6 @@ const {
   checkUndefinedVar,
   getFieldsFromItems,
 } = require("../../core/index");
-const hlogger = require("heroku-logger");
 
 module.exports = {
   getDIDDocument: async function (req, res) {
