@@ -9445,3 +9445,69 @@ Successfull authentication.
 Success.
 {"name":"public_key","content":{"controller":"publicKey","did":"did:company:publicKey","date":"10-10-2000"}}
 
+[INFO]: [Jul-26-2022 21:55:48]: 	[GET - /resolver/wrapped-document/user]
+Successfull authentication.
+
+[INFO]: [Jul-26-2022 21:55:48]: 	Valid did.
+
+[INFO]: [Jul-26-2022 21:55:49]: 	[GET - /resolver/wrapped-document/user]
+Success.
+
+
+[INFO]: [Jul-27-2022 13:32:04]: 	[GET - /resolver/did-document/]
+Successfull authentication.
+
+[INFO]: [Jul-27-2022 13:32:04]: 	Valid did.
+
+[INFO]: [Jul-27-2022 13:32:05]: 	[GET - /resolver/did-document/]
+Success.
+{"name":"public_key","content":{"controller":"publicKey","did":"did:company:publicKey","date":"10-10-2000"}}
+
+[INFO]: [Jul-27-2022 13:32:38]: 	[GET - /resolver/wrapped-document/search?companyName=SAMPLE_COMPANY_NAME&searchString=a]
+Successfull authentication.
+
+[INFO]: [Jul-27-2022 13:32:38]: 	[GET - /resolver/wrapped-document/search?companyName=SAMPLE_COMPANY_NAME&searchString=a]
+Page: 1 of 1.
+Display 5 of 1 results. From 0 to 1.
+["3df65260-330d-4648-a973-1aaa38bff95c:string:cover-letter"]
+
+[INFO]: [Jul-27-2022 13:32:59]: 	[GET - /resolver/wrapped-document/search?companyName=SAMPLE_COMPANY_NAME&searchString=a&pageNumber=2]
+Successfull authentication.
+
+[INFO]: [Jul-27-2022 13:33:00]: 	[GET - /resolver/wrapped-document/search?companyName=SAMPLE_COMPANY_NAME&searchString=a&pageNumber=2]
+Page: 1 of 1.
+Display 5 of 1 results. From 0 to 1.
+["3df65260-330d-4648-a973-1aaa38bff95c:string:cover-letter"]
+
+[INFO]: [Jul-27-2022 13:33:28]: 	[GET - /resolver/wrapped-document/search?companyName=SAMPLE_COMPANY_NAME&searchString=a&pageNumber=9]
+Successfull authentication.
+
+[INFO]: [Jul-27-2022 13:33:29]: 	[GET - /resolver/wrapped-document/search?companyName=SAMPLE_COMPANY_NAME&searchString=a&pageNumber=9]
+Page: 1 of 1.
+Display 5 of 1 results. From 0 to 1.
+["3df65260-330d-4648-a973-1aaa38bff95c:string:cover-letter"]
+
+[INFO]: [Jul-27-2022 13:33:34]: 	[GET - /resolver/wrapped-document/search?companyName=SAMPLE_COMPANY_NAME&searchString=a&pageNumber=9]
+Successfull authentication.
+
+[INFO]: [Jul-27-2022 13:33:35]: 	[GET - /resolver/wrapped-document/search?companyName=SAMPLE_COMPANY_NAME&searchString=a&pageNumber=9]
+Page: 1 of 1.
+Display 5 of 1 results. From 0 to 1.
+["3df65260-330d-4648-a973-1aaa38bff95c:string:cover-letter"]
+
+[INFO]: [Jul-27-2022 13:33:37]: 	[GET - /resolver/wrapped-document/search?companyName=SAMPLE_COMPANY_NAME&searchString=a&pageNumber=9&itemsPerPage=0]
+Successfull authentication.
+
+[INFO]: [Jul-27-2022 13:33:38]: 	[GET - /resolver/wrapped-document/search?companyName=SAMPLE_COMPANY_NAME&searchString=a&pageNumber=9&itemsPerPage=0]
+Page: 9 of NaN.
+Display 0 of 1 results. From 0 to 0.
+[]
+
+[INFO]: [Jul-27-2022 13:33:49]: 	[GET - /resolver/wrapped-document/search?companyName=SAMPLE_COMPANY_NAME&searchString=a&pageNumber=0&itemsPerPage=-1]
+Successfull authentication.
+
+[INFO]: [Jul-27-2022 13:33:50]: 	[GET - /resolver/wrapped-document/search?companyName=SAMPLE_COMPANY_NAME&searchString=a&pageNumber=0&itemsPerPage=-1]
+Page: -1 of -1.
+Display -1 of 1 results. From 2 to 1.
+[]
+

@@ -57,24 +57,24 @@ module.exports = {
     const validate = ajv.compile(schema);
 
     const valid = validate(object);
-    if (!valid) Logger.error(`Invalid object.\n${validate.errors}`);
+    if (!valid)
+      Logger.error(`Invalid object.\n${JSON.stringify(validate.errors)}`);
     return valid ? { valid } : { valid, detail: validate.errors };
   },
 
   checkUndefinedVar: (object) => {
     let detail = "Not found:",
       flag = false;
-    const keys = Object.keys(object),
-      values = Object.values(object);
 
-    for (let i in keys) {
-      if (values[i] == undefined) {
-        detail += " " + keys[i];
+    for (const [key, value] of Object.entries(object)) {
+      if (value === undefined) {
+        detail += " " + key;
         flag = true;
       }
     }
 
     if (flag) Logger.error(`${detail}`);
+    else Logger.info(`Valid JSON object.`);
     return flag ? { undefined: true, detail } : { undefined: false };
   },
 

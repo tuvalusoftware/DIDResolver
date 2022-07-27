@@ -16,41 +16,39 @@ module.exports = {
     const { access_token } = req.cookies;
     const { credential, did, config } = req.body;
 
-    // console.log("Credential", config);
-
-    // Handle input error
-    const undefinedVar = checkUndefinedVar({
-      credential,
-      did,
-      config,
-    });
-    if (undefinedVar.undefined)
-      return res.status(200).json({
-        ...ERRORS.MISSING_PARAMETERS,
-        detail: undefinedVar.detail,
-      });
-
-    // 0. Validate input
-    // 0.1. Validate DID syntax
-    const validDid = validateDIDSyntax(did, false);
-    if (!validDid.valid)
-      return res.status(200).json({
-        ...ERRORS.INVALID_INPUT,
-        detail: "Invalid DID syntax.",
-      });
-    const companyName = validDid.companyName,
-      fileName = validDid.fileNameOrPublicKey;
-
-    // 0.2. Validate credential
-    // ? CHECK THIS
-    const valid = validateJSONSchema(SCHEMAS.CREDENTIAL, credential);
-    if (!valid.valid)
-      return res.status(200).json({
-        ...ERRORS.INVALID_INPUT,
-        detail: valid.detail,
-      });
-
     try {
+      // Handle input error
+      const undefinedVar = checkUndefinedVar({
+        credential,
+        did,
+        config,
+      });
+      if (undefinedVar.undefined)
+        return res.status(200).json({
+          ...ERRORS.MISSING_PARAMETERS,
+          detail: undefinedVar.detail,
+        });
+
+      // 0. Validate input
+      // 0.1. Validate DID syntax
+      const validDid = validateDIDSyntax(did, false);
+      if (!validDid.valid)
+        return res.status(200).json({
+          ...ERRORS.INVALID_INPUT,
+          detail: "Invalid DID syntax.",
+        });
+      const companyName = validDid.companyName,
+        fileName = validDid.fileNameOrPublicKey;
+
+      // 0.2. Validate credential
+      // ? CHECK THIS
+      const valid = validateJSONSchema(SCHEMAS.CREDENTIAL, credential);
+      if (!valid.valid)
+        return res.status(200).json({
+          ...ERRORS.INVALID_INPUT,
+          detail: valid.detail,
+        });
+
       // * 1. Get wrapped document and did document of wrapped odcument
       Logger.apiInfo(
         req,

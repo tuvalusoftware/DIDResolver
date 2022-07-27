@@ -1,4 +1,5 @@
 const axios = require("axios").default;
+const Logger = require("../../logger");
 const {
   validateJSONSchema,
   validateDIDSyntax,
@@ -8,28 +9,26 @@ const { ERRORS, SCHEMAS, SERVERS } = require("../../core/constants");
 
 module.exports = {
   createNotification: async (req, res) => {
-    console.log("Create notification....");
-
     const { notification } = req.body;
 
-    // Check missing parameters
-    const undefinedVar = checkUndefinedVar({ notification });
-    if (undefinedVar.undefined)
-      return res.status(200).json({
-        ...ERRORS.MISSING_PARAMETERS,
-        detail: undefinedVar.detail,
-      });
-
-    // Validate notification
-    const valid = validateJSONSchema(SCHEMAS.NOTIFICATION, notification);
-    if (!valid.valid)
-      return res.status(200).json({
-        ...ERRORS.INVALID_INPUT,
-        error_message: "Bad request. Invalid notification.",
-        detail: valid.detail,
-      });
-
     try {
+      // Check missing parameters
+      const undefinedVar = checkUndefinedVar({ notification });
+      if (undefinedVar.undefined)
+        return res.status(200).json({
+          ...ERRORS.MISSING_PARAMETERS,
+          detail: undefinedVar.detail,
+        });
+
+      // Validate notification
+      const valid = validateJSONSchema(SCHEMAS.NOTIFICATION, notification);
+      if (!valid.valid)
+        return res.status(200).json({
+          ...ERRORS.INVALID_INPUT,
+          error_message: "Bad request. Invalid notification.",
+          detail: valid.detail,
+        });
+
       // Check if receiver and sender exist
       const dids = [notification.receiver, notification.sender];
       for (let did in dids) {
@@ -49,8 +48,10 @@ module.exports = {
           headers: { companyName, publicKey },
         });
 
-        if (existence.error_code)
+        if (existence.error_code) {
+          Logger.apiError(req, res, `User not exists.`);
           return res.status(200).json(ERRORS.USER_NOT_EXIST);
+        }
       }
 
       // Call DID Controller
@@ -68,10 +69,10 @@ module.exports = {
       if (storeNotificationStatus.error_code)
         return res.status(200).json(storeNotificationStatus);
       return res.status(201).send("Notification created.");
-    } catch (err) {
-      err.response
-        ? res.status(400).json(err.response.data)
-        : res.status(400).json(err);
+    } catch (error) {
+      error.response
+        ? res.status(400).json(error.response.data)
+        : res.status(400).json(error);
     }
   },
 
