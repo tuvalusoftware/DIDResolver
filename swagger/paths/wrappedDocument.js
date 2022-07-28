@@ -414,7 +414,7 @@ module.exports.validateWrappedDocument = {
 module.exports.transferWrappedDocument = {
   put: {
     tags: ["Wrapped document"],
-    summary: "",
+    summary: "Update DID document of wrapped document.",
     requestBody: {
       require: true,
       content: {

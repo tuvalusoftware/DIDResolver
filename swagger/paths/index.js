@@ -43,7 +43,7 @@ module.exports.paths = {
   "/wrapped-document/user": {
     ...getAllWrappedDocumentsOfUser,
   },
-  "wrapped-document/transfer": {
+  "/wrapped-document/transfer": {
     ...transferWrappedDocument,
   },
   "/wrapped-document/search": {

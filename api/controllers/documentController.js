@@ -515,12 +515,14 @@ module.exports = {
         {
           withCredentials: true,
           headers: {
-            Cookie: `acess_token=${access_token};`,
+            Cookie: `access_token=${access_token};`,
           },
         }
       );
 
-      Logger.apiInfo(req, res, `Success.\n${JSON.stringify(data)}`);
+      data.error_code
+        ? Logger.apiError(req, res, `${JSON.stringify(data)}`)
+        : Logger.apiInfo(req, res, `\n${JSON.stringify(data)}`);
       return res.status(200).json(data);
     } catch (error) {
       Logger.apiError(req, res, `${JSON.stringify(error)}`);
