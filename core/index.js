@@ -77,12 +77,4 @@ module.exports = {
     else Logger.info(`Valid JSON object.`);
     return flag ? { undefined: true, detail } : { undefined: false };
   },
-
-  getFieldsFromItems: (arrayOfItems, fieldName) => {
-    let result = [];
-    for (let i in arrayOfItems) {
-      result.push(arrayOfItems[i][data][fieldName]);
-    }
-    return result;
-  },
 };
