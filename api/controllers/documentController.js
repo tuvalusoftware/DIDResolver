@@ -467,6 +467,7 @@ module.exports = {
 
   transferWrappedDocument: async function (req, res) {
     // Update DID document of wrapped document
+    const { access_token } = req.cookies;
     const { did, didDoc: didDocumentOfWrappedDocument } = req.body;
 
     try {
@@ -499,11 +500,25 @@ module.exports = {
           detail: valid.detail,
         });
 
-      const { data } = await axios.put(SERVERS.DID_CONTROLLER + "/api/doc", {
-        companyName: companyName,
-        fileName: fileName,
-        didDoc: didDocumentOfWrappedDocument,
-      });
+      // Call DID Controller
+      // success:
+      //   { message: string }
+      // error:
+      //   { error_code: number, message: string }
+      const { data } = await axios.put(
+        SERVERS.DID_CONTROLLER + "/api/doc",
+        {
+          companyName: companyName,
+          fileName: fileName,
+          didDoc: didDocumentOfWrappedDocument,
+        },
+        {
+          withCredentials: true,
+          headers: {
+            Cookie: `acess_token=${access_token};`,
+          },
+        }
+      );
 
       Logger.apiInfo(req, res, `Success.\n${JSON.stringify(data)}`);
       return res.status(200).json(data);

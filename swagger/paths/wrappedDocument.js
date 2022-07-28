@@ -385,13 +385,12 @@ module.exports.validateWrappedDocument = {
     },
     responses: {
       200: {
-        description: "New wrapped document is successfully created.",
+        description: "",
         content: {
           "text/plain": {
             schema: { type: "boolean" },
           },
           "application/json": {
-            // schema: { $ref: "#/components/schemas/wrappedDocument" }
             example: {
               valid: false,
               detail: [
@@ -428,7 +427,21 @@ module.exports.transferWrappedDocument = {
                 description: "DID of wrapped document.",
                 example: "did:method:Kukulu:file_name",
               },
-              did: { $ref: "#/components/schemas/wrappedDocument" },
+              didDoc: {
+                $ref: "#/components/schemas/didDocumentOfWrappedDocument",
+              },
+            },
+          },
+        },
+      },
+    },
+    responses: {
+      200: {
+        description: "",
+        content: {
+          "application/json": {
+            example: {
+              message: "Successfully Saved/Updated/Deleted/Cloned/Set Cookie",
             },
           },
         },
