@@ -589,7 +589,9 @@ module.exports = {
         `${SERVERS.DID_CONTROLLER}/api/doc/search-content?companyName=${companyName}&searchString=${searchString}`,
         {
           withCredentials: true,
-          Cookie: `access_token=${access_token};`,
+          headers: {
+            Cookie: `access_token=${access_token};`,
+          },
         }
       );
 
