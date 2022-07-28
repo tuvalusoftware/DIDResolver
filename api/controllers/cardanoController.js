@@ -73,7 +73,7 @@ module.exports = {
       //   { data: { result: true/false } }
       // error:
       //   { error_code: number, error_message: string }
-      const { data } = axios.post(
+      const { data } = await axios.post(
         `${SERVERS.CARDANO_SERVICE}/api/v2/fetch/nft`,
         {
           asset: `${policyid}${hashofdocument}`,
@@ -86,7 +86,7 @@ module.exports = {
         }
       );
 
-      Logger.apiInfo(req, res, `Success:\n${data}`);
+      Logger.apiInfo(req, res, `Success:\n${JSON.stringify(data)}`);
       return res.status(200).json(data);
     } catch (error) {
       Logger.apiError(req, res, error);
@@ -115,7 +115,7 @@ module.exports = {
       //   { data: { result: true/false } }
       // error:
       //   { error_code: number, error_message: string }
-      const { data } = axios.post(
+      const { data } = await axios.post(
         SERVERS.CARDANO_SERVICE + "/api/v2/verify/signature",
         {
           address: address,
