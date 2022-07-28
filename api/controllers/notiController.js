@@ -45,7 +45,12 @@ module.exports = {
         // Call DID Controller to check if DID of receiver and sender exist
         // success:
         const existence = await axios.get(SERVERS.DID_CONTROLLER + "/api/did", {
-          headers: { companyName, publicKey },
+          withCredentials: true,
+          headers: {
+            companyName,
+            publicKey,
+            Cookie: `access_token=${access_token};`,
+          },
         });
 
         if (existence.error_code) {
