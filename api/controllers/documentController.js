@@ -8,6 +8,7 @@ const {
   checkUndefinedVar,
   getFieldsFromItems,
 } = require("../../core/index");
+const { resolveSchema } = require("ajv/dist/compile");
 
 module.exports = {
   getDIDDocument: async function (req, res) {
@@ -594,6 +595,11 @@ module.exports = {
           },
         }
       );
+
+      if (data.error_code) {
+        Logger.apiError(req, res, `${JSON.stringify(data)}`);
+        return res.status(200).json(data);
+      }
 
       const _logWrappedDocuments = ((arrayOfItems) => {
         let fileNames = [];
