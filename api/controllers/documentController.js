@@ -6,9 +6,7 @@ const {
   getAddressFromHexEncoded,
   validateDIDSyntax,
   checkUndefinedVar,
-  getFieldsFromItems,
 } = require("../../core/index");
-const { resolveSchema } = require("ajv/dist/compile");
 
 module.exports = {
   getDIDDocument: async function (req, res) {
