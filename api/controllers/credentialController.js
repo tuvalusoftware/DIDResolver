@@ -102,16 +102,10 @@ module.exports = {
       }
 
       // * 2.3. Compare user address with controller address (from did document of wrapped document)
-      // ?? XIN ACCESS_TOKEN CUA HAOOOO EVERYTIME TEST CAI NAY
       // ?? UPDATE TOI DAY
-      console.log(
-        "-- Checking permission: current vs controller of DID document"
-      );
-      console.log(didDocument.controller.indexOf(publicKey));
       if (didDocument.controller.indexOf(publicKey) < 0)
         // if (publicKey !== didDocument.owner && publicKey !== didDocument.holder)
         return res.status(200).json(ERRORS.PERMISSION_DENIED); // 403
-      console.log(3);
       // 4. Call Cardano Service to verify signature
       // success:
       //   { data: { result: true/false } }
@@ -153,10 +147,6 @@ module.exports = {
       //   }
       // error:
       //   { error_code: number, message: string }
-
-      // * Cancel request after 4 seconds if no response from Cardano Service
-      const source = axios.CancelToken.source();
-
       const mintingNFT = await axios.post(
         SERVERS.CARDANO_SERVICE + "/api/v2/credential",
         {
@@ -173,9 +163,8 @@ module.exports = {
           },
         }
       );
-      console.log(4, mintingNFT?.data);
+      console.log(mintingNFT.data);
       if (mintingNFT?.data?.code === 0) {
-        console.log("TUTU", credential);
         // 7. Call DID_CONTROLLER
         // success:
         //   {}
@@ -187,9 +176,20 @@ module.exports = {
             hash: sha256(
               Buffer.from(JSON.stringify(credential), "utf8").toString("hex")
             ),
-            content: credential,
+            content: {
+              ...credential,
+              mintingNFTConfig: mintingNFT?.data?.data,
+            },
+          },
+          {
+            // cancelToken: source.token,
+            withCredentials: true,
+            headers: {
+              Cookie: `access_token=${access_token};`,
+            },
           }
         );
+        console.log(storeCredentialStatus?.data)
         return res.status(200).send(storeCredentialStatus.data);
       }
       return res.status(200).send(mintingNFT.data);
@@ -203,12 +203,14 @@ module.exports = {
 
   getCredential: async function (req, res) {
     const { hash } = req.headers;
+    const { access_token } = req.cookies;
     try {
       const credential = await axios.get(
         SERVERS.DID_CONTROLLER + "/api/credential",
         {
           headers: {
             hash: hash,
+            Cookie: `access_token=${access_token};`,
           },
         }
       );
@@ -218,6 +220,29 @@ module.exports = {
       e.response
         ? res.status(400).json(e.response.data)
         : res.status(400).json(e);
+    }
+  },
+
+  updateCredential: async function (req, res) {
+    // Receive input data
+    const { access_token } = req.cookies;
+    const { originCredentialHash, credentialContent } = req.body;
+    console.log({ originCredentialHash, credentialContent } )
+    try  {
+      const storeCredentialStatus = await axios.put(
+        SERVERS.DID_CONTROLLER + "/api/credential",
+        {
+          hash: originCredentialHash,
+          content: credentialContent
+        }
+      );
+      console.log('Res', storeCredentialStatus.data)
+      return res.status(200).send(storeCredentialStatus.data);    
+    } catch (err) {
+      console.log("Error", err);
+      err.response
+        ? res.status(400).json(err.response.data)
+        : res.status(400).json(err);
     }
   },
 };

@@ -4,6 +4,7 @@ const SCHEMAS = require("./schemas/index");
 
 module.exports.SERVERS = {
   DID_CONTROLLER: `${HOST}:9000`,
+  // CARDANO_SERVICE: `http://192.168.2.3:10003`,
   CARDANO_SERVICE: `${HOST}:10003`,
   AUTHENTICATION_SERVICE: `${HOST}:12000`,
 };

@@ -38,17 +38,18 @@ module.exports = {
       );
   },
 
-  getPublicKeyFromAddress: (req, res) => {
-    const { address, user } = req.query;
+  requestGetPublicKeyFromAddress: (req, res) => {
+    const { address, user, confirmNominate } = req.query;
+    const returnKey =  getPublicKeyFromAddress(address);
     try {
-      const publicKey = getPublicKeyFromAddress(address);
+      console.log('Returnkey: ', returnKey);
       Logger.apiInfo(
         req,
         res,
-        `User: ${user}, address: ${address}, publicKey: ${publicKey}.`
+        `User: ${user}, address: ${address}`
       );
       return res.status(200).json({
-        publicKey: publicKey,
+        publicKey: returnKey,
         user: user,
       });
     } catch (error) {

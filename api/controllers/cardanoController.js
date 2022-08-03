@@ -5,11 +5,11 @@ const Logger = require("../../logger");
 
 module.exports = {
   getNFTs: async function (req, res) {
-    console.log('Call')
+    console.log("Call");
     // Receive input data
     const { access_token } = req.cookies;
     const { policyid: policyId } = req.headers;
-    console.log(1)
+    console.log(1);
     // Handle input errors
     const undefinedVar = checkUndefinedVar({ policyId });
     if (undefinedVar.undefined)
@@ -46,8 +46,8 @@ module.exports = {
         }
       )
       .then((response) => {
-        console.log('TUTU', response.data)
-        res.status(200).json(response.data)
+        console.log("TUTU", response.data);
+        res.status(200).json(response.data);
       })
       .catch((error) => {
         return error.response
@@ -60,9 +60,21 @@ module.exports = {
     // Receive input data
     const { access_token } = req.cookies;
     const { hashofdocument, policyid } = req.headers;
+    let query = {
+      policyId: policyid,
+    };
+    let undefinedCheck = { policyid };
+    if (hashofdocument) {
+      query = {
+        asset: `${policyid}${hashofdocument}`
+      };
+      undefinedCheck = { ...undefinedCheck, hashofdocument };
+    }
+
+    console.log(query);
 
     // Handle input errors
-    const undefinedVar = checkUndefinedVar({ hashofdocument, policyid });
+    const undefinedVar = checkUndefinedVar(undefinedCheck);
     if (undefinedVar.undefined)
       return res.status(200).json({
         ...ERRORS.MISSING_PARAMETERS,
@@ -77,9 +89,7 @@ module.exports = {
     axios
       .post(
         `${SERVERS.CARDANO_SERVICE}/api/v2/fetch/nft`,
-        {
-          asset: `${policyid}${hashofdocument}`,
-        },
+        query,
         {
           withCredentials: true,
           headers: {

@@ -457,6 +457,7 @@ module.exports = {
 
   transferWrappedDocument: async function (req, res) {
     const { did, didDoc: didDocumentOfWrappedDocument } = req.body;
+    const { access_token } = req.cookies;
 
     // Check missing parameters
     const undefinedVar = checkUndefinedVar({
@@ -491,6 +492,12 @@ module.exports = {
         companyName: companyName,
         fileName: fileName,
         didDoc: didDocumentOfWrappedDocument,
+      },  {
+        // cancelToken: source.token,
+        withCredentials: true,
+        headers: {
+          Cookie: `access_token=${access_token};`,
+        },
       })
       .then((response) => res.status(200).json(response.data))
       .catch((error) => res.status(400).json(error));
