@@ -600,7 +600,6 @@ module.exports = {
       //   ]
       // error:
       //   { error_code: number, message: string }
-
       const { data } = await axios.get(
         `${SERVERS.DID_CONTROLLER}/api/doc/search-content?companyName=${companyName}&searchString=${searchString}`,
         {

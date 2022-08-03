@@ -20,21 +20,17 @@ module.exports = {
       // Call Cardano Service
       // success:
       //   {
-      //     data: {
-      //       nfts: [
-      //         {
-      //           unit: "199062e26a0ea1370249e71e6224c6541e7825a192fe42c57aa538c341616461476f6c64656e526566657272616c31363339303438343435",
-      //           quantity: 1
-      //         }
-      //       ]
-      //     }
+      //     code: number,
+      //     message: string,
+      //     data: [] or
       //   }
       // error:
-      //   { error_code: number, error_message: string }
+      //   { code: number, message: string }
       const { data } = await axios.post(
         `${SERVERS.CARDANO_SERVICE}/api/v2/fetch/nft`,
         {
-          policyId: policyId,
+          // (opt) asset: 41ac0d6b1287d7abd2c0443566cf34f95f1ec7e338dc18653fcedcb4ec9df0f3318725fa3c636ee118d233cadf8bd4a6f654c89f164d1169cc473cdc
+          policyId: policyId, // 41ac0d6b1287d7abd2c0443566cf34f95f1ec7e338dc18653fcedcb4
         },
         {
           withCredentials: true,
@@ -69,10 +65,14 @@ module.exports = {
         });
 
       // Call Cardano Service
-      // succes:
-      //   { data: { result: true/false } }
+      // success:
+      //   {
+      //     code: number,
+      //     message: string,
+      //     data: [] or {}
+      //   }
       // error:
-      //   { error_code: number, error_message: string }
+      //   { code: number, message: string }
       const { data } = await axios.post(
         `${SERVERS.CARDANO_SERVICE}/api/v2/fetch/nft`,
         {
@@ -112,9 +112,13 @@ module.exports = {
 
       // Call Cardano Service
       // success:
-      //   { data: { result: true/false } }
+      //   {
+      //     code: number,
+      //     message: string,
+      //     data: true/false
+      //   }
       // error:
-      //   { error_code: number, error_message: string }
+      //   { code: number, message: string }
       const { data } = await axios.post(
         SERVERS.CARDANO_SERVICE + "/api/v2/verify/signature",
         {

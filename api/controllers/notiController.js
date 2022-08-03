@@ -76,11 +76,18 @@ module.exports = {
           },
         }
       );
+
+      Logger.apiInfo(
+        req,
+        res,
+        `Success.\n${JSON.stringify(storeNotificationStatus.data)}`
+      );
       // Handle some error
-      if (storeNotificationStatus.error_code)
-        return res.status(200).json(storeNotificationStatus);
+      if (storeNotificationStatus.data.error_code)
+        return res.status(200).json(storeNotificationStatus.data);
       return res.status(201).send("Notification created.");
     } catch (error) {
+      Logger.apiError(req, res, `${JSON.stringify(error)}`);
       error.response
         ? res.status(400).json(error.response.data)
         : res.status(400).json(error);
