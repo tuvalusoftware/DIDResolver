@@ -82,23 +82,25 @@ module.exports = {
     //   }
     // error:
     //   { code: number, message: string }
-    const { data } = await axios
-      .post(`${SERVERS.CARDANO_SERVICE}/api/v2/fetch/nft`, query, {
-        withCredentials: true,
-        headers: {
-          Cookie: `access_token=${access_token}`,
-        },
-      })
-      .then((response) => {
-        Logger.apiInfo(req, res, `Success:\n${JSON.stringify(data)}`);
-        return res.status(200).json(data);
-      })
-      .catch((error) => {
-        Logger.apiError(req, res, error);
-        return error.response
-          ? res.status(400).json(error.response.data)
-          : res.status(400).json(error);
-      });
+    try {
+      const { data } = await axios.post(
+        `${SERVERS.CARDANO_SERVICE}/api/v2/fetch/nft`,
+        query,
+        {
+          withCredentials: true,
+          headers: {
+            Cookie: `access_token=${access_token}`,
+          },
+        }
+      );
+      Logger.apiInfo(req, res, `Success:\n${JSON.stringify(data)}`);
+      return res.status(200).json(data);
+    } catch (error) {
+      Logger.apiError(req, res, error);
+      return error.response
+        ? res.status(400).json(error.response.data)
+        : res.status(400).json(error);
+    }
   },
 
   verifySignature: async function (req, res) {
