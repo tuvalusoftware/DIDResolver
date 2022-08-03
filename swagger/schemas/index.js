@@ -6,5 +6,6 @@ exports.didDocumentOfWrappedDocument = require("../../core/schemas/didDocumentOf
 
 exports.credential = require("../../core/schemas/credential");
 exports.notification = require("../../core/schemas/notification");
+exports.mintingNFTConfig = require("../../core/schemas/config");
 
 exports.error = require("./errorResponse");

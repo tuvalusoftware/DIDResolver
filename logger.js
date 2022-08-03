@@ -23,20 +23,26 @@ const formatConfig = format.combine(
 
 let infoLogConfigs = {
   transports: [
-    new transports.File({
-      filename: "logs/server.log",
-    }),
+    // new transports.File({
+    //   filename: "logs/server.log",
+    // }),
     new transports.Console(),
+    new transports.File({
+      filename: "logs/console.log",
+    }),
   ],
   format: formatConfig,
 };
 
 const debugLogConfigs = {
   transports: [
+    // new transports.File({
+    //   filename: "logs/debug.log",
+    // }),
     new transports.File({
-      filename: "logs/debug.log",
+      filename: "logs/console.log",
     }),
-    // new transports.Console(),
+    new transports.Console(),
   ],
   format: formatConfig,
 };

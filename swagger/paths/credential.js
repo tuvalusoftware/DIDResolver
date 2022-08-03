@@ -14,17 +14,11 @@ module.exports.createCredential = {
                 type: "string",
                 example: "did:method:Kukulu:file_name",
               },
-              indexOfCres: {
-                type: "integer",
-                example: 1,
-              },
-              payload: {
-                type: "string",
-                example:
-                  "7b0a202020202272616e646f6d4e756d626572223a20302e393439343136373338343132363330362c0a202020202274696d657374616d70223a20313635333435313134393334380a7d",
-              },
               credential: {
                 $ref: "#/components/schemas/credential",
+              },
+              config: {
+                $ref: "#/components/schemas/mintingNFTConfig",
               },
             },
           },

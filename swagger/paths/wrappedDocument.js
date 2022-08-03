@@ -200,6 +200,9 @@ module.exports.createWrappedDocument = {
                 type: "string",
                 example: "???",
               },
+              mintingNFTConfig: {
+                $ref: "#/components/schemas/mintingNFTConfig",
+              },
               // did: {
               //   type: "string",
               //   example: ""
@@ -382,13 +385,12 @@ module.exports.validateWrappedDocument = {
     },
     responses: {
       200: {
-        description: "New wrapped document is successfully created.",
+        description: "",
         content: {
           "text/plain": {
             schema: { type: "boolean" },
           },
           "application/json": {
-            // schema: { $ref: "#/components/schemas/wrappedDocument" }
             example: {
               valid: false,
               detail: [
@@ -409,7 +411,44 @@ module.exports.validateWrappedDocument = {
 };
 
 // ?? UPDATE CAI NAY
-module.exports.transferWrappedDocument = {};
+module.exports.transferWrappedDocument = {
+  put: {
+    tags: ["Wrapped document"],
+    summary: "Update DID document of wrapped document.",
+    requestBody: {
+      require: true,
+      content: {
+        "application/json": {
+          schema: {
+            type: "object",
+            properties: {
+              did: {
+                type: "string",
+                description: "DID of wrapped document.",
+                example: "did:method:Kukulu:file_name",
+              },
+              didDoc: {
+                $ref: "#/components/schemas/didDocumentOfWrappedDocument",
+              },
+            },
+          },
+        },
+      },
+    },
+    responses: {
+      200: {
+        description: "",
+        content: {
+          "application/json": {
+            example: {
+              message: "Successfully Saved/Updated/Deleted/Cloned/Set Cookie",
+            },
+          },
+        },
+      },
+    },
+  },
+};
 
 module.exports.searchWrappedDocument = {
   get: {

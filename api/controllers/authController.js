@@ -1,7 +1,10 @@
 const axios = require("axios").default;
 const Logger = require("../../logger");
 const { ERRORS, SERVERS } = require("../../core/constants");
-const { getPublicKeyFromAddress, getAddressFromHexEncoded } = require("../../core/index");
+const {
+  getPublicKeyFromAddress,
+  getAddressFromHexEncoded,
+} = require("../../core/index");
 
 module.exports = {
   ensureAuthenticated: (req, res, next) => {
@@ -53,7 +56,7 @@ module.exports = {
         user: user,
       });
     } catch (error) {
-      Logger.apiError(req, res, error);
+      Logger.apiError(req, res, `${JSON.stringify(error)}`);
       return res.status(400).json(error);
     }
   },

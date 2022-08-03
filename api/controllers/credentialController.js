@@ -7,51 +7,49 @@ const {
 } = require("../../core/index");
 const { ERRORS, SERVERS, SCHEMAS } = require("../../core/constants");
 const sha256 = require("js-sha256").sha256;
-const aesjs = require("aes-js");
+// const aesjs = require("aes-js");
 const Logger = require("../../logger");
 
 module.exports = {
   createCredential: async function (req, res) {
     // Receive input data
     const { access_token } = req.cookies;
-    const { indexOfCres, credential, payload, did, config } = req.body;
-
-    console.log("Credential", config);
-
-    // Handle input error
-    // const undefinedVar = checkUndefinedVar({
-    //   indexOfCres,
-    //   credential,
-    //   payload,
-    //   did,
-    // });
-    // if (undefinedVar.undefined)
-    //   return res.status(200).json({
-    //     ...ERRORS.MISSING_PARAMETERS,
-    //     detail: undefinedVar.detail,
-    //   });
-
-    // 0. Validate input
-    // 0.1. Validate DID syntax
-    const validDid = validateDIDSyntax(did, false);
-    if (!validDid.valid)
-      return res.status(200).json({
-        ...ERRORS.INVALID_INPUT,
-        detail: "Invalid DID syntax.",
-      });
-    const companyName = validDid.companyName,
-      fileName = validDid.fileNameOrPublicKey;
-
-    console.log("Credential", credential);
-    // 0.2. Validate credential
+    const { credential, did, config } = req.body;
 
     try {
+      // Handle input error
+      const undefinedVar = checkUndefinedVar({
+        credential,
+        did,
+        config,
+      });
+      if (undefinedVar.undefined)
+        return res.status(200).json({
+          ...ERRORS.MISSING_PARAMETERS,
+          detail: undefinedVar.detail,
+        });
+
+      // 0. Validate input
+      // 0.1. Validate DID syntax
+      const validDid = validateDIDSyntax(did, false);
+      if (!validDid.valid)
+        return res.status(200).json({
+          ...ERRORS.INVALID_INPUT,
+          detail: "Invalid DID syntax.",
+        });
+      const companyName = validDid.companyName,
+        fileName = validDid.fileNameOrPublicKey;
+
+      // 0.2. Validate credential
+      // ? CHECK THIS
+      const valid = validateJSONSchema(SCHEMAS.CREDENTIAL, credential);
+      if (!valid.valid)
+        return res.status(200).json({
+          ...ERRORS.INVALID_INPUT,
+          detail: valid.detail,
+        });
+
       // * 1. Get wrapped document and did document of wrapped odcument
-      Logger.apiInfo(
-        req,
-        res,
-        `Get wrappedDoc and didDoc of ${companyName}:${fileName}`
-      );
       // sucess:
       //   { wrappedDoc: {}, didDoc: {} }
       // error:
@@ -66,8 +64,15 @@ module.exports = {
       });
       const didDocument = documents.data.didDoc,
         wrappedDocument = documents.data.wrappedDoc;
-      const originPolicyId = wrappedDocument.policyId,
-        hashOfDocument = wrappedDocument.signature.targetHash;
+      // const originPolicyId = wrappedDocument.policyId,
+      //   hashOfDocument = wrappedDocument.signature.targetHash;
+
+      if (didDocument && wrappedDocument)
+        Logger.info(
+          `didDocument: ${JSON.stringify(
+            didDocument
+          )}\n wrappedDocument: ${JSON.stringify(wrappedDocument)}`
+        );
 
       // * 2. Validate permission to create credential
       // * 2.1. Get address of current user from access token
@@ -108,62 +113,28 @@ module.exports = {
         return res.status(200).json(ERRORS.PERMISSION_DENIED); // 403
       // 4. Call Cardano Service to verify signature
       // success:
-      //   { data: { result: true/false } }
-      // error:
-      //   { error_code: stringify, error_message: string }
-      // const verifiedSignature = await axios.post(
-      //   SERVERS.CARDANO_SERVICE + "/api/v2/credential",
       //   {
-      //     address: getPublicKeyFromAddress(address.data.data.address),
-      //     payload,
-      //     signature: credential.signature,
-      //   },
-      //   {
-      //     withCredentials: true,
-      //     headers: {
-      //       Cookie: `access_token=${access_token};`,
-      //     },
-      //   }
-      // );
-
-      // console.log(verifiedSignature.data);
-      // if (
-      //   !verifiedSignature.data.data.result ||
-      //   verifiedSignature.data.error_code
-      // )
-      //   return res.status(200).json({
-      //     ...ERRORS.UNVERIFIED_SIGNATURE,
-      //     detail: verifiedSignature.data,
-      //   }); // 403
-
-      // 5. Call Cardano Service to store new credential
-      // success:
-      //   {
-      //     data:
-      //     {
-      //       result: true,
-      //       token: { policyId: string, assetId: string }
-      //     }
+      //     code: number,
+      //     message: String,
+      //     data: true/false
       //   }
       // error:
       //   { error_code: number, message: string }
       const mintingNFT = await axios.post(
         SERVERS.CARDANO_SERVICE + "/api/v2/credential",
         {
-          config,
-          credential: sha256(
-            Buffer.from(JSON.stringify(credential), "utf8").toString("hex")
-          ),
+          address: getPublicKeyFromAddress(address.data.data.address),
+          payload: payload,
+          signature: credential.signature,
+          // key: ??
         },
         {
-          // cancelToken: source.token,
           withCredentials: true,
           headers: {
             Cookie: `access_token=${access_token};`,
           },
         }
       );
-      console.log(mintingNFT.data);
       if (mintingNFT?.data?.code === 0) {
         // 7. Call DID_CONTROLLER
         // success:
@@ -192,31 +163,118 @@ module.exports = {
         console.log(storeCredentialStatus?.data)
         return res.status(200).send(storeCredentialStatus.data);
       }
-      return res.status(200).send(mintingNFT.data);
     } catch (err) {
-      console.log("Error", err);
+      Logger.apiError(req, res, `${JSON.stringify(err)}`);
       err.response
         ? res.status(400).json(err.response.data)
         : res.status(400).json(err);
     }
+
+    // 5. Store credential on Cardano service and github
+    // 5.1 Call Cardano Service to store new credential
+    // success:
+    //   {
+    //     data:
+    //     {
+    //       result: true,
+    //       token: { policyId: string, assetId: string }
+    //     }
+    //   }
+    // error:
+    //   { error_code: number, message: string }
+
+    // // * Cancel request after 4 seconds if no response from Cardano Service
+    // const source = axios.CancelToken.source();
+
+    const mintingNFT = await axios.post(
+      SERVERS.CARDANO_SERVICE + "/api/v2/credential",
+      {
+        config,
+        credential: sha256(
+          Buffer.from(JSON.stringify(credential), "utf8").toString("hex")
+        ),
+      },
+      {
+        // cancelToken: source.token,
+        withCredentials: true,
+        headers: {
+          Cookie: `access_token=${access_token};`,
+        },
+      }
+    );
+
+    const storeCredentialStatus = await axios.post(
+      SERVERS.DID_CONTROLLER + "api/credential",
+      {
+        hash: sha256(
+          Buffer.from(JSON.stringify(credential), "utf-8".toString("hex"))
+        ),
+        content: credential,
+      },
+      {
+        withCredentials: true,
+        headers: {
+          Cookie: `access_token=${access_token};`,
+        },
+      }
+    );
+
+    Promise.all([mintingNFT, storeCredentialStatus])
+      .then(({ data }) => {
+        Logger.apiInfo(req, res, `Success.\n${JSON.stringify(data)}`);
+      })
+      .catch((error) => {
+        Logger.apiError(req, res, `${JSON.stringify(error)}`);
+        error.response
+          ? res.status(400).json(error.response.data)
+          : res.status(400).json(error);
+      });
+    res.status(201).send("Credential created.");
+
+    // if (mintingNFT?.data?.code === 0) {
+    //   // 7. Call DID_CONTROLLER
+    //   // success:
+    //   //   {}
+    //   // error:
+    //   //   { error_code: number, error_message: string}
+    //   const storeCredentialStatus = await axios.post(
+    //     SERVERS.DID_CONTROLLER + "/api/credential",
+    //     {
+    //       hash: sha256(
+    //         Buffer.from(JSON.stringify(credential), "utf8").toString("hex")
+    //       ),
+    //       content: credential,
+    //     },
+    //     {
+    //       withCredentials: true,
+    //       headers: {
+    //         Cookie: `access_token=${access_token};`,
+    //       },
+    //     }
+    //   );
+    //   return res.status(200).send(storeCredentialStatus.data);
+    // }
+    // return res.status(200).send(mintingNFT.data);
   },
 
   getCredential: async function (req, res) {
     const { hash } = req.headers;
     const { access_token } = req.cookies;
     try {
-      const credential = await axios.get(
+      const { data } = await axios.get(
         SERVERS.DID_CONTROLLER + "/api/credential",
         {
+          withCredentials: true,
           headers: {
             hash: hash,
             Cookie: `access_token=${access_token};`,
           },
         }
       );
-      res.status(200).send(credential.data);
+      Logger.apiInfo(req, res, `Success.\n${JSON.stringify(data)}`);
+      res.status(200).send(data);
     } catch (e) {
-      console.log(e);
+      Logger.apiError(req, res, `${JSON.stringify(e)}`);
       e.response
         ? res.status(400).json(e.response.data)
         : res.status(400).json(e);

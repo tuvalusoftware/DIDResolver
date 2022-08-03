@@ -6,6 +6,10 @@ module.exports = {
   validateDIDSyntax: (did, isSalted) => {
     // DID syntax: did:method:companyName:fileNameOrPublicKey
     // Salted DID: uuid:string:did:method:companyName:fileNameOrPublicKey
+    if (!did) {
+      Logger.error("Undefined did.");
+      return { valid: false, detail: "Undefined did." };
+    }
     const maxLength = isSalted ? 6 : 4,
       didPosition = isSalted ? 2 : 0,
       didComponents = did.split(":");
@@ -22,6 +26,7 @@ module.exports = {
       return { valid: false };
     }
 
+    Logger.info("Valid did.");
     return {
       valid: true,
       companyName: didComponents[didPosition + 2],
@@ -33,7 +38,8 @@ module.exports = {
     const address = cardanoSerialization.Address.from_bytes(
       Buffer.from(hexAddress, "hex")
     ).to_bech32();
-    Logger.info(`Address from hex: ${address}`);
+
+    Logger.info(`Address from hex (${hexAddress}): ${address}`);
     return address;
   },
 
@@ -51,34 +57,24 @@ module.exports = {
     const validate = ajv.compile(schema);
 
     const valid = validate(object);
-    if (!valid) Logger.error(`Invalid object.\n${validate.errors}`);
+    if (!valid)
+      Logger.error(`Invalid object.\n${JSON.stringify(validate.errors)}`);
     return valid ? { valid } : { valid, detail: validate.errors };
   },
 
   checkUndefinedVar: (object) => {
     let detail = "Not found:",
       flag = false;
-    const keys = Object.keys(object),
-      values = Object.values(object);
 
-    for (let i in keys) {
-      if (values[i] == undefined) {
-        detail += " " + keys[i];
+    for (const [key, value] of Object.entries(object)) {
+      if (value === undefined) {
+        detail += " " + key;
         flag = true;
       }
     }
 
     if (flag) Logger.error(`${detail}`);
+    else Logger.info(`Valid JSON object.`);
     return flag ? { undefined: true, detail } : { undefined: false };
-  },
-
-  getFieldsFromItems: (arrayOfItems, fieldName) => {
-    console.log(arrayOfItems);
-    console.log(fieldName);
-    let result = [];
-    for (let i in arrayOfItems) {
-      result.push(arrayOfItems[i][data][fieldName]);
-    }
-    return result;
   },
 };
