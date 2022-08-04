@@ -431,12 +431,12 @@ module.exports = {
         `${JSON.stringify(storeWrappedDocumentStatus.data)}`
       );
       // 6. Return policyId an assetId if the process is success.
-      storeWrappedDocumentStatus.data.error_code
+      return storeWrappedDocumentStatus.data.error_code
         ? res.status(200).json(storeWrappedDocumentStatus.data)
         : res.status(201).json(wrappedDocument);
     } catch (error) {
       Logger.apiError(req, res, `${JSON.stringify(error)}`);
-      error.response
+      return error.response
         ? res.status(400).json(error.response.data)
         : res.status(400).json(error);
     }
