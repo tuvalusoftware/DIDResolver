@@ -15,7 +15,6 @@ module.exports = {
     // Receive input data
     const { access_token } = req.cookies;
     const { credential, did, config } = req.body;
-
     try {
       // Handle input error
       const undefinedVar = checkUndefinedVar({
@@ -28,7 +27,6 @@ module.exports = {
           ...ERRORS.MISSING_PARAMETERS,
           detail: undefinedVar.detail,
         });
-
       // 0. Validate input
       // 0.1. Validate DID syntax
       const validDid = validateDIDSyntax(did, false);
@@ -39,21 +37,14 @@ module.exports = {
         });
       const companyName = validDid.companyName,
         fileName = validDid.fileNameOrPublicKey;
-
       // 0.2. Validate credential
-      // ? CHECK THIS
       const valid = validateJSONSchema(SCHEMAS.CREDENTIAL, credential);
       if (!valid.valid)
         return res.status(200).json({
           ...ERRORS.INVALID_INPUT,
           detail: valid.detail,
         });
-
       // * 1. Get wrapped document and did document of wrapped odcument
-      // sucess:
-      //   { wrappedDoc: {}, didDoc: {} }
-      // error:
-      //   { error_code: number, message: string }
       const documents = await axios.get(SERVERS.DID_CONTROLLER + "/api/doc", {
         withCredentials: true,
         headers: {
@@ -64,8 +55,6 @@ module.exports = {
       });
       const didDocument = documents.data.didDoc,
         wrappedDocument = documents.data.wrappedDoc;
-      // const originPolicyId = wrappedDocument.policyId,
-      //   hashOfDocument = wrappedDocument.signature.targetHash;
 
       if (didDocument && wrappedDocument)
         Logger.info(
@@ -107,7 +96,6 @@ module.exports = {
       }
 
       // * 2.3. Compare user address with controller address (from did document of wrapped document)
-      // ?? UPDATE TOI DAY
       if (didDocument.controller.indexOf(publicKey) < 0)
         // if (publicKey !== didDocument.owner && publicKey !== didDocument.holder)
         return res.status(200).json(ERRORS.PERMISSION_DENIED); // 403
@@ -123,10 +111,10 @@ module.exports = {
       const mintingNFT = await axios.post(
         SERVERS.CARDANO_SERVICE + "/api/v2/credential",
         {
-          address: getPublicKeyFromAddress(address.data.data.address),
-          payload: payload,
-          signature: credential.signature,
-          // key: ??
+          credential: sha256(
+            Buffer.from(JSON.stringify(credential), "utf8").toString("hex")
+          ),
+          config: config,
         },
         {
           withCredentials: true,
@@ -160,7 +148,6 @@ module.exports = {
             },
           }
         );
-        console.log(storeCredentialStatus?.data)
         return res.status(200).send(storeCredentialStatus.data);
       }
     } catch (err) {
@@ -182,54 +169,6 @@ module.exports = {
     //   }
     // error:
     //   { error_code: number, message: string }
-
-    // // * Cancel request after 4 seconds if no response from Cardano Service
-    // const source = axios.CancelToken.source();
-
-    const mintingNFT = await axios.post(
-      SERVERS.CARDANO_SERVICE + "/api/v2/credential",
-      {
-        config,
-        credential: sha256(
-          Buffer.from(JSON.stringify(credential), "utf8").toString("hex")
-        ),
-      },
-      {
-        // cancelToken: source.token,
-        withCredentials: true,
-        headers: {
-          Cookie: `access_token=${access_token};`,
-        },
-      }
-    );
-
-    const storeCredentialStatus = await axios.post(
-      SERVERS.DID_CONTROLLER + "api/credential",
-      {
-        hash: sha256(
-          Buffer.from(JSON.stringify(credential), "utf-8".toString("hex"))
-        ),
-        content: credential,
-      },
-      {
-        withCredentials: true,
-        headers: {
-          Cookie: `access_token=${access_token};`,
-        },
-      }
-    );
-
-    Promise.all([mintingNFT, storeCredentialStatus])
-      .then(({ data }) => {
-        Logger.apiInfo(req, res, `Success.\n${JSON.stringify(data)}`);
-      })
-      .catch((error) => {
-        Logger.apiError(req, res, `${JSON.stringify(error)}`);
-        error.response
-          ? res.status(400).json(error.response.data)
-          : res.status(400).json(error);
-      });
-    res.status(201).send("Credential created.");
 
     // if (mintingNFT?.data?.code === 0) {
     //   // 7. Call DID_CONTROLLER
@@ -285,19 +224,18 @@ module.exports = {
     // Receive input data
     const { access_token } = req.cookies;
     const { originCredentialHash, credentialContent } = req.body;
-    console.log({ originCredentialHash, credentialContent } )
-    try  {
+    console.log({ originCredentialHash, credentialContent });
+    try {
       const storeCredentialStatus = await axios.put(
         SERVERS.DID_CONTROLLER + "/api/credential",
         {
           hash: originCredentialHash,
-          content: credentialContent
+          content: credentialContent,
         }
       );
-      console.log('Res', storeCredentialStatus.data)
-      return res.status(200).send(storeCredentialStatus.data);    
+      console.log("Res", storeCredentialStatus.data);
+      return res.status(200).send(storeCredentialStatus.data);
     } catch (err) {
-      console.log("Error", err);
       err.response
         ? res.status(400).json(err.response.data)
         : res.status(400).json(err);
