@@ -392,6 +392,8 @@ module.exports = {
           }
         );
       }
+      
+      Logger.apiInfo(req, res, `MintNFT\n${JSON.stringify(mintingNFT)}`);
 
       // 3.2. Handle store hash errors
       if (mintingNFT.data.code !== 0)
