@@ -19,13 +19,14 @@ module.exports = {
 
       // Call Cardano Service
       // success:
+      // v2
       //   {
-      //     code: number,
+      //     code: 0,
       //     message: string,
-      //     data: [] or
+      //     data: [] or {}
       //   }
       // error:
-      //   { code: number, message: string }
+      //   { code: 1, message: string }
       const { data } = await axios.post(
         `${SERVERS.CARDANO_SERVICE}/api/v2/fetch/nft`,
         {
@@ -35,12 +36,15 @@ module.exports = {
         {
           withCredentials: true,
           headers: {
-            Cookie: `access_token=${access_token}`,
+            Cookie: `access_token=${access_token};`,
           },
         }
       );
 
-      Logger.apiInfo(req, res, `Success.\n${JSON.stringify(data)}`);
+      data.code
+        ? Logger.apiError(req, res, `${JSON.stringify(data)}`)
+        : Logger.apiInfo(req, res, `Success.\n${JSON.stringify(data)}`);
+
       return res.status(200).json(data);
     } catch (error) {
       Logger.apiInfo(req, res, `${JSON.stringify(error)}`);
@@ -54,35 +58,33 @@ module.exports = {
     // Receive input data
     const { access_token } = req.cookies;
     const { hashofdocument, policyid } = req.headers;
-    let query = {
-      policyId: policyid,
-    };
-    let undefinedCheck = { policyid };
-    if (hashofdocument) {
-      query = {
-        asset: `${policyid}${hashofdocument}`,
-      };
-      undefinedCheck = { ...undefinedCheck, hashofdocument };
-    }
 
-    // Handle input errors
-    const undefinedVar = checkUndefinedVar(undefinedCheck);
-    if (undefinedVar.undefined)
-      return res.status(200).json({
-        ...ERRORS.MISSING_PARAMETERS,
-        detail: undefinedVar.detail,
-      });
-
-    // Call Cardano Service
-    // success:
-    //   {
-    //     code: number,
-    //     message: string,
-    //     data: [] or {}
-    //   }
-    // error:
-    //   { code: number, message: string }
     try {
+      // Handle input errors
+      const undefinedVar = checkUndefinedVar({ hashofdocument, policyid });
+      if (undefinedVar.undefined)
+        return res.status(200).json({
+          ...ERRORS.MISSING_PARAMETERS,
+          detail: undefinedVar.detail,
+        });
+
+      // Call Cardano Service
+      // v2
+      // success:
+      //   {
+      //     code: 0,
+      //     message: string,
+      //     data: [] or {}
+      //   }
+      // error:
+      //   { code: 1, message: string }
+      let query = { policyId: policyid },
+        undefinedCheck = { policyid };
+      if (hashofdocument) {
+        query = { asset: `${policyid}${hashofdocument}` };
+        undefinedCheck = { ...undefinedCheck, hashofdocument };
+      }
+
       const { data } = await axios.post(
         `${SERVERS.CARDANO_SERVICE}/api/v2/fetch/nft`,
         query,
@@ -93,7 +95,10 @@ module.exports = {
           },
         }
       );
-      Logger.apiInfo(req, res, `Success:\n${JSON.stringify(data)}`);
+
+      data.code
+        ? Logger.apiError(req, res, `${JSON.stringify(data)}`)
+        : Logger.apiInfo(req, res, `Success.\n${JSON.stringify(data)}`);
       return res.status(200).json(data);
     } catch (error) {
       Logger.apiError(req, res, error);
@@ -110,7 +115,12 @@ module.exports = {
 
     try {
       // Handle input error
-      const undefinedVar = checkUndefinedVar({ address, payload, signature });
+      const undefinedVar = checkUndefinedVar({
+        address,
+        payload,
+        signature,
+        key,
+      });
       if (undefinedVar.undefined)
         return res.status(200).json({
           ...ERRORS.MISSING_PARAMETERS,
@@ -120,12 +130,12 @@ module.exports = {
       // Call Cardano Service
       // success:
       //   {
-      //     code: number,
+      //     code: 0,
       //     message: string,
       //     data: true/false
       //   }
       // error:
-      //   { code: number, message: string }
+      //   { code: 1, message: string }
       const { data } = await axios.post(
         SERVERS.CARDANO_SERVICE + "/api/v2/verify/signature",
         {
@@ -142,10 +152,12 @@ module.exports = {
         }
       );
 
-      Logger.apiInfo(req, res, `Success:\n${data}`);
+      data.code
+        ? Logger.apiError(req, res, `${JSON.stringify(data)}`)
+        : Logger.apiInfo(req, res, `Success.\n${JSON.stringify(data)}`);
       return res.status(200).json(data);
     } catch (error) {
-      Logger.apiError(req, res, `${error}`);
+      Logger.apiError(req, res, `${JSON.stringify(error)}`);
       return error.response
         ? res.status(400).json(error.response.data)
         : res.status(400).json(error);
