@@ -45,7 +45,10 @@ module.exports = {
         },
       });
 
-      Logger.apiInfo(req, res, `Success.\n${JSON.stringify(data)}`);
+      data?.error_code
+        ? Logger.apiError(req, res, `${JSON.stringify(data)}`)
+        : Logger.apiInfo(req, res, `Success.\n${JSON.stringify(data)}`);
+
       return res.status(200).json(data); // 404
     } catch (error) {
       Logger.apiError(req, res, `${JSON.stringify(error)}`);
@@ -99,10 +102,13 @@ module.exports = {
         }
       );
 
-      Logger.apiInfo(req, res, `Success.\n${JSON.stringify(data)}`);
-      data.error_code
-        ? res.status(200).json(data)
-        : res.status(201).send("DID Document created.");
+      if (data?.error_code) {
+        Logger.apiError(req, res, `${JSON.stringify(data)}`);
+        return res.status(200).json(data);
+      } else {
+        Logger.apiInfo(req, res, `Success.\n${JSON.stringify(data)}`);
+        return res.status(201).send("DID Document created.");
+      }
     } catch (error) {
       Logger.apiError(req, res, `${JSON.stringify(error)}`);
       error.response
@@ -124,11 +130,13 @@ module.exports = {
           ...ERRORS.MISSING_PARAMETERS,
           detail: undefinedVar.detail,
         });
+
       // Validate DID syntax
       const validDid = validateDIDSyntax(did, false),
         companyName = validDid.companyName,
         fileName = validDid.fileNameOrPublicKey;
       if (!validDid.valid) return res.status(200).json(ERRORS.INVALID_INPUT);
+
       // Call DID Controller
       // success:
       //   {
@@ -196,7 +204,11 @@ module.exports = {
           },
         }
       );
-      Logger.apiInfo(req, res, `Success.\n${JSON.stringify(data)}`);
+
+      data?.error_code
+        ? Logger.apiError(req, res, `${JSON.stringify(data)}`)
+        : Logger.apiInfo(req, res, `Success.\n${JSON.stringify(data)}`);
+
       return res.status(200).json(data);
     } catch (error) {
       Logger.apiError(req, res, `${JSON.stringify(error)}`);
@@ -207,7 +219,6 @@ module.exports = {
   },
 
   checkWrappedDocumentExistence: async function (req, res) {
-    // Receive input data
     const { access_token } = req.cookies;
     const { companyname: companyName, filename: fileName } = req.headers;
 
@@ -236,7 +247,7 @@ module.exports = {
       );
 
       Logger.apiInfo(req, res, `Success.\n${JSON.stringify(data)}`);
-      return res.status(200).json(data.isExisted);
+      return res.status(200).json(data?.isExisted);
     } catch (error) {
       Logger.apiError(req, res, `${JSON.stringify(error)}`);
       error.response
@@ -246,7 +257,6 @@ module.exports = {
   },
 
   createWrappedDocument: async function (req, res) {
-    // Get access-token from request and receive input data
     const { access_token } = req.cookies;
     let {
       wrappedDocument,
@@ -267,7 +277,7 @@ module.exports = {
         });
       }
 
-      // Validate wrapped document format
+      // ? Validate wrapped document format
       // const valid = validateJSONSchema(
       //   SCHEMAS.NEW_WRAPPED_DOCUMENT,
       //   wrappedDocument
@@ -290,11 +300,9 @@ module.exports = {
           detail: "Invalid DID syntax. Check did element.",
         });
 
+      // 1. Validate permission to create document
       const issuerAddress = getAddressFromHexEncoded(encryptedIssuerAddress),
         targetHash = wrappedDocument.signature.targetHash;
-
-      // 1. Validate permission to create document
-      Logger.apiInfo("Check user permission.");
       // 1.1. Get address of user from the acess token
       // success:
       //   { data: { address: string } }
@@ -306,7 +314,11 @@ module.exports = {
           headers: { Cookie: `access_token=${access_token};` },
         }
       );
-      Logger.apiInfo(req, res, `Address of user: ${address.data.data.address}`);
+      Logger.apiInfo(
+        req,
+        res,
+        `Address of user: ${address?.data?.data?.address}`
+      );
 
       // 1.2 Compare issuer address with user address
       if (issuerAddress !== address.data.data.address) {
@@ -316,12 +328,12 @@ module.exports = {
           `Address ${address.data.data.address} is not issuerAddress ${issuerAddress}`
         );
         return res.status(200).send(ERRORS.PERMISSION_DENIED); // 403
-      }
-      Logger.apiInfo(
-        req,
-        res,
-        `Issuer address: ${issuerAddress}.\n--> Matched.`
-      );
+      } else
+        Logger.apiInfo(
+          req,
+          res,
+          `Issuer address matchs current address. Address: ${issuerAddress}`
+        );
 
       // 2. Check if document is already stored on DB (true/false).
       // success:
@@ -338,17 +350,21 @@ module.exports = {
         }
       );
 
-      if (existence.data.isExisted) {
+      if (existence?.data?.isExisted) {
         Logger.apiError(
           req,
           res,
           `Wrapped document with name ${fileName} already existed.`
         );
         return res.status(200).json(ERRORS.ALREADY_EXSISTED); // 409
-      }
+      } else
+        Logger.apiInfo(
+          req,
+          res,
+          `Confirm new wrapped document. Continue creating...`
+        );
 
       // 3. Storing hash on Cardano blockchain
-      // ! UA... o.O
       // 3.1. Call Cardano Service
       // success:
       //   {
@@ -362,10 +378,11 @@ module.exports = {
       //   { error_code: number, error_message: string } }
 
       let mintBody = {
-        hash: targetHash,
-      };
-      let mintingNFT;
+          hash: targetHash,
+        },
+        mintingNFT;
       if (mintingNFTConfig) {
+        // * Update
         mintBody = {
           newHash: targetHash,
           config: { ...mintingNFTConfig, burn: false },
@@ -381,6 +398,7 @@ module.exports = {
           }
         );
       } else {
+        // * Create
         mintingNFT = await axios.post(
           SERVERS.CARDANO_SERVICE + "/api/v2/hash/",
           mintBody,
@@ -393,19 +411,30 @@ module.exports = {
         );
       }
 
-      // 3.2. Handle store hash errors
-      if (mintingNFT.data.code !== 0)
-        return res.status(200).json(mintingNFT.data);
       if (!mintingNFT) return res.status(200).json(ERRORS.CANNOT_MINT_NFT);
-      // 3.3. Extract policyId and assetId
-      const _mintingNFTConfig = mintingNFT.data.data
-        ? mintingNFT.data.data
+      if (mintingNFT?.data?.code !== 0) {
+        Logger.apiError(req, res, `${JSON.stringify(mintingNFT.data)}`);
+        return res.status(200).json({
+          ...ERRORS.CANNOT_MINT_NFT,
+          detail: mintingNFT.data,
+        });
+      } else
+        Logger.apiInfo(
+          req,
+          res,
+          `Minting NFT.\n${JSON.stringify(mintingNFT.data)}`
+        );
+
+      const _mintingNFTConfig = mintingNFT?.data?.data
+        ? mintingNFT?.data?.data
         : false;
+
       // 4. Add policy Id and assert Id to wrapped document
       wrappedDocument = {
         ...wrappedDocument,
         mintingNFTConfig: _mintingNFTConfig,
       };
+
       // 5. Storing wrapped document on DB
       // Call DID Controller
       // success:
@@ -425,18 +454,25 @@ module.exports = {
         }
       );
 
-      Logger.apiInfo(
-        req,
-        res,
-        `${JSON.stringify(storeWrappedDocumentStatus.data)}`
-      );
-      // 6. Return policyId an assetId if the process is success.
-      storeWrappedDocumentStatus.data.error_code
-        ? res.status(200).json(storeWrappedDocumentStatus.data)
-        : res.status(201).json(wrappedDocument);
+      // Return policyId an assetId if the process is success.
+      if (storeWrappedDocumentStatus?.data?.error_code) {
+        Logger.apiError(
+          req,
+          res,
+          `${JSON.stringify(storeWrappedDocumentStatus.data)}`
+        );
+        return res.status(200).json(storeWrappedDocumentStatus.data);
+      } else {
+        Logger.apiInfo(
+          req,
+          res,
+          `Success.\n${JSON.stringify(storeWrappedDocumentStatus.data)}`
+        );
+        return res.status(201).json(wrappedDocument);
+      }
     } catch (error) {
       Logger.apiError(req, res, `${JSON.stringify(error)}`);
-      error.response
+      return error.response
         ? res.status(400).json(error.response.data)
         : res.status(400).json(error);
     }
@@ -458,6 +494,7 @@ module.exports = {
         wrappedDocument
       );
 
+      Logger.apiInfo(req, res, `Success.\n${JSON.stringify(valid)}`);
       return res.status(200).json(valid);
     } catch (error) {
       Logger.apiError(req, res, `${JSON.stringify(error)}`);
@@ -466,7 +503,7 @@ module.exports = {
   },
 
   transferWrappedDocument: async function (req, res) {
-    // Update DID document of wrapped document
+    // * Update DID document of wrapped document
     const { access_token } = req.cookies;
     const { did, didDoc: didDocumentOfWrappedDocument } = req.body;
 
@@ -520,7 +557,7 @@ module.exports = {
         }
       );
 
-      data.error_code
+      data?.error_code
         ? Logger.apiError(req, res, `${JSON.stringify(data)}`)
         : Logger.apiInfo(req, res, `\n${JSON.stringify(data)}`);
       return res.status(200).json(data);
@@ -557,7 +594,9 @@ module.exports = {
         }
       );
 
-      Logger.apiInfo(req, res, `Success.\n${JSON.stringify(data)}`);
+      data?.code
+        ? Logger.apiError(req, res, `${JSON.stringify(data)}`)
+        : Logger.apiInfo(req, res, `Success.\n${JSON.stringify(data)}`);
       return res.status(200).json(data);
     } catch (error) {
       Logger.apiError(req, res, `${JSON.stringify(error)}`);
@@ -610,7 +649,7 @@ module.exports = {
         }
       );
 
-      if (data.error_code) {
+      if (data?.error_code) {
         Logger.apiError(req, res, `${JSON.stringify(data)}`);
         return res.status(200).json(data);
       }

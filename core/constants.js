@@ -3,9 +3,13 @@ const LOCAL_HOST = "http://localhost";
 const SCHEMAS = require("./schemas/index");
 
 module.exports.SERVERS = {
-  DID_CONTROLLER: `${HOST}:9000`,
-  CARDANO_SERVICE: `${HOST}:10003`,
+  // CARDANO_SERVICE: `${HOST}:10003`,
+  // DID_CONTROLLER: `${HOST}:9000`,
   AUTHENTICATION_SERVICE: `${HOST}:12000`,
+  CARDANO_SERVICE: `https://e19c-18-139-84-180.ap.ngrok.io`,
+  DID_CONTROLLER: `https://d3db-18-139-84-180.ap.ngrok.io`,
+  DID_RESOLVER: `https://ee9c-18-139-84-180.ap.ngrok.io`,
+  DOC_RENDERER: `https://439b-18-139-84-180.ap.ngrok.io`,
 };
 
 module.exports.SCHEMAS = SCHEMAS;
@@ -49,7 +53,6 @@ module.exports.ERRORS = {
   },
   CANNOT_FETCH_NFT: {
     error_code: 400,
-    error_message:
-      "Bad request. Cannot fetch NFT metadata. Check your assetId or policyId.",
+    error_message: "Bad request. Cannot fetch NFT metadata.",
   },
 };
