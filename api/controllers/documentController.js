@@ -573,6 +573,8 @@ module.exports = {
     const { config } = req.body;
     const { access_token } = req.cookies;
 
+    Logger.apiInfo(req, res, `access_token: ${JSON.stringify(access_token)}`);
+
     try {
       // Check missing parameters
       if (!config)
