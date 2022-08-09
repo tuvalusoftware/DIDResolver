@@ -8,6 +8,7 @@ const {
 
 module.exports = {
   ensureAuthenticated: (req, res, next) => {
+    Logger.apiInfo(req, res, `cookies: ${JSON.stringify(req.cookies)}`);
     if (!req.cookies["access_token"]) {
       Logger.apiError(req, res, `Not found: access_token.`);
       return res.status(401).json(ERRORS.UNAUTHORIZED);
