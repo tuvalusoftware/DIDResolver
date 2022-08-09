@@ -8,8 +8,7 @@ module.exports.SERVERS = {
   // AUTHENTICATION_SERVICE: `${HOST}:12000`,
   AUTHENTICATION_SERVICE: `https://d876-18-139-84-180.ap.ngrok.io`,
   CARDANO_SERVICE: `https://c48c-18-139-84-180.ap.ngrok.io`,
-  // DID_CONTROLLER: `https://6de5-18-139-84-180.ap.ngrok.io`,
-  DID_CONTROLLER: "http://192.168.2.13:9000",
+  DID_CONTROLLER: `https://6de5-18-139-84-180.ap.ngrok.io`,
   DID_RESOLVER: `https://f052-18-139-84-180.ap.ngrok.io`,
   DOC_RENDERER: `https://d006-18-139-84-180.ap.ngrok.io`,
 };

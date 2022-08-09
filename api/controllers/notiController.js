@@ -48,11 +48,9 @@ module.exports = {
         const existence = await axios.get(SERVERS.DID_CONTROLLER + "/api/did", {
           withCredentials: true,
           headers: {
-            Cookie: `access_token=${access_token};`,
-          },
-          params: {
             companyName,
             publicKey,
+            Cookie: `access_token=${access_token};`,
           },
         });
 
