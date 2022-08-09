@@ -512,3 +512,50 @@ module.exports.searchWrappedDocument = {
     },
   },
 };
+
+module.exports.revokeWrappedDocument = {
+  delete: {
+    tags: ["Wrapped document"],
+    summary: "Revoke a wrapped document.",
+    requestBody: {
+      require: true,
+      content: {
+        "application/json": {
+          schema: {
+            type: "object",
+            properties: {
+              config: { $ref: "#/components/schemas/mintingNFTConfig" },
+            },
+          },
+        },
+      },
+    },
+    responses: {
+      200: {
+        description: "Successfully revoke document",
+        content: {
+          "application/json": {
+            schema: {
+              type: "object",
+              properties: {
+                code: { type: "integer", example: 1 },
+                message: { type: "string", example: "SUCCESS" },
+              },
+            },
+          },
+        },
+      },
+      401: {
+        description: "Cannot verify user with the given access token.",
+        content: {
+          "text/plain": {
+            schema: {
+              type: "string",
+              example: "Unauthorized.",
+            },
+          },
+        },
+      },
+    },
+  },
+};
