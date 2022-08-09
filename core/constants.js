@@ -6,11 +6,11 @@ module.exports.SERVERS = {
   // CARDANO_SERVICE: `${HOST}:10003`,
   // DID_CONTROLLER: `${HOST}:9000`,
   // AUTHENTICATION_SERVICE: `${HOST}:12000`,
-  AUTHENTICATION_SERVICE: `https://55d7-18-139-84-180.ap.ngrok.io`,
-  CARDANO_SERVICE: `https://e19c-18-139-84-180.ap.ngrok.io`,
-  DID_CONTROLLER: `https://d3db-18-139-84-180.ap.ngrok.io`,
-  DID_RESOLVER: `https://ee9c-18-139-84-180.ap.ngrok.io`,
-  DOC_RENDERER: `https://439b-18-139-84-180.ap.ngrok.io`,
+  AUTHENTICATION_SERVICE: `https://d876-18-139-84-180.ap.ngrok.io`,
+  CARDANO_SERVICE: `https://c48c-18-139-84-180.ap.ngrok.io`,
+  DID_CONTROLLER: `https://6de5-18-139-84-180.ap.ngrok.io`,
+  DID_RESOLVER: `https://f052-18-139-84-180.ap.ngrok.io`,
+  DOC_RENDERER: `https://d006-18-139-84-180.ap.ngrok.io`,
 };
 
 module.exports.SCHEMAS = SCHEMAS;
