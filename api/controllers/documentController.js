@@ -583,7 +583,9 @@ module.exports = {
           detail: "Not found: config",
         });
 
-      const { request, data } = await axios.delete(
+      Logger.apiInfo(req, res, `config: ${JSON.stringify(config)}`);
+
+      const { data } = await axios.delete(
         SERVERS.CARDANO_SERVICE + "/api/v2/hash",
         {
           withCredentials: true,
@@ -594,9 +596,7 @@ module.exports = {
         }
       );
 
-      Logger.info(
-        `request: ${JSON.stringify(request)}\naccess_token: ${access_token}`
-      );
+      Logger.apiInfo(req, res, `response data: ${JSON.stringify(data)}`);
 
       data?.code
         ? Logger.apiError(req, res, `${JSON.stringify(data)}`)
@@ -604,7 +604,6 @@ module.exports = {
 
       return res.status(200).json(data);
     } catch (error) {
-      console.log(4);
       Logger.apiError(req, res, `${JSON.stringify(error)}`);
       return error.response
         ? res.status(400).json(error.response)
