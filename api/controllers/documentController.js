@@ -573,14 +573,15 @@ module.exports = {
     const { config } = req.body;
     const { access_token } = req.cookies;
 
-    Logger.apiInfo(req, res, `access_token: ${JSON.stringify(access_token)}`);
-
     try {
       // Check missing parameters
-      if (!config)
+      const undefinedVar = checkUndefinedVar({
+        config,
+      });
+      if (undefinedVar.undefined)
         return res.status(200).json({
           ...ERRORS.MISSING_PARAMETERS,
-          detail: "Not found: config",
+          detail: undefinedVar.detail,
         });
 
       Logger.apiInfo(req, res, `config: ${JSON.stringify(config)}`);
