@@ -6,11 +6,12 @@ module.exports.SERVERS = {
   // CARDANO_SERVICE: `${HOST}:10003`,
   // DID_CONTROLLER: `${HOST}:9000`,
   // AUTHENTICATION_SERVICE: `${HOST}:12000`,
-  AUTHENTICATION_SERVICE: `https://d876-18-139-84-180.ap.ngrok.io`,
-  CARDANO_SERVICE: `https://c48c-18-139-84-180.ap.ngrok.io`,
-  DID_CONTROLLER: `https://6de5-18-139-84-180.ap.ngrok.io`,
+  AUTHENTICATION_SERVICE: `https://auth-fuixlabs.ap.ngrok.io`,
+  CARDANO_SERVICE: `https://cardano-fuixlabs.ap.ngrok.io`,
+  DID_CONTROLLER: `https://github-fuixlabs.ap.ngrok.io`,
   DID_RESOLVER: `https://f052-18-139-84-180.ap.ngrok.io`,
-  DOC_RENDERER: `https://d006-18-139-84-180.ap.ngrok.io`,
+  DOC_RENDERER: `https://resolver-fuixlabs.ap.ngrok.io`,
+  PAPERLESS: `https://paperless-fuixlabs.ap.ngrok.io`,
 };
 
 module.exports.SCHEMAS = SCHEMAS;
