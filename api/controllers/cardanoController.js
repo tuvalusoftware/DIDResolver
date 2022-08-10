@@ -41,11 +41,13 @@ module.exports = {
         }
       );
 
-      data.code
-        ? Logger.apiError(req, res, `${JSON.stringify(data)}`)
-        : Logger.apiInfo(req, res, `Success.\n${JSON.stringify(data)}`);
-
-      return res.status(200).json(data);
+      if (data.code) {
+        Logger.apiError(req, res, `${JSON.stringify(data)}`);
+        return res.status.json(ERRORS.CANNOT_FETCH_NFT);
+      } else {
+        Logger.apiInfo(req, res, `Success.\n${JSON.stringify(data)}`);
+        return res.status(200).json(data.data);
+      }
     } catch (error) {
       Logger.apiInfo(req, res, `${JSON.stringify(error)}`);
       return error.response
@@ -96,10 +98,13 @@ module.exports = {
         }
       );
 
-      data.code
-        ? Logger.apiError(req, res, `${JSON.stringify(data)}`)
-        : Logger.apiInfo(req, res, `Success.\n${JSON.stringify(data)}`);
-      return res.status(200).json(data);
+      if (data.code) {
+        Logger.apiError(req, res, `${JSON.stringify(data)}`);
+        return res.status.json(ERRORS.CANNOT_FETCH_NFT);
+      } else {
+        Logger.apiInfo(req, res, `Success.\n${JSON.stringify(data)}`);
+        return res.status(200).json(data.data);
+      }
     } catch (error) {
       Logger.apiError(req, res, error);
       return error.response
@@ -155,7 +160,7 @@ module.exports = {
       data.code
         ? Logger.apiError(req, res, `${JSON.stringify(data)}`)
         : Logger.apiInfo(req, res, `Success.\n${JSON.stringify(data)}`);
-      return res.status(200).json(data);
+      return res.status(200).json(data.data);
     } catch (error) {
       Logger.apiError(req, res, `${JSON.stringify(error)}`);
       return error.response
