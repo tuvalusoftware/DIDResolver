@@ -116,16 +116,6 @@ module.exports = {
           ...ERRORS.MISSING_PARAMETERS,
           detail: undefinedVar.detail,
         });
-
-      // Call Cardano Service
-      // success:
-      //   {
-      //     code: number,
-      //     message: string,
-      //     data: true/false
-      //   }
-      // error:
-      //   { code: number, message: string }
       const { data } = await axios.post(
         SERVERS.CARDANO_SERVICE + "/api/v2/verify/signature",
         {

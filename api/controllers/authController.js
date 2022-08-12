@@ -8,12 +8,14 @@ const {
 
 module.exports = {
   ensureAuthenticated: (req, res, next) => {
+    console.log(req.cookies)
     if (!req.cookies["access_token"]) {
       Logger.apiError(req, res, `access_token not found`);
       return res.status(401).json(ERRORS.UNAUTHORIZED);
     }
 
     const token = req.cookies["access_token"];
+    console.log('Token', token)
     // Call Auth Service
     // success:
     //   { data: { address: string } }

@@ -4,6 +4,7 @@ const http = require("http"),
   compression = require("compression"),
   cookieParser = require("cookie-parser"),
   methodOverride = require("method-override"),
+  bodyParser = require('body-parser'),
   port = process.env.PORT || 8000;
 
 const app = express();
@@ -11,12 +12,14 @@ const app = express();
 app.use(cors());
 app.use(cookieParser());
 app.use(compression());
-app.use(express.json());
-app.use((err, req, res, _next) => {
-  res.json({
-    error_message: "Body should be a JSON",
-  });
-});
+app.use(express.json({limit: '25mb'}));
+app.use(express.urlencoded({limit: '25mb', extended: true}));
+// app.use((err, req, res, _next) => {
+//   console.log(req)
+//   res.json({
+//     error_message: "Body should be a JSON",
+//   });
+// });
 
 app.use(
   express.urlencoded({
