@@ -53,9 +53,11 @@ module.exports = {
       const documents = await axios.get(SERVERS.DID_CONTROLLER + "/api/doc", {
         withCredentials: true,
         headers: {
+          Cookie: `access_token=${access_token};`,
+        },
+        params: {
           companyName,
           fileName,
-          Cookie: `access_token=${access_token};`,
         },
       });
 
@@ -249,8 +251,10 @@ module.exports = {
         {
           withCredentials: true,
           headers: {
-            hash: hash,
             Cookie: `access_token=${access_token};`,
+          },
+          params: {
+            hash,
           },
         }
       );

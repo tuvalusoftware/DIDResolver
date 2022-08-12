@@ -148,11 +148,9 @@ module.exports = {
       const { data } = await axios.get(SERVERS.DID_CONTROLLER + "/api/doc", {
         withCredentials: true,
         headers: {
-          companyName,
-          fileName,
           Cookie: `access_token=${access_token}`,
         },
-        params: { only },
+        params: { companyName, fileName, only },
       });
 
       Logger.apiInfo(req, res, `Success.\n${JSON.stringify(data)}`);
@@ -198,9 +196,11 @@ module.exports = {
         {
           withCredentials: true,
           headers: {
+            Cookie: `access_token=${access_token}`,
+          },
+          params: {
             companyName: companyName,
             publicKey: publicKey,
-            Cookie: `access_token=${access_token}`,
           },
         }
       );
@@ -239,9 +239,11 @@ module.exports = {
         {
           withCredentials: true,
           headers: {
+            Cookie: `access_token=${access_token}`,
+          },
+          params: {
             companyName,
             fileName,
-            Cookie: `access_token=${access_token}`,
           },
         }
       );
@@ -343,9 +345,11 @@ module.exports = {
         {
           withCredentials: true,
           headers: {
+            Cookie: `access_token=${access_token};`,
+          },
+          params: {
             companyName,
             fileName,
-            Cookie: `access_token=${access_token};`,
           },
         }
       );
@@ -647,11 +651,15 @@ module.exports = {
       // error:
       //   { error_code: number, message: string }
       const { data } = await axios.get(
-        `${SERVERS.DID_CONTROLLER}/api/doc/search-content?companyName=${companyName}&searchString=${searchString}`,
+        SERVERS.DID_CONTROLLER + "/api/doc/search-content",
         {
           withCredentials: true,
           headers: {
             Cookie: `access_token=${access_token};`,
+          },
+          params: {
+            companyName,
+            searchString,
           },
         }
       );
