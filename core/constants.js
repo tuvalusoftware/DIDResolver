@@ -3,10 +3,10 @@ const LOCAL_HOST = "http://localhost";
 const SCHEMAS = require("./schemas/index");
 
 module.exports.SERVERS = {
-  DID_CONTROLLER: `http://192.168.2.13:9000`,
-  CARDANO_SERVICE: `${LOCAL_HOST}:10003`,
-  // CARDANO_SERVICE: `https://enigmatic-sands-00024.herokuapp.com:10003`,
-  AUTHENTICATION_SERVICE: `${LOCAL_HOST}:12000`,
+  DID_CONTROLLER: `${HOST}:9000`,
+  // CARDANO_SERVICE: `http://192.168.2.3:10003`,
+  CARDANO_SERVICE: `${HOST}:10003`,
+  AUTHENTICATION_SERVICE: `${HOST}:12000`,
 };
 
 module.exports.SCHEMAS = SCHEMAS;
@@ -49,8 +49,7 @@ module.exports.ERRORS = {
     error_message: "Error. Cannot mint NFT.",
   },
   CANNOT_FETCH_NFT: {
-    error_code: 400,
-    error_message:
-      "Bad request. Cannot fetch NFT metadata. Check your assetId or policyId.",
+    error_code: 500,
+    error_message: "Error. Cannot fetch NFT.",
   },
 };

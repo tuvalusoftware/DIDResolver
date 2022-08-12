@@ -12,6 +12,7 @@ const {
   validateWrappedDocument,
   searchWrappedDocument,
   transferWrappedDocument,
+  revokeWrappedDocument,
 } = require("./wrappedDocument");
 
 module.exports.paths = {
@@ -48,6 +49,9 @@ module.exports.paths = {
   },
   "/wrapped-document/search": {
     ...searchWrappedDocument,
+  },
+  "/wrapped-document/revoke": {
+    ...revokeWrappedDocument,
   },
 
   "/credential/": {

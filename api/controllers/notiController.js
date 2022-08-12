@@ -30,6 +30,7 @@ module.exports = {
         });
 
       // Check if receiver and sender exist
+      // ???
       const dids = [notification.receiver, notification.sender];
       for (let did in dids) {
         const validDid = validateDIDSyntax(did, false),
@@ -47,13 +48,15 @@ module.exports = {
         const existence = await axios.get(SERVERS.DID_CONTROLLER + "/api/did", {
           withCredentials: true,
           headers: {
+            Cookie: `access_token=${access_token};`,
+          },
+          params: {
             companyName,
             publicKey,
-            Cookie: `access_token=${access_token};`,
           },
         });
 
-        if (existence.error_code) {
+        if (existence?.error_code) {
           Logger.apiError(req, res, `User not exists.`);
           return res.status(200).json(ERRORS.USER_NOT_EXIST);
         }
@@ -77,15 +80,21 @@ module.exports = {
         }
       );
 
-      Logger.apiInfo(
-        req,
-        res,
-        `Success.\n${JSON.stringify(storeNotificationStatus.data)}`
-      );
-      // Handle some error
-      if (storeNotificationStatus.data.error_code)
+      if (storeNotificationStatus?.data?.error_code) {
+        Logger.apiError(
+          req,
+          res,
+          `${JSON.stringify(storeNotificationStatus.data)}`
+        );
         return res.status(200).json(storeNotificationStatus.data);
-      return res.status(201).send("Notification created.");
+      } else {
+        Logger.apiInfo(
+          req,
+          res,
+          `Success.\n${JSON.stringify(storeNotificationStatus.data)}`
+        );
+        return res.status(201).send("Notification created.");
+      }
     } catch (error) {
       Logger.apiError(req, res, `${JSON.stringify(error)}`);
       error.response
