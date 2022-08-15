@@ -15,7 +15,7 @@ module.exports = {
     apiInfo(req, res, `Req: ${JSON.stringify(req)}`);
     if (!req.cookies["access_token"]) {
       Logger.apiError(req, res, `Not found: access_token.`);
-      return res.status(200).json(ERRORS.UNAUTHORIZED);
+      return res.status(401).json(ERRORS.UNAUTHORIZED);
     }
 
     const token = req.cookies["access_token"];
