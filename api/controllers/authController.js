@@ -6,23 +6,14 @@ const {
   getAddressFromHexEncoded,
 } = require("../../core/index");
 
-axios.defaults.withCredentials = true;
-
 module.exports = {
   ensureAuthenticated: (req, res, next) => {
-    try {
-      Logger.apiInfo(req, res, `Cookie: ${JSON.stringify(req.cookies)}`);
-      Logger.apiInfo(req, res, `Req: ${JSON.stringify(req.headers)}`);
-    } catch (err) {
-      Logger.apiInfo(req, res, err);
-    }
     if (!req.cookies["access_token"]) {
       Logger.apiError(req, res, `Not found: access_token.`);
       return res.status(401).json(ERRORS.UNAUTHORIZED);
     }
 
     const token = req.cookies["access_token"];
-    console.log("Token", token);
     // Call Auth Service
     // success:
     //   { data: { address: string } }
@@ -46,7 +37,7 @@ module.exports = {
         },
         (error) => {
           Logger.apiError(req, res, `${JSON.stringify(error)}`);
-          return res.status(401).json(ERRORS.PERMISSION_DENIED);
+          return res.status(403).json(ERRORS.PERMISSION_DENIED);
           // next(error);
         }
       );
@@ -56,7 +47,6 @@ module.exports = {
     const { address, user, confirmNominate } = req.query;
     const returnKey = getPublicKeyFromAddress(address);
     try {
-      console.log("Returnkey: ", returnKey);
       Logger.apiInfo(req, res, `User: ${user}, address: ${address}`);
       return res.status(200).json({
         publicKey: returnKey,
