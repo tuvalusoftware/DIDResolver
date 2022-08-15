@@ -25,11 +25,21 @@ app.use(
 );
 app.use(methodOverride());
 
-// CONFIGURE CORS
+app.use(function (req, res, next) {
+  res.header("Access-Control-Allow-Credentials", true);
+  res.header("Access-Control-Allow-Origin", req.header("Origin"));
+  res.header("Access-Control-Allow-Methods", "GET,PUT,OPTIONS,POST,DELETE");
+  res.header(
+    "Access-Control-Allow-Headers",
+    "X-Requested-With, X-HTTP-Method-Override, Content-Type, Accept"
+  );
+  next();
+});
+
 const corsOptions = {
   origin: [
     "http://18.139.84.180:11000",
-    "https://paperless-fuixlabs.ap.ngrok.io",
+    "https://paperless-fuixlabs.ap.ngrok.io   ",
   ],
   credentials: true,
 };
