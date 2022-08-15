@@ -5,14 +5,13 @@ const {
   getPublicKeyFromAddress,
   getAddressFromHexEncoded,
 } = require("../../core/index");
-const { apiInfo } = require("../../logger");
 
 axios.defaults.withCredentials = true;
 
 module.exports = {
   ensureAuthenticated: (req, res, next) => {
-    apiInfo(req, res, `Cookie: ${JSON.stringify(req.cookies)}`);
-    apiInfo(req, res, `Req: ${JSON.stringify(req)}`);
+    Logger.apiInfo(req, res, `Cookie: ${JSON.stringify(req.cookies)}`);
+    Logger.apiInfo(req, res, `Req: ${JSON.stringify(req)}`);
     if (!req.cookies["access_token"]) {
       Logger.apiError(req, res, `Not found: access_token.`);
       return res.status(401).json(ERRORS.UNAUTHORIZED);
