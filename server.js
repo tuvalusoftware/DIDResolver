@@ -9,7 +9,7 @@ const http = require("http"),
 
 const app = express();
 
-app.use(cors());
+// app.use(cors());
 app.use(cookieParser());
 app.use(compression());
 app.use(express.json());
