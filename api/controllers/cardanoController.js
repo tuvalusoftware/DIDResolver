@@ -36,6 +36,7 @@ module.exports = {
           policyId: policyId, // 41ac0d6b1287d7abd2c0443566cf34f95f1ec7e338dc18653fcedcb4
         },
         {
+          withCredentials: true,
           headers: {
             Cookie: `access_token=${access_token};`,
           },
@@ -92,6 +93,7 @@ module.exports = {
         `${SERVERS.CARDANO_SERVICE}/api/v2/fetch/nft`,
         query,
         {
+          withCredentials: true,
           headers: {
             Cookie: `access_token=${access_token}`,
           },
@@ -150,6 +152,7 @@ module.exports = {
           key: key,
         },
         {
+          withCredentials: true,
           headers: {
             Cookie: `access_token=${access_token}`,
           },

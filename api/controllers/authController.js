@@ -26,6 +26,7 @@ module.exports = {
     // error: 401 - unauthorized
     axios
       .get(`${SERVERS.AUTHENTICATION_SERVICE}/api/auth/verify`, {
+        withCredentials: true,
         headers: {
           Cookie: `access_token=${token};`,
         },
@@ -73,6 +74,7 @@ module.exports = {
       const { data } = await axios.get(
         `${SERVERS.AUTHENTICATION_SERVICE}/api/auth/verify`,
         {
+          withCredentials: true,
           headers: {
             Cookie: `access_token=${token};`,
           },

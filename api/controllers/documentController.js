@@ -345,6 +345,7 @@ module.exports = {
       const existence = await axios.get(
         SERVERS.DID_CONTROLLER + "/api/doc/exists/",
         {
+          withCredentials: true,
           headers: {
             Cookie: `access_token=${access_token};`,
           },
@@ -396,6 +397,7 @@ module.exports = {
           SERVERS.CARDANO_SERVICE + "/api/v2/hash/",
           mintBody,
           {
+            withCredentials: true,
             headers: {
               Cookie: `access_token=${access_token};`,
             },
@@ -407,6 +409,7 @@ module.exports = {
           SERVERS.CARDANO_SERVICE + "/api/v2/hash/",
           mintBody,
           {
+            withCredentials: true,
             headers: {
               Cookie: `access_token=${access_token};`,
             },
@@ -452,6 +455,7 @@ module.exports = {
           companyName,
         },
         {
+          withCredentials: true,
           headers: { Cookie: `access_token=${access_token};` },
         }
       );
@@ -552,6 +556,7 @@ module.exports = {
           didDoc: didDocumentOfWrappedDocument,
         },
         {
+          withCredentials: true,
           headers: {
             Cookie: `access_token=${access_token};`,
           },
@@ -588,6 +593,7 @@ module.exports = {
       const { request, data } = await axios.delete(
         SERVERS.CARDANO_SERVICE + "/api/v2/hash",
         {
+          withCredentials: true,
           headers: {
             Cookie: `access_token=${access_token};`,
           },
@@ -649,6 +655,7 @@ module.exports = {
       const { data } = await axios.get(
         SERVERS.DID_CONTROLLER + "/api/doc/search-content",
         {
+          withCredentials: true,
           headers: {
             Cookie: `access_token=${access_token};`,
           },

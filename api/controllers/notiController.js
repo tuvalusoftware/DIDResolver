@@ -48,6 +48,7 @@ module.exports = {
         // Call DID Controller to check if DID of receiver and sender exist
         // success:
         const existence = await axios.get(SERVERS.DID_CONTROLLER + "/api/did", {
+          withCredentials: true,
           headers: {
             Cookie: `access_token=${access_token};`,
           },
@@ -74,6 +75,7 @@ module.exports = {
           message: notification,
         },
         {
+          withCredentials: true,
           headers: {
             Cookie: `access_token=${access_token};`,
           },

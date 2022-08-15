@@ -83,6 +83,7 @@ module.exports = {
       const address = await axios.get(
         SERVERS.AUTHENTICATION_SERVICE + "/api/auth/verify",
         {
+          withCredentials: true,
           headers: {
             Cookie: `access_token=${access_token};`,
           },
@@ -188,6 +189,7 @@ module.exports = {
       const credential = await axios.get(
         SERVERS.DID_CONTROLLER + "/api/credential",
         {
+          withCredentials: true,
           headers: {
             Cookie: `access_token=${access_token};`,
           },
@@ -219,6 +221,7 @@ module.exports = {
           content: credentialContent,
         },
         {
+          withCredentials: true,
           headers: {
             Cookie: `access_token=${access_token};`,
           },
