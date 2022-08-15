@@ -12,6 +12,7 @@ axios.defaults.withCredentials = true;
 module.exports = {
   ensureAuthenticated: (req, res, next) => {
     apiInfo(req, res, `Cookie: ${JSON.stringify(req.cookies)}`);
+    apiInfo(req, res, `Req: ${JSON.stringify(req)}`);
     if (!req.cookies["access_token"]) {
       Logger.apiError(req, res, `Not found: access_token.`);
       return res.status(200).json(ERRORS.UNAUTHORIZED);

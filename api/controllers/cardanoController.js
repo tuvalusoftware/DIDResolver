@@ -1,7 +1,7 @@
 const axios = require("axios").default;
 const { checkUndefinedVar } = require("../../core");
 const { ERRORS, SERVERS } = require("../../core/constants");
-const Logger = require("../../logger");
+const { apiInfo, apiError, info, error } = require("../../logger");
 
 axios.defaults.withCredentials = true;
 
@@ -43,14 +43,14 @@ module.exports = {
       );
 
       if (data.code) {
-        Logger.apiError(req, res, `${JSON.stringify(data)}`);
+        apiError(req, res, `${JSON.stringify(data)}`);
         return res.status.json(ERRORS.CANNOT_FETCH_NFT);
       } else {
-        Logger.apiInfo(req, res, `Success.\n${JSON.stringify(data)}`);
+        apiInfo(req, res, `Success.\n${JSON.stringify(data)}`);
         return res.status(200).json(data.data);
       }
     } catch (error) {
-      Logger.apiInfo(req, res, `${JSON.stringify(error)}`);
+      apiInfo(req, res, `${JSON.stringify(error)}`);
       return error.response
         ? res.status(400).json(error.response.data)
         : res.status(400).json(error);
@@ -99,14 +99,14 @@ module.exports = {
       );
 
       if (data.code) {
-        Logger.apiError(req, res, `${JSON.stringify(data)}`);
+        apiError(req, res, `${JSON.stringify(data)}`);
         return res.status.json(ERRORS.CANNOT_FETCH_NFT);
       } else {
-        Logger.apiInfo(req, res, `Success.\n${JSON.stringify(data)}`);
+        apiInfo(req, res, `Success.\n${JSON.stringify(data)}`);
         return res.status(200).json(data.data);
       }
     } catch (error) {
-      Logger.apiError(req, res, error);
+      apiError(req, res, error);
       return error.response
         ? res.status(400).json(error.response.data)
         : res.status(400).json(error);
@@ -157,11 +157,11 @@ module.exports = {
       );
 
       data.code
-        ? Logger.apiError(req, res, `${JSON.stringify(data)}`)
-        : Logger.apiInfo(req, res, `Success.\n${JSON.stringify(data)}`);
+        ? apiError(req, res, `${JSON.stringify(data)}`)
+        : apiInfo(req, res, `Success.\n${JSON.stringify(data)}`);
       return res.status(200).json(data.data);
     } catch (error) {
-      Logger.apiError(req, res, `${JSON.stringify(error)}`);
+      apiError(req, res, `${JSON.stringify(error)}`);
       return error.response
         ? res.status(400).json(error.response.data)
         : res.status(400).json(error);
