@@ -12,7 +12,7 @@ module.exports = {
   ensureAuthenticated: (req, res, next) => {
     try {
       Logger.apiInfo(req, res, `Cookie: ${JSON.stringify(req.cookies)}`);
-      //Logger.apiInfo(req, res, `Req: ${JSON.stringify(req)}`);
+      Logger.apiInfo(req, res, `Req: ${JSON.stringify(req.headers)}`);
     } catch (err) {
       Logger.apiInfo(req, res, err);
     }
