@@ -39,6 +39,7 @@ module.exports = {
       // error:
       //   { error_code: number, message: string }
       const { data } = await axios.get(SERVERS.DID_CONTROLLER + "/api/did/", {
+        withCredentials: true,
         headers: {
           companyName: companyName,
           publicKey: publicKey,
@@ -96,6 +97,7 @@ module.exports = {
           content: didDocument,
         },
         {
+          withCredentials: true,
           headers: {
             Cookie: `access_token=${access_token}`,
           },
@@ -146,6 +148,7 @@ module.exports = {
       // error:
       //   { error_code: number, message: string }
       const { data } = await axios.get(SERVERS.DID_CONTROLLER + "/api/doc", {
+        withCredentials: true,
         headers: {
           Cookie: `access_token=${access_token}`,
         },
@@ -193,6 +196,7 @@ module.exports = {
       const { data } = await axios.get(
         SERVERS.DID_CONTROLLER + "/api/doc/user",
         {
+          withCredentials: true,
           headers: {
             Cookie: `access_token=${access_token}`,
           },
@@ -235,6 +239,7 @@ module.exports = {
       const { data } = await axios.get(
         SERVERS.DID_CONTROLLER + "/api/doc/exists/",
         {
+          withCredentials: true,
           headers: {
             Cookie: `access_token=${access_token}`,
           },
@@ -309,6 +314,7 @@ module.exports = {
       const address = await axios.get(
         SERVERS.AUTHENTICATION_SERVICE + "/api/auth/verify",
         {
+          withCredentials: true,
           headers: { Cookie: `access_token=${access_token};` },
         }
       );
