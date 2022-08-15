@@ -4,7 +4,7 @@ const http = require("http"),
   compression = require("compression"),
   cookieParser = require("cookie-parser"),
   methodOverride = require("method-override"),
-  bodyParser = require('body-parser'),
+  bodyParser = require("body-parser"),
   port = process.env.PORT || 8000;
 
 const app = express();
@@ -25,6 +25,7 @@ app.use(
   })
 );
 app.use(methodOverride());
+app.options("*", cors());
 
 // SET UP SWAGGER API DOCUMENT
 const swaggerUi = require("swagger-ui-express"),
