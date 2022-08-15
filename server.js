@@ -9,7 +9,6 @@ const http = require("http"),
 
 const app = express();
 
-// app.use(cors());
 app.use(cookieParser());
 app.use(compression());
 app.use(express.json());
@@ -25,19 +24,13 @@ app.use(
   })
 );
 app.use(methodOverride());
-// app.options("*", cors());
-// app.use(function (req, res, next) {
-//   res.header("Access-Control-Allow-Credentials", true);
-//   res.header("Access-Control-Allow-Origin", req.header("Origin"));
-//   res.header("Access-Control-Allow-Methods", "GET,PUT,OPTIONS,POST,DELETE");
-//   res.header(
-//     "Access-Control-Allow-Headers",
-//     "X-Requested-With, X-HTTP-Method-Override, Content-Type, Accept"
-//   );
-//   next();
-// });
+
+// CONFIGURE CORS
 const corsOptions = {
-  origin: ["http://18.139.84.180:11000"],
+  origin: [
+    "http://18.139.84.180:11000",
+    "https://paperless-fuixlabs.ap.ngrok.io",
+  ],
   credentials: true,
 };
 app.use(cors(corsOptions));
