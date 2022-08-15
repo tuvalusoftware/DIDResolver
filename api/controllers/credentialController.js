@@ -46,7 +46,6 @@ module.exports = {
         });
       // * 1. Get wrapped document and did document of wrapped odcument
       const documents = await axios.get(SERVERS.DID_CONTROLLER + "/api/doc", {
-        withCredentials: true,
         headers: {
           Cookie: `access_token=${access_token};`,
         },
@@ -82,7 +81,6 @@ module.exports = {
       const address = await axios.get(
         SERVERS.AUTHENTICATION_SERVICE + "/api/auth/verify",
         {
-          withCredentials: true,
           headers: {
             Cookie: `access_token=${access_token};`,
           },
@@ -138,7 +136,6 @@ module.exports = {
         },
         {
           // cancelToken: source.token,
-          withCredentials: true,
           headers: {
             Cookie: `access_token=${access_token};`,
           },
@@ -166,7 +163,6 @@ module.exports = {
             content: credential,
           },
           {
-            withCredentials: true,
             headers: {
               Cookie: `access_token=${access_token};`,
             },
@@ -217,7 +213,7 @@ module.exports = {
         SERVERS.DID_CONTROLLER + "/api/credential",
         {
           hash: originCredentialHash,
-          content: credentialContent
+          content: credentialContent,
         },
         {
           headers: {

@@ -8,21 +8,20 @@ const {
 
 module.exports = {
   ensureAuthenticated: (req, res, next) => {
-    console.log(req.cookies)
+    console.log(req.cookies);
     if (!req.cookies["access_token"]) {
       Logger.apiError(req, res, `Not found: access_token.`);
       return res.status(200).json(ERRORS.UNAUTHORIZED);
     }
 
     const token = req.cookies["access_token"];
-    console.log('Token', token)
+    console.log("Token", token);
     // Call Auth Service
     // success:
     //   { data: { address: string } }
     // error: 401 - unauthorized
     axios
       .get(`${SERVERS.AUTHENTICATION_SERVICE}/api/auth/verify`, {
-        withCredentials: true,
         headers: {
           Cookie: `access_token=${token};`,
         },
@@ -69,7 +68,6 @@ module.exports = {
       const { data } = await axios.get(
         `${SERVERS.AUTHENTICATION_SERVICE}/api/auth/verify`,
         {
-          withCredentials: true,
           headers: {
             Cookie: `access_token=${token};`,
           },
