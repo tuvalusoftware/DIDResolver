@@ -186,7 +186,7 @@ module.exports = {
     const { hash } = req.headers;
     const { access_token } = req.cookies;
     try {
-      const credential = await axios.get(
+      const { data } = await axios.get(
         SERVERS.DID_CONTROLLER + "/api/credential",
         {
           withCredentials: true,
