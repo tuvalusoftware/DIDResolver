@@ -42,7 +42,8 @@ module.exports = {
         },
         (error) => {
           Logger.apiError(req, res, `${JSON.stringify(error)}`);
-          next(error);
+          return res.status(401).json(ERRORS.PERMISSION_DENIED);
+          // next(error);
         }
       );
   },
