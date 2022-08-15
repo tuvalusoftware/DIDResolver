@@ -9,7 +9,8 @@ const { ERRORS, SERVERS, SCHEMAS } = require("../../core/constants");
 const sha256 = require("js-sha256").sha256;
 const aesjs = require("aes-js");
 const Logger = require("../../logger");
-const { json } = require("express");
+
+axios.defaults.withCredentials = true;
 
 module.exports = {
   createCredential: async function (req, res) {
@@ -46,6 +47,7 @@ module.exports = {
         });
       // * 1. Get wrapped document and did document of wrapped odcument
       const documents = await axios.get(SERVERS.DID_CONTROLLER + "/api/doc", {
+        withCredentials: true,
         headers: {
           Cookie: `access_token=${access_token};`,
         },
@@ -136,6 +138,7 @@ module.exports = {
         },
         {
           // cancelToken: source.token,
+          withCredentials: true,
           headers: {
             Cookie: `access_token=${access_token};`,
           },

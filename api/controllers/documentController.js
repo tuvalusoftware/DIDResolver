@@ -8,6 +8,8 @@ const {
   checkUndefinedVar,
 } = require("../../core/index");
 
+axios.defaults.withCredentials = true;
+
 module.exports = {
   getDIDDocument: async function (req, res) {
     const { access_token } = req.cookies;

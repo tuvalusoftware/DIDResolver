@@ -6,6 +6,8 @@ const {
   getAddressFromHexEncoded,
 } = require("../../core/index");
 
+axios.defaults.withCredentials = true;
+
 module.exports = {
   ensureAuthenticated: (req, res, next) => {
     console.log(req.cookies);

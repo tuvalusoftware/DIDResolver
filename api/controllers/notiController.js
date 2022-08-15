@@ -7,6 +7,8 @@ const {
 } = require("../../core");
 const { ERRORS, SCHEMAS, SERVERS } = require("../../core/constants");
 
+axios.defaults.withCredentials = true;
+
 module.exports = {
   createNotification: async (req, res) => {
     const { notification } = req.body;

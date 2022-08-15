@@ -3,6 +3,8 @@ const { checkUndefinedVar } = require("../../core");
 const { ERRORS, SERVERS } = require("../../core/constants");
 const Logger = require("../../logger");
 
+axios.defaults.withCredentials = true;
+
 module.exports = {
   getNFTs: async function (req, res) {
     const { access_token } = req.cookies;
