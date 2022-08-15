@@ -8,23 +8,6 @@ const http = require("http"),
   port = process.env.PORT || 8000;
 
 const app = express();
-
-app.use(cookieParser());
-app.use(compression());
-app.use(express.json());
-app.use((err, req, res, _next) => {
-  res.json({
-    error_message: "Body should be a JSON",
-  });
-});
-
-app.use(
-  express.urlencoded({
-    extended: true,
-  })
-);
-app.use(methodOverride());
-
 const corsOptions = {
   origin: [
     "http://18.139.84.180:11000",
@@ -32,7 +15,19 @@ const corsOptions = {
   ],
   credentials: true,
 };
+
 app.use(cors(corsOptions));
+app.use(cookieParser());
+app.use(compression());
+app.use(express.json());
+app.use(express.json({ limit: "25mb" }));
+app.use(express.urlencoded({ limit: "25mb", extended: true }));
+app.use(
+  express.urlencoded({
+    extended: true,
+  })
+);
+app.use(methodOverride());
 
 // SET UP SWAGGER API DOCUMENT
 const swaggerUi = require("swagger-ui-express"),
@@ -53,6 +48,11 @@ const server = http.createServer(app);
 const routes = require("./api/routes");
 routes(app);
 
+app.use((err, req, res, _next) => {
+  res.json({
+    error_message: "Body should be a JSON",
+  });
+});
 app.use((err, res) => {
   res.json({
     error_code: err.error_code || err.message,
