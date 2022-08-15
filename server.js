@@ -36,11 +36,11 @@ app.use(methodOverride());
 //   );
 //   next();
 // });
-// // const corsOptions = {
-// //   origin: ["http://localhost:11000"],
-// //   credentials: true,
-// // };
-// // app.use(cors(corsOptions));
+const corsOptions = {
+  origin: ["http://18.139.84.180:11000"],
+  credentials: true,
+};
+app.use(cors(corsOptions));
 
 // SET UP SWAGGER API DOCUMENT
 const swaggerUi = require("swagger-ui-express"),
