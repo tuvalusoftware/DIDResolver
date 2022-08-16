@@ -590,7 +590,7 @@ module.exports = {
           detail: undefinedVar.detail,
         });
 
-      const { request, data } = await axios.delete(
+      const { data } = await axios.delete(
         SERVERS.CARDANO_SERVICE + "/api/v2/hash",
         {
           withCredentials: true,
@@ -599,10 +599,6 @@ module.exports = {
           },
           data: { config },
         }
-      );
-
-      Logger.info(
-        `request: ${JSON.stringify(request)}\naccess_token: ${access_token}`
       );
 
       data?.code
