@@ -23,6 +23,7 @@
     "compression": "^1.7.4",
     "cookie-parser": "^1.4.6",
     "cors": "^2.8.5",
+    "dotenv": "^16.0.1",
     "express": "^4.18.1",
     "heroku-logger": "^0.3.3",
     "js-sha256": "^0.9.0",
