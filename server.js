@@ -12,26 +12,24 @@ const corsOptions = {
   origin: [
     "http://18.139.84.180:11000",
     "https://paperless-fuixlabs.ap.ngrok.io",
+    "http://192.168.2.2:4000",
   ],
   credentials: true,
 };
 app.use(cors(corsOptions));
-app.use((req, res, next) => {
-  res.header(
-    "Access-Control-Expose-Headers",
-    "Origin, X-Requested-With, Content-Type, Accept"
-  );
-  res.header("Access-Control-Allow-Origin", "http://localhost:12000");
-  res.header("Access-Control-Allow-Credentials", true);
-  res.header("Access-Control-Allow-Methods", "GET,PUT,POST,DELETE");
-  res.header(
-    "Access-Control-Allow-Headers",
-    "Origin, X-Requested-With, Content-Type, Accept"
-  );
-  const err = new Error("Not Found");
-  err.status = 404;
-  next(err);
-});
+// app.use((req, res, next) => {
+//   res.header(
+//     "Access-Control-Expose-Headers",
+//     "Origin, X-Requested-With, Content-Type, Accept"
+//   );
+//   res.header("Access-Control-Allow-Origin", "http://192.168.2.2:4000");
+//   res.header("Access-Control-Allow-Credentials", true);
+//   res.header("Access-Control-Allow-Methods", "GET,PUT,POST,DELETE");
+//   res.header(
+//     "Access-Control-Allow-Headers",
+//     "Origin, X-Requested-With, Content-Type, Accept"
+//   );
+// });
 app.use(cookieParser());
 app.use(compression());
 app.use(express.json());
