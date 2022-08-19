@@ -15,8 +15,23 @@ const corsOptions = {
   ],
   credentials: true,
 };
-
 app.use(cors(corsOptions));
+app.use((req, res, next) => {
+  res.header(
+    "Access-Control-Expose-Headers",
+    "Origin, X-Requested-With, Content-Type, Accept"
+  );
+  res.header("Access-Control-Allow-Origin", "http://localhost:12000");
+  res.header("Access-Control-Allow-Credentials", true);
+  res.header("Access-Control-Allow-Methods", "GET,PUT,POST,DELETE");
+  res.header(
+    "Access-Control-Allow-Headers",
+    "Origin, X-Requested-With, Content-Type, Accept"
+  );
+  const err = new Error("Not Found");
+  err.status = 404;
+  next(err);
+});
 app.use(cookieParser());
 app.use(compression());
 app.use(express.json());
