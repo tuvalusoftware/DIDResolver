@@ -1,4 +1,5 @@
 require("dotenv/config");
+const Logger = require("../logger");
 const SCHEMAS = require("./schemas/index");
 
 module.exports.SERVERS = {
@@ -6,6 +7,8 @@ module.exports.SERVERS = {
   CARDANO_SERVICE: process.env.CARDANO_SERVICE,
   AUTHENTICATION_SERVICE: process.env.AUTHENTICATION_SERVICE,
 };
+
+Logger.info(this.SERVERS.AUTHENTICATION_SERVICE);
 
 module.exports.SCHEMAS = SCHEMAS;
 
