@@ -1,13 +1,14 @@
-const HOST = "http://18.139.84.180";
-const LOCAL_HOST = "http://localhost";
+require("dotenv/config");
+const Logger = require("../logger");
 const SCHEMAS = require("./schemas/index");
 
 module.exports.SERVERS = {
-  DID_CONTROLLER: `${HOST}:9000`,
-  // CARDANO_SERVICE: `http://192.168.2.3:10003`,
-  CARDANO_SERVICE: `${HOST}:10003`,
-  AUTHENTICATION_SERVICE: `${HOST}:12000`,
+  DID_CONTROLLER: process.env.DID_CONTROLLER,
+  CARDANO_SERVICE: process.env.CARDANO_SERVICE,
+  AUTHENTICATION_SERVICE: process.env.AUTHENTICATION_SERVICE,
 };
+
+Logger.info(this.SERVERS.AUTHENTICATION_SERVICE);
 
 module.exports.SCHEMAS = SCHEMAS;
 
