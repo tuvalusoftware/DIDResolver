@@ -164,7 +164,10 @@ module.exports = {
             hash: sha256(
               Buffer.from(JSON.stringify(credential), "utf8").toString("hex")
             ),
-            content: credential,
+            content: {
+              ...credential,
+              mintingNFTConfig: mintingNFT?.data?.data,
+            },
           },
           {
             headers: {
