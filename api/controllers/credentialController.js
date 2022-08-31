@@ -7,7 +7,6 @@ const {
 } = require("../../core/index");
 const { ERRORS, SERVERS, SCHEMAS } = require("../../core/constants");
 const sha256 = require("js-sha256").sha256;
-const aesjs = require("aes-js");
 const Logger = require("../../logger");
 
 axios.defaults.withCredentials = true;

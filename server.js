@@ -4,7 +4,6 @@ const http = require("http"),
   compression = require("compression"),
   cookieParser = require("cookie-parser"),
   methodOverride = require("method-override"),
-  bodyParser = require("body-parser"),
   port = process.env.PORT || 8000;
 
 const app = express();

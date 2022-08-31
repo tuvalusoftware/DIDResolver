@@ -4,6 +4,7 @@ const credentialRoutes = require("./credentialRoutes");
 const notiRoutes = require("./notiRoutes");
 const authRoutes = require("./authRoutes");
 const accessTokenRoutes = require("./accessTokenRoutes");
+const didRoutes = require('./didRoutes');
 
 module.exports = (app) => {
   app.use("/resolver", accessTokenRoutes);
@@ -12,4 +13,5 @@ module.exports = (app) => {
   app.use("/resolver", credentialRoutes);
   app.use("/resolver", authRoutes);
   app.use("/resolver", notiRoutes);
+  app.use('/resolver', didRoutes);
 };
