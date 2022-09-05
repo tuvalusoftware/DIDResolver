@@ -7,5 +7,7 @@ router.use(authController.ensureAuthenticated);
 
 router.get("/did", didController.retrieveUserDid);
 router.get("/did/all", didController.retrieveAllUsersDid);
+router.post("/did", didController.createUserDid);
+router.put("/did", didController.updateUserDid);
 
 module.exports = router;
