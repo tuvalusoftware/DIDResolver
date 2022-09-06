@@ -77,4 +77,21 @@ module.exports = {
     else Logger.info(`Valid JSON object.`);
     return flag ? { undefined: true, detail } : { undefined: false };
   },
+
+  checkForSpecialChar: (strings) => {
+    const specialChars = "<>@!#$%^&*()_+[]{}?:;|'\"\\,./~`-=";
+    for (string in strings) {
+      for (i = 0; i < specialChars.length; i++) {
+        if (string.indexOf(specialChars[i]) <= -1) {
+          return {
+            valid: false,
+            string,
+          };
+        }
+      }
+    }
+    return {
+      valid: true,
+    };
+  },
 };
