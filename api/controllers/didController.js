@@ -16,10 +16,6 @@ module.exports = {
     const { access_token } = req.cookies;
     const { companyName, publicKey } = req.query;
     try {
-      const undefinedVar = checkUndefinedVar({
-        companyName,
-        publicKey,
-      });
       const specialVar = checkForSpecialChar({ companyName, publicKey });
       if (!specialVar?.valid) {
         return res.status(200).json({
@@ -27,6 +23,10 @@ module.exports = {
           detail: specialVar?.string || "",
         });
       }
+      const undefinedVar = checkUndefinedVar({
+        companyName,
+        publicKey,
+      });
       if (undefinedVar.undefined)
         return res.status(200).json({
           ...ERRORS.MISSING_PARAMETERS,
@@ -256,7 +256,6 @@ module.exports = {
           },
         }
       );
-      console.log("TUTU", deleteUserDidRes?.data);
       if (deleteUserDidRes?.data?.error_code) {
         Logger.apiError(req, res, `${JSON.stringify(deleteUserDidRes?.data)}`);
       }

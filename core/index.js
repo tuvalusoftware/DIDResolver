@@ -79,15 +79,19 @@ module.exports = {
   },
 
   checkForSpecialChar: (strings) => {
-    const specialChars = "<>@!#$%^&*()_+[]{}?:;|'\"\\,./~`-=";
-    for (string in strings) {
-      for (i = 0; i < specialChars.length; i++) {
-        if (string.indexOf(specialChars[i]) <= -1) {
-          return {
-            valid: false,
-            string,
-          };
+    const specialChars = `\`!@#$%^&*()+\-=\[\]{};':"\\|,.<>\/?~`;
+    for (const index in strings) {
+      let result = specialChars.split("").some((specialChar) => {
+        if (strings[index].includes(specialChar)) {
+          return true;
         }
+        return false;
+      });
+      if (result) {
+        return {
+          valid: false,
+          string: index,
+        };
       }
     }
     return {

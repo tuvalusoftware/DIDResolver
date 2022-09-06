@@ -14,13 +14,18 @@ const {
   transferWrappedDocument,
   revokeWrappedDocument,
 } = require("./wrappedDocument");
+const {
+  retrieveSpecificDid
+} = require('./did');
 
 module.exports.paths = {
   "/": {
     ...setCookie,
     ...clearCookie,
   },
-
+  '/did': {
+    ...retrieveSpecificDid
+  },
   "/auth/public-key/": {
     ...getPublicKeyFromAddress,
   },
