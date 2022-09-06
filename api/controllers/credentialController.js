@@ -211,7 +211,6 @@ module.exports = {
   },
 
   updateCredential: async function (req, res) {
-    // Receive input data
     const { access_token } = req.cookies;
     const { originCredentialHash, credentialContent } = req.body;
     console.log({ originCredentialHash, credentialContent });
@@ -229,7 +228,6 @@ module.exports = {
           },
         }
       );
-      console.log("Res", storeCredentialStatus.data);
       return res.status(200).send(storeCredentialStatus.data);
     } catch (err) {
       console.log("Error", err);

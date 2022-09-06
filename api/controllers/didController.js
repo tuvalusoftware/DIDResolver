@@ -5,6 +5,7 @@ const {
   getPublicKeyFromAddress,
   validateDIDSyntax,
   checkUndefinedVar,
+  checkForSpecialChar,
 } = require("../../core/index");
 const Logger = require("../../logger");
 
@@ -19,6 +20,13 @@ module.exports = {
         companyName,
         publicKey,
       });
+      const specialVar = checkForSpecialChar({ companyName, publicKey });
+      if (!specialVar?.valid) {
+        return res.status(200).json({
+          ...ERRORS.INVALID_STRING,
+          detail: specialVar?.string || "",
+        });
+      }
       if (undefinedVar.undefined)
         return res.status(200).json({
           ...ERRORS.MISSING_PARAMETERS,
@@ -49,6 +57,13 @@ module.exports = {
     const { access_token } = req.cookies;
     const { companyName } = req.query;
     try {
+      const specialVar = checkForSpecialChar({ companyName });
+      if (!specialVar?.valid) {
+        return res.status(200).json({
+          ...ERRORS.INVALID_STRING,
+          detail: specialVar?.string || "",
+        });
+      }
       const undefinedVar = checkUndefinedVar({
         companyName,
       });
@@ -102,13 +117,15 @@ module.exports = {
   },
   createUserDid: async function (req, res) {
     const { access_token } = req.cookies;
-    const { companyName, publicKey, data } = req.body;
+    const { companyName, publicKey, data, did } = req.body;
     try {
       const undefinedVar = checkUndefinedVar({
         companyName,
         publicKey,
         data,
+        did,
       });
+
       if (undefinedVar.undefined)
         return res.status(200).json({
           ...ERRORS.MISSING_PARAMETERS,
@@ -119,7 +136,7 @@ module.exports = {
         publicKey,
         content: {
           controller: publicKey,
-          did: `did:fuixlabs:${companyName}:${publicKey}`,
+          did: did,
           data: data,
         },
       };
@@ -146,14 +163,27 @@ module.exports = {
         : res.status(400).json(e);
     }
   },
-  updateUserDid: async function(req, res) {
-    const {access_token} = req.cookies;
-    const { companyName, publicKey, data } = req.body;
+  updateUserDid: async function (req, res) {
+    const { access_token } = req.cookies;
+    const { companyName, publicKey, data, did } = req.body;
     try {
+      const specialVar = checkForSpecialChar({
+        companyName,
+        publicKey,
+        data,
+        did,
+      });
+      if (!specialVar?.valid) {
+        return res.status(200).json({
+          ...ERRORS.INVALID_STRING,
+          detail: specialVar?.string || "",
+        });
+      }
       const undefinedVar = checkUndefinedVar({
         companyName,
         publicKey,
         data,
+        did,
       });
       if (undefinedVar.undefined)
         return res.status(200).json({
@@ -165,7 +195,7 @@ module.exports = {
         publicKey,
         content: {
           controller: publicKey,
-          did: `did:fuixlabs:${companyName}:${publicKey}`,
+          did: did,
           data: data,
         },
       };
@@ -191,5 +221,50 @@ module.exports = {
         ? res.status(400).json(e.response.data)
         : res.status(400).json(e);
     }
-  }
+  },
+  deleteUserDid: async function (req, res) {
+    const { access_token } = req.cookies;
+    const { companyName, publicKey } = req.body;
+    try {
+      const specialVar = checkForSpecialChar({ companyName, publicKey });
+      if (!specialVar?.valid) {
+        return res.status(200).json({
+          ...ERRORS.INVALID_STRING,
+          detail: specialVar?.string || "",
+        });
+      }
+      const undefinedVar = checkUndefinedVar({
+        companyName,
+        publicKey,
+      });
+      if (undefinedVar.undefined)
+        return res.status(200).json({
+          ...ERRORS.MISSING_PARAMETERS,
+          detail: undefinedVar.detail,
+        });
+
+      const deleteUserDidRes = await axios.delete(
+        SERVERS.DID_CONTROLLER + "/api/did",
+        {
+          withCredentials: true,
+          headers: {
+            Cookie: `access_token=${access_token};`,
+          },
+          params: {
+            companyName: companyName,
+            publicKey: publicKey,
+          },
+        }
+      );
+      console.log("TUTU", deleteUserDidRes?.data);
+      if (deleteUserDidRes?.data?.error_code) {
+        Logger.apiError(req, res, `${JSON.stringify(deleteUserDidRes?.data)}`);
+      }
+      return res.status(200).send(deleteUserDidRes?.data);
+    } catch (e) {
+      e.response
+        ? res.status(400).json(e.response.data)
+        : res.status(400).json(e);
+    }
+  },
 };

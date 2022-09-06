@@ -53,4 +53,8 @@ module.exports.ERRORS = {
     error_code: 500,
     error_message: "Error. Cannot fetch NFT.",
   },
+  INVALID_STRING: {
+    error_code: 400,
+    error_message: 'The string includes special characters! Please check your input again!'
+  }
 };
