@@ -607,7 +607,6 @@ module.exports = {
 
       return res.status(200).json(data);
     } catch (error) {
-      console.log(4);
       Logger.apiError(req, res, `${JSON.stringify(error)}`);
       return error.response
         ? res.status(400).json(error.response)

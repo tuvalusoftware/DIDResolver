@@ -106,7 +106,6 @@ module.exports = {
   },
 
   revokeNotification: (req, res) => {
-    console.log("Revoke notification...");
     res.status(200).send("Revoke notification");
   },
 };

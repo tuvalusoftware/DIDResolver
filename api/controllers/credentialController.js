@@ -177,7 +177,6 @@ module.exports = {
         return res.status(200).send(storeCredentialStatus.data);
       }
     } catch (err) {
-      console.log("Error", err);
       err.response
         ? res.status(400).json(err.response.data)
         : res.status(400).json(err);
@@ -213,7 +212,6 @@ module.exports = {
   updateCredential: async function (req, res) {
     const { access_token } = req.cookies;
     const { originCredentialHash, credentialContent } = req.body;
-    console.log({ originCredentialHash, credentialContent });
     try {
       const storeCredentialStatus = await axios.put(
         SERVERS.DID_CONTROLLER + "/api/credential",
@@ -230,7 +228,6 @@ module.exports = {
       );
       return res.status(200).send(storeCredentialStatus.data);
     } catch (err) {
-      console.log("Error", err);
       err.response
         ? res.status(400).json(err.response.data)
         : res.status(400).json(err);
