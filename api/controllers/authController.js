@@ -12,7 +12,6 @@ module.exports = {
       Logger.apiError(req, res, `Not found: access_token.`);
       return res.status(401).json(ERRORS.UNAUTHORIZED);
     }
-
     const token = req.cookies["access_token"];
     // Call Auth Service
     // success:
@@ -73,7 +72,6 @@ module.exports = {
         }
       );
 
-      Logger.apiInfo(req, res, `Success.\n${JSON.stringify(data)}`);
       return res.status(200).json({
         address: getPublicKeyFromAddress(data?.data?.address),
       });

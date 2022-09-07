@@ -15,7 +15,8 @@ const {
   revokeWrappedDocument,
 } = require("./wrappedDocument");
 const {
-  retrieveSpecificDid
+  retrieveSpecificDid,
+  retrieveAllDids
 } = require('./did');
 
 module.exports.paths = {
@@ -23,8 +24,11 @@ module.exports.paths = {
     ...setCookie,
     ...clearCookie,
   },
-  '/did': {
-    ...retrieveSpecificDid
+  '/did/': {
+    ...retrieveSpecificDid,
+  },
+  '/did/all/': {
+    ...retrieveAllDids
   },
   "/auth/public-key/": {
     ...getPublicKeyFromAddress,
