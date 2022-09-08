@@ -4,7 +4,6 @@ const http = require("http"),
   compression = require("compression"),
   cookieParser = require("cookie-parser"),
   methodOverride = require("method-override"),
-  bodyParser = require("body-parser"),
   port = process.env.PORT || 8000;
 
 const app = express();
@@ -17,19 +16,6 @@ const corsOptions = {
   credentials: true,
 };
 app.use(cors(corsOptions));
-// app.use((req, res, next) => {
-//   res.header(
-//     "Access-Control-Expose-Headers",
-//     "Origin, X-Requested-With, Content-Type, Accept"
-//   );
-//   res.header("Access-Control-Allow-Origin", "http://192.168.2.2:4000");
-//   res.header("Access-Control-Allow-Credentials", true);
-//   res.header("Access-Control-Allow-Methods", "GET,PUT,POST,DELETE");
-//   res.header(
-//     "Access-Control-Allow-Headers",
-//     "Origin, X-Requested-With, Content-Type, Accept"
-//   );
-// });
 app.use(cookieParser());
 app.use(compression());
 app.use(express.json({ limit: "25mb" }));
@@ -47,7 +33,6 @@ const swaggerUi = require("swagger-ui-express"),
 var swaggerOptions = {
   customCss: ".swagger-ui .topbar { display: none }",
   customSiteTitle: "DID Resolver API",
-  // customfavIcon: "/assets/favicon.ico"
 };
 app.use(
   "/api-docs",

@@ -233,7 +233,7 @@ module.exports = {
       console.log("Res", storeCredentialStatus.data);
       return res.status(200).send(storeCredentialStatus.data);
     } catch (err) {
-      console.log("Error", err);
+      Logger.apiError(req, res, JSON.stringify(err));
       err.response
         ? res.status(400).json(err.response.data)
         : res.status(400).json(err);

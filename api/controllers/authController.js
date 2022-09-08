@@ -1,14 +1,10 @@
 const axios = require("axios").default;
 const Logger = require("../../logger");
 const { ERRORS, SERVERS } = require("../../core/constants");
-const {
-  getPublicKeyFromAddress,
-  getAddressFromHexEncoded,
-} = require("../../core/index");
+const { getPublicKeyFromAddress } = require("../../core/index");
 
 module.exports = {
   ensureAuthenticated: (req, res, next) => {
-    console.log("Auth");
     if (!req.cookies["access_token"]) {
       Logger.apiError(req, res, `Not found: access_token.`);
       return res.status(401).json(ERRORS.UNAUTHORIZED);
