@@ -166,19 +166,8 @@ module.exports = {
   updateUserDid: async function (req, res) {
     const { access_token } = req.cookies;
     const { companyName, publicKey, data, did } = req.body;
+    console.log({ companyName, publicKey, data, did })
     try {
-      const specialVar = checkForSpecialChar({
-        companyName,
-        publicKey,
-        data,
-        did,
-      });
-      if (!specialVar?.valid) {
-        return res.status(200).json({
-          ...ERRORS.INVALID_STRING,
-          detail: specialVar?.string || "",
-        });
-      }
       const undefinedVar = checkUndefinedVar({
         companyName,
         publicKey,

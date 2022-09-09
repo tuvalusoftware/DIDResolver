@@ -3,9 +3,9 @@ const Logger = require("../logger");
 const SCHEMAS = require("./schemas/index");
 
 module.exports.SERVERS = {
-  DID_CONTROLLER: process.env.DID_CONTROLLER,
-  CARDANO_SERVICE: process.env.CARDANO_SERVICE,
-  AUTHENTICATION_SERVICE: process.env.AUTHENTICATION_SERVICE,
+  DID_CONTROLLER: "http://localhost:9000",
+  CARDANO_SERVICE: "http://localhost:10003",
+  AUTHENTICATION_SERVICE: "http://localhost:12000",
 };
 
 Logger.info(this.SERVERS.AUTHENTICATION_SERVICE);
