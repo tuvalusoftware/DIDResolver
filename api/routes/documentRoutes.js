@@ -5,9 +5,6 @@ const router = express.Router();
 
 router.use(authController.ensureAuthenticated);
 
-router.get("/did-document", documentController.getDIDDocument);
-router.post("/did-document", documentController.createDIDDocument);
-
 router.get("/wrapped-document", documentController.getWrappedDocument);
 router.post("/wrapped-document", documentController.createWrappedDocument);
 router.put(

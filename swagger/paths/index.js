@@ -1,7 +1,6 @@
 const { setCookie, clearCookie } = require("./accessToken");
 const { getPublicKeyFromAddress } = require("./auth");
 const { createCredential } = require("./credential");
-const { getDidDocument, createDidDocument } = require("./didDocument");
 const { createNotification } = require("./noti");
 const { getNFTs, verifyHash, verifySignature } = require("./others");
 const {
@@ -32,11 +31,6 @@ module.exports.paths = {
   },
   "/auth/public-key/": {
     ...getPublicKeyFromAddress,
-  },
-
-  "/did-document/": {
-    ...getDidDocument,
-    ...createDidDocument,
   },
 
   "/wrapped-document/": {

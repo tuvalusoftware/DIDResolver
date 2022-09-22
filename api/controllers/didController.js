@@ -166,7 +166,6 @@ module.exports = {
   updateUserDid: async function (req, res) {
     const { access_token } = req.cookies;
     const { companyName, publicKey, data, did } = req.body;
-    console.log({ companyName, publicKey, data, did })
     try {
       const undefinedVar = checkUndefinedVar({
         companyName,
