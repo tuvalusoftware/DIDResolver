@@ -1,12 +1,12 @@
 {
-    "name": "DIDResolver",
+    "name": "did_resolver",
     "version": "1.0.0",
     "description": "",
     "main": "index.js",
     "scripts": {
-        "test": "echo \"Error: no test specified\" && exit 1",
         "start:dev": "npx nodemon server.js",
-        "start": "node server.js"
+        "start": "node server.js",
+        "test": "export NODE_ENV=test && mocha --recursive --exit"
     },
     "author": "",
     "license": "ISC",
