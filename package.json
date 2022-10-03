@@ -9,7 +9,8 @@
         "test": "export NODE_ENV=test && mocha --recursive --exit",
         "test:did": "export NODE_ENV=test && mocha ./test/1.did.test.js --exit",
         "test:doc": "export NODE_ENV=test && mocha ./test/2.doc.test.js --exit",
-        "test:cre": "export NODE_ENV=test && mocha ./test/3.credential.test.js --exit"
+        "test:cre": "export NODE_ENV=test && mocha ./test/3.credential.test.js --exit",
+        "test:cardano": "export NODE_ENV=test && mocha ./test/4.cardano.test.js --exit"
     },
     "author": "",
     "license": "ISC",
