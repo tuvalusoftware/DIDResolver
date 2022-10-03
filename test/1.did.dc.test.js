@@ -1,10 +1,12 @@
 require("dotenv").config();
 const chai = require("chai");
 const chaiHttp = require("chai-http");
+const nock = require("nock");
 
 const server = require("../server");
-const { ERRORS } = require("../core/constants");
+const { ERRORS, SERVERS } = require("../core/constants");
 const { isSameError } = require("../core/index");
+const { DID_DATA, OPERATION_STATUS } = require("./mocData");
 
 let should = chai.should();
 let expect = chai.expect;
@@ -24,6 +26,40 @@ describe("DID Controller - DID", function () {
                     expect(
                         isSameError(res.body, ERRORS.MISSING_PARAMETERS)
                     ).equal(true);
+
+                    done();
+                });
+        });
+
+        // Mock Server Response
+        nock(SERVERS.DID_CONTROLLER)
+            .post("/api/did", (body) => body.companyName && body.publicKey)
+            .reply(200, OPERATION_STATUS.SAVE_SUCCESS);
+
+        it("it should return a success message", (done) => {
+            chai.request(server)
+                .post("/resolver/did")
+                .send({
+                    companyName: "PAPERLESS_COMPANY2",
+                    publicKey: "user's public key",
+                    did: "did:fuixlabs:companyName:publicKey",
+                    data: {
+                        name: "Jone Sad",
+                        organizationName: "organizationName1",
+                        organizationMail: "organizationMail1",
+                        organizationPhoneNumber: "organizationPhoneNumber1",
+                        organizationAddress: "organizationAddress1",
+                        website: "https://johnsad.com",
+                        issuer: "true",
+                    },
+                })
+                .end((err, res) => {
+                    res.should.have.status(200);
+                    res.body.should.be.a("object");
+
+                    expect(JSON.stringify(res.body)).equal(
+                        JSON.stringify(OPERATION_STATUS.SAVE_SUCCESS)
+                    );
 
                     done();
                 });
@@ -56,6 +92,28 @@ describe("DID Controller - DID", function () {
 
                     expect(isSameError(res.body, ERRORS.INVALID_STRING)).equal(
                         true
+                    );
+
+                    done();
+                });
+        });
+
+        // Mock Server Response
+        nock(SERVERS.DID_CONTROLLER)
+            .get("/api/did")
+            .query({ companyName: "COMPANY", publicKey: "someone_pk" })
+            .reply(200, DID_DATA.SINGLE_DID);
+
+        it("it get data of a DID", (done) => {
+            chai.request(server)
+                .get("/resolver/did")
+                .query({ companyName: "COMPANY", publicKey: "someone_pk" })
+                .end((err, res) => {
+                    res.should.have.status(200);
+                    res.body.should.be.a("object");
+
+                    expect(JSON.stringify(res.body)).equal(
+                        JSON.stringify(DID_DATA.SINGLE_DID)
                     );
 
                     done();
@@ -94,6 +152,29 @@ describe("DID Controller - DID", function () {
                     done();
                 });
         });
+
+        // Mock Server Response
+        nock(SERVERS.DID_CONTROLLER)
+            .get("/api/did/all")
+            .query({ companyName: "COMPANY", content: "include" })
+            .reply(200, DID_DATA.DID_BY_COMPANY);
+
+        it("it should return a list of file and its content", (done) => {
+            chai.request(server)
+                .get("/resolver/did/all")
+                .query({ companyName: "COMPANY" })
+                .end((err, res) => {
+                    res.should.have.status(200);
+                    res.body.should.be.an("array");
+
+                    const count = res.body.filter(
+                        (item) => item.name != undefined
+                    ).length;
+                    expect(count).equal(res.body.length);
+
+                    done();
+                });
+        });
     });
 
     describe("/PUT update a DID profile", () => {
@@ -107,6 +188,34 @@ describe("DID Controller - DID", function () {
                     expect(
                         isSameError(res.body, ERRORS.MISSING_PARAMETERS)
                     ).equal(true);
+
+                    done();
+                });
+        });
+
+        // Mock Server Response
+        nock(SERVERS.DID_CONTROLLER)
+            .put("/api/did", (body) => body.companyName && body.publicKey)
+            .reply(200, OPERATION_STATUS.UPDATE_SUCCESS);
+
+        it("it should return a success message", (done) => {
+            chai.request(server)
+                .put("/resolver/did")
+                .send({
+                    companyName: "PAPERLESS_COMPANY2",
+                    publicKey: "user's public key",
+                    did: "did:fuixlabs:companyName:publicKey",
+                    data: {
+                        updated: true,
+                    },
+                })
+                .end((err, res) => {
+                    res.should.have.status(200);
+                    res.body.should.be.a("object");
+
+                    expect(JSON.stringify(res.body)).equal(
+                        JSON.stringify(OPERATION_STATUS.UPDATE_SUCCESS)
+                    );
 
                     done();
                 });
@@ -139,6 +248,28 @@ describe("DID Controller - DID", function () {
 
                     expect(isSameError(res.body, ERRORS.INVALID_STRING)).equal(
                         true
+                    );
+
+                    done();
+                });
+        });
+
+        // Mock Server Response
+        nock(SERVERS.DID_CONTROLLER)
+            .delete("/api/did")
+            .query({ companyName: "COMPANY", publicKey: "someone_pk" })
+            .reply(200, OPERATION_STATUS.DELETE_SUCCESS);
+
+        it("it get data of a DID", (done) => {
+            chai.request(server)
+                .delete("/resolver/did")
+                .send({ companyName: "COMPANY", publicKey: "someone_pk" })
+                .end((err, res) => {
+                    res.should.have.status(200);
+                    res.body.should.be.a("object");
+
+                    expect(JSON.stringify(res.body)).equal(
+                        JSON.stringify(OPERATION_STATUS.DELETE_SUCCESS)
                     );
 
                     done();
