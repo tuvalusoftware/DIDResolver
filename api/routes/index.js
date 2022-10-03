@@ -1,7 +1,6 @@
 const authRoutes = require("./authRoutes");
 const didRoutes = require("./didRoutes");
 const credentialRoutes = require("./credentialRoutes");
-const didDocRoutes = require("./didDocRoutes");
 const wrappedDocRoutes = require("./wrappedDocRoutes");
 const accessTokenRoutes = require("./accessTokenRoutes");
 
@@ -10,11 +9,10 @@ const cardanoController = require("../controllers/cardanoController");
 
 module.exports = (app) => {
     app.use("/resolver/auth", authRoutes);
+
+    // DID controller services
     app.use("/resolver/did", didRoutes);
     app.use("/resolver/credential", credentialRoutes);
-
-    // Document routes
-    app.use("/resolver/did-document", didDocRoutes);
     app.use("/resolver/wrapped-document", wrappedDocRoutes);
 
     // Cardano Routes
