@@ -65,12 +65,14 @@ module.exports = {
     info: (message) => {
         infoLogger.info(message);
     },
+    // Log general error such as syntax error, errors that have not been catch, or more detail on how an error occurred
     error: (error) => {
         infoLogger.error(error);
     },
     apiInfo: (req, res, message) => {
         infoLogger.info(`[${req.method} - ${req.originalUrl}]\n${message}`);
     },
+    // Log error that occurs when an API is called (most of these errors are catch)
     apiError: (req, res, error) => {
         infoLogger.error(`[${req.method} - ${req.originalUrl}]\n${error}`);
         debugLogger.error(`[${req.method} - ${req.originalUrl}]\n${error}`);
