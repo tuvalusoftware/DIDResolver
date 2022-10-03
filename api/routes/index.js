@@ -5,8 +5,6 @@ const didDocRoutes = require("./didDocRoutes");
 const wrappedDocRoutes = require("./wrappedDocRoutes");
 const accessTokenRoutes = require("./accessTokenRoutes");
 
-const cardanoRoutes = require("./cardanoRoutes");
-
 const authController = require("../controllers/authController");
 const cardanoController = require("../controllers/cardanoController");
 
