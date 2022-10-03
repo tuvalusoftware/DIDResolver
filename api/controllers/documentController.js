@@ -431,7 +431,8 @@ module.exports = {
             const validDid = validateDIDSyntax(did, false),
                 companyName = validDid.companyName,
                 fileName = validDid.fileNameOrPublicKey;
-            if (!validDid.valid) res.status(200).json(ERRORS.INVALID_INPUT);
+            if (!validDid.valid)
+                return res.status(200).json(ERRORS.INVALID_INPUT);
 
             // Validate DID document of wrapped document
             const valid = validateJSONSchema(
