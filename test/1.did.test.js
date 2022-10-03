@@ -2,30 +2,13 @@ require("dotenv").config();
 const chai = require("chai");
 const chaiHttp = require("chai-http");
 
-const server = require("../../server");
-const { ERRORS } = require("../../core/constants");
-const { isSameError } = require("../../core/index");
+const server = require("../server");
+const { ERRORS } = require("../core/constants");
+const { isSameError } = require("../core/index");
 
 let should = chai.should();
 let expect = chai.expect;
 chai.use(chaiHttp);
-
-const AUTH_SERVICE_TOKEN = process.env.AUTH_SERVICE_TOKEN;
-
-const TEST_COMPANY_NAME = "__TEST__COMPANY__NAME";
-const DID_DATA = {
-    publicKey: "sdfghjkhgfdfghj234567wedrfghjnbvfr56yhbfrty",
-    did: "did:fuixlabs:companyName:publicKey",
-    data: {
-        name: "John Sad",
-        organizationName: "organizationName1",
-        organizationMail: "organizationMail1",
-        organizationPhoneNumber: "organizationPhoneNumber1",
-        organizationAddress: "organizationAddress1",
-        website: "https://johnsad.com",
-        issuer: "true",
-    },
-};
 
 describe("DID Controller - DID", function () {
     this.timeout(0);
