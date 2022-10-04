@@ -1,10 +1,18 @@
 require("dotenv").config();
 const chai = require("chai");
 const chaiHttp = require("chai-http");
+const nock = require("nock");
 
 const server = require("../server");
-const { ERRORS } = require("../core/constants");
+const { ERRORS, SERVERS } = require("../core/constants");
 const { isSameError } = require("../core/index");
+const {
+    AUTH_DATA,
+    CARDANO_DATA,
+    DOC_DATA,
+    OPERATION_STATUS,
+    OTHER_DATA,
+} = require("./mocData");
 
 let should = chai.should();
 let expect = chai.expect;
@@ -111,6 +119,27 @@ describe("DID Controller - DOC", function () {
                     done();
                 });
         });
+
+        // Mock Server Response
+        nock(SERVERS.DID_CONTROLLER)
+            .get("/api/doc")
+            .query((queryObj) => queryObj.companyName && queryObj.fileName)
+            .reply(200, DOC_DATA.SINGLE_DOC);
+
+        it("it should return a wrapped document", (done) => {
+            chai.request(server)
+                .get("/resolver/wrapped-document")
+                .set("did", "did:method:Kukulu:file_name")
+                .end((err, res) => {
+                    res.should.have.status(200);
+                    res.body.should.be.a("object");
+
+                    expect(JSON.stringify(res.body)).equal(
+                        JSON.stringify(DOC_DATA.SINGLE_DOC)
+                    );
+                    done();
+                });
+        });
     });
 
     describe("/GET all wrapped documents belong to an user", () => {
@@ -144,6 +173,29 @@ describe("DID Controller - DOC", function () {
                     done();
                 });
         });
+
+        // Mock Server Response
+        nock(SERVERS.DID_CONTROLLER)
+            .get("/api/doc/user")
+            .query((queryObj) => queryObj.companyName && queryObj.publicKey)
+            .reply(200, DOC_DATA.DOC_BY_USER);
+
+        it("it should return a list of wrapped documents belong to an user", (done) => {
+            chai.request(server)
+                .get("/resolver/wrapped-document/user")
+                .set("did", "did:method:Kukulu:uuid:string:address")
+                .end((err, res) => {
+                    res.should.have.status(200);
+                    res.body.should.be.an("array");
+
+                    const count = res.body.filter(
+                        (item) => item.data.name != undefined
+                    ).length;
+                    expect(count).equal(res.body.length);
+
+                    done();
+                });
+        });
     });
 
     describe("/GET check if a document exist", () => {
@@ -157,6 +209,26 @@ describe("DID Controller - DOC", function () {
                     expect(
                         isSameError(res.body, ERRORS.MISSING_PARAMETERS)
                     ).equal(true);
+
+                    done();
+                });
+        });
+
+        // Mock Server Response
+        nock(SERVERS.DID_CONTROLLER)
+            .get("/api/doc/exists")
+            .query((queryObj) => queryObj.companyName && queryObj.fileName)
+            .reply(200, DOC_DATA.IS_EXIST);
+
+        it("it should return a boolean to represent the doc's existence", (done) => {
+            chai.request(server)
+                .get("/resolver/wrapped-document/exist")
+                .set("fileName", "fileName")
+                .set("companyName", "companyName")
+                .end((err, res) => {
+                    res.should.have.status(200);
+
+                    expect(res.body).equal(DOC_DATA.IS_EXIST.isExisted);
 
                     done();
                 });
@@ -188,10 +260,6 @@ describe("DID Controller - DOC", function () {
                         data: { did: "INVALID_DID", other_data: {} },
                     },
                     issuerAddress: "345678987654ewdfghjkjhgfdertyu",
-                    mintingNFTConfig: {
-                        data: "dfghjkvcvb5678",
-                        config: "5678765fgh",
-                    },
                 })
                 .end((err, res) => {
                     res.should.have.status(200);
@@ -199,6 +267,48 @@ describe("DID Controller - DOC", function () {
 
                     expect(isSameError(res.body, ERRORS.INVALID_INPUT)).equal(
                         true
+                    );
+
+                    done();
+                });
+        });
+
+        // Mock Server Response
+        // Auth service: get user address from access token
+        nock(SERVERS.AUTHENTICATION_SERVICE)
+            .get("/api/auth/verify")
+            .reply(200, AUTH_DATA.USER_ADDR_FROM_TOKEN);
+
+        // DID controller: check if file exists
+        nock(SERVERS.DID_CONTROLLER)
+            .get("/api/doc/exists")
+            .query((queryObj) => queryObj.companyName && queryObj.fileName)
+            .reply(200, DOC_DATA.IS_EXIST);
+
+        // Cardano Service: Create NFT
+        nock(SERVERS.CARDANO_SERVICE)
+            .post("/api/v2/hash", (body) => body.hash)
+            .reply(200, CARDANO_DATA.MINT_NFT);
+
+        // DID controller: Save wrapped document
+        nock(SERVERS.DID_CONTROLLER)
+            .post(
+                "/api/doc",
+                (body) =>
+                    body.fileName && body.wrappedDocument && body.companyName
+            )
+            .reply(200, OPERATION_STATUS.SAVE_SUCCESS);
+
+        it("it should return a new wrapped document", (done) => {
+            chai.request(server)
+                .post("/resolver/wrapped-document")
+                .send(OTHER_DATA.CREATE_WRAPPED_DOC_ARGS)
+                .end((err, res) => {
+                    res.should.have.status(201);
+                    res.body.should.be.a("object");
+
+                    expect(JSON.stringify(res.body)).equal(
+                        JSON.stringify(OTHER_DATA.WRAPPED_DOC)
                     );
 
                     done();
@@ -223,7 +333,7 @@ describe("DID Controller - DOC", function () {
                 });
         });
 
-        it("it should return 'missing params error' as the params are not provided", (done) => {
+        it("it should return a success message", (done) => {
             chai.request(server)
                 .put("/resolver/wrapped-document/valid")
                 .send(VALID_WRAPPED_DOCUMENT)
@@ -279,6 +389,62 @@ describe("DID Controller - DOC", function () {
                     done();
                 });
         });
+
+        it("it should return 'invalid DID document' as the DID document's schema is invalid ", (done) => {
+            chai.request(server)
+                .put("/resolver/wrapped-document/transfer")
+                .send({
+                    did: "did:method:Kukulu:file_name",
+                    didDoc: {
+                        controller: ["owner_public_key", "holder_public_key"],
+                        did: "did:method:companyName:something",
+                    },
+                })
+                .end((err, res) => {
+                    res.should.have.status(200);
+                    res.body.should.be.a("object");
+
+                    expect(res.body.error_code).equal(400);
+                    expect(res.body.error_message).equal(
+                        "Bad request. Invalid did document."
+                    );
+
+                    done();
+                });
+        });
+
+        // Mock server response
+        nock(SERVERS.DID_CONTROLLER)
+            .put(
+                "/api/doc",
+                (body) => body.fileName && body.companyName && body.didDoc
+            )
+            .reply(200, OPERATION_STATUS.UPDATE_SUCCESS);
+
+        it("it should return a success message", (done) => {
+            chai.request(server)
+                .put("/resolver/wrapped-document/transfer")
+                .send({
+                    did: "did:method:Kukulu:file_name",
+                    didDoc: {
+                        controller: ["owner_public_key", "holder_public_key"],
+                        did: "did:method:companyName:something",
+                        owner: "owner_public_key",
+                        holder: "holder_public_key",
+                        url: "document_name.document",
+                    },
+                })
+                .end((err, res) => {
+                    res.should.have.status(200);
+                    res.body.should.be.a("object");
+
+                    expect(JSON.stringify(res.body)).equal(
+                        JSON.stringify(OPERATION_STATUS.UPDATE_SUCCESS)
+                    );
+
+                    done();
+                });
+        });
     });
 
     describe("/GET search content in documents", () => {
@@ -296,6 +462,35 @@ describe("DID Controller - DOC", function () {
                     done();
                 });
         });
+
+        // Mock Server Response
+        nock(SERVERS.DID_CONTROLLER)
+            .get("/api/doc/search-content")
+            .query((queryObj) => queryObj.companyName && queryObj.searchString)
+            .reply(200, DOC_DATA.DOCS_CONTAINS_STRING);
+
+        const PAGE = 2;
+        const ITEMS_PER_PAGE = 3;
+
+        it("it should return a list of document which contain the search string with the page and number matches the arguments", (done) => {
+            chai.request(server)
+                .get("/resolver/wrapped-document/search")
+                .query({
+                    companyName: "Kukulu",
+                    searchString: "Bao's document",
+                    pageNumber: PAGE,
+                    itemsPerPage: ITEMS_PER_PAGE,
+                })
+                .end((err, res) => {
+                    res.should.have.status(200);
+                    res.body.should.be.a("object");
+
+                    expect(Number(res.body.currentPage)).equal(PAGE);
+                    expect(res.body.result.length).equal(ITEMS_PER_PAGE);
+
+                    done();
+                });
+        });
     });
 
     describe("/DELETE revoke a wrapped document on Cardano network", () => {
@@ -309,6 +504,39 @@ describe("DID Controller - DOC", function () {
                     expect(
                         isSameError(res.body, ERRORS.MISSING_PARAMETERS)
                     ).equal(true);
+
+                    done();
+                });
+        });
+
+        // Mock server response
+        nock(SERVERS.CARDANO_SERVICE)
+            .delete("/api/v2/hash", (body) => body.config)
+            .reply(200, CARDANO_DATA.SUCCESS_STATUS);
+
+        it("it should return a success message", (done) => {
+            chai.request(server)
+                .delete("/resolver/wrapped-document/revoke")
+                .send({
+                    config: {
+                        type: "credential",
+                        policy: {
+                            type: "Native",
+                            id: "ed9f068881fd29842e8b5267ae8220aca2c2953617ce07c7895cfd30",
+                            script: "8201828200581cd37dfe9485c993853d7ac3ea61145315c66bc3a79bc3ad2069a5aa2882051abfce4cf9",
+                            ttl: 3217968377,
+                            reuse: true,
+                        },
+                        asset: "ed9f068881fd29842e8b5267ae8220aca2c2953617ce07c7895cfd30127148bdcb294e220f0c9aef41a307be8e910157901d2bf349492e7919708208",
+                    },
+                })
+                .end((err, res) => {
+                    res.should.have.status(200);
+                    res.body.should.be.a("object");
+
+                    expect(JSON.stringify(res.body)).equal(
+                        JSON.stringify(CARDANO_DATA.SUCCESS_STATUS)
+                    );
 
                     done();
                 });
