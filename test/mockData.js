@@ -969,6 +969,16 @@ module.exports.CARDANO_DATA = {
         code: 0,
         message: "SUCCESS",
     },
+    NFT: {
+        code: 0,
+        message: "SUCCESS",
+        data: { value: "NFT data", metadata: { data: "10/10/2022" } },
+    },
+    SIGNATURE_VERIFICATION: {
+        code: 0,
+        message: "SUCCESS",
+        data: true,
+    },
 };
 
 module.exports.DID_CONTROLLER_OPERATION_STATUS = {
