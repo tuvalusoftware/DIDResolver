@@ -938,7 +938,7 @@ module.exports.CARDANO_DATA = {
     },
 };
 
-module.exports.OPERATION_STATUS = {
+module.exports.DID_CONTROLLER_OPERATION_STATUS = {
     SAVE_SUCCESS: { message: "Successfully Saved" },
     CLONE_SUCCESS: { message: "Successfully Cloned" },
     UPDATE_SUCCESS: { message: "Successfully Updated" },

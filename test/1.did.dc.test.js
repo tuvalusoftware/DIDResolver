@@ -6,7 +6,7 @@ const nock = require("nock");
 const server = require("../server");
 const { ERRORS, SERVERS } = require("../core/constants");
 const { isSameError } = require("../core/index");
-const { DID_DATA, OPERATION_STATUS } = require("./mocData");
+const { DID_DATA, DID_CONTROLLER_OPERATION_STATUS } = require("./mockData");
 
 let should = chai.should();
 let expect = chai.expect;
@@ -34,7 +34,7 @@ describe("DID Controller - DID", function () {
         // Mock Server Response
         nock(SERVERS.DID_CONTROLLER)
             .post("/api/did", (body) => body.companyName && body.publicKey)
-            .reply(200, OPERATION_STATUS.SAVE_SUCCESS);
+            .reply(200, DID_CONTROLLER_OPERATION_STATUS.SAVE_SUCCESS);
 
         it("it should return a success message", (done) => {
             chai.request(server)
@@ -58,7 +58,9 @@ describe("DID Controller - DID", function () {
                     res.body.should.be.a("object");
 
                     expect(JSON.stringify(res.body)).equal(
-                        JSON.stringify(OPERATION_STATUS.SAVE_SUCCESS)
+                        JSON.stringify(
+                            DID_CONTROLLER_OPERATION_STATUS.SAVE_SUCCESS
+                        )
                     );
 
                     done();
@@ -196,7 +198,7 @@ describe("DID Controller - DID", function () {
         // Mock Server Response
         nock(SERVERS.DID_CONTROLLER)
             .put("/api/did", (body) => body.companyName && body.publicKey)
-            .reply(200, OPERATION_STATUS.UPDATE_SUCCESS);
+            .reply(200, DID_CONTROLLER_OPERATION_STATUS.UPDATE_SUCCESS);
 
         it("it should return a success message", (done) => {
             chai.request(server)
@@ -214,7 +216,9 @@ describe("DID Controller - DID", function () {
                     res.body.should.be.a("object");
 
                     expect(JSON.stringify(res.body)).equal(
-                        JSON.stringify(OPERATION_STATUS.UPDATE_SUCCESS)
+                        JSON.stringify(
+                            DID_CONTROLLER_OPERATION_STATUS.UPDATE_SUCCESS
+                        )
                     );
 
                     done();
@@ -258,7 +262,7 @@ describe("DID Controller - DID", function () {
         nock(SERVERS.DID_CONTROLLER)
             .delete("/api/did")
             .query({ companyName: "COMPANY", publicKey: "someone_pk" })
-            .reply(200, OPERATION_STATUS.DELETE_SUCCESS);
+            .reply(200, DID_CONTROLLER_OPERATION_STATUS.DELETE_SUCCESS);
 
         it("it get data of a DID", (done) => {
             chai.request(server)
@@ -269,7 +273,9 @@ describe("DID Controller - DID", function () {
                     res.body.should.be.a("object");
 
                     expect(JSON.stringify(res.body)).equal(
-                        JSON.stringify(OPERATION_STATUS.DELETE_SUCCESS)
+                        JSON.stringify(
+                            DID_CONTROLLER_OPERATION_STATUS.DELETE_SUCCESS
+                        )
                     );
 
                     done();

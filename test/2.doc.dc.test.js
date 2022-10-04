@@ -10,9 +10,9 @@ const {
     AUTH_DATA,
     CARDANO_DATA,
     DOC_DATA,
-    OPERATION_STATUS,
+    DID_CONTROLLER_OPERATION_STATUS,
     OTHER_DATA,
-} = require("./mocData");
+} = require("./mockData");
 
 let should = chai.should();
 let expect = chai.expect;
@@ -297,7 +297,7 @@ describe("DID Controller - DOC", function () {
                 (body) =>
                     body.fileName && body.wrappedDocument && body.companyName
             )
-            .reply(200, OPERATION_STATUS.SAVE_SUCCESS);
+            .reply(200, DID_CONTROLLER_OPERATION_STATUS.SAVE_SUCCESS);
 
         it("it should return a new wrapped document", (done) => {
             chai.request(server)
@@ -419,7 +419,7 @@ describe("DID Controller - DOC", function () {
                 "/api/doc",
                 (body) => body.fileName && body.companyName && body.didDoc
             )
-            .reply(200, OPERATION_STATUS.UPDATE_SUCCESS);
+            .reply(200, DID_CONTROLLER_OPERATION_STATUS.UPDATE_SUCCESS);
 
         it("it should return a success message", (done) => {
             chai.request(server)
@@ -439,7 +439,9 @@ describe("DID Controller - DOC", function () {
                     res.body.should.be.a("object");
 
                     expect(JSON.stringify(res.body)).equal(
-                        JSON.stringify(OPERATION_STATUS.UPDATE_SUCCESS)
+                        JSON.stringify(
+                            DID_CONTROLLER_OPERATION_STATUS.UPDATE_SUCCESS
+                        )
                     );
 
                     done();
