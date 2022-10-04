@@ -20,7 +20,7 @@ chai.use(chaiHttp);
 
 const VALID_WRAPPED_DOCUMENT = {
     wrappedDocument: {
-        vesion: "https://schema.openattestation.com/2.0/schema.json",
+        version: "https://schema.openattestation.com/2.0/schema.json",
         data: {
             name: "eb2ebfb2-62e6-4e89-b326-668f97d5f142:string:OpenCerts Certificate of Award",
             title: "978c3e0a-8335-4059-8653-998184adfc76:string:Test Title By Caps2",
@@ -288,7 +288,7 @@ describe("DID Controller - DOC", function () {
         // Cardano Service: Create NFT
         nock(SERVERS.CARDANO_SERVICE)
             .post("/api/v2/hash", (body) => body.hash)
-            .reply(200, CARDANO_DATA.MINT_NFT);
+            .reply(200, CARDANO_DATA.MINT_NFT_WRAPPED_DOC);
 
         // DID controller: Save wrapped document
         nock(SERVERS.DID_CONTROLLER)

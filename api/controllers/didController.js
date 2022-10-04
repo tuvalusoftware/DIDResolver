@@ -144,9 +144,6 @@ module.exports = {
                     headers: {
                         Cookie: `access_token=${access_token};`,
                     },
-                    params: {
-                        companyName,
-                    },
                 }
             );
 
@@ -198,9 +195,6 @@ module.exports = {
                     withCredentials: true,
                     headers: {
                         Cookie: `access_token=${access_token};`,
-                    },
-                    params: {
-                        companyName,
                     },
                 }
             );

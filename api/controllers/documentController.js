@@ -134,7 +134,7 @@ module.exports = {
             // success:
             //   { isExisted: true/false }
             const { data } = await axios.get(
-                SERVERS.DID_CONTROLLER + "/api/doc/exists/",
+                SERVERS.DID_CONTROLLER + "/api/doc/exists",
                 {
                     withCredentials: true,
                     headers: {
@@ -206,7 +206,8 @@ module.exports = {
                     encryptedIssuerAddress
                 ),
                 targetHash = wrappedDocument.signature.targetHash;
-            // 1.1. Get address of user from the acess token
+
+            // 1.1. Get address of user from the access token
             // success:
             //   { data: { address: string } }
             // error: 401 - unauthorized
@@ -230,19 +231,19 @@ module.exports = {
                     res,
                     `Address ${address.data.data.address} is not issuerAddress ${issuerAddress}`
                 );
-                return res.status(200).send(ERRORS.PERMISSION_DENIED); // 403
+                return res.status(200).send(ERRORS.PERMISSION_DENIED);
             } else
                 Logger.apiInfo(
                     req,
                     res,
-                    `Issuer address matchs current address. Address: ${issuerAddress}`
+                    `Issuer address matches current address. Address: ${issuerAddress}`
                 );
 
             // 2. Check if document is already stored on DB (true/false).
             // success:
             //   { isExisted: true/false }
             const existence = await axios.get(
-                SERVERS.DID_CONTROLLER + "/api/doc/exists/",
+                SERVERS.DID_CONTROLLER + "/api/doc/exists",
                 {
                     withCredentials: true,
                     headers: {
@@ -286,6 +287,7 @@ module.exports = {
                     hash: targetHash,
                 },
                 mintingNFT;
+
             if (mintingNFTConfig) {
                 // * Update
                 mintBody = {
@@ -305,7 +307,7 @@ module.exports = {
             } else {
                 // * Create
                 mintingNFT = await axios.post(
-                    SERVERS.CARDANO_SERVICE + "/api/v2/hash/",
+                    SERVERS.CARDANO_SERVICE + "/api/v2/hash",
                     mintBody,
                     {
                         withCredentials: true,
@@ -318,6 +320,7 @@ module.exports = {
 
             if (!mintingNFT)
                 return res.status(200).json(ERRORS.CANNOT_MINT_NFT);
+
             if (mintingNFT?.data?.code !== 0) {
                 Logger.apiError(req, res, `${JSON.stringify(mintingNFT.data)}`);
                 return res.status(200).json({
@@ -493,6 +496,7 @@ module.exports = {
                     detail: undefinedVar.detail,
                 });
 
+            // Delete NFT on Cardano Service
             const { data } = await axios.delete(
                 SERVERS.CARDANO_SERVICE + "/api/v2/hash",
                 {
@@ -522,7 +526,7 @@ module.exports = {
         let { companyName, searchString, pageNumber, itemsPerPage } = req.query;
 
         try {
-            // Check missing paramters
+            // Check missing parameters
             const undefinedVar = checkUndefinedVar({
                 companyName,
                 searchString,

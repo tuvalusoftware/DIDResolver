@@ -27,6 +27,7 @@ module.exports = {
                     ...ERRORS.MISSING_PARAMETERS,
                     detail: undefinedVar.detail,
                 });
+
             // 0. Validate input
             // 0.1. Validate DID syntax
             const validDid = validateDIDSyntax(did, false);
@@ -37,6 +38,7 @@ module.exports = {
                 });
             const companyName = validDid.companyName,
                 fileName = validDid.fileNameOrPublicKey;
+
             // 0.2. Validate credential
             const valid = validateJSONSchema(SCHEMAS.CREDENTIAL, credential);
             if (!valid.valid)
@@ -44,7 +46,8 @@ module.exports = {
                     ...ERRORS.INVALID_INPUT,
                     detail: valid.detail,
                 });
-            // * 1. Get wrapped document and did document of wrapped odcument
+
+            // * 1. Get wrapped document and did document of wrapped document
             const documents = await axios.get(
                 SERVERS.DID_CONTROLLER + "/api/doc",
                 {
@@ -122,7 +125,8 @@ module.exports = {
             // * 2.3. Compare user address with controller address (from did document of wrapped document)
             if (didDocument.controller.indexOf(publicKey) < 0)
                 // if (publicKey !== didDocument.owner && publicKey !== didDocument.holder)
-                return res.status(200).json(ERRORS.PERMISSION_DENIED); // 403
+                return res.status(200).json(ERRORS.PERMISSION_DENIED);
+
             // 4. Call Cardano Service to verify signature
             // success:
             //   {
@@ -188,6 +192,7 @@ module.exports = {
                         },
                     }
                 );
+
                 return res.status(200).send(storeCredentialStatus.data);
             }
         } catch (err) {
