@@ -3,6 +3,7 @@ const Logger = require("../../logger");
 const { ERRORS, SERVERS } = require("../../core/constants");
 const { getPublicKeyFromAddress } = require("../../core/index");
 
+/* c8 ignore start */
 module.exports = {
     ensureAuthenticated: (req, res, next) => {
         // Ignore auth service in test environment
@@ -85,3 +86,4 @@ module.exports = {
         }
     },
 };
+/* c8 ignore stop */

@@ -1,3 +1,4 @@
+/* c8 ignore start */
 const { createLogger, format, transports, addColors } = require("winston");
 
 const customLogLevel = (logLevel) => {
@@ -78,3 +79,4 @@ module.exports = {
         debugLogger.error(`[${req.method} - ${req.originalUrl}]\n${error}`);
     },
 };
+/* c8 ignore stop */

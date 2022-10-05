@@ -29,6 +29,7 @@ app.use(
 );
 app.use(methodOverride());
 
+/* c8 ignore start */
 // SET UP SWAGGER API DOCUMENT
 const swaggerUi = require("swagger-ui-express"),
     swaggerDocument = require("./swagger/");
@@ -41,6 +42,7 @@ app.use(
     swaggerUi.serve,
     swaggerUi.setup(swaggerDocument, swaggerOptions)
 );
+/* c8 ignore stop */
 
 // ROUTES
 const server = http.createServer(app);
