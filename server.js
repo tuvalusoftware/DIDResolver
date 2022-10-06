@@ -33,7 +33,6 @@ const swaggerUi = require("swagger-ui-express"),
 var swaggerOptions = {
   customCss: ".swagger-ui .topbar { display: none }",
   customSiteTitle: "DID Resolver API",
-  // customfavIcon: "/assets/favicon.ico"
 };
 app.use(
   "/api-docs",

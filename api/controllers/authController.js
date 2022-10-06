@@ -1,10 +1,7 @@
 const axios = require("axios").default;
 const Logger = require("../../logger");
 const { ERRORS, SERVERS } = require("../../core/constants");
-const {
-  getPublicKeyFromAddress,
-  getAddressFromHexEncoded,
-} = require("../../core/index");
+const { getPublicKeyFromAddress } = require("../../core/index");
 
 module.exports = {
   ensureAuthenticated: (req, res, next) => {

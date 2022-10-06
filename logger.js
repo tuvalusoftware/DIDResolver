@@ -58,7 +58,6 @@ module.exports = {
     infoLogger.info(`[${req.method} - ${req.originalUrl}]\n${message}`);
   },
   apiError: (req, res, error) => {
-    infoLogger.error(`[${req.method} - ${req.originalUrl}]\n${error}`);
     debugLogger.error(`[${req.method} - ${req.originalUrl}]\n${error}`);
   },
 };
