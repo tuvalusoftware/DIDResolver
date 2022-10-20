@@ -40,15 +40,17 @@ module.exports = {
 
   requestGetPublicKeyFromAddress: (req, res) => {
     const { address, user, confirmNominate } = req.query;
-    const returnKey = getPublicKeyFromAddress(address);
+
     try {
-      Logger.apiInfo(req, res, `User: ${user}, address: ${address}`);
+      const returnKey = getPublicKeyFromAddress(address);
       return res.status(200).json({
         publicKey: returnKey,
         user: user,
       });
     } catch (error) {
-      Logger.apiError(req, res, `${JSON.stringify(error)}`);
+      if (error.includes("missing")) {
+        return res.status(200).json(ERRORS.INVALID_ADDRESS);
+      }
       return res.status(400).json(error);
     }
   },
