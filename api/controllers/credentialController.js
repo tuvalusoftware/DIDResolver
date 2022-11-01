@@ -16,7 +16,98 @@ module.exports = {
     const { access_token } = req.cookies;
     const { credential, did, config } = req.body;
     try {
-      // Handle input error
+      // * Get list of nfts with given policy-id
+      const fetchNftResult = await axios.post(
+        `${SERVERS.CARDANO_SERVICE}/api/v2/fetch/nft`,
+        {
+          policyId: config?.policy?.id,
+        },
+        {
+          withCredentials: true,
+          headers: {
+            Cookie: `access_token=${access_token};`,
+          },
+        }
+      );
+      if (fetchNftResult?.data?.error_code) {
+        throw fetchNftResult?.data;
+      }
+      // * Get all of nfts which have type credential
+      const transactions = fetchNftResult?.data?.data.filter(
+        (_item) =>
+          _item.onchainMetadata[_item.policyId][_item.assetName].type ===
+          "credential"
+      );
+      if (transactions.length > 0) {
+        // * Get to last credential nft to get the last information of did of given document
+        const getCredentialResult = await axios.get(
+          SERVERS.DID_CONTROLLER + "/api/credential",
+          {
+            withCredentials: true,
+            headers: {
+              Cookie: `access_token=${access_token};`,
+            },
+            params: {
+              hash: transactions[transactions.length - 1]?.assetName,
+            },
+          }
+        );
+        if (getCredentialResult?.data?.error_code) {
+          throw getCredentialResult?.data;
+        }
+        // * Get to object of credential got from github by assetName (hash of credential got from blockchain)
+        let currentCredential = { ...getCredentialResult?.data };
+        delete currentCredential.mintingNFTConfig;
+        Logger.info(
+          `Successfully get content of last credential from Github`
+        );
+        if (
+          !transactions[transactions.length - 1]?.assetName ===
+          sha256(
+            Buffer.from(JSON.stringify(currentCredential), "utf8").toString(
+              "hex"
+            )
+          )
+        ) {
+          return res.status(200).json(ERRORS.SYSTEM_MISS_CONCEPTION);
+        }
+        Logger.info(`Successfully comparing hash of current credential content with asset-name got from blockchain`);
+        const currentDocumentFileName =
+          credential?.credentialSubject?.object.split(":")[3];
+        const currentCompanyName =
+          getCredentialResult?.data?.issuer.split(":")[2];
+
+        // * Get current did of document from Github
+        const getDocumentDidResult = await axios.get(
+          SERVERS.DID_CONTROLLER + "/api/doc",
+          {
+            withCredentials: true,
+            headers: {
+              Cookie: `access_token=${access_token}`,
+            },
+            params: {
+              companyName: currentCompanyName,
+              fileName: currentDocumentFileName,
+              only: "did",
+            },
+          }
+        );
+        if (getDocumentDidResult?.data?.error_code) {
+          throw getDocumentDidResult?.data;
+        }
+
+        // * Compare each public key in controller with data saved in credential, in this case, the data saved in credential are unchanged since the hash of credential unchanged
+        for (let i in currentCredential?.metadata) {
+          if (
+            getDocumentDidResult?.data?.didDoc?.controller.indexOf(
+              currentCredential?.metadata[i]
+            ) < 0
+          ) {
+            return res.status(200).json(ERRORS.SYSTEM_MISS_CONCEPTION);
+          }
+        }
+        Logger.info(`Successfully comparing each controller's public-key of current credential content with did of document`);
+      }
       const undefinedVar = checkUndefinedVar({
         credential,
         did,
@@ -127,7 +218,6 @@ module.exports = {
 
       // * Cancel request after 4 seconds if no response from Cardano Service
       const source = axios.CancelToken.source();
-
       const mintingNFT = await axios.post(
         SERVERS.CARDANO_SERVICE + "/api/v2/credential",
         {
