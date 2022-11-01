@@ -62,7 +62,7 @@ module.exports = {
           `Successfully get content of last credential from Github`
         );
         if (
-          !transactions[transactions.length - 1]?.assetName ===
+          transactions[transactions.length - 1]?.assetName !==
           sha256(
             Buffer.from(JSON.stringify(currentCredential), "utf8").toString(
               "hex"
