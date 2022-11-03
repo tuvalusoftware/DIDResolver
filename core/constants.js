@@ -3,9 +3,9 @@ const Logger = require("../logger");
 const SCHEMAS = require("./schemas/index");
 
 module.exports.SERVERS = {
-  DID_CONTROLLER: process.env.DID_CONTROLLER,
-  CARDANO_SERVICE: process.env.CARDANO_SERVICE,
-  AUTHENTICATION_SERVICE: process.env.AUTHENTICATION_SERVICE,
+  DID_CONTROLLER: "http://localhost:9000",
+  CARDANO_SERVICE: "http://localhost:10003",
+  AUTHENTICATION_SERVICE: "http://localhost:12000",
 };
 
 Logger.info(this.SERVERS.AUTHENTICATION_SERVICE);
@@ -58,4 +58,13 @@ module.exports.ERRORS = {
     error_message:
       "The string includes special characters! Please check your input again!",
   },
+  INVALID_ADDRESS: {
+    error_code: 400,
+    error_message:
+      "The input address is not existed! Please check your address again!",
+  },
+  SYSTEM_MISS_CONCEPTION: {
+    error_code: 400,
+    error_message: 'Maybe there was a consistency error in our system! Please try later!'
+  }
 };

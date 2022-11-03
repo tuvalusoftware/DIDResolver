@@ -48,7 +48,7 @@ module.exports = {
         user: user,
       });
     } catch (error) {
-      if (error.includes("missing")) {
+      if (error.includes("missing") || error.includes('invalid length')) {
         return res.status(200).json(ERRORS.INVALID_ADDRESS);
       }
       return res.status(400).json(error);
