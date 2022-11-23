@@ -73,7 +73,7 @@ module.exports = {
         }
         Logger.info(`Successfully comparing hash of current credential content with asset-name got from blockchain`);
         const currentDocumentFileName =
-          credential?.credentialSubject?.object.split(":")[3];
+        currentCredential?.credentialSubject?.object.split(":")[3];
         const currentCompanyName =
           getCredentialResult?.data?.issuer.split(":")[2];
 
