@@ -5,10 +5,10 @@ const router = express.Router();
 
 router.use(authController.ensureAuthenticated);
 
-router.get("/did", didController.retrieveUserDid);
-router.get("/did/all", didController.retrieveAllUsersDid);
-router.post("/did", didController.createUserDid);
-router.put("/did", didController.updateUserDid);
-router.delete("/did", didController.deleteUserDid);
+router.get("", didController.retrieveUserDid);
+router.post("", didController.createUserDid);
+router.put("", didController.updateUserDid);
+router.delete("", didController.deleteUserDid);
+router.get("/all", didController.retrieveAllUsersDid);
 
 module.exports = router;
