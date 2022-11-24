@@ -79,6 +79,11 @@ describe("DID Controller - CREDENTIAL", function () {
         });
 
         // Mock Server Response
+        // Cardano Service: Fetch NFT
+        nock(SERVERS.CARDANO_SERVICE)
+            .post("/api/v2/fetch/nft", (body) => body.policyId)
+            .reply(200, CARDANO_DATA.LIST_OF_NFTS);
+
         // DID Controller: Get wrapped doc and its DID doc
         nock(SERVERS.DID_CONTROLLER)
             .get("/api/doc")

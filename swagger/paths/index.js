@@ -1,7 +1,6 @@
 const { setCookie, clearCookie } = require("./accessToken");
 const { getPublicKeyFromAddress } = require("./auth");
 const { createCredential } = require("./credential");
-const { createNotification } = require("./noti");
 const { getNFTs, verifyHash, verifySignature } = require("./others");
 const {
     checkWrappedDocumentExistence,

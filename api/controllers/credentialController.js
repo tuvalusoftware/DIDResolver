@@ -16,6 +16,35 @@ module.exports = {
         const { access_token } = req.cookies;
         const { credential, did, config } = req.body;
         try {
+            const undefinedVar = checkUndefinedVar({
+                credential,
+                did,
+                config,
+            });
+            if (undefinedVar.undefined)
+                return res.status(200).json({
+                    ...ERRORS.MISSING_PARAMETERS,
+                    detail: undefinedVar.detail,
+                });
+
+            // 0. Validate input
+            // 0.1. Validate DID syntax
+            const validDid = validateDIDSyntax(did, false);
+            if (!validDid.valid)
+                return res.status(200).json({
+                    ...ERRORS.INVALID_INPUT,
+                    detail: "Invalid DID syntax.",
+                });
+            const companyName = validDid.companyName,
+                fileName = validDid.fileNameOrPublicKey;
+            // 0.2. Validate credential
+            const valid = validateJSONSchema(SCHEMAS.CREDENTIAL, credential);
+            if (!valid.valid)
+                return res.status(200).json({
+                    ...ERRORS.INVALID_INPUT,
+                    detail: valid.detail,
+                });
+
             // * Get list of nfts with given policy-id
             const fetchNftResult = await axios.post(
                 `${SERVERS.CARDANO_SERVICE}/api/v2/fetch/nft`,
@@ -116,34 +145,8 @@ module.exports = {
                     `Successfully comparing each controller's public-key of current credential content with did of document`
                 );
             }
-            const undefinedVar = checkUndefinedVar({
-                credential,
-                did,
-                config,
-            });
-            if (undefinedVar.undefined)
-                return res.status(200).json({
-                    ...ERRORS.MISSING_PARAMETERS,
-                    detail: undefinedVar.detail,
-                });
-            // 0. Validate input
-            // 0.1. Validate DID syntax
-            const validDid = validateDIDSyntax(did, false);
-            if (!validDid.valid)
-                return res.status(200).json({
-                    ...ERRORS.INVALID_INPUT,
-                    detail: "Invalid DID syntax.",
-                });
-            const companyName = validDid.companyName,
-                fileName = validDid.fileNameOrPublicKey;
-            // 0.2. Validate credential
-            const valid = validateJSONSchema(SCHEMAS.CREDENTIAL, credential);
-            if (!valid.valid)
-                return res.status(200).json({
-                    ...ERRORS.INVALID_INPUT,
-                    detail: valid.detail,
-                });
-            // * 1. Get wrapped document and did document of wrapped odcument
+
+            // * 1. Get wrapped document and did document of wrapped document
             const documents = await axios.get(
                 SERVERS.DID_CONTROLLER + "/api/doc",
                 {
@@ -291,6 +294,7 @@ module.exports = {
                 return res.status(200).send(storeCredentialStatus.data);
             }
         } catch (err) {
+            console.log(err);
             err.response
                 ? res.status(400).json(err.response.data)
                 : res.status(400).json(err);

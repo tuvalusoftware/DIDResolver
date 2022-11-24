@@ -974,6 +974,41 @@ module.exports.CARDANO_DATA = {
         message: "SUCCESS",
         data: { value: "NFT data", metadata: { data: "10/10/2022" } },
     },
+    LIST_OF_NFTS: {
+        code: 0,
+        message: "SUCCESS",
+        data: [
+            {
+                asset: "87e33bb05773006a9c625aa28f7db30c20727921331acb5391d06c8d308207adbe71aa51af97f1e9846bcbfbf54b6a2c503c7338a66b0be1f61fab15",
+                policyId:
+                    "87e33bb05773006a9c625aa28f7db30c20727921331acb5391d06c8d",
+                assetName:
+                    "308207adbe71aa51af97f1e9846bcbfbf54b6a2c503c7338a66b0be1f61fab15",
+                readableAssetName:
+                    "0�\x07��q�Q����k���Kj,P<s8�k\x0B��\x1F�\x15",
+                fingerprint: "asset1240275ks0uqp8temlk0plng0mj7f30huktfkyy",
+                quantity: 1,
+                initialMintTxHash:
+                    "61e5647914c8913bcd5b0b780bf92f30eece20540b0e25d2416a71777f1f8282",
+                mintOrBurnCount: 1,
+                onchainMetadata: {
+                    "87e33bb05773006a9c625aa28f7db30c20727921331acb5391d06c8d":
+                        {
+                            "308207adbe71aa51af97f1e9846bcbfbf54b6a2c503c7338a66b0be1f61fab15":
+                                {
+                                    ttl: 3167189289,
+                                    type: "document",
+                                    attach: "308207adbe71aa51af97f1e9846bcbfbf54b6a2c503c7338a66b0be1f61fab15",
+                                    policy: "87e33bb05773006a9c625aa28f7db30c20727921331acb5391d06c8d",
+                                    version: 0,
+                                    timestamp: 1669272489729,
+                                },
+                        },
+                },
+                metadata: {},
+            },
+        ],
+    },
     SIGNATURE_VERIFICATION: {
         code: 0,
         message: "SUCCESS",

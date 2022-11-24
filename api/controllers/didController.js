@@ -142,9 +142,6 @@ module.exports = {
                     headers: {
                         Cookie: `access_token=${access_token};`,
                     },
-                    params: {
-                        companyName,
-                    },
                 }
             );
             if (createUserDidReq?.data?.error_code) {
@@ -193,9 +190,6 @@ module.exports = {
                     headers: {
                         Cookie: `access_token=${access_token};`,
                     },
-                    params: {
-                        companyName,
-                    },
                 }
             );
             if (createUserDidReq?.data?.error_code) {
@@ -216,13 +210,6 @@ module.exports = {
         const { access_token } = req.cookies;
         const { companyName, publicKey } = req.body;
         try {
-            const specialVar = checkForSpecialChar({ companyName, publicKey });
-            if (!specialVar?.valid) {
-                return res.status(200).json({
-                    ...ERRORS.INVALID_STRING,
-                    detail: specialVar?.string || "",
-                });
-            }
             const undefinedVar = checkUndefinedVar({
                 companyName,
                 publicKey,
@@ -232,6 +219,14 @@ module.exports = {
                     ...ERRORS.MISSING_PARAMETERS,
                     detail: undefinedVar.detail,
                 });
+
+            const specialVar = checkForSpecialChar({ companyName, publicKey });
+            if (!specialVar?.valid) {
+                return res.status(200).json({
+                    ...ERRORS.INVALID_STRING,
+                    detail: specialVar?.string || "",
+                });
+            }
 
             const deleteUserDidRes = await axios.delete(
                 SERVERS.DID_CONTROLLER + "/api/did",
@@ -255,6 +250,7 @@ module.exports = {
             }
             return res.status(200).send(deleteUserDidRes?.data);
         } catch (e) {
+            console.log(e);
             e.response
                 ? res.status(400).json(e.response.data)
                 : res.status(400).json(e);
