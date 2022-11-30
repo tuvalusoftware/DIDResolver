@@ -58,6 +58,9 @@ module.exports = {
                     },
                 }
             );
+            if(!fetchNftResult || !fetchNftResult?.data) {
+                throw ERRORS.SYSTEM_MISS_CONCEPTION;
+            }
             if (fetchNftResult?.data?.error_code) {
                 throw fetchNftResult?.data;
             }
