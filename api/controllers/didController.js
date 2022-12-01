@@ -250,7 +250,6 @@ module.exports = {
             }
             return res.status(200).send(deleteUserDidRes?.data);
         } catch (e) {
-            console.log(e);
             e.response
                 ? res.status(400).json(e.response.data)
                 : res.status(400).json(e);

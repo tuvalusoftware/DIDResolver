@@ -67,8 +67,7 @@ module.exports = {
             // * Get all of nfts which have type credential
             const transactions = fetchNftResult?.data?.data.filter(
                 (_item) =>
-                    _item.onchainMetadata[_item.policyId][_item.assetName]
-                        .type === "credential"
+                    _item.onchainMetadata.type === "credential"
             );
             if (transactions.length > 0) {
                 // * Get to last credential nft to get the last information of did of given document
@@ -297,7 +296,6 @@ module.exports = {
                 return res.status(200).send(storeCredentialStatus.data);
             }
         } catch (err) {
-            console.log(err);
             err.response
                 ? res.status(400).json(err.response.data)
                 : res.status(400).json(err);
