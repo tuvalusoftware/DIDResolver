@@ -1,29 +1,47 @@
 {
-  "name": "DIDResolver",
-  "version": "1.0.0",
-  "description": "",
-  "main": "index.js",
-  "scripts": {
-    "test": "echo \"Error: no test specified\" && exit 1",
-    "server": "npx nodemon server.js"
-  },
-  "author": "",
-  "license": "ISC",
-  "devDependencies": {
-    "nodemon": "^2.0.16"
-  },
-  "dependencies": {
-    "@emurgo/cardano-serialization-lib-nodejs": "^10.1.0",
-    "ajv": "^8.11.0",
-    "axios": "^0.27.2",
-    "compression": "^1.7.4",
-    "cookie-parser": "^1.4.6",
-    "cors": "^2.8.5",
-    "express": "^4.18.1",
-    "js-sha256": "^0.9.0",
-    "keccak256": "^1.0.6",
-    "method-override": "^3.0.0",
-    "swagger-jsdoc": "^6.2.1",
-    "swagger-ui-express": "^4.4.0"
-  }
+    "name": "did_resolver",
+    "version": "1.0.0",
+    "description": "",
+    "main": "index.js",
+    "scripts": {
+        "start:dev": "npx nodemon server.js",
+        "start": "node server.js",
+        "test": "export NODE_ENV=test && mocha --recursive --exit",
+        "test:did": "export NODE_ENV=test && mocha ./test/1.did.dc.test.js --exit",
+        "test:doc": "export NODE_ENV=test && mocha ./test/2.doc.dc.test.js --exit",
+        "test:cre": "export NODE_ENV=test && mocha ./test/3.credential.dc.test.js --exit",
+        "test:did-controller": "export NODE_ENV=test && mocha ./test/**.dc.test.js --exit",
+        "test:cardano": "export NODE_ENV=test && mocha ./test/4.cardano.test.js --exit",
+        "coverage": "c8 --check-coverage --lines 85 npm test"
+    },
+    "author": "",
+    "license": "ISC",
+    "engines": {
+        "node": "16.x"
+    },
+    "devDependencies": {
+        "c8": "^7.12.0",
+        "chai": "^4.3.6",
+        "chai-http": "^4.3.0",
+        "mocha": "^10.0.0",
+        "nock": "^13.2.9",
+        "nodemon": "^2.0.16"
+    },
+    "dependencies": {
+        "@emurgo/cardano-serialization-lib-nodejs": "^10.1.0",
+        "aes-js": "^3.1.2",
+        "ajv": "^8.11.0",
+        "axios": "^0.27.2",
+        "compression": "^1.7.4",
+        "cookie-parser": "^1.4.6",
+        "cors": "^2.8.5",
+        "dotenv": "^16.0.1",
+        "express": "^4.18.1",
+        "heroku-logger": "^0.3.3",
+        "js-sha256": "^0.9.0",
+        "method-override": "^3.0.0",
+        "swagger-jsdoc": "^6.2.1",
+        "swagger-ui-express": "^4.4.0",
+        "winston": "^3.8.1"
+    }
 }

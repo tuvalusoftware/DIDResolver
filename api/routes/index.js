@@ -1,16 +1,38 @@
-const documentRoutes = require("./documentRoutes");
-const cardanoRoutes = require("./cardanoRoutes");
-const credentialRoutes = require("./credentialRoutes");
-const notiRoutes = require("./notiRoutes");
 const authRoutes = require("./authRoutes");
+const didRoutes = require("./didRoutes");
+const credentialRoutes = require("./credentialRoutes");
+const wrappedDocRoutes = require("./wrappedDocRoutes");
+const accessTokenRoutes = require("./accessTokenRoutes");
 
-// console.log(documentRoutes);
-// console.log(cardanoRoutes);
+const authController = require("../controllers/authController");
+const cardanoController = require("../controllers/cardanoController");
 
 module.exports = (app) => {
-    app.use("/resolver", documentRoutes);
-    app.use("/resolver", cardanoRoutes);
-    app.use("/resolver", credentialRoutes);
-    app.use("/resolver", authRoutes);
-    app.use("/resolver/", notiRoutes);
-}
+    app.use("/resolver/auth", authRoutes);
+
+    // DID controller services
+    app.use("/resolver/did", didRoutes);
+    app.use("/resolver/credential", credentialRoutes);
+    app.use("/resolver/wrapped-document", wrappedDocRoutes);
+
+    // Cardano Routes
+    // app.use("/resolver", cardanoRoutes);
+    app.get(
+        "/resolver/nfts",
+        authController.ensureAuthenticated,
+        cardanoController.getNFTs
+    );
+    app.get(
+        "/resolver/hash/verify",
+        authController.ensureAuthenticated,
+        cardanoController.verifyHash
+    );
+    app.get(
+        "/resolver/signature/verify",
+        authController.ensureAuthenticated,
+        cardanoController.verifySignature
+    );
+
+    // Set token routes
+    app.use("/resolver", accessTokenRoutes);
+};

@@ -1,17 +1,8 @@
 module.exports.createCredential = {
   post: {
     tags: ["Credential"],
-    summary: "Create credential for endorsing/changing/nominating ownership or holdership.",
-    parameters: [
-      {
-        in: "cookie",
-        name: "access_token",
-        schema: {
-          type: "string",
-        },
-        description: "Access token of current user",
-      },
-    ],
+    summary:
+      "Create credential for endorsing/changing/nominating ownership or holdership.",
     requestBody: {
       required: true,
       content: {
@@ -21,23 +12,18 @@ module.exports.createCredential = {
             properties: {
               did: {
                 type: "string",
-                example: "did:method:Kukulu:file_name"
-              },
-              indexOfCres: {
-                type: "integer",
-                example: 1
-              },
-              payload: {
-                type: "string",
-                example: "7b0a202020202272616e646f6d4e756d626572223a20302e393439343136373338343132363330362c0a202020202274696d657374616d70223a20313635333435313134393334380a7d"
+                example: "did:method:Kukulu:file_name",
               },
               credential: {
-                $ref: "#/components/schemas/credential"
-              }
-            }
+                $ref: "#/components/schemas/credential",
+              },
+              config: {
+                $ref: "#/components/schemas/mintingNFTConfig",
+              },
+            },
           },
-        }
-      }
+        },
+      },
     },
     responses: {
       201: {
@@ -46,10 +32,10 @@ module.exports.createCredential = {
           "text/plain": {
             schema: {
               type: "string",
-              example: "Credential created."
-            }
-          }
-        }
+              example: "Credential created.",
+            },
+          },
+        },
       },
       400: {
         description: "Missing parameters or invalid input",
@@ -57,14 +43,18 @@ module.exports.createCredential = {
           "application/json": {
             schema: { $ref: "#/components/schemas/error" },
             examples: {
-              "Missing parameters": { $ref: "#/components/examples/errorMissingParameters" },
-              "Invalid input": { $ref: "#/components/examples/errorInvalidInput" }
-            }
-          }
-        }
+              "Missing parameters": {
+                $ref: "#/components/examples/errorMissingParameters",
+              },
+              "Invalid input": {
+                $ref: "#/components/examples/errorInvalidInput",
+              },
+            },
+          },
+        },
       },
       401: {
-        $ref: "#/components/responses/Unauthorized"
+        $ref: "#/components/responses/Unauthorized",
       },
       403: {
         description: "Signature cannot be verified",
@@ -72,14 +62,16 @@ module.exports.createCredential = {
           "application/json": {
             schema: { $ref: "#/components/schemas/error" },
             examples: {
-              "Unverified signature": { $ref: "#/components/examples/errorUnverifiedSignature" }
-            }
-          }
-        }
+              "Unverified signature": {
+                $ref: "#/components/examples/errorUnverifiedSignature",
+              },
+            },
+          },
+        },
       },
       404: {
-        $ref: "#/components/responses/NotFound_DIDDocument"
-      }
-    }
-  }
-}
+        $ref: "#/components/responses/NotFound_DIDDocument",
+      },
+    },
+  },
+};

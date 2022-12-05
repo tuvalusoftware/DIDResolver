@@ -1,35 +1,36 @@
 module.exports.getPublicKeyFromAddress = {
   get: {
     tags: ["Others"],
-    summary: "???",
+    summary: "Get pulic key from address of user",
     parameters: [
-      {
-        in: "cookie",
-        name: "access_token",
-        type: "string",
-        require: true,
-        description: "Access token of current user",
-      },
       {
         in: "query",
         name: "address",
         type: "string",
         require: true,
-        description: "Address."
-      }
+        description: "Address.",
+      },
+      {
+        in: "query",
+        name: "user",
+        type: "string",
+        require: false,
+        description: "User.",
+      },
     ],
     responses: {
       200: {
-        description: "???",
+        description: "Public key of the given address",
         content: {
           "application/json": {
             schema: {
               example: {
-                publicKey: "something"
-              }
-            }
-          }
-        }
+                publicKey: "something",
+                user: "something",
+              },
+            },
+          },
+        },
       },
       400: {
         description: "Missing parameters or invalid input",
@@ -37,15 +38,19 @@ module.exports.getPublicKeyFromAddress = {
           "application/json": {
             schema: { $ref: "#/components/schemas/error" },
             examples: {
-              "Missing parameters": { $ref: "#/components/examples/errorMissingParameters" },
-              "Invalid input": { $ref: "#/components/examples/errorInvalidInput" }
-            }
-          }
-        }
+              "Missing parameters": {
+                $ref: "#/components/examples/errorMissingParameters",
+              },
+              "Invalid input": {
+                $ref: "#/components/examples/errorInvalidInput",
+              },
+            },
+          },
+        },
       },
       401: {
-        $ref: "#/components/responses/Unauthorized"
+        $ref: "#/components/responses/Unauthorized",
       },
-    }
-  }
-}
+    },
+  },
+};
