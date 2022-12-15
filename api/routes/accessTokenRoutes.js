@@ -1,5 +1,5 @@
 const express = require("express");
-const accessTokenController = require("../controllers/accessTokenController");
+const accessTokenController = require("../controllers/cardano/accessTokenController");
 const router = express.Router();
 
 router

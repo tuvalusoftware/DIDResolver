@@ -1,12 +1,12 @@
 const axios = require("axios").default;
-const { ERRORS, SERVERS, SCHEMAS } = require("../../core/constants");
-const Logger = require("../../logger");
+const { ERRORS, SERVERS, SCHEMAS } = require("../../../core/constants");
+const Logger = require("../../../logger");
 const {
     validateJSONSchema,
     getAddressFromHexEncoded,
     validateDIDSyntax,
     checkUndefinedVar,
-} = require("../../core/index");
+} = require("../../../core/index");
 
 axios.defaults.withCredentials = true;
 
@@ -202,9 +202,7 @@ module.exports = {
                 });
 
             // 1. Validate permission to create document
-            const issuerAddress = getAddressFromHexEncoded(
-                    encryptedIssuerAddress
-                ),
+            const issuerAddress = encryptedIssuerAddress,
                 targetHash = wrappedDocument.signature.targetHash;
 
             // 1.1. Get address of user from the access token

@@ -13,7 +13,7 @@ const corsOptions = {
     origin: [
         "http://18.139.84.180:11000",
         "https://paperless-fuixlabs.ap.ngrok.io",
-        "http://192.168.2.2:4000",
+        "http://localhost:4000",
     ],
     credentials: true,
 };

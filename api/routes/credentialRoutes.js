@@ -1,6 +1,6 @@
 const express = require("express");
-const credentialController = require("../controllers/credentialController");
-const authController = require("../controllers/authController");
+const credentialController = require("../controllers/cardano/credentialController");
+const authController = require("../controllers/cardano/authController");
 const router = express.Router();
 
 router.use(authController.ensureAuthenticated);

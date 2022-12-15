@@ -4,10 +4,10 @@ const {
     getPublicKeyFromAddress,
     validateDIDSyntax,
     checkUndefinedVar,
-} = require("../../core/index");
-const { ERRORS, SERVERS, SCHEMAS } = require("../../core/constants");
+} = require("../../../core/index");
+const { ERRORS, SERVERS, SCHEMAS } = require("../../../core/constants");
 const sha256 = require("js-sha256").sha256;
-const Logger = require("../../logger");
+const Logger = require("../../../logger");
 
 axios.defaults.withCredentials = true;
 
@@ -198,9 +198,7 @@ module.exports = {
 
             // 2.2. Compare user address with public key from issuer did in credential
             // credential.issuer: did:method:companyName:publicKey --> Compare this with publicKey(address)
-            const publicKey = getPublicKeyFromAddress(
-                    address?.data?.data?.address
-                ),
+            const publicKey = address?.data?.data?.address,
                 issuerDidComponents = credential?.issuer?.split(":");
             if (
                 publicKey !==

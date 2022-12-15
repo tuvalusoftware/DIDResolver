@@ -1,7 +1,7 @@
 const axios = require("axios").default;
-const { checkUndefinedVar } = require("../../core");
-const { ERRORS, SERVERS } = require("../../core/constants");
-const { apiInfo, apiError } = require("../../logger");
+const { checkUndefinedVar } = require("../../../core");
+const { ERRORS, SERVERS } = require("../../../core/constants");
+const { apiInfo, apiError } = require("../../../logger");
 
 axios.defaults.withCredentials = true;
 

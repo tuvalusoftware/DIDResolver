@@ -1,7 +1,7 @@
 const axios = require("axios").default;
-const Logger = require("../../logger");
-const { ERRORS, SERVERS } = require("../../core/constants");
-const { getPublicKeyFromAddress } = require("../../core/index");
+const Logger = require("../../../logger");
+const { ERRORS, SERVERS } = require("../../../core/constants");
+const { getPublicKeyFromAddress } = require("../../../core/index");
 
 /* c8 ignore start */
 module.exports = {
@@ -78,7 +78,7 @@ module.exports = {
             );
 
             return res.status(200).json({
-                address: getPublicKeyFromAddress(data?.data?.address),
+                address: (data?.data?.address),
             });
         } catch (error) {
             Logger.apiError(req, res, `${JSON.stringify(error)}`);

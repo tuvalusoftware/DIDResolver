@@ -4,8 +4,8 @@ const credentialRoutes = require("./credentialRoutes");
 const wrappedDocRoutes = require("./wrappedDocRoutes");
 const accessTokenRoutes = require("./accessTokenRoutes");
 
-const authController = require("../controllers/authController");
-const cardanoController = require("../controllers/cardanoController");
+const authController = require("../controllers/cardano/authController");
+const cardanoController = require("../controllers/cardano/cardanoController");
 
 module.exports = (app) => {
     app.use("/resolver/auth", authRoutes);
