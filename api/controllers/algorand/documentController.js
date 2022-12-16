@@ -105,8 +105,16 @@ module.exports = {
       if (!createDocumentResponse || !createDocumentResponse?.data) {
         return res.status(200).json(ERRORS.CANNOT_MINT_NFT);
       }
-      if (createDocumentResponse?.data?.code !== 0) {
-        Logger.apiError(req, res, `${JSON.stringify(createDocumentResponse.data)}`);
+      if (
+        createDocumentResponse &&
+        createDocumentResponse.data &&
+        createDocumentResponse.data.code !== 0
+      ) {
+        Logger.apiError(
+          req,
+          res,
+          `${JSON.stringify(createDocumentResponse.data)}`
+        );
         return res.status(200).json({
           ...ERRORS.CANNOT_MINT_NFT,
           detail: createDocumentResponse.data,
