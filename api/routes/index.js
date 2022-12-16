@@ -8,6 +8,10 @@ const authController = require("../controllers/cardano/authController");
 const cardanoController = require("../controllers/cardano/cardanoController");
 
 module.exports = (app) => {
+
+    /**
+     * Resolver API version 1 supported Cardano network
+     */
     app.use("/resolver/auth", authRoutes);
 
     // DID controller services
@@ -32,6 +36,11 @@ module.exports = (app) => {
         authController.ensureAuthenticated,
         cardanoController.verifySignature
     );
+
+    /**
+     * Resolver API version 2 supported both Cardano and Algorand networks
+     */
+
 
     // Set token routes
     app.use("/resolver", accessTokenRoutes);
