@@ -165,4 +165,16 @@ module.exports = {
         : res.status(400).json(error);
     }
   },
+  validateDocument: async function (req, res) {
+    const { access_token } = req.cookies;
+    
+    try {
+
+    } catch (e) {
+      Logger.apiError(req, res, `${JSON.stringify(e)}`);
+      return e.response
+        ? res.status(200).json(e.response)
+        : res.status(200).json(e);
+    }
+  },
 };

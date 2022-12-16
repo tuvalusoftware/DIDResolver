@@ -48,4 +48,9 @@ module.exports = (app) => {
     authController.ensureAuthenticated,
     algorandController.getNFTs
   );
+  app.post(
+    "/resolver/hash/verify/v2",
+    authController.ensureAuthenticated,
+    algorandController.verifyHash
+  );
 };

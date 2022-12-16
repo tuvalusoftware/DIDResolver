@@ -111,7 +111,7 @@ module.exports = {
                 return res.status(200).json(data.data);
             }
         } catch (error) {
-            apiError(req, res, error);
+            apiError(req, res, `${JSON.stringify(error)}`);
             return error.response
                 ? res.status(400).json(error.response.data)
                 : res.status(400).json(error);
