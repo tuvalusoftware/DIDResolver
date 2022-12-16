@@ -97,4 +97,50 @@ module.exports = {
         : res.status(400).json(e);
     }
   },
+  verifySignature: async function (req, res) {
+    const { access_token } = req.cookies;
+    const { address, payload, signature } = req.headers;
+
+    try {
+      const undefinedVar = checkUndefinedVar({
+        address,
+        payload,
+        signature,
+      });
+      if (undefinedVar.undefined)
+        return res.status(200).json({
+          ...ERRORS.MISSING_PARAMETERS,
+          detail: undefinedVar.detail,
+        });
+      const { data } = await axios.post(
+        SERVERS.ALGORAND_SERVICE + "/api/v1/verify/signature",
+        {
+          address: address,
+          payload: payload,
+          signature: signature,
+        },
+        {
+          withCredentials: true,
+          headers: {
+            Cookie: `access_token=${access_token}`,
+          },
+        }
+      );
+      if (data.code === 0 && data.data) {
+        apiInfo(req, res, `Signature is valid!`);
+        return res.status(200).json({
+          isValid: true,
+        });
+      }
+      apiError(req, res, `Signature is valid!`);
+      return res.status(200).json({
+        isValid: false,
+      });
+    } catch (error) {
+      apiError(req, res, `${JSON.stringify(error)}`);
+      return error.response
+        ? res.status(400).json(error.response.data)
+        : res.status(400).json(error);
+    }
+  },
 };
