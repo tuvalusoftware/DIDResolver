@@ -53,7 +53,7 @@ module.exports = (app) => {
     authController.ensureAuthenticated,
     algorandController.verifyHash
   );
-  app.get(
+  app.post(
     "/resolver/signature/verify/v2",
     authController.ensureAuthenticated,
     algorandController.verifySignature

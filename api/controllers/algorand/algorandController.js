@@ -8,18 +8,13 @@ axios.defaults.withCredentials = true;
 module.exports = {
   getNFTs: async function (req, res) {
     const { access_token } = req.cookies;
-    const { unitName } = req.query;
+    const { unitName, assetId } = req.query;
     try {
-      const undefinedVar = checkUndefinedVar({ unitName });
-      if (undefinedVar.undefined)
-        return res.status(200).json({
-          ...ERRORS.MISSING_PARAMETERS,
-          detail: undefinedVar.detail,
-        });
       const fetchNFTsResponse = await axios.post(
         `${SERVERS.ALGORAND_SERVICE}/api/v1/fetch/nft`,
         {
           unitName,
+          assetId: assetId || undefined
         },
         {
           withCredentials: true,
@@ -99,8 +94,7 @@ module.exports = {
   },
   verifySignature: async function (req, res) {
     const { access_token } = req.cookies;
-    const { address, payload, signature } = req.headers;
-
+    const { address, payload, signature } = req.body;
     try {
       const undefinedVar = checkUndefinedVar({
         address,
@@ -132,7 +126,7 @@ module.exports = {
           isValid: true,
         });
       }
-      apiError(req, res, `Signature is valid!`);
+      apiError(req, res, `Signature is invalid!`);
       return res.status(200).json({
         isValid: false,
       });
