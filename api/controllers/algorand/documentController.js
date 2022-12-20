@@ -13,7 +13,7 @@ axios.defaults.withCredentials = true;
 module.exports = {
   createWrappedDocument: async function (req, res) {
     const { access_token } = req.cookies;
-    let { wrappedDocument, issuerAddress } = req.body;
+    let { wrappedDocument, issuerAddress, mintingNFTConfig: config } = req.body;
     try {
       const undefinedVar = checkUndefinedVar({
         wrappedDocument,
@@ -90,18 +90,35 @@ module.exports = {
         res,
         `Confirm new wrapped document. Continue creating...`
       );
-      const createDocumentResponse = await axios.post(
-        SERVERS.ALGORAND_SERVICE + "/api/v1/hash",
-        {
-          hash: targetHash,
-        },
-        {
-          withCredentials: true,
-          headers: {
-            Cookie: `access_token=${access_token}`,
+      let createDocumentResponse;
+      if (config) {
+        createDocumentResponse = await axios.put(
+          SERVERS.ALGORAND_SERVICE + "/api/v1/hash",
+          {
+            newHash: targetHash,
+            config: config,
           },
-        }
-      );
+          {
+            withCredentials: true,
+            headers: {
+              Cookie: `access_token=${access_token}`,
+            },
+          }
+        );
+      } else {
+        createDocumentResponse = await axios.post(
+          SERVERS.ALGORAND_SERVICE + "/api/v1/hash",
+          {
+            hash: targetHash,
+          },
+          {
+            withCredentials: true,
+            headers: {
+              Cookie: `access_token=${access_token}`,
+            },
+          }
+        );
+      }
       if (!createDocumentResponse || !createDocumentResponse?.data) {
         return res.status(200).json(ERRORS.CANNOT_MINT_NFT);
       }
