@@ -506,7 +506,7 @@ module.exports = {
                 }
             );
 
-            data?.code
+            data?.code !== 0
                 ? Logger.apiError(req, res, `${JSON.stringify(data)}`)
                 : Logger.apiInfo(req, res, `Success.\n${JSON.stringify(data)}`);
 

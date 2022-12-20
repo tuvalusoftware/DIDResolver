@@ -167,14 +167,53 @@ module.exports = {
   },
   validateDocument: async function (req, res) {
     const { access_token } = req.cookies;
-    
-    try {
 
+    try {
     } catch (e) {
       Logger.apiError(req, res, `${JSON.stringify(e)}`);
       return e.response
         ? res.status(200).json(e.response)
         : res.status(200).json(e);
+    }
+  },
+  revokeDocument: async function (req, res) {
+    try {
+      const accessToken = req.cookies["access_token"];
+      const { config } = req.body;
+      const undefinedVar = checkUndefinedVar({
+        config,
+      });
+      if (undefinedVar.undefined)
+        return res.status(200).json({
+          ...ERRORS.MISSING_PARAMETERS,
+          detail: undefinedVar.detail,
+        });
+      const revokeResponse = await axios.delete(
+        SERVERS.ALGORAND_SERVICE + "/api/v1/hash",
+        {
+          withCredentials: true,
+          headers: {
+            cookie: `access_token=${accessToken}`,
+          },
+          data: {
+            config,
+          },
+        }
+      );
+      revokeResponse && revokeResponse.data && revokeResponse.data.code !== 0
+        ? Logger.apiError(req, res, `${JSON.stringify(revokeResponse.data)}`)
+        : Logger.apiInfo(
+            req,
+            res,
+            `Success.\n${JSON.stringify(revokeResponse.data)}`
+          );
+
+      return res.status(200).json(revokeResponse.data);
+    } catch (e) {
+      Logger.apiError(req, res, `${JSON.stringify(e)}`);
+      return e.response
+        ? res.status(400).json(e.response)
+        : res.status(400).json(e);
     }
   },
 };

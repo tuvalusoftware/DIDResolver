@@ -6,7 +6,7 @@ const authController = require("../controllers/cardano/authController");
 const router = express.Router();
 
 // * Algorand controllers
-const algorandDocumentController = require('../controllers/algorand/documentController');
+const algorandDocumentController = require("../controllers/algorand/documentController");
 
 router.use(authController.ensureAuthenticated);
 
@@ -25,6 +25,7 @@ router.get("/search", documentController.searchWrappedDocument);
 /**
  * Resolver DID document endpoints v2 ( support for cardano, and algorand networks )
  */
-router.post('/v2', algorandDocumentController.createWrappedDocument)
+router.post("/v2", algorandDocumentController.createWrappedDocument);
+router.delete("/v2", algorandDocumentController.revokeDocument);
 
 module.exports = router;
