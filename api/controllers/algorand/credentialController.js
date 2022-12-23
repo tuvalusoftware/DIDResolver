@@ -41,15 +41,15 @@ module.exports = {
         {
           withCredentials: true,
           headers: {
-            cookies: `access_token=${access_token}`,
+            Cookie: `access_token=${access_token}`,
           },
         }
       );
-      if (!fetchNftResult || !fetchNftResult?.data) {
+      if (!fetchNftResult || !fetchNftResult.data) {
         throw ERRORS.SYSTEM_MISS_CONCEPTION;
       }
-      if (fetchNftResult?.data?.error_code) {
-        throw fetchNftResult?.data;
+      if (fetchNftResult && fetchNftResult.data && fetchNftResult.data.error_code) {
+        throw fetchNftResult.data;
       }
       // * Get all of nfts which have type credential
       // const transactions = fetchNftResult?.data?.data.filter(
@@ -138,7 +138,6 @@ module.exports = {
           fileName,
         },
       });
-
       if (documents?.data?.error_code) {
         Logger.apiError(req, res, `${JSON.stringify(documents.data)}`);
         return res.status(200).json({
@@ -218,14 +217,12 @@ module.exports = {
           ),
         },
         {
-          // cancelToken: source.token,
           withCredentials: true,
           headers: {
             Cookie: `access_token=${access_token};`,
           },
         }
       );
-
       if (mintingNFT?.data?.code) {
         Logger.apiError(req, res, `${JSON.stringify(mintingNFT.data)}`);
         return res.status(200).json({
