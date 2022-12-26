@@ -69,4 +69,8 @@ module.exports.ERRORS = {
     error_message:
       "Maybe there was a consistency error in our system! Please try later!",
   },
+  CANNOT_STORE_CREDENTIAL_GITHUB_SERVICE: {
+    error_code: 400,
+    error_message: 'There are some consistency errors on our systems! So we cannot store your credential on Github service now!'
+  }
 };

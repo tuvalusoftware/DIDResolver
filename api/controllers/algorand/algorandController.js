@@ -14,7 +14,7 @@ module.exports = {
         `${SERVERS.ALGORAND_SERVICE}/api/v1/fetch/nft`,
         {
           unitName,
-          assetId: assetId || undefined
+          assetId: assetId || undefined,
         },
         {
           withCredentials: true,
@@ -23,16 +23,12 @@ module.exports = {
           },
         }
       );
-      if (
-        fetchNFTsResponse &&
-        fetchNFTsResponse.data &&
-        fetchNFTsResponse.data.code !== 0
-      ) {
+      if (fetchNFTsResponse?.data?.code !== 0) {
         apiError(req, res, `${JSON.stringify(fetchNFTsResponse.data)}`);
         return res.status(200).json(ERRORS.CANNOT_FETCH_NFT);
       }
       apiInfo(req, res, `Success.\n${JSON.stringify(fetchNFTsResponse.data)}`);
-      return res.status(200).json(fetchNFTsResponse.data.data);
+      return res.status(200).json(fetchNFTsResponse?.data?.data);
     } catch (error) {
       apiError(req, res, `${JSON.stringify(error)}`);
       return error.response
@@ -63,18 +59,15 @@ module.exports = {
         }
       );
       if (
-        verifyResponse &&
-        verifyResponse.data &&
-        verifyResponse.data.code !== 0
+        verifyResponse?.data?.code !== 0
       ) {
         apiError(req, res, `${JSON.stringify(verifyResponse.data)}`);
         return res.status(200).json(ERRORS.CANNOT_FETCH_NFT);
       }
       apiInfo(req, res, `Success.\n${JSON.stringify(verifyResponse.data)}`);
       if (
-        verifyResponse.data.data &&
-        verifyResponse.data.data.assets.length > 0 &&
-        verifyResponse.data.data.assets[0]["index"] === parseInt(assetId)
+        verifyResponse?.data?.data?.assets.length > 0 &&
+        verifyResponse?.data?.data?.assets[0]["index"] === parseInt(assetId)
       ) {
         apiInfo(req, res, `Transaction with asset-id = ${assetId} is valid!`);
         return res.status(200).json({
@@ -120,7 +113,7 @@ module.exports = {
           },
         }
       );
-      if (data.code === 0 && data.data) {
+      if (data?.code === 0 && data?.data) {
         apiInfo(req, res, `Signature is valid!`);
         return res.status(200).json({
           isValid: true,

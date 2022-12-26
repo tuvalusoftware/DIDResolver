@@ -1,10 +1,8 @@
 const axios = require("axios").default;
-const { ERRORS, SERVERS, SCHEMAS } = require("../../../core/constants");
+const { ERRORS, SERVERS } = require("../../../core/constants");
 const sha256 = require("js-sha256").sha256;
 const Logger = require("../../../logger");
 const {
-  validateJSONSchema,
-  getPublicKeyFromAddress,
   validateDIDSyntax,
   checkUndefinedVar,
 } = require("../../../core/index");
@@ -45,11 +43,8 @@ module.exports = {
           },
         }
       );
-      if (!fetchNftResult || !fetchNftResult.data) {
-        throw ERRORS.SYSTEM_MISS_CONCEPTION;
-      }
-      if (fetchNftResult && fetchNftResult.data && fetchNftResult.data.error_code) {
-        throw fetchNftResult.data;
+      if (fetchNftResult?.data?.error_code) {
+        throw fetchNftResult?.data;
       }
       // * Get all of nfts which have type credential
       // const transactions = fetchNftResult?.data?.data.filter(
@@ -139,15 +134,14 @@ module.exports = {
         },
       });
       if (documents?.data?.error_code) {
-        Logger.apiError(req, res, `${JSON.stringify(documents.data)}`);
+        Logger.apiError(req, res, `${JSON.stringify(documents?.data)}`);
         return res.status(200).json({
-          ...ERRORS.INVALID_INPUT,
-          detail: documents.data,
+          detail: documents?.data,
         });
       }
 
-      const didDocument = documents.data.didDoc,
-        wrappedDocument = documents.data.wrappedDoc;
+      const didDocument = documents?.data?.didDoc,
+        wrappedDocument = documents?.data?.wrappedDoc;
 
       if (didDocument && wrappedDocument)
         Logger.info(
@@ -170,11 +164,16 @@ module.exports = {
           },
         }
       );
-
+      if (address?.data?.error_code) {
+        Logger.apiError(req, res, `${JSON.stringify(address.data)}`);
+        return res.status(200).json({
+          detail: address.data,
+        });
+      }
       // 2.2. Compare user address with public key from issuer did in credential
       // credential.issuer: did:method:companyName:publicKey --> Compare this with publicKey(address)
       const publicKey = address?.data?.data?.address,
-        issuerDidComponents = credential?.issuer?.split(":");
+        issuerDidComponents = credential.issuer.split(":");
       if (publicKey !== issuerDidComponents[issuerDidComponents.length - 1]) {
         Logger.apiError(
           req,
@@ -194,7 +193,7 @@ module.exports = {
         );
 
       // * 2.3. Compare user address with controller address (from did document of wrapped document)
-      if (didDocument.controller.indexOf(publicKey) < 0)
+      if (didDocument?.controller.indexOf(publicKey) < 0)
         // if (publicKey !== didDocument.owner && publicKey !== didDocument.holder)
         return res.status(200).json(ERRORS.PERMISSION_DENIED);
 
@@ -223,7 +222,7 @@ module.exports = {
           },
         }
       );
-      if (mintingNFT?.data?.code) {
+      if (mintingNFT?.data?.code !== 0) {
         Logger.apiError(req, res, `${JSON.stringify(mintingNFT.data)}`);
         return res.status(200).json({
           ...ERRORS.CANNOT_MINT_NFT,
@@ -243,7 +242,7 @@ module.exports = {
             ),
             content: {
               ...credential,
-              mintingNFTConfig: mintingNFT?.data?.data,
+              mintingNFTConfig: mintingNFT.data?.data,
             },
           },
           {
@@ -252,6 +251,17 @@ module.exports = {
             },
           }
         );
+        if (storeCredentialStatus?.data?.error_code) {
+          Logger.apiError(
+            req,
+            res,
+            `${JSON.stringify(storeCredentialStatus.data)}`
+          );
+          return res.status(200).json({
+            ...ERRORS.CANNOT_STORE_CREDENTIAL_GITHUB_SERVICE,
+            detail: storeCredentialStatus?.data,
+          });
+        }
 
         return res.status(200).send(storeCredentialStatus.data);
       }

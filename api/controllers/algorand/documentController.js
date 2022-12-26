@@ -25,12 +25,12 @@ module.exports = {
           detail: undefinedVar.detail,
         });
       }
-      const did = wrappedDocument.data?.did,
+      const did = wrappedDocument?.data?.did,
         validDid = validateDIDSyntax(did, true),
         companyName = validDid.companyName,
         fileName = validDid.fileNameOrPublicKey;
 
-      if (!validDid.valid)
+      if (!validDid?.valid)
         return res.status(200).json({
           ...ERRORS.INVALID_INPUT,
           detail: "Invalid DID syntax. Check did element.",
@@ -77,7 +77,7 @@ module.exports = {
           },
         }
       );
-      if (isExistence && isExistence?.data && isExistence?.data?.isExisted) {
+      if (isExistence?.data?.isExisted) {
         Logger.apiError(
           req,
           res,
@@ -119,14 +119,7 @@ module.exports = {
           }
         );
       }
-      if (!createDocumentResponse || !createDocumentResponse?.data) {
-        return res.status(200).json(ERRORS.CANNOT_MINT_NFT);
-      }
-      if (
-        createDocumentResponse &&
-        createDocumentResponse.data &&
-        createDocumentResponse.data.code !== 0
-      ) {
+      if (createDocumentResponse?.data?.code !== 0) {
         Logger.apiError(
           req,
           res,
@@ -182,17 +175,6 @@ module.exports = {
         : res.status(400).json(error);
     }
   },
-  validateDocument: async function (req, res) {
-    const { access_token } = req.cookies;
-
-    try {
-    } catch (e) {
-      Logger.apiError(req, res, `${JSON.stringify(e)}`);
-      return e.response
-        ? res.status(200).json(e.response)
-        : res.status(200).json(e);
-    }
-  },
   revokeDocument: async function (req, res) {
     try {
       const accessToken = req.cookies["access_token"];
@@ -217,7 +199,7 @@ module.exports = {
           },
         }
       );
-      revokeResponse && revokeResponse.data && revokeResponse.data.code !== 0
+      revokeResponse?.data?.code !== 0
         ? Logger.apiError(req, res, `${JSON.stringify(revokeResponse.data)}`)
         : Logger.apiInfo(
             req,
