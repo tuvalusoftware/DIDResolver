@@ -2,10 +2,7 @@ const axios = require("axios").default;
 const { ERRORS, SERVERS } = require("../../../core/constants");
 const sha256 = require("js-sha256").sha256;
 const Logger = require("../../../logger");
-const {
-  validateDIDSyntax,
-  checkUndefinedVar,
-} = require("../../../core/index");
+const { validateDIDSyntax, checkUndefinedVar } = require("../../../core/index");
 
 module.exports = {
   createCredential: async function (req, res) {
@@ -31,7 +28,7 @@ module.exports = {
       const companyName = validDid.companyName,
         fileName = validDid.fileNameOrPublicKey;
       // * Get list of nfts with given unitName
-      const fetchNftResult = await axios.post(
+      const fetchNftResponse = await axios.post(
         `${SERVERS.ALGORAND_SERVICE}/api/v1/fetch/nft`,
         {
           unitName: config.unitName || null,
@@ -43,8 +40,8 @@ module.exports = {
           },
         }
       );
-      if (fetchNftResult?.data?.error_code) {
-        throw fetchNftResult?.data;
+      if (fetchNftResponse?.data?.error_code) {
+        throw fetchNftResponse?.data;
       }
       // * Get all of nfts which have type credential
       // const transactions = fetchNftResult?.data?.data.filter(
@@ -123,25 +120,32 @@ module.exports = {
       //   );
       // }
       // * 1. Get wrapped document and did document of wrapped document
-      const documents = await axios.get(SERVERS.DID_CONTROLLER + "/api/doc", {
-        withCredentials: true,
-        headers: {
-          Cookie: `access_token=${access_token};`,
-        },
-        params: {
-          companyName,
-          fileName,
-        },
-      });
-      if (documents?.data?.error_code) {
-        Logger.apiError(req, res, `${JSON.stringify(documents?.data)}`);
+      const fetchDocumentsResponse = await axios.get(
+        SERVERS.DID_CONTROLLER + "/api/doc",
+        {
+          withCredentials: true,
+          headers: {
+            Cookie: `access_token=${access_token};`,
+          },
+          params: {
+            companyName,
+            fileName,
+          },
+        }
+      );
+      if (fetchDocumentsResponse?.data?.error_code) {
+        Logger.apiError(
+          req,
+          res,
+          `${JSON.stringify(fetchDocumentsResponse?.data)}`
+        );
         return res.status(200).json({
-          detail: documents?.data,
+          detail: fetchDocumentsResponse?.data,
         });
       }
 
-      const didDocument = documents?.data?.didDoc,
-        wrappedDocument = documents?.data?.wrappedDoc;
+      const didDocument = fetchDocumentsResponse?.data?.didDoc,
+        wrappedDocument = fetchDocumentsResponse?.data?.wrappedDoc;
 
       if (didDocument && wrappedDocument)
         Logger.info(
@@ -155,7 +159,7 @@ module.exports = {
       // success:
       //   { data: { address: string } }
       // error: 401 - unauthorized
-      const address = await axios.get(
+      const verifyAddressResponse = await axios.get(
         SERVERS.AUTHENTICATION_SERVICE + "/api/auth/verify",
         {
           withCredentials: true,
@@ -164,15 +168,19 @@ module.exports = {
           },
         }
       );
-      if (address?.data?.error_code) {
-        Logger.apiError(req, res, `${JSON.stringify(address.data)}`);
+      if (verifyAddressResponse?.data?.error_code) {
+        Logger.apiError(
+          req,
+          res,
+          `${JSON.stringify(verifyAddressResponse.data)}`
+        );
         return res.status(200).json({
-          detail: address.data,
+          detail: verifyAddressResponse.data,
         });
       }
       // 2.2. Compare user address with public key from issuer did in credential
       // credential.issuer: did:method:companyName:publicKey --> Compare this with publicKey(address)
-      const publicKey = address?.data?.data?.address,
+      const publicKey = verifyAddressResponse?.data?.data?.address,
         issuerDidComponents = credential.issuer.split(":");
       if (publicKey !== issuerDidComponents[issuerDidComponents.length - 1]) {
         Logger.apiError(
@@ -189,7 +197,7 @@ module.exports = {
         Logger.apiInfo(
           req,
           res,
-          `PK matchs credential.issuer PK. PK: ${publicKey}`
+          `PK match's credential.issuer PK. PK: ${publicKey}`
         );
 
       // * 2.3. Compare user address with controller address (from did document of wrapped document)
@@ -207,7 +215,7 @@ module.exports = {
       // error:
       //   { code: 0, message: string }
 
-      const mintingNFT = await axios.post(
+      const mintingNFTResponse = await axios.post(
         SERVERS.ALGORAND_SERVICE + "/api/v1/credential",
         {
           config,
@@ -222,11 +230,11 @@ module.exports = {
           },
         }
       );
-      if (mintingNFT?.data?.code !== 0) {
-        Logger.apiError(req, res, `${JSON.stringify(mintingNFT.data)}`);
+      if (mintingNFTResponse?.data?.code !== 0) {
+        Logger.apiError(req, res, `${JSON.stringify(mintingNFTResponse.data)}`);
         return res.status(200).json({
           ...ERRORS.CANNOT_MINT_NFT,
-          detail: mintingNFT.data,
+          detail: mintingNFTResponse.data,
         });
       } else {
         // 4. Call DID_CONTROLLER
@@ -234,7 +242,7 @@ module.exports = {
         //   {}
         // error:
         //   { error_code: number, message: string}
-        const storeCredentialStatus = await axios.post(
+        const storeCredentialResponse = await axios.post(
           SERVERS.DID_CONTROLLER + "/api/credential",
           {
             hash: sha256(
@@ -242,7 +250,7 @@ module.exports = {
             ),
             content: {
               ...credential,
-              mintingNFTConfig: mintingNFT.data?.data,
+              mintingNFTConfig: mintingNFTResponse?.data?.data,
             },
           },
           {
@@ -251,19 +259,18 @@ module.exports = {
             },
           }
         );
-        if (storeCredentialStatus?.data?.error_code) {
+        if (storeCredentialResponse?.data?.error_code) {
           Logger.apiError(
             req,
             res,
-            `${JSON.stringify(storeCredentialStatus.data)}`
+            `${JSON.stringify(storeCredentialResponse.data)}`
           );
           return res.status(200).json({
             ...ERRORS.CANNOT_STORE_CREDENTIAL_GITHUB_SERVICE,
-            detail: storeCredentialStatus?.data,
+            detail: storeCredentialResponse?.data,
           });
         }
-
-        return res.status(200).send(storeCredentialStatus.data);
+        return res.status(200).send(storeCredentialResponse.data);
       }
     } catch (e) {
       Logger.apiError(`${JSON.stringify(e)}`);

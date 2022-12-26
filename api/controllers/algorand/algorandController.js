@@ -1,6 +1,6 @@
 const axios = require("axios").default;
 const { checkUndefinedVar } = require("../../../core");
-const { ERRORS, SERVERS, SCHEMAS } = require("../../../core/constants");
+const { ERRORS, SERVERS } = require("../../../core/constants");
 const { apiError, apiInfo } = require("../../../logger");
 
 axios.defaults.withCredentials = true;
@@ -46,7 +46,7 @@ module.exports = {
           ...ERRORS.MISSING_PARAMETERS,
           detail: undefinedVar.detail,
         });
-      const verifyResponse = await axios.post(
+      const verifyHashResponse = await axios.post(
         `${SERVERS.ALGORAND_SERVICE}/api/v1/fetch/nft`,
         {
           assetId,
@@ -59,15 +59,15 @@ module.exports = {
         }
       );
       if (
-        verifyResponse?.data?.code !== 0
+        verifyHashResponse?.data?.code !== 0
       ) {
-        apiError(req, res, `${JSON.stringify(verifyResponse.data)}`);
+        apiError(req, res, `${JSON.stringify(verifyHashResponse.data)}`);
         return res.status(200).json(ERRORS.CANNOT_FETCH_NFT);
       }
-      apiInfo(req, res, `Success.\n${JSON.stringify(verifyResponse.data)}`);
+      apiInfo(req, res, `Success.\n${JSON.stringify(verifyHashResponse.data)}`);
       if (
-        verifyResponse?.data?.data?.assets.length > 0 &&
-        verifyResponse?.data?.data?.assets[0]["index"] === parseInt(assetId)
+        verifyHashResponse?.data?.data?.assets.length > 0 &&
+        verifyHashResponse?.data?.data?.assets[0]["index"] === parseInt(assetId)
       ) {
         apiInfo(req, res, `Transaction with asset-id = ${assetId} is valid!`);
         return res.status(200).json({
@@ -99,7 +99,7 @@ module.exports = {
           ...ERRORS.MISSING_PARAMETERS,
           detail: undefinedVar.detail,
         });
-      const { data } = await axios.post(
+      const verifySignatureResponse = await axios.post(
         SERVERS.ALGORAND_SERVICE + "/api/v1/verify/signature",
         {
           address: address,
@@ -113,7 +113,7 @@ module.exports = {
           },
         }
       );
-      if (data?.code === 0 && data?.data) {
+      if (verifySignatureResponse?.data?.code === 0) {
         apiInfo(req, res, `Signature is valid!`);
         return res.status(200).json({
           isValid: true,

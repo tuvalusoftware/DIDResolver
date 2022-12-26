@@ -37,7 +37,7 @@ module.exports = {
         });
 
       const targetHash = wrappedDocument?.signature?.targetHash;
-      const address = await axios.get(
+      const verifyAddressResponse = await axios.get(
         SERVERS.AUTHENTICATION_SERVICE + "/api/auth/verify",
         {
           withCredentials: true,
@@ -49,13 +49,13 @@ module.exports = {
       Logger.apiInfo(
         req,
         res,
-        `Address of user: ${address?.data?.data?.address}`
+        `Address of user: ${verifyAddressResponse?.data?.data?.address}`
       );
-      if (issuerAddress !== address?.data?.data?.address) {
+      if (issuerAddress !== verifyAddressResponse?.data?.data?.address) {
         Logger.apiError(
           req,
           res,
-          `Address ${address?.data?.data?.address} is not issuer ${issuerAddress}`
+          `Address ${verifyAddressResponse?.data?.data?.address} is not issuer ${issuerAddress}`
         );
         return res.status(200).send(ERRORS.PERMISSION_DENIED);
       }
@@ -64,7 +64,7 @@ module.exports = {
         res,
         `Issuer address matches current address. Address: ${issuerAddress}`
       );
-      const isExistence = await axios.get(
+      const documentExistenceResponse = await axios.get(
         SERVERS.DID_CONTROLLER + "/api/doc/exists",
         {
           withCredentials: true,
@@ -77,7 +77,7 @@ module.exports = {
           },
         }
       );
-      if (isExistence?.data?.isExisted) {
+      if (documentExistenceResponse?.data?.isExisted) {
         Logger.apiError(
           req,
           res,
@@ -187,7 +187,7 @@ module.exports = {
           ...ERRORS.MISSING_PARAMETERS,
           detail: undefinedVar.detail,
         });
-      const revokeResponse = await axios.delete(
+      const revokeDocumentResponse = await axios.delete(
         SERVERS.ALGORAND_SERVICE + "/api/v1/hash",
         {
           withCredentials: true,
@@ -199,15 +199,19 @@ module.exports = {
           },
         }
       );
-      revokeResponse?.data?.code !== 0
-        ? Logger.apiError(req, res, `${JSON.stringify(revokeResponse.data)}`)
+      revokeDocumentResponse?.data?.code !== 0
+        ? Logger.apiError(
+            req,
+            res,
+            `${JSON.stringify(revokeDocumentResponse.data)}`
+          )
         : Logger.apiInfo(
             req,
             res,
-            `Success.\n${JSON.stringify(revokeResponse.data)}`
+            `Success.\n${JSON.stringify(revokeDocumentResponse.data)}`
           );
 
-      return res.status(200).json(revokeResponse.data);
+      return res.status(200).json(revokeDocumentResponse.data);
     } catch (e) {
       Logger.apiError(req, res, `${JSON.stringify(e)}`);
       return e.response
