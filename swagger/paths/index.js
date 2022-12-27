@@ -14,6 +14,8 @@ const {
 } = require("./wrappedDocument");
 const { retrieveSpecificDid, retrieveAllDids } = require("./did");
 
+const {createAlgorandCredential,algorandDocument, getAlgorandNFTs, verifyAlgorandHash, verifyAlgorandSignature} = require('./algorand')
+
 module.exports.paths = {
     "/": {
         ...setCookie,
@@ -66,4 +68,21 @@ module.exports.paths = {
     "/signature/verify/": {
         ...verifySignature,
     },
+
+    // * Algorand
+    "/credential/v2/": {
+        ...createAlgorandCredential
+    },
+    "/nfts/v2/": {
+        ...getAlgorandNFTs
+    },
+    "/signature/verify/v2/": {
+        ...verifyAlgorandSignature
+    },
+    "/hash/verify/v2/": {
+        ...verifyAlgorandHash
+    },
+    "/wrapped-document/v2/": {
+        ...algorandDocument
+    }
 };
