@@ -40,8 +40,9 @@ module.exports = {
           },
         }
       );
-      if (fetchNftResponse?.data?.error_code) {
-        throw fetchNftResponse?.data;
+      if (fetchNftResponse?.data?.code !== 0) {
+        Logger.apiError(req, res, `${JSON.stringify(fetchNftResponse?.data)}`);
+        return res.status(200).json(fetchNftResponse?.data)
       }
       // * Get all of nfts which have type credential
       // const transactions = fetchNftResult?.data?.data.filter(
@@ -181,7 +182,7 @@ module.exports = {
       // 2.2. Compare user address with public key from issuer did in credential
       // credential.issuer: did:method:companyName:publicKey --> Compare this with publicKey(address)
       const publicKey = verifyAddressResponse?.data?.data?.address,
-        issuerDidComponents = credential.issuer.split(":");
+        issuerDidComponents = credential?.issuer?.split(":");
       if (publicKey !== issuerDidComponents[issuerDidComponents.length - 1]) {
         Logger.apiError(
           req,

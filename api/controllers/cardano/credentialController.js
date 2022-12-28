@@ -26,7 +26,6 @@ module.exports = {
                     ...ERRORS.MISSING_PARAMETERS,
                     detail: undefinedVar.detail,
                 });
-
             // 0. Validate input
             // 0.1. Validate DID syntax
             const validDid = validateDIDSyntax(did, false);
@@ -44,7 +43,6 @@ module.exports = {
                     ...ERRORS.INVALID_INPUT,
                     detail: valid.detail,
                 });
-
             // * Get list of nfts with given policy-id
             const fetchNftResult = await axios.post(
                 `${SERVERS.CARDANO_SERVICE}/api/v2/fetch/nft`,

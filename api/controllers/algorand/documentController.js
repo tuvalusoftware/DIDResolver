@@ -29,12 +29,11 @@ module.exports = {
         validDid = validateDIDSyntax(did, true),
         companyName = validDid.companyName,
         fileName = validDid.fileNameOrPublicKey;
-
-      if (!validDid?.valid)
-        return res.status(200).json({
-          ...ERRORS.INVALID_INPUT,
-          detail: "Invalid DID syntax. Check did element.",
-        });
+      // if (!validDid?.valid)
+      //   return res.status(200).json({
+      //     ...ERRORS.INVALID_INPUT,
+      //     detail: "Invalid DID syntax. Check did element.",
+      //   });
 
       const targetHash = wrappedDocument?.signature?.targetHash;
       const verifyAddressResponse = await axios.get(

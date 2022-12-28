@@ -58,15 +58,13 @@ module.exports = {
           },
         }
       );
-      if (
-        verifyHashResponse?.data?.code !== 0
-      ) {
+      if (verifyHashResponse?.data?.code !== 0) {
         apiError(req, res, `${JSON.stringify(verifyHashResponse.data)}`);
         return res.status(200).json(ERRORS.CANNOT_FETCH_NFT);
       }
       apiInfo(req, res, `Success.\n${JSON.stringify(verifyHashResponse.data)}`);
       if (
-        verifyHashResponse?.data?.data?.assets.length > 0 &&
+        verifyHashResponse?.data?.data?.assets?.length > 0 &&
         verifyHashResponse?.data?.data?.assets[0]["index"] === parseInt(assetId)
       ) {
         apiInfo(req, res, `Transaction with asset-id = ${assetId} is valid!`);

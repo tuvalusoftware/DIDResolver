@@ -1,4 +1,4 @@
-module.exports = {
+module.exports.defaultConfig = {
   type: "object",
   properties: {
     type: { type: "string" },
@@ -6,7 +6,7 @@ module.exports = {
     policy: { type: "object" },
   },
   example: {
-    type: "credentail",
+    type: "credential",
     policy: {
       type: "Native",
       id: "ed9f068881fd29842e8b5267ae8220aca2c2953617ce07c7895cfd30",

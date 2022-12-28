@@ -1,4 +1,4 @@
-const mintingNFTConfig = require("./config");
+const {defaultConfig} = require("./config");
 
 module.exports = {
   type: "object",
@@ -62,7 +62,7 @@ module.exports = {
       //   asset: { type: "string" },
       //   policy: { type: "object" },
       // },
-      ...(({ example, ...props }) => props)(mintingNFTConfig),
+      ...(({ example, ...props }) => props)(defaultConfig),
     },
   },
   example: {

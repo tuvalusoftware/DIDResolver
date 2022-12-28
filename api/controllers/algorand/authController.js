@@ -32,10 +32,6 @@ module.exports = {
     }
   },
   verifyAlgorandAddress: async (req, res) => {
-    if (!req.cookies["access_token"]) {
-      Logger.apiError(req, res, `Not found: access_token.`);
-      return res.status(401).json(ERRORS.UNAUTHORIZED);
-    }
     const { address } = req.query;
     const undefinedVar = checkUndefinedVar({ address });
     if (undefinedVar.undefined)
