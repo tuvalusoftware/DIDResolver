@@ -14,7 +14,7 @@ const {
 } = require("./wrappedDocument");
 const { retrieveSpecificDid, retrieveAllDids } = require("./did");
 
-const {createAlgorandCredential,algorandDocument, getAlgorandNFTs, verifyAlgorandHash, verifyAlgorandSignature} = require('./algorand')
+const {createAlgorandCredential,algorandDocument, getAlgorandNFTs, verifyAlgorandHash, verifyAlgorandSignature, verifyAlgorandAddress} = require('./algorand')
 
 module.exports.paths = {
     "/": {
@@ -30,11 +30,13 @@ module.exports.paths = {
     "/auth/public-key/": {
         ...getPublicKeyFromAddress,
     },
+    '/auth/public-key/v2': {
+        ...verifyAlgorandAddress
+    },
 
     "/wrapped-document/": {
         ...getWrappedDocument,
         ...createWrappedDocument,
-        // ...updateWrappedDocument
     },
     "/wrapped-document/exist/": {
         ...checkWrappedDocumentExistence,

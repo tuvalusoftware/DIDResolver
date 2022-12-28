@@ -1,6 +1,8 @@
 const axios = require("axios").default;
 const Logger = require("../../../logger");
 const { ERRORS, SERVERS } = require("../../../core/constants");
+const { checkUndefinedVar } = require("../../../core");
+const algosdk = require("algosdk");
 
 module.exports = {
   verifyToken: async (req, res) => {
@@ -28,5 +30,37 @@ module.exports = {
         ? res.status(400).json(error.response.data)
         : res.status(400).json(error);
     }
+  },
+  verifyAlgorandAddress: async (req, res) => {
+    if (!req.cookies["access_token"]) {
+      Logger.apiError(req, res, `Not found: access_token.`);
+      return res.status(401).json(ERRORS.UNAUTHORIZED);
+    }
+    const { address } = req.query;
+    const undefinedVar = checkUndefinedVar({ address });
+    if (undefinedVar.undefined)
+      return res.status(200).json({
+        ...ERRORS.MISSING_PARAMETERS,
+        detail: undefinedVar.detail,
+      });
+    const isValidAddress = algosdk.isValidAddress(address);
+    if (isValidAddress) {
+      Logger.apiInfo(
+        req,
+        res,
+        `${address} is valid address from Algorand Network!`
+      );
+      return res.status(200).json({
+        isValidAddress,
+      });
+    }
+    Logger.apiError(
+      req,
+      res,
+      `${address} is not a valid address from Algorand Network!`
+    );
+    return res.status(200).json({
+      isValidAddress,
+    });
   },
 };
