@@ -153,6 +153,46 @@ module.exports.getAlgorandNFTs = {
   },
 };
 
+module.exports.verifyAlgorandAddress = {
+  get: {
+    tags: ['Algorand'],
+    summary: 'Check if given address is a valid address on Algorand network',
+    parameters: [
+      {
+        in: "query",
+        name: "address",
+        require: true,
+        description: 'Given address'
+      }
+    ],
+    responses: {
+      200: {
+        description: '',
+        content: {
+          'application/json': {
+            example: {
+              isValid: true
+            }
+          }
+        }
+      },
+      400: {
+        content: {
+          "application/json": {
+            schema: { $ref: "#/components/schemas/error" },
+            examples: {
+              "Missing parameters": {
+                $ref: "#/components/examples/errorMissingParameters",
+              },
+            },
+          },
+        },
+      },
+      401: { $ref: "#/components/responses/Unauthorized" },
+    }
+  }
+}
+
 module.exports.verifyAlgorandHash = {
   post: {
     tags: ["Algorand"],
