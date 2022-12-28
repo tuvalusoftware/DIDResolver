@@ -83,23 +83,37 @@ describe("", function () {
 
   describe("DID Resolver - Algorand fetching nfts from Algorand testing", () => {
     nock(SERVERS.ALGORAND_SERVICE)
-    .post("/api/v1/fetch/nft", (body) => body.assetId)
-    .reply(200, ALGORAND_DATA.VERIFY_SUCCESS_HASH_RESULT);
-    nock(SERVERS.ALGORAND_SERVICE)
-      .post("/api/v1/fetch/nft", (query) => query.unitName && query.assetId)
-      .reply(200, ALGORAND_DATA.VERIFY_SUCCESS_HASH_RESULT);
-    it("It should return 'Missing params error' as the input params are not provided", (done) => {
+      .post("/api/v1/fetch/nft", (body) => body.unitName || body.assetId)
+      .reply(200, ALGORAND_DATA.VERIFY_ERROR_HASH_RESULT);
+    it("It should return 'Fetching nfts error' as the input unit-name are not valid", (done) => {
       chai
         .request(server)
         .get("/resolver/nfts/v2")
-        .set('unitName', '')
-        .set('assetId', '')
+        .query({ unitName: "invalid-unit-name" })
         .end((err, res) => {
           res.should.have.status(200);
           res.body.should.be.a("object");
+          expect(isSameError(res.body, ERRORS.CANNOT_FETCH_NFT)).equal(true);
           done();
         });
-      });
+    });
+    nock(SERVERS.ALGORAND_SERVICE)
+      .post("/api/v1/fetch/nft", (body) => body.unitName || body.assetId)
+      .reply(200, ALGORAND_DATA.VERIFY_SUCCESS_HASH_RESULT);
+    it("It should return 'Data object include list of nfts fetched from Algorand service' as the input unit-name is valid", (done) => {
+      chai
+        .request(server)
+        .get("/resolver/nfts/v2")
+        .query({ unitName: "valid-unit-name" })
+        .end((err, res) => {
+          res.should.have.status(200);
+          res.body.should.be.a("object");
+          expect(JSON.stringify(res.body)).equal(
+            JSON.stringify(ALGORAND_DATA.VERIFY_SUCCESS_HASH_RESULT.data)
+          );
+          done();
+        });
+    });
   });
 
   describe("DID Resolver - Algorand verifying signature testing", () => {
@@ -313,7 +327,3 @@ describe("", function () {
     // });
   });
 });
-
-// nock(SERVERS.ALGORAND_SERVICE)
-// .post("/api/v1/fetch/nft", (body) => body.assetId)
-// .reply(200, ALGORAND_DATA.VERIFY_UNSUCCESS_HASH_RESULT);

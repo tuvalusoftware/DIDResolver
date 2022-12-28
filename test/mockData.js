@@ -953,6 +953,13 @@ module.exports.ALGORAND_DATA = {
       ],
     },
   },
+  VERIFY_ERROR_HASH_RESULT: {
+    code: 25,
+    message: "ERROR",
+    data: {
+      assets: [],
+    },
+  },
   VERIFY_UNSUCCESS_HASH_RESULT: {
     code: 0,
     message: "SUCCESS",
