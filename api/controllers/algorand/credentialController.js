@@ -140,9 +140,7 @@ module.exports = {
           res,
           `${JSON.stringify(fetchDocumentsResponse?.data)}`
         );
-        return res.status(200).json({
-          detail: fetchDocumentsResponse?.data,
-        });
+        return res.status(200).json(fetchDocumentsResponse.data);
       }
 
       const didDocument = fetchDocumentsResponse?.data?.didDoc,
