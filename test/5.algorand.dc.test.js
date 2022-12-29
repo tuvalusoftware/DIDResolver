@@ -383,7 +383,6 @@ describe("", function () {
     });
 
     nock(SERVERS.AUTHENTICATION_SERVICE)
-      .persist()
       .get("/api/auth/verify")
       .reply(200, AUTH_DATA.USER_ADDR_FROM_TOKEN_V2);
     it("It should return 'Permission denied' as the address of current access-token is different from given did of wrapped-document", (done) => {
@@ -402,40 +401,46 @@ describe("", function () {
           res.should.have.status(200);
           res.body.should.be.a("object");
           expect(isSameError(res.body, ERRORS.PERMISSION_DENIED)).equal(true);
-          nock.cleanAll();
           done();
         });
     });
 
-    // nock(SERVERS.AUTHENTICATION_SERVICE)
-    //   .persist()
-    //   .get("/api/auth/verify")
-    //   .reply(200, AUTH_DATA.USER_ADDR_FROM_TOKEN_V2);
-    // nock(SERVERS.DID_CONTROLLER)
-    // .persist()
-    //   .get("/api/doc/exists")
-    //   .query((queryObj) => queryObj.companyName && queryObj.fileName)
-    //   .reply(200, DOC_DATA.IS_EXIST);
-    // it("Meo", (done) => {
-    //   chai
-    //     .request(server)
-    //     .post("/resolver/wrapped-document/v2")
-    //     .send({
-    //       issuerAddress:
-    //         "KOWRYYQTEOKT5WSXIGWE6QPGAHX4SS3JEZ3ASIQ74GGWPOXJRMEPVHLWAM",
-    //       wrappedDocument: {
-    //         data: {
-    //           did: "did:fuixlabs:DOMINIUM_COMPANY_3:KOWRYYQTEOKT5WSXIGWE6QPGAHX4SS3JEZ3ASIQ74GGWPOXJRMEPVHLWAM",
-    //         },
-    //       },
-    //     })
-    //     .end((err, res) => {
-    //       console.log(res.body);
-    //       res.should.have.status(200);
-    //       res.body.should.be.a("object");
-
-    //       done();
-    //     });
-    // });
+    nock(SERVERS.AUTHENTICATION_SERVICE)
+      .persist()
+      .get("/api/auth/verify")
+      .reply(200, {
+        data: {
+          network: "Algorand",
+          address:
+            "0071fc0cc009dab1ec32a25ee2d242c9e269ae967b8ffe80d9ddfd4ecfe24b09415e7642ee02ff59f2aabc9f106cb49595ff2e04a11b4259e3",
+        },
+      });
+    nock(SERVERS.DID_CONTROLLER)
+      .get("/api/doc/exists")
+      .query((queryObj) => queryObj.companyName && queryObj.fileName)
+      .reply(200, DOC_DATA.IS_EXIST);
+    nock(SERVERS.ALGORAND_SERVICE)
+      .post("/api/v1/hash", (body) => body.hash)
+      .reply(200, ALGORAND_DATA.CREATE_CREDENTIAL_SUCCESS);
+    nock(SERVERS.DID_CONTROLLER)
+      .post(
+        "/api/doc",
+        (body) => body.fileName && body.wrappedDocument && body.companyName
+      )
+      .reply(200, DID_CONTROLLER_OPERATION_STATUS.SAVE_SUCCESS);
+    it("It should return ''", (done) => {
+      chai
+        .request(server)
+        .post("/resolver/wrapped-document/v2")
+        .send(OTHER_DATA.CREATE_WRAPPED_DOC_ARGS)
+        .end((err, res) => {
+          res.should.have.status(201);
+          res.body.should.be.a("object");
+          expect(JSON.stringify(res.body)).equal(
+            JSON.stringify(DOC_DATA.ALGORAND_WRAPPED_DOC)
+          );
+          done();
+        });
+    });
   });
 });
