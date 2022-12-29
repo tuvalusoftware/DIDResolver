@@ -135,6 +135,10 @@ module.exports.DID_DATA = {
       },
     },
   ],
+  NOT_FOUND_DID: {
+    error_code: 20000,
+    error_message: "Company with the given name cannot be found.",
+  },
 };
 
 module.exports.DOC_DATA = {
@@ -901,6 +905,11 @@ module.exports.DOC_DATA = {
         "d1082d0b547424c25487edc8f45d19041d1f64cba052b4f61ac6487c3964316238393761323763636139653733613333386630626135383231333139",
     },
   ],
+  FETCHING_DOC_ERROR: {
+    error_code: 10004,
+    error_message:
+      "Parameters in request body or query are missing. Please try again later.",
+  },
 };
 
 module.exports.ALGORAND_DATA = {
@@ -972,7 +981,21 @@ module.exports.ALGORAND_DATA = {
     message: "INVALID_BODY",
     data: {},
   },
-  VERIFY_SUCCESS_SIGNATURE_RESULT:  { code: 0, message: 'SUCCESS', data: true }
+  VERIFY_SUCCESS_SIGNATURE_RESULT: { code: 0, message: "SUCCESS", data: true },
+  CREATE_CREDENTIAL_SUCCESS: {
+    code: 0,
+    message: "SUCCESS",
+    data: {
+      txId: "QO2GO2AL75WNPK6WMTJDKAERB3RIYXI3UR7LLZ45HPCGJ7QZHI6Q",
+      assetId: 151051717,
+      assetName: "2739f33e46e491dda6071d0638e15944",
+      unitName: "4bc9fb3b",
+      assetURL:
+        "afd111a7a7ff95ba7e531cbcffefe3c256b38f3ee3a21574cf32a590b11fd2c2",
+      type: "credential",
+      root: "652cff9c3ac7b2d339494c89b32afc8e2fb2cfcafa738a886a2ecb0c10ade41a",
+    },
+  },
 };
 
 module.exports.CREDENTIAL_DATA = {
@@ -1003,10 +1026,10 @@ module.exports.AUTH_DATA = {
   },
   USER_ADDR_FROM_TOKEN_V2: {
     data: {
-      network: 'Algorand',
-      address: 'KOWRYYQTEOKT5WSXIGWE6QPGAHX4SS3JEZ3ASIQ74GGWPOXJRMEPVHLWAM'
-    }
-  }
+      network: "Algorand",
+      address: "KOWRYYQTEOKT5WSXIGWE6QPGAHX4SS3JEZ3ASIQ74GGWPOXJRMEPVHLWAM",
+    },
+  },
 };
 
 module.exports.CARDANO_DATA = {
@@ -1311,6 +1334,48 @@ module.exports.OTHER_DATA = {
       },
       asset:
         "ed9f068881fd29842e8b5267ae8220aca2c2953617ce07c7895cfd30127148bdcb294e220f0c9aef41a307be8e910157901d2bf349492e7919708208",
+    },
+  },
+  ALGORAND_CREDENTIAL_ARGS: {
+    credential: {
+      issuer:
+        "did:fuixlabs:DOMINIUM_COMPANY_3:KOWRYYQTEOKT5WSXIGWE6QPGAHX4SS3JEZ3ASIQ74GGWPOXJRMEPVHLWAM",
+      credentialSubject: {
+        newOwner: "4NSPMTP4ZV7E6ZYPTQ25J4IH4HBSG53SKQT53LUJ25O7HDUPZSBLVUC23U",
+        object: "did:fuixlabs:DOMINIUM_COMPANY_3:tester-29-9",
+        action: {
+          code: 20,
+          value: "nominateChangeOwnership",
+          label: "Request transfer of Owner",
+          subTitle: "Owner can transfer the OwnerShip.",
+          formLabel: "New Owner Address",
+          buttonLabel: "Transfer",
+          fields: [],
+          updatedFieds: [],
+          surrender: false,
+        },
+      },
+      signature:
+        "XpGgegytxMtxcqwccVSRltGczd1jERTuRn1KM2atpfSVN1fh2k9007HrdoJB/232ofRjcZQQCi7CQzDRYc/YBA==",
+      metadata: {
+        currentOwner:
+          "UHPKFCETTD72B26CPRJKT7TBLGLBEJMMAIO7FXKMBQTW2PNTBUBM5ACL6M",
+        currentHolder:
+          "4NSPMTP4ZV7E6ZYPTQ25J4IH4HBSG53SKQT53LUJ25O7HDUPZSBLVUC23U",
+      },
+      timestamp: 1672299774172,
+      status: "pending",
+    },
+    did: "did:fuixlabs:DOMINIUM_COMPANY_3:tester-29-9",
+    config: {
+      txId: "W725CESNNCP4KHZWJLK7FHQ34YIOQQIVBSU2ISJYDJRUBOYM7IVQ",
+      assetId: 151036431,
+      assetName: "30db6f1f5f8fdcf4a6037b715b34a655",
+      unitName: "4bc9fb3b",
+      assetURL:
+        "652cff9c3ac7b2d339494c89b32afc8e2fb2cfcafa738a886a2ecb0c10ade41a",
+      type: "document",
+      root: "652cff9c3ac7b2d339494c89b32afc8e2fb2cfcafa738a886a2ecb0c10ade41a",
     },
   },
 };

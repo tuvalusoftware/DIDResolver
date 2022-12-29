@@ -11,7 +11,10 @@ const {
   AUTH_DATA,
   DOC_DATA,
   OTHER_DATA,
+  DID_DATA,
+  DID_CONTROLLER_OPERATION_STATUS,
 } = require("./mockData");
+const { query } = require("express");
 
 let should = chai.should();
 let expect = chai.expect;
@@ -25,7 +28,7 @@ describe("", function () {
       chai
         .request(server)
         .get("/resolver/auth/public-key/v2")
-        .set("address", null)
+        .query({ address: undefined })
         .end((err, res) => {
           res.should.have.status(200);
           res.body.should.be.a("object");
@@ -76,6 +79,115 @@ describe("", function () {
           res.should.have.status(200);
           res.body.should.be.a("object");
           expect(isSameError(res.body, ERRORS.INVALID_INPUT)).equal(true);
+          done();
+        });
+    });
+
+    nock(SERVERS.ALGORAND_SERVICE)
+      .post("/api/v1/fetch/nft", (body) => body?.unitName)
+      .reply(200, ALGORAND_DATA.VERIFY_ERROR_HASH_RESULT);
+    it("It should return 'Fetching NFTs error' as the input unit-name is not existed!", (done) => {
+      chai
+        .request(server)
+        .post("/resolver/credential/v2")
+        .send({
+          did: "did:fuixlabs:DOMINIUM_COMPANY_3:valid_did",
+          credential: {},
+          config: {
+            unitName: "sample_invalid_unit-name",
+          },
+        })
+        .end((err, res) => {
+          res.should.have.status(200);
+          res.body.should.be.a("object");
+          expect(isSameError(res.body, ALGORAND_DATA)).equal(true);
+          done();
+        });
+    });
+
+    nock(SERVERS.ALGORAND_SERVICE)
+      .post("/api/v1/fetch/nft", (body) => body?.unitName)
+      .reply(200, ALGORAND_DATA.VERIFY_SUCCESS_HASH_RESULT);
+    nock(SERVERS.DID_CONTROLLER)
+      .get("/api/doc")
+      .query((queryObj) => queryObj.companyName && queryObj.fileName)
+      .reply(200, DOC_DATA.FETCHING_DOC_ERROR);
+    it("It should return 'Missing parameters in query' as the given file-name and company-name are empty", (done) => {
+      chai
+        .request(server)
+        .post("/resolver/credential/v2")
+        .send({
+          did: "did:fuixlabs:DOMINIUM_COMPANY_3:valid_did",
+          credential: {},
+          config: {
+            unitName: "sample_valid_unit-name",
+          },
+        })
+        .end((err, res) => {
+          res.should.have.status(200);
+          res.body.should.be.a("object");
+          expect(JSON.stringify(res.body)).equal(
+            JSON.stringify(DOC_DATA.FETCHING_DOC_ERROR)
+          );
+          done();
+        });
+    });
+
+    nock(SERVERS.ALGORAND_SERVICE)
+      .post("/api/v1/fetch/nft", (body) => body?.unitName)
+      .reply(200, ALGORAND_DATA.VERIFY_SUCCESS_HASH_RESULT);
+    nock(SERVERS.DID_CONTROLLER)
+      .get("/api/doc")
+      .query((queryObj) => queryObj.companyName && queryObj.fileName)
+      .reply(200, DID_DATA.NOT_FOUND_DID);
+    it("It should return 'Not found did' as the given file-name or company-name is not existed!", (done) => {
+      chai
+        .request(server)
+        .post("/resolver/credential/v2")
+        .send({
+          did: "did:fuixlabs:DOMINIUM_COMPANY_3:valid_did",
+          credential: {},
+          config: {
+            unitName: "sample_valid_unit-name",
+          },
+        })
+        .end((err, res) => {
+          res.should.have.status(200);
+          res.body.should.be.a("object");
+          expect(JSON.stringify(res.body)).equal(
+            JSON.stringify(DID_DATA.NOT_FOUND_DID)
+          );
+          done();
+        });
+    });
+
+    nock(SERVERS.ALGORAND_SERVICE)
+      .post("/api/v1/fetch/nft", (body) => body?.unitName)
+      .reply(200, ALGORAND_DATA.VERIFY_SUCCESS_HASH_RESULT);
+    nock(SERVERS.DID_CONTROLLER)
+      .get("/api/doc")
+      .query((queryObj) => queryObj.companyName && queryObj.fileName)
+      .reply(200, DID_DATA.SINGLE_DID);
+    nock(SERVERS.AUTHENTICATION_SERVICE)
+      .get("/api/auth/verify")
+      .reply(200, AUTH_DATA.USER_ADDR_FROM_TOKEN_V2);
+    nock(SERVERS.ALGORAND_SERVICE)
+      .post("/api/v1/credential", (body) => body.config && body.credential)
+      .reply(200, ALGORAND_DATA.CREATE_CREDENTIAL_SUCCESS);
+    nock(SERVERS.DID_CONTROLLER)
+      .post("/api/credential", (body) => body.hash && body.content)
+      .reply(201, DID_CONTROLLER_OPERATION_STATUS.SAVE_SUCCESS);
+    it("It should return 'Successfully saved' as the given inputs are valid!", (done) => {
+      chai
+        .request(server)
+        .post("/resolver/credential/v2")
+        .send(OTHER_DATA.ALGORAND_CREDENTIAL_ARGS)
+        .end((err, res) => {
+          res.should.have.status(200);
+          res.body.should.be.a("object");
+          expect(JSON.stringify(res.body)).equal(
+            JSON.stringify(DID_CONTROLLER_OPERATION_STATUS.SAVE_SUCCESS)
+          );
           done();
         });
     });
@@ -231,7 +343,7 @@ describe("", function () {
     });
   });
 
-  describe("DID Resolver - Algorand creating document testing", () => {
+  describe("DID Resolver - Algorand creating and revoking document testing", () => {
     it("It should return 'Missing params error' as the input params are not provided", (done) => {
       chai
         .request(server)
