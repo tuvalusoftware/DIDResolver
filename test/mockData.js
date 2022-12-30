@@ -1116,6 +1116,10 @@ module.exports.AUTH_DATA = {
       address: "KOWRYYQTEOKT5WSXIGWE6QPGAHX4SS3JEZ3ASIQ74GGWPOXJRMEPVHLWAM",
     },
   },
+  INVALID_ACCESS_TOKEN: {
+    error_code: 10001,
+    error_message: 'Unauthorized',
+  }
 };
 
 module.exports.CARDANO_DATA = {

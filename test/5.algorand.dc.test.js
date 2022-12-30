@@ -24,6 +24,7 @@ describe("", function () {
   this.timeout(0);
 
   describe("DID Resolver - Algorand verifying address testing", () => {
+    // * Missing parameters test-case
     it("It should return 'Missing params error' as the input params are not provided", (done) => {
       chai
         .request(server)
@@ -38,6 +39,8 @@ describe("", function () {
     });
     const sampleValidAlgorandAddress =
       "4NSPMTP4ZV7E6ZYPTQ25J4IH4HBSG53SKQT53LUJ25O7HDUPZSBLVUC23U";
+
+    // * Validate given address test-case
     it("It should return 'isValidAddress=true' as the given address is valid Algorand address", (done) => {
       chai
         .request(server)
@@ -55,6 +58,7 @@ describe("", function () {
   });
 
   describe("DID Resolver - Algorand credential testing", () => {
+    // * Missing parameters test-case
     it("It should return 'Missing params error' as the input params are not provided", (done) => {
       chai
         .request(server)
@@ -66,6 +70,8 @@ describe("", function () {
           done();
         });
     });
+
+    // * Invalid given parameters test-case
     it("It should return 'invalid input error' as the did param is invalid", (done) => {
       chai
         .request(server)
@@ -83,6 +89,7 @@ describe("", function () {
         });
     });
 
+    // * invalid unit-name test-case
     nock(SERVERS.ALGORAND_SERVICE)
       .post("/api/v1/fetch/nft", (body) => body?.unitName)
       .reply(200, ALGORAND_DATA.VERIFY_ERROR_HASH_RESULT);
@@ -105,6 +112,7 @@ describe("", function () {
         });
     });
 
+    // * Empty file-name and company-name for getting did of document test-case
     nock(SERVERS.ALGORAND_SERVICE)
       .post("/api/v1/fetch/nft", (body) => body?.unitName)
       .reply(200, ALGORAND_DATA.VERIFY_SUCCESS_HASH_RESULT);
@@ -133,6 +141,7 @@ describe("", function () {
         });
     });
 
+    // * Invalid did test-case
     nock(SERVERS.ALGORAND_SERVICE)
       .post("/api/v1/fetch/nft", (body) => body?.unitName)
       .reply(200, ALGORAND_DATA.VERIFY_SUCCESS_HASH_RESULT);
@@ -161,6 +170,100 @@ describe("", function () {
         });
     });
 
+    // * Misconception address test-case
+    nock(SERVERS.ALGORAND_SERVICE)
+      .post("/api/v1/fetch/nft", (body) => body?.unitName)
+      .reply(200, ALGORAND_DATA.VERIFY_SUCCESS_HASH_RESULT);
+    nock(SERVERS.DID_CONTROLLER)
+      .get("/api/doc")
+      .query((queryObj) => queryObj.companyName && queryObj.fileName)
+      .reply(200, DID_DATA.SINGLE_DID);
+    nock(SERVERS.AUTHENTICATION_SERVICE)
+      .get("/api/auth/verify")
+      .reply(200, AUTH_DATA.INVALID_ACCESS_TOKEN);
+    it("It should return 'invalid access-token error' as the given access-token verifier response from authentication service is invalid!", (done) => {
+      chai
+        .request(server)
+        .post("/resolver/credential/v2")
+        .send(OTHER_DATA.ALGORAND_CREDENTIAL_ARGS)
+        .end((err, res) => {
+          res.should.have.status(200);
+          res.body.should.be.a("object");
+          expect(isSameError(res.body, AUTH_DATA.INVALID_ACCESS_TOKEN)).equal(
+            true
+          );
+          done();
+        });
+    });
+
+    // * Mint nft for new document error test-case
+    nock(SERVERS.ALGORAND_SERVICE)
+      .post("/api/v1/fetch/nft", (body) => body?.unitName)
+      .reply(200, ALGORAND_DATA.VERIFY_SUCCESS_HASH_RESULT);
+    nock(SERVERS.DID_CONTROLLER)
+      .get("/api/doc")
+      .query((queryObj) => queryObj.companyName && queryObj.fileName)
+      .reply(200, DID_DATA.SINGLE_DID);
+    nock(SERVERS.AUTHENTICATION_SERVICE)
+      .get("/api/auth/verify")
+      .reply(200, AUTH_DATA.USER_ADDR_FROM_TOKEN_V2);
+    nock(SERVERS.ALGORAND_SERVICE)
+      .post("/api/v1/credential", (body) => body.config && body.credential)
+      .reply(200, ALGORAND_DATA.CREATE_TRANSACTION_UNSUCCESSFULLY);
+    it("It should return 'create transaction error' as the Algorand service cannot create transaction for current credential", (done) => {
+      chai
+        .request(server)
+        .post("/resolver/credential/v2")
+        .send(OTHER_DATA.ALGORAND_CREDENTIAL_ARGS)
+        .end((err, res) => {
+          res.should.have.status(200);
+          res.body.should.be.a("object");
+          expect(JSON.stringify(res.body)).equal(
+            JSON.stringify({
+              ...ERRORS.CANNOT_MINT_NFT,
+              detail: ALGORAND_DATA.CREATE_TRANSACTION_UNSUCCESSFULLY,
+            })
+          );
+          done();
+        });
+    });
+
+    // * Error while storing credential's hash to Github service test-case
+    nock(SERVERS.ALGORAND_SERVICE)
+      .post("/api/v1/fetch/nft", (body) => body?.unitName)
+      .reply(200, ALGORAND_DATA.VERIFY_SUCCESS_HASH_RESULT);
+    nock(SERVERS.DID_CONTROLLER)
+      .get("/api/doc")
+      .query((queryObj) => queryObj.companyName && queryObj.fileName)
+      .reply(200, DID_DATA.SINGLE_DID);
+    nock(SERVERS.AUTHENTICATION_SERVICE)
+      .get("/api/auth/verify")
+      .reply(200, AUTH_DATA.USER_ADDR_FROM_TOKEN_V2);
+    nock(SERVERS.ALGORAND_SERVICE)
+      .post("/api/v1/credential", (body) => body.config && body.credential)
+      .reply(200, ALGORAND_DATA.CREATE_CREDENTIAL_SUCCESS);
+    nock(SERVERS.DID_CONTROLLER)
+      .post("/api/credential", (body) => body.hash && body.content)
+      .reply(201, DOC_DATA.UNKNOWN_ERROR);
+    it("It should return 'Storing credential's to Github service'", (done) => {
+      chai
+        .request(server)
+        .post("/resolver/credential/v2")
+        .send(OTHER_DATA.ALGORAND_CREDENTIAL_ARGS)
+        .end((err, res) => {
+          res.should.have.status(200);
+          res.body.should.be.a("object");
+          expect(JSON.stringify(res.body)).equal(
+            JSON.stringify({
+              ...ERRORS.CANNOT_STORE_CREDENTIAL_GITHUB_SERVICE,
+              detail: DOC_DATA.UNKNOWN_ERROR,
+            })
+          );
+          done();
+        });
+    });
+
+    // * Create new credential successfully test-case
     nock(SERVERS.ALGORAND_SERVICE)
       .post("/api/v1/fetch/nft", (body) => body?.unitName)
       .reply(200, ALGORAND_DATA.VERIFY_SUCCESS_HASH_RESULT);
@@ -194,6 +297,7 @@ describe("", function () {
   });
 
   describe("DID Resolver - Algorand fetching nfts from Algorand testing", () => {
+    // * Invalid unit-name test-case
     nock(SERVERS.ALGORAND_SERVICE)
       .post("/api/v1/fetch/nft", (body) => body.unitName || body.assetId)
       .reply(200, ALGORAND_DATA.VERIFY_ERROR_HASH_RESULT);
@@ -209,6 +313,8 @@ describe("", function () {
           done();
         });
     });
+
+    // * Fetching list of nfts depend on unit-name successfully test-case
     nock(SERVERS.ALGORAND_SERVICE)
       .post("/api/v1/fetch/nft", (body) => body.unitName || body.assetId)
       .reply(200, ALGORAND_DATA.VERIFY_SUCCESS_HASH_RESULT);
@@ -229,6 +335,7 @@ describe("", function () {
   });
 
   describe("DID Resolver - Algorand verifying signature testing", () => {
+    // * Missing parameters test-case
     it("It should return 'Missing params error' as the input params are not provided", (done) => {
       chai
         .request(server)
@@ -296,6 +403,7 @@ describe("", function () {
   });
 
   describe("DID Resolver - Algorand verifying hash of nft testing", () => {
+    // * Missing parameters test-case
     it("It should return 'Missing params error' as the input params are not provided", (done) => {
       chai
         .request(server)
@@ -344,6 +452,7 @@ describe("", function () {
   });
 
   describe("DID Resolver - Algorand creating and revoking document testing", () => {
+    // * Missing parameters test-case
     it("It should return 'Missing params error' as the input params are not provided", (done) => {
       chai
         .request(server)
