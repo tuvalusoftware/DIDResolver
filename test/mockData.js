@@ -984,6 +984,10 @@ module.exports.DOC_DATA = {
       root: "652cff9c3ac7b2d339494c89b32afc8e2fb2cfcafa738a886a2ecb0c10ade41a",
     },
   },
+  UNKNOWN_ERROR: {
+    error_code: 10000,
+    error_message: "Something went wrong with the server!",
+},
 };
 
 module.exports.ALGORAND_DATA = {
@@ -1069,6 +1073,14 @@ module.exports.ALGORAND_DATA = {
       type: "credential",
       root: "652cff9c3ac7b2d339494c89b32afc8e2fb2cfcafa738a886a2ecb0c10ade41a",
     },
+  },
+  CREATE_TRANSACTION_UNSUCCESSFULLY: {
+    code: 1,
+    message: "SUCCESS",
+    data: {},
+  },
+  EXISTED_NAME_OF_DOCUMENT: {
+    isExisted: true,
   },
 };
 

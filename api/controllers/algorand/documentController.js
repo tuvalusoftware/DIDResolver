@@ -12,6 +12,7 @@ axios.defaults.withCredentials = true;
 
 module.exports = {
   createWrappedDocument: async function (req, res) {
+    
     const { access_token } = req.cookies;
     let { wrappedDocument, issuerAddress, mintingNFTConfig: config } = req.body;
     try {

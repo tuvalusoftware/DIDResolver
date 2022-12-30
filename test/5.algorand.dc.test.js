@@ -418,6 +418,117 @@ describe("", function () {
     nock(SERVERS.DID_CONTROLLER)
       .get("/api/doc/exists")
       .query((queryObj) => queryObj.companyName && queryObj.fileName)
+      .reply(200, ALGORAND_DATA.EXISTED_NAME_OF_DOCUMENT);
+    it("It should return 'Conflict. Resource already exists' as the given file-name is existed", (done) => {
+      chai
+        .request(server)
+        .post("/resolver/wrapped-document/v2")
+        .send({
+          issuerAddress:
+            "0071fc0cc009dab1ec32a25ee2d242c9e269ae967b8ffe80d9ddfd4ecfe24b09415e7642ee02ff59f2aabc9f106cb49595ff2e04a11b4259e3",
+          wrappedDocument: {
+            data: {
+              did: "5e89e527-01e8-4b7e-8b8d-b3abf7d1d47d:string:did:fuixlabs:SAMPLE_COMPANY_NAME:cover-letter",
+            },
+          },
+        })
+        .end((err, res) => {
+          res.should.have.status(200);
+          res.body.should.be.a("object");
+          expect(JSON.stringify(res.body)).equal(
+            JSON.stringify(ERRORS.ALREADY_EXSISTED)
+          );
+          done();
+        });
+    });
+
+    nock(SERVERS.AUTHENTICATION_SERVICE)
+      .persist()
+      .get("/api/auth/verify")
+      .reply(200, {
+        data: {
+          network: "Algorand",
+          address:
+            "0071fc0cc009dab1ec32a25ee2d242c9e269ae967b8ffe80d9ddfd4ecfe24b09415e7642ee02ff59f2aabc9f106cb49595ff2e04a11b4259e3",
+        },
+      });
+    nock(SERVERS.DID_CONTROLLER)
+      .get("/api/doc/exists")
+      .query((queryObj) => queryObj.companyName && queryObj.fileName)
+      .reply(200, DOC_DATA.IS_EXIST);
+    nock(SERVERS.ALGORAND_SERVICE)
+      .post("/api/v1/hash", (body) => body.hash)
+      .reply(200, ALGORAND_DATA.CREATE_TRANSACTION_UNSUCCESSFULLY);
+
+    it("It should return 'Cannot mint NFT error' as the error returned from Algorand service", (done) => {
+      chai
+        .request(server)
+        .post("/resolver/wrapped-document/v2")
+        .send(OTHER_DATA.CREATE_WRAPPED_DOC_ARGS)
+        .end((err, res) => {
+          res.should.have.status(200);
+          res.body.should.be.a("object");
+          expect(
+            isSameError(res.body, {
+              ...ERRORS.CANNOT_MINT_NFT,
+              detail: ALGORAND_DATA.CREATE_TRANSACTION_UNSUCCESSFULLY,
+            })
+          ).equal(true);
+          done();
+        });
+    });
+
+    // * Cannot store document to Github service case
+    nock(SERVERS.AUTHENTICATION_SERVICE)
+      .persist()
+      .get("/api/auth/verify")
+      .reply(200, {
+        data: {
+          network: "Algorand",
+          address:
+            "0071fc0cc009dab1ec32a25ee2d242c9e269ae967b8ffe80d9ddfd4ecfe24b09415e7642ee02ff59f2aabc9f106cb49595ff2e04a11b4259e3",
+        },
+      });
+    nock(SERVERS.DID_CONTROLLER)
+      .get("/api/doc/exists")
+      .query((queryObj) => queryObj.companyName && queryObj.fileName)
+      .reply(200, DOC_DATA.IS_EXIST);
+    nock(SERVERS.ALGORAND_SERVICE)
+      .post("/api/v1/hash", (body) => body.hash)
+      .reply(200, ALGORAND_DATA.CREATE_CREDENTIAL_SUCCESS);
+    nock(SERVERS.DID_CONTROLLER)
+      .post(
+        "/api/doc",
+        (body) => body.fileName && body.wrappedDocument && body.companyName
+      )
+      .reply(200, DOC_DATA.UNKNOWN_ERROR);
+    it("It should return 'error from Controller service' since Controller cannot store the document to Github service", (done) => {
+      chai
+        .request(server)
+        .post("/resolver/wrapped-document/v2")
+        .send(OTHER_DATA.CREATE_WRAPPED_DOC_ARGS)
+        .end((err, res) => {
+          res.should.have.status(200);
+          res.body.should.be.a("object");
+          expect(isSameError(res.body, DOC_DATA.UNKNOWN_ERROR)).equal(true);
+          done();
+        });
+    });
+
+    // * Successfully create new document case
+    nock(SERVERS.AUTHENTICATION_SERVICE)
+      .persist()
+      .get("/api/auth/verify")
+      .reply(200, {
+        data: {
+          network: "Algorand",
+          address:
+            "0071fc0cc009dab1ec32a25ee2d242c9e269ae967b8ffe80d9ddfd4ecfe24b09415e7642ee02ff59f2aabc9f106cb49595ff2e04a11b4259e3",
+        },
+      });
+    nock(SERVERS.DID_CONTROLLER)
+      .get("/api/doc/exists")
+      .query((queryObj) => queryObj.companyName && queryObj.fileName)
       .reply(200, DOC_DATA.IS_EXIST);
     nock(SERVERS.ALGORAND_SERVICE)
       .post("/api/v1/hash", (body) => body.hash)
@@ -428,7 +539,7 @@ describe("", function () {
         (body) => body.fileName && body.wrappedDocument && body.companyName
       )
       .reply(200, DID_CONTROLLER_OPERATION_STATUS.SAVE_SUCCESS);
-    it("It should return ''", (done) => {
+    it("It should return 'Successfully saved' as the input parameters and creating progress is valid", (done) => {
       chai
         .request(server)
         .post("/resolver/wrapped-document/v2")
