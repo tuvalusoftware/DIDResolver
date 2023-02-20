@@ -78,7 +78,7 @@ module.exports = {
             );
 
             return res.status(200).json({
-                address: getPublicKeyFromAddress(data?.data?.address),
+                address: (data?.data?.address),
             });
         } catch (error) {
             Logger.apiError(req, res, `${JSON.stringify(error)}`);
