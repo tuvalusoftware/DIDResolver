@@ -1,39 +1,26 @@
-const axios = require("axios").default;
-const { checkUndefinedVar } = require("../../../core");
-const { ERRORS, SERVERS } = require("../../../core/constants");
-const { apiInfo, apiError } = require("../../../logger");
+import axios from "axios";
+import { checkUndefinedVar } from "../../../core/index.js";
+import { ERRORS, SERVERS } from "../../../core/constants.js";
+import { apiInfo, apiError } from "../../../logger.js";
 
 axios.defaults.withCredentials = true;
 
-module.exports = {
+export default {
   getNFTs: async function (req, res) {
     const { access_token } = req.cookies;
     const { policyid: policyId } = req.headers;
 
     try {
-      // Handle input errors
       const undefinedVar = checkUndefinedVar({ policyId });
       if (undefinedVar.undefined)
         return res.status(200).json({
           ...ERRORS.MISSING_PARAMETERS,
           detail: undefinedVar.detail,
         });
-
-      // Call Cardano Service
-      // success:
-      // v2
-      //   {
-      //     code: 0,
-      //     message: string,
-      //     data: [] or {}
-      //   }
-      // error:
-      //   { code: 1, message: string }
       const { data } = await axios.post(
         `${SERVERS.CARDANO_SERVICE}/api/v2/fetch/nft`,
         {
-          // (opt) asset: 41ac0d6b1287d7abd2c0443566cf34f95f1ec7e338dc18653fcedcb4ec9df0f3318725fa3c636ee118d233cadf8bd4a6f654c89f164d1169cc473cdc
-          policyId: policyId, // 41ac0d6b1287d7abd2c0443566cf34f95f1ec7e338dc18653fcedcb4
+          policyId: policyId, 
         },
         {
           withCredentials: true,
@@ -111,7 +98,7 @@ module.exports = {
         return res.status(200).json(data.data);
       }
     } catch (error) {
-      apiError(req, res, `${JSON.stringify(error)}`);
+      apiError(req, res, `${JSON.stringify(error?.message || error)}`);
       return error.response
         ? res.status(400).json(error.response.data)
         : res.status(400).json(error);
@@ -169,7 +156,7 @@ module.exports = {
       apiError(req, res, `${JSON.stringify(data)}`);
       return res.status(200).json(data);
     } catch (error) {
-      apiError(req, res, `${JSON.stringify(error)}`);
+      apiError(req, res, `${JSON.stringify(error?.message || error)}`);
       return error.response
         ? res.status(400).json(error.response.data)
         : res.status(400).json(error);

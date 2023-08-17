@@ -1,10 +1,10 @@
-const express = require("express");
+import express from "express";
 
 // * Cardano controllers
-const authController = require("../controllers/cardano/authController");
+import authController from "../controllers/cardano/authController.js";
 
 // * Algorand controllers
-const algorandAuthController = require("../controllers/algorand/authController");
+import algorandAuthController from "../controllers/algorand/authController.js";
 
 const router = express.Router();
 
@@ -16,4 +16,4 @@ router.get("/verify", authController.verifyToken);
 // * V2 ( Algorand network supported )
 router.get("/v2/verify", algorandAuthController.verifyToken);
 
-module.exports = router;
+export default router;

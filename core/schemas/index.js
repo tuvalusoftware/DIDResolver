@@ -1,7 +1,15 @@
-exports.NEW_WRAPPED_DOCUMENT = require("./newWrappedDocument");
-exports.WRAPPED_DOCUMENT = require("./wrappedDocument");
-exports.DID_DOCUMENT_OF_WRAPPED_DOCUMENT = require("./didDocumentOfWrappedDocument");
+import NEW_WRAPPED_DOCUMENT from "./newWrappedDocument.js";
+import WRAPPED_DOCUMENT from "./wrappedDocument.js";
+import DID_DOCUMENT_OF_WRAPPED_DOCUMENT from "./didDocumentOfWrappedDocument.js";
 
-exports.CREDENTIAL = require("./credential");
+import CREDENTIAL from "./credential.js";
 
-exports.NOTIFICATION = require("./notification");
+import NOTIFICATION from "./notification.js";
+
+export {
+  NEW_WRAPPED_DOCUMENT,
+  WRAPPED_DOCUMENT,
+  DID_DOCUMENT_OF_WRAPPED_DOCUMENT,
+  CREDENTIAL,
+  NOTIFICATION,
+};

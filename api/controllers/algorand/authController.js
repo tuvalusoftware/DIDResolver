@@ -1,10 +1,10 @@
-const axios = require("axios").default;
-const Logger = require("../../../logger");
-const { ERRORS, SERVERS } = require("../../../core/constants");
-const { checkUndefinedVar } = require("../../../core");
-const algosdk = require("algosdk");
+import axios from "axios";
+import Logger from "../../../logger.js";
+import { ERRORS, SERVERS } from "../../../core/constants.js";
+import { checkUndefinedVar } from "../../../core/index.js";
+import algosdk from "algosdk";
 
-module.exports = {
+export default {
   verifyToken: async (req, res) => {
     if (!req.cookies["access_token"]) {
       Logger.apiError(req, res, `Not found: access_token.`);
@@ -25,7 +25,7 @@ module.exports = {
         address: data?.data?.address,
       });
     } catch (error) {
-      Logger.apiError(req, res, `${JSON.stringify(error)}`);
+      Logger.apiError(req, res, `${JSON.stringify(error?.message || error)}`);
       return error.response
         ? res.status(400).json(error.response.data)
         : res.status(400).json(error);

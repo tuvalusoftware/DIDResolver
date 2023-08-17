@@ -1,4 +1,4 @@
-module.exports.retrieveSpecificDid = {
+export const retrieveSpecificDid = {
   get: {
     tags: ["User DID"],
     summary:
@@ -122,9 +122,8 @@ module.exports.retrieveSpecificDid = {
               error: {
                 description: "Return object of error",
                 value: {
-                  error_code: 'code of error',
-                  error_message:
-                    "Error message",
+                  error_code: "code of error",
+                  error_message: "Error message",
                 },
               },
             },
@@ -153,7 +152,7 @@ module.exports.retrieveSpecificDid = {
                 required: true,
                 type: "string",
                 example: "user's public key",
-              }
+              },
             },
           },
         },
@@ -171,9 +170,8 @@ module.exports.retrieveSpecificDid = {
               error: {
                 description: "Return object of error",
                 value: {
-                  error_code: 'code of error',
-                  error_message:
-                    "Error message",
+                  error_code: "code of error",
+                  error_message: "Error message",
                 },
               },
             },
@@ -238,9 +236,8 @@ module.exports.retrieveSpecificDid = {
               error: {
                 description: "Return object of error",
                 value: {
-                  error_code: 'code of error',
-                  error_message:
-                    "Error message",
+                  error_code: "code of error",
+                  error_message: "Error message",
                 },
               },
             },
@@ -251,7 +248,7 @@ module.exports.retrieveSpecificDid = {
   },
 };
 
-module.exports.retrieveAllDids = {
+export const retrieveAllDids = {
   get: {
     tags: ["User DID"],
     summary: "Get all DIDs of specific company depend on name of company",

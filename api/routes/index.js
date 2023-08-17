@@ -1,23 +1,29 @@
-const authRoutes = require("./authRoutes");
-const didRoutes = require("./didRoutes");
-const credentialRoutes = require("./credentialRoutes");
-const wrappedDocRoutes = require("./wrappedDocRoutes");
-const accessTokenRoutes = require("./accessTokenRoutes");
+import authRoutes from "./authRoutes.js";
+import didRoutes from "./didRoutes.js";
+import credentialRoutes from "./credentialRoutes.js";
+import wrappedDocRoutes from "./wrappedDocRoutes.js";
+import accessTokenRoutes from "./accessTokenRoutes.js";
+import commonlandsRoutes from "./commonlandsRoute.js";
+import signatureController from "../controllers/commonlands/signatureController.js";
+import authController from "../controllers/cardano/authController.js";
+import cardanoController from "../controllers/cardano/cardanoController.js";
+import algorandController from "../controllers/algorand/algorandController.js";
 
-const authController = require("../controllers/cardano/authController");
-const cardanoController = require("../controllers/cardano/cardanoController");
-const algorandController = require("../controllers/algorand/algorandController");
-
-module.exports = (app) => {
+export default (app) => {
   /**
    * Resolver API version 1 supported Cardano network
    */
   app.use("/resolver/auth", authRoutes);
 
+  app.use("/resolver/commonlands", commonlandsRoutes);
+
   // DID controller services
   app.use("/resolver/did", didRoutes);
   app.use("/resolver/credential", credentialRoutes);
   app.use("/resolver/wrapped-document", wrappedDocRoutes);
+
+  app.post("/resolver/signature", signatureController.signMessageBySeedPhrase);
+  app.post('/resolver/account', signatureController.accountFromSeedPhrase)
 
   // Cardano Routes
   // app.use("/resolver", cardanoRoutes);

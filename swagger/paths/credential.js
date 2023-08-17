@@ -1,4 +1,4 @@
-module.exports.createCredential = {
+export const createCredential = {
   post: {
     tags: ["Credential"],
     summary:

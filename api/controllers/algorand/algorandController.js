@@ -1,11 +1,11 @@
-const axios = require("axios").default;
-const { checkUndefinedVar } = require("../../../core");
-const { ERRORS, SERVERS } = require("../../../core/constants");
-const { apiError, apiInfo } = require("../../../logger");
+import axios from "axios";
+import { checkUndefinedVar } from "../../../core/index.js";
+import { ERRORS, SERVERS } from "../../../core/constants.js";
+import { apiError, apiInfo } from "../../../logger.js";
 
 axios.defaults.withCredentials = true;
 
-module.exports = {
+export default {
   getNFTs: async function (req, res) {
     const { access_token } = req.cookies;
     const { unitName, assetId } = req.query;
@@ -30,7 +30,7 @@ module.exports = {
       apiInfo(req, res, `Success.\n${JSON.stringify(fetchNFTsResponse.data)}`);
       return res.status(200).json(fetchNFTsResponse?.data?.data);
     } catch (error) {
-      apiError(req, res, `${JSON.stringify(error)}`);
+      apiError(req, res, `${JSON.stringify(error?.message || error)}`);
       return error.response
         ? res.status(400).json(error.response.data)
         : res.status(400).json(error);
@@ -122,7 +122,7 @@ module.exports = {
         isValid: false,
       });
     } catch (error) {
-      apiError(req, res, `${JSON.stringify(error)}`);
+      apiError(req, res, `${JSON.stringify(error?.message || error)}`);
       return error.response
         ? res.status(400).json(error.response.data)
         : res.status(400).json(error);

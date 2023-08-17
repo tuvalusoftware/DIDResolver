@@ -1,4 +1,4 @@
-module.exports.defaultConfig = {
+export const defaultConfig = {
   type: "object",
   properties: {
     type: { type: "string" },
@@ -20,24 +20,25 @@ module.exports.defaultConfig = {
   },
 };
 
-module.exports.algorandConfig = {
-  type: 'object',
+export const algorandConfig = {
+  type: "object",
   properties: {
-    txId: {type: 'string'},
-    assetId: {type: 'number'},
-    assetName: {type: 'string'},
-    unitName: {type: 'string'},
-    assetURL: {type: 'string'},
-    type: {type: 'string'},
-    root: {type: 'string'}
+    txId: { type: "string" },
+    assetId: { type: "number" },
+    assetName: { type: "string" },
+    unitName: { type: "string" },
+    assetURL: { type: "string" },
+    type: { type: "string" },
+    root: { type: "string" },
   },
   example: {
-    "txId": "7XXY4VEBA7XLH6WKEHORVKFLBXQ6N4Z5DYINS6CHAUA6IXWNFJZQ",
-    "assetId": 150575850,
-    "assetName": "4ebdf92e6b09182efa3a032a73565173",
-    "unitName": "9b1e1d68",
-    "assetURL": "5bd5b03e1566ed870de95612d657763cd687897d61a32bd8e52e454a7640b131",
-    "type": "document",
-    "root": "f75bd6e59e46f17ebf7c9beb6636c9f6edcdcc49cccb09f8a0dfd02a577b6d28"
-  }
-}
+    txId: "7XXY4VEBA7XLH6WKEHORVKFLBXQ6N4Z5DYINS6CHAUA6IXWNFJZQ",
+    assetId: 150575850,
+    assetName: "4ebdf92e6b09182efa3a032a73565173",
+    unitName: "9b1e1d68",
+    assetURL:
+      "5bd5b03e1566ed870de95612d657763cd687897d61a32bd8e52e454a7640b131",
+    type: "document",
+    root: "f75bd6e59e46f17ebf7c9beb6636c9f6edcdcc49cccb09f8a0dfd02a577b6d28",
+  },
+};

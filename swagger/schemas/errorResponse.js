@@ -1,4 +1,4 @@
-module.exports = {
+export default {
   type: "object",
   required: ["error_code", "error_message"],
   properties: {

@@ -1,4 +1,4 @@
-module.exports.tags = {
+export const tags = {
   tags: [
     {
       name: "DID document",

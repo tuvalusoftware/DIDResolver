@@ -1,10 +1,10 @@
-const axios = require("axios").default;
-const { ERRORS, SERVERS } = require("../../../core/constants");
-const sha256 = require("js-sha256").sha256;
-const Logger = require("../../../logger");
-const { validateDIDSyntax, checkUndefinedVar } = require("../../../core/index");
+import axios from "axios";
+import { ERRORS, SERVERS } from "../../../core/constants.js";
+import { sha256 } from "js-sha256";
+import Logger from "../../../logger.js";
+import { validateDIDSyntax, checkUndefinedVar } from "../../../core/index.js";
 
-module.exports = {
+export default {
   createCredential: async function (req, res) {
     try {
       const { access_token } = req.cookies;

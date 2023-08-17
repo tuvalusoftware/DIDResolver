@@ -1,4 +1,4 @@
-module.exports = {
+export default {
   type: "object",
   required: ["data", "signature", "assetId", "policyId"],
   properties: {

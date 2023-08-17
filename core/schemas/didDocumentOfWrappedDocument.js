@@ -1,4 +1,4 @@
-module.exports = {
+export default {
   type: "object",
   required: ["did", "controller", "url", "owner", "holder"],
   properties: {

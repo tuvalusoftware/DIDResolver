@@ -1,8 +1,8 @@
-const tags = require("./tags");
-const components = require("./components");
-const paths = require("./paths");
+import { tags } from "./tags.js";
+import { responses as components } from "./components.js";
+import { paths } from "./paths/index.js";
 
-module.exports = {
+export const swaggerDocument = {
   openapi: "3.0.9",
   info: {
     version: "1.0.0",

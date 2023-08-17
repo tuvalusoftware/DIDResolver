@@ -1,18 +1,12 @@
-const axios = require("axios").default;
-const { ERRORS, SERVERS, SCHEMAS } = require("../../../core/constants");
-const Logger = require("../../../logger");
-const {
-  validateJSONSchema,
-  getAddressFromHexEncoded,
-  validateDIDSyntax,
-  checkUndefinedVar,
-} = require("../../../core/index");
+import axios from "axios";
+import { ERRORS, SERVERS, SCHEMAS } from "../../../core/constants.js";
+import Logger from "../../../logger.js";
+import { validateDIDSyntax, checkUndefinedVar } from "../../../core/index.js";
 
 axios.defaults.withCredentials = true;
 
-module.exports = {
+export default {
   createWrappedDocument: async function (req, res) {
-    
     const { access_token } = req.cookies;
     let { wrappedDocument, issuerAddress, mintingNFTConfig: config } = req.body;
     try {
@@ -37,33 +31,33 @@ module.exports = {
       //   });
 
       const targetHash = wrappedDocument?.signature?.targetHash;
-      const verifyAddressResponse = await axios.get(
-        SERVERS.AUTHENTICATION_SERVICE + "/api/auth/verify",
-        {
-          withCredentials: true,
-          headers: {
-            Cookie: `access_token=${access_token};`,
-          },
-        }
-      );
-      Logger.apiInfo(
-        req,
-        res,
-        `Address of user: ${verifyAddressResponse?.data?.data?.address}`
-      );
-      if (issuerAddress !== verifyAddressResponse?.data?.data?.address) {
-        Logger.apiError(
-          req,
-          res,
-          `Address ${verifyAddressResponse?.data?.data?.address} is not issuer ${issuerAddress}`
-        );
-        return res.status(200).send(ERRORS.PERMISSION_DENIED);
-      }
-      Logger.apiInfo(
-        req,
-        res,
-        `Issuer address matches current address. Address: ${issuerAddress}`
-      );
+      // const verifyAddressResponse = await axios.get(
+      //   SERVERS.AUTHENTICATION_SERVICE + "/api/auth/verify",
+      //   {
+      //     withCredentials: true,
+      //     headers: {
+      //       Cookie: `access_token=${access_token};`,
+      //     },
+      //   }
+      // );
+      // Logger.apiInfo(
+      //   req,
+      //   res,
+      //   `Address of user: ${verifyAddressResponse?.data?.data?.address}`
+      // );
+      // if (issuerAddress !== verifyAddressResponse?.data?.data?.address) {
+      //   Logger.apiError(
+      //     req,
+      //     res,
+      //     `Address ${verifyAddressResponse?.data?.data?.address} is not issuer ${issuerAddress}`
+      //   );
+      //   return res.status(200).send(ERRORS.PERMISSION_DENIED);
+      // }
+      // Logger.apiInfo(
+      //   req,
+      //   res,
+      //   `Issuer address matches current address. Address: ${issuerAddress}`
+      // );
       const documentExistenceResponse = await axios.get(
         SERVERS.DID_CONTROLLER + "/api/doc/exists",
         {
@@ -169,7 +163,7 @@ module.exports = {
       );
       return res.status(201).json(wrappedDocument);
     } catch (error) {
-      Logger.apiError(req, res, `${JSON.stringify(error)}`);
+      Logger.apiError(req, res, `${JSON.stringify(error?.message || error)}`);
       return error.response
         ? res.status(400).json(error?.response?.data)
         : res.status(400).json(error);

@@ -1,6 +1,6 @@
-const {defaultConfig} = require("./config");
+import { defaultConfig } from "./config.js";
 
-module.exports = {
+export default {
   type: "object",
   required: ["issuer", "credentialSubject", "signature"],
   properties: {
@@ -103,8 +103,6 @@ module.exports = {
     },
     timestamp: 1659330236137,
     status: "pending",
-    mintingNFTConfig: {
-      
-    },
+    mintingNFTConfig: {},
   },
 };

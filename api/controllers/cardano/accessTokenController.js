@@ -1,7 +1,7 @@
-const Logger = require("../../../logger");
+import Logger from "../../../logger.js";
 
 /* c8 ignore start */
-module.exports = {
+export default {
   setCookie: async (req, res, next) => {
     const { access_token } = req.headers;
     res.cookie("access_token", access_token);

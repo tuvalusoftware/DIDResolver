@@ -1,11 +1,36 @@
-exports.didDocument = require("./didDocument");
+import didDocument from "./didDocument.js";
 
-exports.wrappedDocument = require("../../core/schemas/wrappedDocument");
-exports.newWrappedDocument = require("../../core/schemas/newWrappedDocument");
-exports.didDocumentOfWrappedDocument = require("../../core/schemas/didDocumentOfWrappedDocument");
+import wrappedDocument from "../../core/schemas/wrappedDocument.js";
+import newWrappedDocument from "../../core/schemas/newWrappedDocument.js";
+import didDocumentOfWrappedDocument from "../../core/schemas/didDocumentOfWrappedDocument.js";
 
-exports.credential = require("../../core/schemas/credential");
-exports.notification = require("../../core/schemas/notification");
-exports.mintingNFTConfig = require("../../core/schemas/config");
-exports.algorandMintingNFTConfig = require('../../core/schemas/config').algorandConfig
-exports.error = require("./errorResponse");
+import credential from "../../core/schemas/credential.js";
+import notification from "../../core/schemas/notification.js";
+import { algorandConfig as algorandMintingNFTConfig } from "../../core/schemas/config.js";
+import error from "./errorResponse.js";
+
+const mintingNFTConfig = {};
+
+export {
+  didDocument,
+  wrappedDocument,
+  newWrappedDocument,
+  didDocumentOfWrappedDocument,
+  credential,
+  notification,
+  mintingNFTConfig,
+  algorandMintingNFTConfig,
+  error,
+};
+
+export default {
+  didDocument,
+  wrappedDocument,
+  newWrappedDocument,
+  didDocumentOfWrappedDocument,
+  credential,
+  notification,
+  mintingNFTConfig,
+  algorandMintingNFTConfig,
+  error,
+};

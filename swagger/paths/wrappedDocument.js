@@ -1,4 +1,4 @@
-module.exports.getWrappedDocument = {
+export const getWrappedDocument = {
   get: {
     tags: ["Wrapped document"],
     summary: "Get wrapped document and/or its DID document by a given DID.",
@@ -75,7 +75,7 @@ module.exports.getWrappedDocument = {
   },
 };
 
-module.exports.getAllWrappedDocumentsOfUser = {
+export const getAllWrappedDocumentsOfUser = {
   get: {
     tags: ["Wrapped document"],
     summary: "Get all wrapped document of a user given user's DID.",
@@ -127,7 +127,7 @@ module.exports.getAllWrappedDocumentsOfUser = {
   },
 };
 
-module.exports.checkWrappedDocumentExistence = {
+export const checkWrappedDocumentExistence = {
   get: {
     tags: ["Wrapped document"],
     summary: "Check existence of a given wrapped document of a company.",
@@ -181,7 +181,7 @@ module.exports.checkWrappedDocumentExistence = {
   },
 };
 
-module.exports.createWrappedDocument = {
+export const createWrappedDocument = {
   post: {
     tags: ["Wrapped document"],
     summary:
@@ -278,7 +278,7 @@ module.exports.createWrappedDocument = {
   },
 };
 
-module.exports.updateWrappedDocument = {
+export const updateWrappedDocument = {
   put: {
     tags: ["Wrapped document"],
     summary:
@@ -366,7 +366,7 @@ module.exports.updateWrappedDocument = {
   },
 };
 
-module.exports.validateWrappedDocument = {
+export const validateWrappedDocument = {
   put: {
     tags: ["Wrapped document"],
     summary: "Valiate wrapped document.",
@@ -411,7 +411,7 @@ module.exports.validateWrappedDocument = {
 };
 
 // ?? UPDATE CAI NAY
-module.exports.transferWrappedDocument = {
+export const transferWrappedDocument = {
   put: {
     tags: ["Wrapped document"],
     summary: "Update DID document of wrapped document.",
@@ -450,7 +450,7 @@ module.exports.transferWrappedDocument = {
   },
 };
 
-module.exports.searchWrappedDocument = {
+export const searchWrappedDocument = {
   get: {
     tags: ["Wrapped document"],
     summary: "Get all wrapped document of a user given user's DID.",
@@ -513,7 +513,7 @@ module.exports.searchWrappedDocument = {
   },
 };
 
-module.exports.revokeWrappedDocument = {
+export const revokeWrappedDocument = {
   delete: {
     tags: ["Wrapped document"],
     summary: "Revoke a wrapped document.",

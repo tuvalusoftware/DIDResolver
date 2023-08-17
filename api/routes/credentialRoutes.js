@@ -1,9 +1,9 @@
-const express = require("express");
-const credentialController = require("../controllers/cardano/credentialController");
-const authController = require("../controllers/cardano/authController");
+import express from "express";
+import credentialController from "../controllers/cardano/credentialController.js";
+import authController from "../controllers/cardano/authController.js";
 
 // * Algorand credential controllers
-const algorandCredentialController = require('../controllers/algorand/credentialController');
+import algorandCredentialController from "../controllers/algorand/credentialController.js";
 const router = express.Router();
 
 router.use(authController.ensureAuthenticated);
@@ -14,6 +14,6 @@ router.get("/", credentialController.getCredential);
 router.put("/", credentialController.updateCredential);
 
 // * Algorand networks
-router.post('/v2/', algorandCredentialController.createCredential)
+router.post("/v2/", algorandCredentialController.createCredential);
 
-module.exports = router;
+export default router;

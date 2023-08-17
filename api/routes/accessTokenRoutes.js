@@ -1,5 +1,5 @@
-const express = require("express");
-const accessTokenController = require("../controllers/cardano/accessTokenController");
+import express from "express";
+import accessTokenController from "../controllers/cardano/accessTokenController.js";
 const router = express.Router();
 
 router
@@ -7,4 +7,4 @@ router
   .post(accessTokenController.setCookie)
   .delete(accessTokenController.clearCookie);
 
-module.exports = router;
+export default router;

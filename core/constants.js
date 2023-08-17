@@ -1,19 +1,32 @@
-require("dotenv").config();
+import "dotenv/config";
 
-const Logger = require("../logger");
-const SCHEMAS = require("./schemas/index");
+import {
+  NOTIFICATION,
+  CREDENTIAL,
+  NEW_WRAPPED_DOCUMENT,
+  WRAPPED_DOCUMENT,
+  DID_DOCUMENT_OF_WRAPPED_DOCUMENT,
+} from "./schemas/index.js";
 
-module.exports.SERVERS = {
+export const SCHEMAS = {
+  NEW_WRAPPED_DOCUMENT,
+  WRAPPED_DOCUMENT,
+  DID_DOCUMENT_OF_WRAPPED_DOCUMENT,
+  CREDENTIAL,
+  NOTIFICATION,
+};
+
+export const SERVERS = {
   DID_CONTROLLER: process.env.DID_CONTROLLER || "http://localhost:9000",
   CARDANO_SERVICE: process.env.CARDANO_SERVICE || "http://localhost:10003",
   AUTHENTICATION_SERVICE:
     process.env.AUTHENTICATION_SERVICE || "http://localhost:12000",
   ALGORAND_SERVICE: process.env.ALGORAND_SERVICE || "http://localhost:10005",
+  STAGING_SERVER:
+    process.env.STAGING_SERVER || "https://commonlands-staging.ap.ngrok.io",
 };
 
-module.exports.SCHEMAS = SCHEMAS;
-
-module.exports.ERRORS = {
+export const ERRORS = {
   MISSING_PARAMETERS: {
     error_code: 400,
     error_message: "Bad request. Missing parameters.",
@@ -71,6 +84,12 @@ module.exports.ERRORS = {
   },
   CANNOT_STORE_CREDENTIAL_GITHUB_SERVICE: {
     error_code: 400,
-    error_message: 'There are some consistency errors on our systems! So we cannot store your credential on Github service now!'
-  }
+    error_message:
+      "There are some consistency errors on our systems! So we cannot store your credential on Github service now!",
+  },
+  CANNOT_GET_PLOT_DETAIL: {
+    error_code: 400,
+    error_message:
+      "There are some consistency errors on our systems! So we cannot get plot detail now!",
+  },
 };

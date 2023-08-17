@@ -1,13 +1,13 @@
-const express = require("express");
+import express from "express";
 
 // * Cardano controllers
-const documentController = require("../controllers/cardano/documentController");
-const authController = require("../controllers/cardano/authController");
-const router = express.Router();
+import documentController from "../controllers/cardano/documentController.js";
+import authController from "../controllers/cardano/authController.js";
 
 // * Algorand controllers
-const algorandDocumentController = require("../controllers/algorand/documentController");
+import algorandDocumentController from "../controllers/algorand/documentController.js";
 
+const router = express.Router();
 router.use(authController.ensureAuthenticated);
 
 /**
@@ -28,4 +28,4 @@ router.get("/search", documentController.searchWrappedDocument);
 router.post("/v2", algorandDocumentController.createWrappedDocument);
 router.delete("/v2", algorandDocumentController.revokeDocument);
 
-module.exports = router;
+export default router;

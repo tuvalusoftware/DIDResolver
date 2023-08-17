@@ -1,4 +1,4 @@
-module.exports.createAlgorandCredential = {
+export const createAlgorandCredential = {
   post: {
     tags: ["Algorand"],
     summary:
@@ -78,7 +78,7 @@ module.exports.createAlgorandCredential = {
   },
 };
 
-module.exports.getAlgorandNFTs = {
+export const getAlgorandNFTs = {
   get: {
     tags: ["Algorand"],
     summary:
@@ -153,7 +153,7 @@ module.exports.getAlgorandNFTs = {
   },
 };
 
-module.exports.verifyAlgorandAddress = {
+export const verifyAlgorandAddress = {
   get: {
     tags: ['Algorand'],
     summary: 'Check if given address is a valid address on Algorand network',
@@ -193,7 +193,7 @@ module.exports.verifyAlgorandAddress = {
   }
 }
 
-module.exports.verifyAlgorandHash = {
+export const verifyAlgorandHash = {
   post: {
     tags: ["Algorand"],
     summary: "check if transaction hash exists on Algorand network",
@@ -248,7 +248,7 @@ module.exports.verifyAlgorandHash = {
   },
 };
 
-module.exports.verifyAlgorandSignature = {
+export const verifyAlgorandSignature = {
   post: {
     tags: ["Algorand"],
     summary:
@@ -316,7 +316,7 @@ module.exports.verifyAlgorandSignature = {
   },
 };
 
-module.exports.algorandDocument = {
+export const algorandDocument = {
   post: {
     tags: ['Algorand'],
     summary: "Create new wrapped document on Algorand network",
