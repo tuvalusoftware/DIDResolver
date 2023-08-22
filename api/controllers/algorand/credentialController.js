@@ -191,11 +191,11 @@ export default {
         );
         return res.status(200).json(ERRORS.PERMISSION_DENIED); // 403
       } else
-        Logger.apiInfo(
-          req,
-          res,
-          `PK match's credential.issuer PK. PK: ${publicKey}`
-        );
+        // Logger.apiInfo(
+        //   req,
+        //   res,
+        //   `PK match's credential.issuer PK. PK: ${publicKey}`
+        // );
 
       // * 2.3. Compare user address with controller address (from did document of wrapped document)
       if (didDocument?.controller.indexOf(publicKey) < 0)

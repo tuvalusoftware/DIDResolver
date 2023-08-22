@@ -41,11 +41,11 @@ export default {
       });
     const isValidAddress = algosdk.isValidAddress(address);
     if (isValidAddress) {
-      Logger.apiInfo(
-        req,
-        res,
-        `${address} is valid address from Algorand Network!`
-      );
+      // Logger.apiInfo(
+      //   req,
+      //   res,
+      //   `${address} is valid address from Algorand Network!`
+      // );
       return res.status(200).json({
         isValidAddress,
       });

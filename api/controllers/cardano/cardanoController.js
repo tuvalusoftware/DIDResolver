@@ -34,11 +34,11 @@ export default {
         apiError(req, res, `${JSON.stringify(data)}`);
         return res.status.json(ERRORS.CANNOT_FETCH_NFT);
       } else {
-        apiInfo(req, res, `Success.\n${JSON.stringify(data)}`);
+        // apiInfo(req, res, `Success.\n${JSON.stringify(data)}`);
         return res.status(200).json(data.data);
       }
     } catch (error) {
-      apiInfo(req, res, `${JSON.stringify(error)}`);
+      // apiInfo(req, res, `${JSON.stringify(error)}`);
       return error.response
         ? res.status(400).json(error.response.data)
         : res.status(400).json(error);
@@ -94,7 +94,7 @@ export default {
         apiError(req, res, `${JSON.stringify(data)}`);
         return res.status.json(ERRORS.CANNOT_FETCH_NFT);
       } else {
-        apiInfo(req, res, `Success.\n${JSON.stringify(data)}`);
+        // apiInfo(req, res, `Success.\n${JSON.stringify(data)}`);
         return res.status(200).json(data.data);
       }
     } catch (error) {
@@ -150,7 +150,7 @@ export default {
       );
 
       if (data?.code === 0) {
-        apiInfo(req, res, `Success.\n${JSON.stringify(data)}`);
+        // apiInfo(req, res, `Success.\n${JSON.stringify(data)}`);
         return res.status(200).json(data);
       }
       apiError(req, res, `${JSON.stringify(data)}`);

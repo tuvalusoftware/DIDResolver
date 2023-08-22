@@ -46,7 +46,7 @@ export default {
         params: { companyName, fileName, only },
       });
 
-      Logger.apiInfo(req, res, `Success.\n${JSON.stringify(data)}`);
+      // Logger.apiInfo(req, res, `Success.\n${JSON.stringify(data)}`);
       return res.status(200).json(data); // 404
     } catch (error) {
       Logger.apiError(req, res, `${JSON.stringify(error?.message || error)}`);
@@ -57,33 +57,19 @@ export default {
   },
 
   getAllWrappedDocumentsOfUser: async function (req, res) {
-    // Receive input data
     const { access_token } = req.cookies;
     const { did } = req.headers;
-
     try {
-      // Handle input errors
       const undefinedVar = checkUndefinedVar({ did });
       if (undefinedVar.undefined)
         return res.status(200).json({
           ...ERRORS.MISSING_PARAMETERS,
           detail: undefinedVar.detail,
         });
-
-      // Validate DID syntax
       const validDID = validateDIDSyntax(did, false),
         companyName = validDID.companyName,
         publicKey = validDID.fileNameOrPublicKey;
       if (!validDID.valid) return res.status(200).json(ERRORS.INVALID_INPUT);
-
-      // Call DID Controller
-      // success:
-      //   [
-      //     {...},
-      //     {...}
-      //   ]
-      // error:
-      //   { error_code: number, message: string }
       const { data } = await axios.get(
         SERVERS.DID_CONTROLLER + "/api/doc/user",
         {
@@ -97,11 +83,6 @@ export default {
           },
         }
       );
-
-      data?.error_code
-        ? Logger.apiError(req, res, `${JSON.stringify(data)}`)
-        : Logger.apiInfo(req, res, `Success.\n${JSON.stringify(data)}`);
-
       return res.status(200).json(data);
     } catch (error) {
       Logger.apiError(req, res, `${JSON.stringify(error?.message || error)}`);
@@ -141,7 +122,7 @@ export default {
         }
       );
 
-      Logger.apiInfo(req, res, `Success.\n${JSON.stringify(data)}`);
+      // Logger.apiInfo(req, res, `Success.\n${JSON.stringify(data)}`);
       return res.status(200).json(data?.isExisted);
     } catch (error) {
       Logger.apiError(req, res, `${JSON.stringify(error?.message || error)}`);
@@ -313,7 +294,7 @@ export default {
       if (!mintingNFT) return res.status(200).json(ERRORS.CANNOT_MINT_NFT);
 
       if (mintingNFT?.data?.code !== 0) {
-        Logger.apiError(req, res, `${JSON.stringify(mintingNFT.data)}`);
+        // Logger.apiError(req, res, `${JSON.stringify(mintingNFT.data)}`);
         return res.status(200).json({
           ...ERRORS.CANNOT_MINT_NFT,
           detail: mintingNFT.data,
@@ -394,7 +375,7 @@ export default {
         wrappedDocument
       );
 
-      Logger.apiInfo(req, res, `Success.\n${JSON.stringify(valid)}`);
+      // Logger.apiInfo(req, res, `Success.\n${JSON.stringify(valid)}`);
       return res.status(200).json(valid);
     } catch (error) {
       Logger.apiError(req, res, `${JSON.stringify(error?.message || error)}`);
@@ -457,9 +438,9 @@ export default {
         }
       );
 
-      data?.error_code
-        ? Logger.apiError(req, res, `${JSON.stringify(data)}`)
-        : Logger.apiInfo(req, res, `\n${JSON.stringify(data)}`);
+      // data?.error_code
+      //   ? Logger.apiError(req, res, `${JSON.stringify(data)}`)
+      //   : Logger.apiInfo(req, res, `\n${JSON.stringify(data)}`);
       return res.status(200).json(data);
     } catch (error) {
       Logger.apiError(req, res, `${JSON.stringify(error?.message || error)}`);
@@ -496,9 +477,9 @@ export default {
         }
       );
 
-      data?.code !== 0
-        ? Logger.apiError(req, res, `${JSON.stringify(data)}`)
-        : Logger.apiInfo(req, res, `Success.\n${JSON.stringify(data)}`);
+      // data?.code !== 0
+      //   ? Logger.apiError(req, res, `${JSON.stringify(data)}`)
+      //   : Logger.apiInfo(req, res, `Success.\n${JSON.stringify(data)}`);
 
       return res.status(200).json(data);
     } catch (error) {
@@ -581,13 +562,13 @@ export default {
       const result = data.slice(startIndex, endIndex),
         _logResult = _logWrappedDocuments.slice(startIndex, endIndex);
 
-      Logger.apiInfo(
-        req,
-        res,
-        `Page: ${pageNumber} of ${maxPage}.\nDisplay ${itemsPerPage} of ${total} results. From ${startIndex} to ${endIndex}.\n${JSON.stringify(
-          _logResult
-        )}`
-      );
+      // Logger.apiInfo(
+      //   req,
+      //   res,
+      //   `Page: ${pageNumber} of ${maxPage}.\nDisplay ${itemsPerPage} of ${total} results. From ${startIndex} to ${endIndex}.\n${JSON.stringify(
+      //     _logResult
+      //   )}`
+      // );
 
       return res.status(200).json({
         total,

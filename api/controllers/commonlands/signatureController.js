@@ -1,8 +1,8 @@
 import { apiError } from "../../../logger.js";
 import { ERRORS } from "../../../core/constants.js";
 import { checkUndefinedVar } from "../../../core/index.js";
-import { getCurrentAccount } from "../../../core/index.js";
-import { Lucid } from "lucid-cardano";
+import { getAccountBySeedPhrase } from "../../../core/utils/lucid.js";
+import 'dotenv/config'
 
 export default {
   signMessageBySeedPhrase: async (req, res) => {
@@ -14,16 +14,10 @@ export default {
           ...ERRORS.MISSING_PARAMETERS,
           detail: undefinedVar.detail,
         });
-      const currentWallet = getCurrentAccount({
-        mnemonic: seedPhrase,
+      const { currentWallet, lucidClient } = await getAccountBySeedPhrase({
+        seedPhrase: process.env.ADMIN_SEED_PHRASE,
       });
-      const lucid = await Lucid.new(null, "Preprod");
-      lucid.selectWalletFromPrivateKey(
-        getCurrentAccount({
-          mnemonic: seedPhrase,
-        }).paymentKey.to_bech32()
-      );
-      const signMessage = await lucid
+      const signMessage = await lucidClient
         ?.newMessage(
           currentWallet?.paymentAddr,
           Buffer.from(message).toString("hex")

@@ -35,6 +35,7 @@ const swaggerOptions = {
   customCss: ".swagger-ui .topbar { display: none }",
   customSiteTitle: "DID Resolver API",
 };
+
 app.use(
   "/api-docs",
   swaggerUi.serve,

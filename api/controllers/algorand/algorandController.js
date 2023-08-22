@@ -27,7 +27,7 @@ export default {
         apiError(req, res, `${JSON.stringify(fetchNFTsResponse.data)}`);
         return res.status(200).json(ERRORS.CANNOT_FETCH_NFT);
       }
-      apiInfo(req, res, `Success.\n${JSON.stringify(fetchNFTsResponse.data)}`);
+      // apiInfo(req, res, `Success.\n${JSON.stringify(fetchNFTsResponse.data)}`);
       return res.status(200).json(fetchNFTsResponse?.data?.data);
     } catch (error) {
       apiError(req, res, `${JSON.stringify(error?.message || error)}`);
@@ -62,12 +62,12 @@ export default {
         apiError(req, res, `${JSON.stringify(verifyHashResponse.data)}`);
         return res.status(200).json(ERRORS.CANNOT_FETCH_NFT);
       }
-      apiInfo(req, res, `Success.\n${JSON.stringify(verifyHashResponse.data)}`);
+      // apiInfo(req, res, `Success.\n${JSON.stringify(verifyHashResponse.data)}`);
       if (
         verifyHashResponse?.data?.data?.assets?.length > 0 &&
         verifyHashResponse?.data?.data?.assets[0]["index"] === parseInt(assetId)
       ) {
-        apiInfo(req, res, `Transaction with asset-id = ${assetId} is valid!`);
+        // apiInfo(req, res, `Transaction with asset-id = ${assetId} is valid!`);
         return res.status(200).json({
           isValid: true,
         });
@@ -112,7 +112,7 @@ export default {
         }
       );
       if (verifySignatureResponse?.data?.code === 0) {
-        apiInfo(req, res, `Signature is valid!`);
+        // apiInfo(req, res, `Signature is valid!`);
         return res.status(200).json({
           isValid: true,
         });

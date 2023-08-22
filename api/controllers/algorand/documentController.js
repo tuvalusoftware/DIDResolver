@@ -79,11 +79,11 @@ export default {
         );
         return res.status(200).json(ERRORS.ALREADY_EXSISTED);
       }
-      Logger.apiInfo(
-        req,
-        res,
-        `Confirm new wrapped document. Continue creating...`
-      );
+      // Logger.apiInfo(
+      //   req,
+      //   res,
+      //   `Confirm new wrapped document. Continue creating...`
+      // );
       let createDocumentResponse;
       if (config) {
         createDocumentResponse = await axios.put(
@@ -124,11 +124,11 @@ export default {
           detail: createDocumentResponse.data,
         });
       }
-      Logger.apiInfo(
-        req,
-        res,
-        `Minting NFT.\n${JSON.stringify(createDocumentResponse.data)}`
-      );
+      // Logger.apiInfo(
+      //   req,
+      //   res,
+      //   `Minting NFT.\n${JSON.stringify(createDocumentResponse.data)}`
+      // );
       const mintingNFTConfig = createDocumentResponse?.data?.data;
       wrappedDocument = {
         ...wrappedDocument,
@@ -156,11 +156,11 @@ export default {
         );
         return res.status(200).json(storeDocumentResponse.data);
       }
-      Logger.apiInfo(
-        req,
-        res,
-        `Success.\n${JSON.stringify(storeDocumentResponse.data)}`
-      );
+      // Logger.apiInfo(
+      //   req,
+      //   res,
+      //   `Success.\n${JSON.stringify(storeDocumentResponse.data)}`
+      // );
       return res.status(201).json(wrappedDocument);
     } catch (error) {
       Logger.apiError(req, res, `${JSON.stringify(error?.message || error)}`);
@@ -193,17 +193,6 @@ export default {
           },
         }
       );
-      revokeDocumentResponse?.data?.code !== 0
-        ? Logger.apiError(
-            req,
-            res,
-            `${JSON.stringify(revokeDocumentResponse.data)}`
-          )
-        : Logger.apiInfo(
-            req,
-            res,
-            `Success.\n${JSON.stringify(revokeDocumentResponse.data)}`
-          );
 
       return res.status(200).json(revokeDocumentResponse.data);
     } catch (e) {

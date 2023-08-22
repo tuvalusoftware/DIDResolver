@@ -3,6 +3,8 @@ import didRoutes from "./didRoutes.js";
 import credentialRoutes from "./credentialRoutes.js";
 import wrappedDocRoutes from "./wrappedDocRoutes.js";
 import accessTokenRoutes from "./accessTokenRoutes.js";
+import pdfRoutes from "./pdfRoute.js";
+import documentRoutes from "./documentRoutes.js";
 import commonlandsRoutes from "./commonlandsRoute.js";
 import signatureController from "../controllers/commonlands/signatureController.js";
 import authController from "../controllers/cardano/authController.js";
@@ -22,8 +24,11 @@ export default (app) => {
   app.use("/resolver/credential", credentialRoutes);
   app.use("/resolver/wrapped-document", wrappedDocRoutes);
 
+  // PDF controller services
+  app.use("/resolver/pdf", pdfRoutes);
+
   app.post("/resolver/signature", signatureController.signMessageBySeedPhrase);
-  app.post('/resolver/account', signatureController.accountFromSeedPhrase)
+  app.post("/resolver/account", signatureController.accountFromSeedPhrase);
 
   // Cardano Routes
   // app.use("/resolver", cardanoRoutes);
@@ -64,4 +69,7 @@ export default (app) => {
     authController.ensureAuthenticated,
     algorandController.verifySignature
   );
+
+  // Commonlands Routes
+  app.use("/resolver/commonlands", documentRoutes);
 };

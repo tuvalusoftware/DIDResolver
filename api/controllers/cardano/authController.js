@@ -29,7 +29,7 @@ export default {
       })
       .then(
         (response) => {
-          Logger.apiInfo(req, res, `Successful authentication.`);
+          // Logger.apiInfo(req, res, `Successful authentication.`);
           var response = response.data;
           req.userData = {
             token,

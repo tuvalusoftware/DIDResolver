@@ -23,7 +23,10 @@ export const SERVERS = {
     process.env.AUTHENTICATION_SERVICE || "http://localhost:12000",
   ALGORAND_SERVICE: process.env.ALGORAND_SERVICE || "http://localhost:10005",
   STAGING_SERVER:
-    process.env.STAGING_SERVER || "https://commonlands-staging.ap.ngrok.io",
+    process.env.STAGING_SERVICE || "https://e663-125-235-236-11.ngrok-free.app",
+  COMMONLANDS_GITHUB_SERVICE:
+    process.env.COMMONLANDS_GITHUB_SERVICE ||
+    "https://commonlands-gitdb.ap.ngrok.io",
 };
 
 export const ERRORS = {

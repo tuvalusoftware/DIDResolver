@@ -199,11 +199,11 @@ export default {
         );
         return res.status(200).json(ERRORS.PERMISSION_DENIED); // 403
       } else
-        Logger.apiInfo(
-          req,
-          res,
-          `PK matchs credential.issuer PK. PK: ${publicKey}`
-        );
+        // Logger.apiInfo(
+        //   req,
+        //   res,
+        //   `PK matchs credential.issuer PK. PK: ${publicKey}`
+        // );
 
       // * 2.3. Compare user address with controller address (from did document of wrapped document)
       if (didDocument.controller.indexOf(publicKey) < 0)
@@ -304,7 +304,7 @@ export default {
           },
         }
       );
-      Logger.apiInfo(req, res, `Success.\n${JSON.stringify(data)}`);
+      // Logger.apiInfo(req, res, `Success.\n${JSON.stringify(data)}`);
       res.status(200).send(data);
     } catch (e) {
       Logger.apiError(req, res, `${JSON.stringify(e)}`);
