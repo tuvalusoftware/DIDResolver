@@ -7,50 +7,54 @@ import "dotenv/config";
 import {
   checkUndefinedVar,
   getCurrentDateTime,
-  createPDF,
   getPublicKeyFromAddress,
 } from "../../../core/index.js";
 import { createDocumentForCommonlands } from "../../../core/document.js";
 import fs from "fs";
 import FormData from "form-data";
 import { getAccountBySeedPhrase } from "../../../core/utils/lucid.js";
+import { authenticationProgress } from "../../../core/utils/auth.js";
+import { createPdf } from "../../../core/utils/pdf.js";
+import logger from "../../../logger.js";
 
 axios.defaults.withCredentials = true;
 
 export default {
   createDocument: async (req, res) => {
     try {
-      const { plotId } = req.body;
-      const { access_token } = req.cookies;
-      const accessToken = process.env.COMMONLANDS_SECRET_KEY;
+      logger.apiInfo(
+        req,
+        res,
+        `API Request: Create Document using Seed Phrase`
+      );
+      const { plot, owner } = req.body;
+      const accessToken = await authenticationProgress();
+      const secretKey = process.env.COMMONLANDS_SECRET_KEY;
       const undefinedVar = checkUndefinedVar({
-        plotId,
+        plot,
         accessToken,
-        access_token,
+        owner,
       });
-      if (undefinedVar.undefined)
+      if (undefinedVar.undefined) {
+        logger.apiError(
+          req,
+          res,
+          `Error: ${JSON.stringify(undefinedVar?.detail)}`
+        );
         return res.status(200).json({
           ...ERRORS.MISSING_PARAMETERS,
-          detail: undefinedVar.detail,
+          detail: undefinedVar?.detail,
         });
-      const plotResponse = await axios.get(
-        `${SERVERS?.STAGING_SERVER}/api/services/dominium/${plotId}/`,
-        {
-          headers: { Authorization: `Bearer ${accessToken}` },
-        }
-      );
-      if (plotResponse?.data?.error_code) {
-        return res.status(200).json(plotResponse?.data);
       }
-      const message = "Sample message";
       const pdfFileName =
-        `Land-Certificate-${plotResponse?.data?.plot?.name}` || "";
+        `LandCertificate-${owner?.phoneNumber.replace("+", "")}-${plot?._id}` ||
+        "";
       const isExistedResponse = await axios.get(
         SERVERS.DID_CONTROLLER + "/api/doc/exists",
         {
           withCredentials: true,
           headers: {
-            Cookie: `access_token=${access_token}`,
+            Cookie: `access_token=${secretKey}`,
           },
           params: {
             companyName: process.env.COMPANY_NAME,
@@ -59,41 +63,39 @@ export default {
         }
       );
       if (isExistedResponse?.data?.isExisted) {
-        return res.status(200).json({
-          error_code: 400,
-          error_message: "Document existed",
-        });
+        logger.apiError(req, res, `Document existed: ${pdfFileName}`);
+        return res.status(200).json(ERRORS.DOCUMENT_IS_EXISTED);
       }
       const plotDetailForm = {
-        profileImage: "sampleImages",
+        profileImage: "sampleProfileImage",
         fileName: pdfFileName,
         name: `Land Certificate`,
-        title: `Land-Certificate-${plotResponse?.data?.plot?.name || ""}`,
-        No: plotResponse?.data?.plot?.no || "CML21566325",
+        title: `Land-Certificate-${plot?.name || ""}`,
+        No: plot?.no || "CML21566325",
         dateIssue: getCurrentDateTime(),
         personalInformation: {
-          claimant: plotResponse?.data?.owner?.fullName || "",
-          right: plotResponse?.data?.owner?.role || "",
-          phoneNumber: plotResponse?.data?.owner?.phoneNumber || "",
+          claimant: owner?.fullName || "",
+          right: owner?.role || "",
+          phoneNumber: owner?.phoneNumber || "",
           claimrank: "okay",
           description:
             "Okay is the starting point. This level may have some boundaries unverified and may include one boundary dispute. If there is an ownership dispute of a plot but and one of the owners is part of a claimchain and the other’s has not completed a claimchain, the completed claimchain person will be listed as Okay. ",
         },
         plotInformation: {
-          plotName: plotResponse?.data?.plot?.name || "",
-          plotId: plotResponse?.data?.plot?.id || "",
+          plotName: plot?.name || "",
+          plotId: plot?.id || "",
           plotStatus: "Free & Clear",
           plotPeople: "Verified by 3 claimants, 6 Neighbors",
-          plotLocation: plotResponse?.data?.plot?.placeName || "",
+          plotLocation: plot?.placeName || "",
         },
         certificateByCommonlands: {
-          publicSignature: "mm",
+          publicSignature: "commonlandsSignatureImage",
           name: "Commonlands System LLC",
           commissionNumber: "139668234",
           commissionExpiries: "09/12/2030",
         },
         certificateByCEO: {
-          publicSignature: "nn",
+          publicSignature: "ceoSignature",
           name: "Darius Golkar",
           commissionNumber: "179668234",
           commissionExpiries: "09/12/2030",
@@ -102,39 +104,53 @@ export default {
       const { currentWallet, lucidClient } = await getAccountBySeedPhrase({
         seedPhrase: process.env.ADMIN_SEED_PHRASE,
       });
-      const signMessage = await lucidClient
-        ?.newMessage(
-          getPublicKeyFromAddress(currentWallet?.paymentAddr),
-          Buffer.from(message).toString("hex")
-        )
-        .sign();
       const { wrappedDocument } = await createDocumentForCommonlands({
         seedPhrase: process.env.ADMIN_SEED_PHRASE,
         documents: [plotDetailForm],
         address: getPublicKeyFromAddress(currentWallet?.paymentAddr),
-        signedData: signMessage,
-        access_token: access_token,
+        access_token: accessToken,
+        client: lucidClient,
+        currentWallet: currentWallet,
       });
-      createPDF().catch((error) => {
+      logger.apiInfo(
+        req,
+        res,
+        `Wrapped document ${JSON.stringify(wrappedDocument)}`
+      );
+      await createPdf({
+        fileName: pdfFileName,
+        data: plotDetailForm,
+      }).catch((error) => {
         return res.status(200).json({
           error_code: 400,
           error_message: error?.message || error || "Error while creating PDF",
         });
       });
+      logger.apiInfo(req, res, `Created PDF file ${pdfFileName}`);
       const formData = new FormData();
       formData.append(
         "uploadedFile",
         fs.readFileSync(`./assets/pdf/${pdfFileName}.pdf`),
         {
-          filename: `${process.env.COMPANY_NAME}_${pdfFileName}.pdf`,
+          filename: `${process.env.COMPANY_NAME}-${pdfFileName}.pdf`,
         }
       );
       const uploadResponse = await axios.post(
         `${SERVERS?.COMMONLANDS_GITHUB_SERVICE}/api/git/upload/file`,
         formData
       );
+      logger.apiInfo(
+        req,
+        res,
+        `Response from service: ${JSON.stringify(uploadResponse?.data)}`
+      );
       return res.status(200).json(uploadResponse?.data);
     } catch (error) {
+      logger.apiError(
+        req,
+        res,
+        `Error: ${JSON.stringify(error?.message || error)}`
+      );
       return res.status(400).json(error);
     }
   },

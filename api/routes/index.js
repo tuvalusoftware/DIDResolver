@@ -16,20 +16,15 @@ export default (app) => {
    * Resolver API version 1 supported Cardano network
    */
   app.use("/resolver/auth", authRoutes);
-
-  app.use("/resolver/commonlands", commonlandsRoutes);
-
+  app.use("/resolver/commonlands/plot", commonlandsRoutes);
   // DID controller services
   app.use("/resolver/did", didRoutes);
   app.use("/resolver/credential", credentialRoutes);
   app.use("/resolver/wrapped-document", wrappedDocRoutes);
-
   // PDF controller services
   app.use("/resolver/pdf", pdfRoutes);
-
   app.post("/resolver/signature", signatureController.signMessageBySeedPhrase);
   app.post("/resolver/account", signatureController.accountFromSeedPhrase);
-
   // Cardano Routes
   // app.use("/resolver", cardanoRoutes);
   app.get(
@@ -71,5 +66,5 @@ export default (app) => {
   );
 
   // Commonlands Routes
-  app.use("/resolver/commonlands", documentRoutes);
+  app.use("/resolver/commonlands/document", documentRoutes);
 };

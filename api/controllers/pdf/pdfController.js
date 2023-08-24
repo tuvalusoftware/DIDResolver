@@ -1,9 +1,7 @@
 import crypto from "node:crypto";
 import { PDFDocument } from "pdf-lib";
 import fs from "fs";
-import axios from "axios";
-import { SERVERS } from "../../../core/constants.js";
-import FormData from "form-data";
+import { createPdf } from "../../../core/utils/pdf.js";
 
 export default {
   savePdfFile: async (req, res) => {
@@ -41,29 +39,10 @@ export default {
   },
   savePdfToDatabase: async (req, res) => {
     try {
-      const { pdfName } = req.body;
-      if (!pdfName) {
-        return res.status(200).json({
-          error_code: 400,
-          message: "Missing parameters",
-        });
-      }
-      const formData = new FormData();
-      formData.append(
-        "uploadedFile",
-        fs.readFileSync(`./assets/pdf/${pdfName}.pdf`),
-        {
-          filename: `DOMINIUM_${pdfName}.pdf`,
-        }
-      );
-      const uploadResponse = await axios.post(
-        `https://commonlands-gitdb.ap.ngrok.io/api/git/upload/file`,
-        formData
-      );
-      if (uploadResponse?.data?.error_code) {
-        return res.status(200).json(uploadResponse?.data);
-      }
-      return res.status(200).json(uploadResponse?.data);
+      await createPdf({
+        fileName: "",
+      });
+      return res.status(200).json({});
     } catch (error) {
       return error.response
         ? res.status(400).json(error?.response?.data)

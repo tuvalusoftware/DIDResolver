@@ -1,5 +1,5 @@
 // * Utilities libraties
-import { deepMap } from './utils/salt.js';
+import { deepMap } from "./utils/salt.js";
 import {
   unsalt,
   checkForSpecialChar,
@@ -7,23 +7,35 @@ import {
   checkLengthOfInput,
   nonIsoValidator,
   checkRequirementOfInput,
-} from './utils/data';
-import { signObject, wrapDocument, createWrappedDocument, createCredential } from './utils/document';
-import { generateDid } from './utils/did';
-import { startCase } from 'lodash';
-import { Buffer } from 'buffer';
+} from "./utils/data";
+import {
+  signObject,
+  wrapDocument,
+  createWrappedDocument,
+  createCredential,
+} from "./utils/document";
+import { generateDid } from "./utils/did";
+import { startCase } from "lodash";
+import { Buffer } from "buffer";
 
 // * Rest client libraries
-import { sendWrappedDocument } from './rest/client.rest';
-import { CLIENT_PATH } from './rest/client.path';
-import { requestCreateCredential, postService } from 'rest/client.rest';
-import { CLIENT_PATH as _CLIENT_PATH } from 'rest/client.path';
+import { sendWrappedDocument } from "./rest/client.rest";
+import { CLIENT_PATH } from "./rest/client.path";
+import { requestCreateCredential, postService } from "rest/client.rest";
+import { CLIENT_PATH as _CLIENT_PATH } from "rest/client.path";
 
 // * Constants libraries
-import { VALID_DOCUMENT_NAME_TYPE, SAMPLE_SERVICE, _DOCUMENT_TYPE } from './constants/type';
-import { VERIFIER_ERROR_CODE, CREDENTIAL_ERROR } from 'fuixlabs-documentor/constants/error';
-import { COMPANY_NAME } from 'constants/app';
-import { ACTIONS_IDENTITY } from 'constants/action';
+import {
+  VALID_DOCUMENT_NAME_TYPE,
+  SAMPLE_SERVICE,
+  _DOCUMENT_TYPE,
+} from "./constants/type";
+import {
+  VERIFIER_ERROR_CODE,
+  CREDENTIAL_ERROR,
+} from "fuixlabs-documentor/constants/error";
+import { COMPANY_NAME } from "constants/app";
+import { ACTIONS_IDENTITY } from "constants/action";
 
 /**
  * Function used for create new wrapped document with document object, current user's public key
@@ -52,7 +64,7 @@ export const createDocument = async (
       let createdDocument = {};
       for (const key in document) {
         let currentField = document[key];
-        if (key === 'fileName') {
+        if (key === "fileName") {
           let specialVar = checkForSpecialChar({ currentField });
           let lengthVar = checkLengthOfInput(currentField);
           if (!lengthVar?.valid) {
@@ -61,7 +73,8 @@ export const createDocument = async (
           if (!specialVar?.valid) {
             throw VERIFIER_ERROR_CODE.STRING_INCLUDE_SPECIAL_CHARATERS;
           }
-          let endWithSpecialCharacters = checkForStringEndWithSpecialCharacters(currentField);
+          let endWithSpecialCharacters =
+            checkForStringEndWithSpecialCharacters(currentField);
           if (!endWithSpecialCharacters?.valid) {
             throw VERIFIER_ERROR_CODE.END_WITH_SPECIAL_CHARACTER;
           }
@@ -74,11 +87,13 @@ export const createDocument = async (
             // eslint-disable-next-line no-throw-literal
             throw {
               error_code: 4005,
-              msg: `${startCase(lengthVar?._key || key)} is required! Please check your input again!`,
+              error_message: `${startCase(
+                lengthVar?._key || key
+              )} is required! Please check your input again!`,
             };
           }
         }
-        if (key !== 'did')
+        if (key !== "did")
           createdDocument = Object.assign(createdDocument, {
             [key]: document[key],
           });
@@ -86,11 +101,18 @@ export const createDocument = async (
       createdDocument = Object.assign(createdDocument, {
         companyName: COMPANY_NAME,
         // * Get type rely on name of document in config file
-        intention: VALID_DOCUMENT_NAME_TYPE.find((prop) => prop.name === createdDocument.name).type,
+        intention: VALID_DOCUMENT_NAME_TYPE.find(
+          (prop) => prop.name === createdDocument.name
+        ).type,
       });
       const did = generateDid(COMPANY_NAME, usedAddress); // * Did of issuers
       // * Create new document, generate did of wrapped-document rely on file name and company name, and create target-hash based on data of the document
-      let res = await createWrappedDocument(createdDocument, SAMPLE_SERVICE, usedAddress, did);
+      let res = await createWrappedDocument(
+        createdDocument,
+        SAMPLE_SERVICE,
+        usedAddress,
+        did
+      );
       const { _document, targetHash, ddidDocument } = res;
       // * Sign Object with signing function of cardano
       startProccessing(false);
@@ -118,7 +140,10 @@ export const createDocument = async (
         did: ddidDocument,
       };
       // * If the type of document is non-trade, then make a new document with new policy id, otherwise, make a copy of current document with the same policy id
-      if (update && unsalt(wrappedDocument.data.intention) === _DOCUMENT_TYPE.trade) {
+      if (
+        update &&
+        unsalt(wrappedDocument.data.intention) === _DOCUMENT_TYPE.trade
+      ) {
         const updatedConfig = { ...updateDocument?.mintingNFTConfig };
         updatedConfig.policy = {
           ...updatedConfig.policy,
@@ -129,27 +154,36 @@ export const createDocument = async (
           mintingNFTConfig: updatedConfig,
         };
       }
-      const wrappedResult = await sendWrappedDocument(CLIENT_PATH.SEND_WRAPPED_DOCUMENT, requestBody);
-      if (wrappedResult?.data?.code === 1 || wrappedResult?.data?.error_message) throw wrapDocument;
+      const wrappedResult = await sendWrappedDocument(
+        CLIENT_PATH.SEND_WRAPPED_DOCUMENT,
+        requestBody
+      );
+      if (wrappedResult?.data?.code === 1 || wrappedResult?.data?.error_message)
+        throw wrapDocument;
       const doc = wrappedResult.data;
       let credentialConfig = { ...wrappedResult?.data?.mintingNFTConfig };
       credentialConfig.policy = {
         ...credentialConfig.policy,
         reuse: true,
       };
-      await createInitializationCredential(usedAddress, credentialConfig, currentWallet, doc);
+      await createInitializationCredential(
+        usedAddress,
+        credentialConfig,
+        currentWallet,
+        doc
+      );
       // * Create initialization credential
       return {
         wrappedDocument: doc,
       };
     } catch (e) {
       throw (
-        e?.msg ||
+        e?.error_message ||
         e?.errorMessage ||
         e?.errorMsg ||
         e?.message ||
         e?.info ||
-        'Something went wrong! Please try again later.'
+        "Something went wrong! Please try again later."
       );
     }
   }
@@ -157,12 +191,16 @@ export const createDocument = async (
 
 /**
  * Function used for create new wrapped document for Commonlands Project with document object, current user's public key
- * @param {Array} documents - array of documents 
+ * @param {Array} documents - array of documents
  * @param {address} address - address of issuer
  * @param {String} seedPhrase - seed phrase of issuer
  * @returns {Promise<Object>} - Promise object includes wrapped document
  */
-export const createDocumentForCommonlands = async ({ documents, address, seedPhrase }) => {
+export const createDocumentForCommonlands = async ({
+  documents,
+  address,
+  seedPhrase,
+}) => {
   try {
     for (let index = 0; index < documents.length; index++) {
       let document = documents[index];
@@ -172,7 +210,7 @@ export const createDocumentForCommonlands = async ({ documents, address, seedPhr
         let createdDocument = {};
         for (const key in document) {
           let currentField = document[key];
-          if (key === 'fileName') {
+          if (key === "fileName") {
             let specialVar = checkForSpecialChar({ currentField });
             let lengthVar = checkLengthOfInput(currentField);
             if (!lengthVar?.valid) {
@@ -181,7 +219,8 @@ export const createDocumentForCommonlands = async ({ documents, address, seedPhr
             if (!specialVar?.valid) {
               throw VERIFIER_ERROR_CODE.STRING_INCLUDE_SPECIAL_CHARATERS;
             }
-            let endWithSpecialCharacters = checkForStringEndWithSpecialCharacters(currentField);
+            let endWithSpecialCharacters =
+              checkForStringEndWithSpecialCharacters(currentField);
             if (!endWithSpecialCharacters?.valid) {
               throw VERIFIER_ERROR_CODE.END_WITH_SPECIAL_CHARACTER;
             }
@@ -194,11 +233,13 @@ export const createDocumentForCommonlands = async ({ documents, address, seedPhr
               // eslint-disable-next-line no-throw-literal
               throw {
                 error_code: 4005,
-                msg: `${startCase(lengthVar?._key || key)} is required! Please check your input again!`,
+                error_message: `${startCase(
+                  lengthVar?._key || key
+                )} is required! Please check your input again!`,
               };
             }
           }
-          if (key !== 'did')
+          if (key !== "did")
             createdDocument = Object.assign(createdDocument, {
               [key]: document[key],
             });
@@ -206,21 +247,32 @@ export const createDocumentForCommonlands = async ({ documents, address, seedPhr
         createdDocument = Object.assign(createdDocument, {
           companyName: COMPANY_NAME,
           // * Get type rely on name of document in config file
-          intention: VALID_DOCUMENT_NAME_TYPE.find((prop) => prop.name === createdDocument.name).type,
+          intention: VALID_DOCUMENT_NAME_TYPE.find(
+            (prop) => prop.name === createdDocument.name
+          ).type,
         });
         const did = generateDid(COMPANY_NAME, address); // * Did of issuers
         // * Create new document, generate did of wrapped-document rely on file name and company name, and create target-hash based on data of the document
-        let res = await createWrappedDocument(createdDocument, SAMPLE_SERVICE, address, did);
+        let res = await createWrappedDocument(
+          createdDocument,
+          SAMPLE_SERVICE,
+          address,
+          did
+        );
         const { _document, targetHash, ddidDocument } = res;
         // * Sign Object with signing function of cardano
         const signatureResponse = await postService(CLIENT_PATH.SIGNATURE, {
           seedPhrase: seedPhrase,
-          message: Buffer.from(JSON.stringify({
-            address: address,
-            targetHash: targetHash,
-          }), 'utf8')
-        })
-        if(signatureResponse?.status !== 200) throw new Error('Fail to sign document');
+          message: Buffer.from(
+            JSON.stringify({
+              address: address,
+              targetHash: targetHash,
+            }),
+            "utf8"
+          ),
+        });
+        if (signatureResponse?.status !== 200)
+          throw new Error("Fail to sign document");
         const signedData = signatureResponse?.data;
         const response = wrapDocument({
           document: _document,
@@ -235,8 +287,15 @@ export const createDocumentForCommonlands = async ({ documents, address, seedPhr
           issuerAddress: address,
           did: ddidDocument,
         };
-        const wrappedResult = await sendWrappedDocument(CLIENT_PATH.SEND_WRAPPED_DOCUMENT, requestBody);
-        if (wrappedResult?.data?.code === 1 || wrappedResult?.data?.error_message) throw wrapDocument;
+        const wrappedResult = await sendWrappedDocument(
+          CLIENT_PATH.SEND_WRAPPED_DOCUMENT,
+          requestBody
+        );
+        if (
+          wrappedResult?.data?.code === 1 ||
+          wrappedResult?.data?.error_message
+        )
+          throw wrapDocument;
         const doc = wrappedResult.data;
         let credentialConfig = { ...wrappedResult?.data?.mintingNFTConfig };
         credentialConfig.policy = {
@@ -250,12 +309,12 @@ export const createDocumentForCommonlands = async ({ documents, address, seedPhr
         };
       } catch (e) {
         throw (
-          e?.msg ||
+          e?.error_message ||
           e?.errorMessage ||
           e?.errorMsg ||
           e?.message ||
           e?.info ||
-          'Something went wrong! Please try again later.'
+          "Something went wrong! Please try again later."
         );
       }
     }
@@ -278,10 +337,12 @@ const createInitializationCredential = async (
   doc = null
 ) => {
   try {
-    let initializationAction = ACTIONS_IDENTITY.find((_action) => _action.code === 40);
+    let initializationAction = ACTIONS_IDENTITY.find(
+      (_action) => _action.code === 40
+    );
     const credentialMeta = {
-      currentOwner: issuerPublicKey || '',
-      currentHolder: issuerPublicKey || '',
+      currentOwner: issuerPublicKey || "",
+      currentHolder: issuerPublicKey || "",
     };
     const controllerDids = {
       issuerKey: generateDid(COMPANY_NAME, issuerPublicKey),
@@ -293,13 +354,20 @@ const createInitializationCredential = async (
       },
       config: credentialConfig,
       currentWallet,
-      didoWrappedDocument: generateDid(COMPANY_NAME, unsalt(doc?.data?.fileName)),
+      didoWrappedDocument: generateDid(
+        COMPANY_NAME,
+        unsalt(doc?.data?.fileName)
+      ),
       action: initializationAction,
       dids: { ...controllerDids },
     };
-    const createCredentialResult = await createCredential(props, issuerPublicKey);
+    const createCredentialResult = await createCredential(
+      props,
+      issuerPublicKey
+    );
     if (initializationAction.code === 20)
-      if (createCredentialResult.error_code) throw CREDENTIAL_ERROR.CANNOT_CREATE_CREDENTIAL; // * In this case, return the error code object
+      if (createCredentialResult.error_code)
+        throw CREDENTIAL_ERROR.CANNOT_CREATE_CREDENTIAL; // * In this case, return the error code object
     const { credential, signature, payload } = createCredentialResult;
     const bodyData = {
       did: generateDid(COMPANY_NAME, unsalt(doc?.data?.fileName)),
@@ -309,8 +377,12 @@ const createInitializationCredential = async (
       signature: signature,
       config: credentialConfig,
     };
-    const createCredentialResponse = await requestCreateCredential(_CLIENT_PATH.CREATE_CREDENTIAL, bodyData);
-    if (createCredentialResponse?.data?.error_code) throw createCredentialResponse?.data;
+    const createCredentialResponse = await requestCreateCredential(
+      _CLIENT_PATH.CREATE_CREDENTIAL,
+      bodyData
+    );
+    if (createCredentialResponse?.data?.error_code)
+      throw createCredentialResponse?.data;
   } catch (e) {
     throw e;
   }

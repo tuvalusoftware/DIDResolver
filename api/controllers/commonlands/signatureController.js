@@ -2,7 +2,7 @@ import { apiError } from "../../../logger.js";
 import { ERRORS } from "../../../core/constants.js";
 import { checkUndefinedVar } from "../../../core/index.js";
 import { getAccountBySeedPhrase } from "../../../core/utils/lucid.js";
-import 'dotenv/config'
+import "dotenv/config";
 
 export default {
   signMessageBySeedPhrase: async (req, res) => {
@@ -40,8 +40,8 @@ export default {
           ...ERRORS.MISSING_PARAMETERS,
           detail: undefinedVar.detail,
         });
-      const currentWallet = getCurrentAccount({
-        mnemonic: seedPhrase,
+      const { currentWallet } = getAccountBySeedPhrase({
+        seedPhrase: seedPhrase,
       });
       return res.status(200).json(currentWallet);
     } catch (error) {

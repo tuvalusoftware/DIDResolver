@@ -2,7 +2,6 @@ import cardanoSerialization from "@emurgo/cardano-serialization-lib-nodejs";
 import Ajv from "ajv";
 import Logger from "../logger.js";
 import * as dotenv from "dotenv";
-import { PDFDocument, rgb } from "pdf-lib";
 import fs from "fs";
 const fsPromises = fs.promises;
 
@@ -127,20 +126,6 @@ function getCurrentDateTime() {
   return formattedDateTime;
 }
 
-async function createPDF() {
-  const pdfDoc = await PDFDocument.create();
-  const page = pdfDoc.addPage([400, 200]);
-  page.drawText("Hello, PDF!", {
-    x: 50,
-    y: 150,
-    size: 30,
-    color: rgb(0, 0, 0),
-  });
-
-  const pdfBytes = await pdfDoc.save();
-  await fsPromises.writeFile("./assets/pdf/pdfSample.pdf", pdfBytes);
-}
-
 export {
   validateDIDSyntax,
   getAddressFromHexEncoded,
@@ -150,5 +135,4 @@ export {
   checkForSpecialChar,
   isSameError,
   getCurrentDateTime,
-  createPDF,
 };

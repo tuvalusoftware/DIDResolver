@@ -13,7 +13,11 @@ import {
   createWrappedDocument,
 } from "../fuixlabs-documentor/utils/document.js";
 import { deepMap } from "../fuixlabs-documentor/utils/salt.js";
-import { validateDIDSyntax, checkUndefinedVar } from "../core/index.js";
+import {
+  validateDIDSyntax,
+  checkUndefinedVar,
+  getPublicKeyFromAddress,
+} from "../core/index.js";
 import axios from "axios";
 import "dotenv/config";
 
@@ -55,33 +59,6 @@ export const generateWrappedDocument = async ({
       };
     const issuerAddress = encryptedIssuerAddress,
       targetHash = wrappedDocument?.signature?.targetHash;
-    // const address = await axios.get(
-    //   SERVERS.AUTHENTICATION_SERVICE + "/api/auth/verify",
-    //   {
-    //     withCredentials: true,
-    //     headers: { Cookie: `access_token=${access_token};` },
-    //   }
-    // );
-    // Logger.apiInfo(
-    //   req,
-    //   res,
-    //   `Address of user: ${address?.data?.data?.address}`
-    // );
-
-    // // 1.2 Compare issuer address with user address
-    // if (issuerAddress !== address.data.data.address) {
-    //   Logger.apiError(
-    //     req,
-    //     res,
-    //     `Address ${address.data.data.address} is not issuerAddress ${issuerAddress}`
-    //   );
-    //   return res.status(200).send(ERRORS.PERMISSION_DENIED);
-    // } else
-    //   Logger.apiInfo(
-    //     req,
-    //     res,
-    //     `Issuer address matches current address. Address: ${issuerAddress}`
-    //   );
     const existence = await axios.get(
       SERVERS.DID_CONTROLLER + "/api/doc/exists",
       {
@@ -175,8 +152,9 @@ export const generateWrappedDocument = async ({
 export const createDocumentForCommonlands = async ({
   documents,
   address,
-  signedData,
   access_token,
+  client,
+  currentWallet,
 }) => {
   try {
     for (let index = 0; index < documents.length; index++) {
@@ -233,10 +211,21 @@ export const createDocumentForCommonlands = async ({
           did
         );
         const { _document, targetHash, ddidDocument } = res;
+        const signMessage = await client
+          ?.newMessage(
+            getPublicKeyFromAddress(currentWallet?.paymentAddr),
+            Buffer.from(
+              JSON.stringify({
+                address: getPublicKeyFromAddress(currentWallet?.paymentAddr),
+                targetHash: targetHash,
+              })
+            ).toString("hex")
+          )
+          .sign();
         const response = wrapDocument({
           document: _document,
           walletAddress: address,
-          signedData: signedData,
+          signedData: signMessage,
           targetHash: targetHash,
         });
         const wrappedDocument = response;
