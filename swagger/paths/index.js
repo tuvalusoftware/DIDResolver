@@ -30,6 +30,19 @@ import {
 } from "./commonlands.js";
 
 export const paths = {
+   // * Commonlands
+   "/commonlands/document": {
+    ...commonlandsDocument,
+  },
+  "/commonlands/document/revoke": {
+    ...revokeCommonlandsDocument,
+  },
+  "/pdf": {
+    ...commonlandsPdf,
+  },
+  "/pdf/verify": {
+    ...verifyCommonlandsPdf,
+  },
   "/": {
     ...setCookie,
     ...clearCookie,
@@ -99,19 +112,5 @@ export const paths = {
   },
   "/wrapped-document/v2/": {
     ...algorandDocument,
-  },
-
-  // * Commonlands
-  "/commonlands/document": {
-    ...commonlandsDocument,
-  },
-  "/commonlands/document/revoke": {
-    ...revokeCommonlandsDocument,
-  },
-  "/pdf": {
-    ...commonlandsPdf,
-  },
-  "/pdf/verify": {
-    ...verifyCommonlandsPdf,
-  },
+  }
 };
