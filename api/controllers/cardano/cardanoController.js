@@ -20,7 +20,7 @@ export default {
       const { data } = await axios.post(
         `${SERVERS.CARDANO_SERVICE}/api/v2/fetch/nft`,
         {
-          policyId: policyId, 
+          policyId: policyId,
         },
         {
           withCredentials: true,
@@ -123,16 +123,6 @@ export default {
           ...ERRORS.MISSING_PARAMETERS,
           detail: undefinedVar.detail,
         });
-
-      // Call Cardano Service
-      // success:
-      //   {
-      //     code: number,
-      //     message: string,
-      //     data: true/false
-      //   }
-      // error:
-      //   { code: number, message: string }
       const { data } = await axios.post(
         SERVERS.CARDANO_SERVICE + "/api/v2/verify/signature",
         {
@@ -150,7 +140,6 @@ export default {
       );
 
       if (data?.code === 0) {
-        // apiInfo(req, res, `Success.\n${JSON.stringify(data)}`);
         return res.status(200).json(data);
       }
       apiError(req, res, `${JSON.stringify(data)}`);

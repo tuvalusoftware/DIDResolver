@@ -6,6 +6,9 @@ import { PDFDocument } from "pdf-lib";
 import crypto from "node:crypto";
 import fs from "fs";
 import axios from "axios";
+import { getDocumentContentByDid } from "./controller.js";
+import { authenticationProgress } from "./auth.js";
+import { verifyWrappedDocument } from "../../fuixlabs-documentor/verifyDocument.js";
 
 /**
  * Function used for creating pdf file
@@ -271,11 +274,7 @@ const verifyPdf = async ({ url }) => {
       ":" +
       didParameters[3] +
       ":" +
-      didParameters[4] +
-      ":" +
-      didParameters[5] +
-      ":" +
-      didParameters[6];
+      didParameters[4];
     const pdfHash = keywords.split(" ")[2].split(":")[1];
     if (!pdfHash || !did || !targetHash) {
       throw {
@@ -307,6 +306,12 @@ const verifyPdf = async ({ url }) => {
     ]);
     const updatedPdfBytes = await pdfDoc.save();
     fs.writeFileSync(`./assets/pdf/${fileName}.pdf`, updatedPdfBytes);
+    const accessToken = await authenticationProgress();
+    const { wrappedDoc } = await getDocumentContentByDid({
+      did: did,
+      accessToken: accessToken,
+    });
+    await verifyWrappedDocument(wrappedDoc, " ", "cardano");
     return {
       valid: true,
     };

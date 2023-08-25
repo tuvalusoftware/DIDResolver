@@ -15,6 +15,7 @@ import FormData from "form-data";
 import { getAccountBySeedPhrase } from "../../../core/utils/lucid.js";
 import { authenticationProgress } from "../../../core/utils/auth.js";
 import { createPdf, encryptPdf } from "../../../core/utils/pdf.js";
+import { unsalt } from "../../../fuixlabs-documentor/utils/data.js";
 import logger from "../../../logger.js";
 
 axios.defaults.withCredentials = true;
@@ -49,7 +50,7 @@ export default {
       const pdfFileName =
         `LandCertificate-${owner?.phoneNumber.replace("+", "")}-${
           plot?._id
-        }` || "";
+        }-26` || "";
       const isExistedResponse = await axios.get(
         SERVERS.DID_CONTROLLER + "/api/doc/exists",
         {
@@ -113,8 +114,10 @@ export default {
         client: lucidClient,
         currentWallet: currentWallet,
       });
-      const documentDid =
-        wrappedDocument?.data?.issuers[0]?.identityProofType?.did;
+      const documentDid = `did:fuixlabs:${process.env.COMPANY_NAME}:${unsalt(
+        wrappedDocument?.data?.fileName
+      )}`;
+
       const documentHash = wrappedDocument?.signature?.targetHash;
       if (!documentDid) {
         return res.status(200).json({

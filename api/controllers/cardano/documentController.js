@@ -16,28 +16,16 @@ export default {
     const { only } = req.query;
 
     try {
-      // Check missing parameters
       const undefinedVar = checkUndefinedVar({ did });
       if (undefinedVar.undefined)
         return res.status(200).json({
           ...ERRORS.MISSING_PARAMETERS,
           detail: undefinedVar.detail,
         });
-
-      // Validate DID syntax
       const validDid = validateDIDSyntax(did, false),
         companyName = validDid.companyName,
         fileName = validDid.fileNameOrPublicKey;
       if (!validDid.valid) return res.status(200).json(ERRORS.INVALID_INPUT);
-
-      // Call DID Controller
-      // success:
-      //   {
-      //     didDoc: {},
-      //     wrappedDoc: {}
-      //   }
-      // error:
-      //   { error_code: number, message: string }
       const { data } = await axios.get(SERVERS.DID_CONTROLLER + "/api/doc", {
         withCredentials: true,
         headers: {
@@ -45,9 +33,7 @@ export default {
         },
         params: { companyName, fileName, only },
       });
-
-      // Logger.apiInfo(req, res, `Success.\n${JSON.stringify(data)}`);
-      return res.status(200).json(data); // 404
+      return res.status(200).json(data);
     } catch (error) {
       Logger.apiError(req, res, `${JSON.stringify(error?.message || error)}`);
       error.response

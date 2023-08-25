@@ -95,18 +95,18 @@ export default {
           detail: undefinedVar?.detail,
         });
       }
-      const {valid} = await verifyPdf({
+      const { valid } = await verifyPdf({
         url: url,
       });
-      if(valid){
+      if (valid) {
         return res.status(200).json({
-          isValid: true
+          isValid: true,
         });
       }
       return res.status(200).json({
         error_code: 200,
-        error_message: 'This PDF file is not valid!'
-      })
+        error_message: "This PDF file is not valid!",
+      });
     } catch (error) {
       error?.error_code
         ? res.status(200).json(error)

@@ -17,7 +17,7 @@ export const SCHEMAS = {
 };
 
 export const SERVERS = {
-  DID_CONTROLLER: process.env.DID_CONTROLLER || "http://localhost:9000",
+  DID_CONTROLLER: process.env.DID_CONTROLLER,
   CARDANO_SERVICE: process.env.CARDANO_SERVICE || "http://localhost:10003",
   AUTHENTICATION_SERVICE:
     process.env.AUTHENTICATION_SERVICE || "http://localhost:12000",
@@ -109,5 +109,5 @@ export const ERRORS = {
   CANNOT_FOUND_DID_DOCUMENT: {
     error_code: 400,
     error_message: "Cannot found DID document!",
-  }
+  },
 };
