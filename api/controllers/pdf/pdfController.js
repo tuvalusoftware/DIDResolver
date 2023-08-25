@@ -2,25 +2,33 @@
 import crypto from "node:crypto";
 import { PDFDocument } from "pdf-lib";
 import fs from "fs";
-import {
-  readPdf,
-  verifyPdf,
-  getPdfBufferFromUrl,
-  bufferToPDFDocument,
-} from "../../../core/utils/pdf.js";
-import { getDocumentContentByDid } from "../../../core/utils/controller.js";
-import { authenticationProgress } from "../../../core/utils/auth.js";
-import axios from "axios";
+import { readPdf, verifyPdf } from "../../../core/utils/pdf.js";
 import { checkUndefinedVar } from "../../../core/index.js";
 import logger from "../../../logger.js";
 
 // * Constants
-import { ERRORS, SERVERS } from "../../../core/constants.js";
+import { ERRORS } from "../../../core/constants.js";
 
 export default {
   savePdfFile: async (req, res) => {
     try {
       const { pdfName, targetHash, did } = req.body;
+      const undefinedVar = checkUndefinedVar({
+        pdfName,
+        targetHash,
+        did,
+      });
+      if (undefinedVar.undefined) {
+        logger.apiError(
+          req,
+          res,
+          `Error: ${JSON.stringify(undefinedVar?.detail)}`
+        );
+        return res.status(200).json({
+          ...ERRORS.MISSING_PARAMETERS,
+          detail: undefinedVar?.detail,
+        });
+      }
       const pdfDoc = await PDFDocument.load(
         fs.readFileSync(`./assets/pdf/${pdfName}.pdf`)
       );

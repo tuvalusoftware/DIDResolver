@@ -22,6 +22,12 @@ import {
   verifyAlgorandSignature,
   verifyAlgorandAddress,
 } from "./algorand.js";
+import {
+  commonlandsDocument,
+  commonlandsPdf,
+  verifyCommonlandsPdf,
+  revokeCommonlandsDocument,
+} from "./commonlands.js";
 
 export const paths = {
   "/": {
@@ -93,5 +99,19 @@ export const paths = {
   },
   "/wrapped-document/v2/": {
     ...algorandDocument,
+  },
+
+  // * Commonlands
+  "/commonlands/document": {
+    ...commonlandsDocument,
+  },
+  "/commonlands/document/revoke": {
+    ...revokeCommonlandsDocument,
+  },
+  "/pdf": {
+    ...commonlandsPdf,
+  },
+  "/pdf/verify": {
+    ...verifyCommonlandsPdf,
   },
 };

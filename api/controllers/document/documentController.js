@@ -14,7 +14,13 @@ import fs from "fs";
 import FormData from "form-data";
 import { getAccountBySeedPhrase } from "../../../core/utils/lucid.js";
 import { authenticationProgress } from "../../../core/utils/auth.js";
-import { createPdf, encryptPdf } from "../../../core/utils/pdf.js";
+import { getDocumentContentByDid } from "../../../core/utils/controller.js";
+import {
+  createPdf,
+  encryptPdf,
+  getPdfBufferFromUrl,
+  bufferToPDFDocument,
+} from "../../../core/utils/pdf.js";
 import { unsalt } from "../../../fuixlabs-documentor/utils/data.js";
 import logger from "../../../logger.js";
 
@@ -48,9 +54,8 @@ export default {
         });
       }
       const pdfFileName =
-        `LandCertificate-${owner?.phoneNumber.replace("+", "")}-${
-          plot?._id
-        }-26` || "";
+        `LandCertificate-${owner?.phoneNumber.replace("+", "")}-${plot?._id}` ||
+        "";
       const isExistedResponse = await axios.get(
         SERVERS.DID_CONTROLLER + "/api/doc/exists",
         {
@@ -219,7 +224,7 @@ export default {
       }
       logger.apiInfo(req, res, `Revoke document successfully!`);
       return res.status(200).json({
-        revoke: true,
+        revoked: true,
       });
     } catch (error) {
       error?.error_code
@@ -229,5 +234,5 @@ export default {
             message: error?.message || "Something went wrong!",
           });
     }
-  }
+  },
 };

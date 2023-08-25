@@ -3,26 +3,20 @@ import { responses as components } from "./components.js";
 import { paths } from "./paths/index.js";
 
 export const swaggerDocument = {
-  openapi: "3.0.9",
+  openapi: "3.1.0",
   info: {
-    version: "1.0.0",
+    version: "v1.0",
     title: "DID Resolver",
-    description: "DID resolver for Cardano project | Fuixlabs",
+    description: "DID resolver for DOMINIUM and COMMONLANDS Projects",
   },
   servers: [
     {
       url: "/resolver",
       description: "Local server",
     },
-    {
-      url: "https://enigmatic-sands-00024.herokuapp.com/18.139.84.180:8000/resolver",
-      description: "Remote server",
-    },
   ],
-  schemes: ["http", "https"],
-  ...tags,
-  components: {
-    ...components,
-  },
-  ...paths,
+  // schemes: ["http", "https"],
+  tags: tags,
+  components: components,
+  paths: paths,
 };

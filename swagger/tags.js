@@ -21,5 +21,13 @@ export const tags = {
       description:
         "Endpoints for authenticate. Run this endpoint before test the other.",
     },
+    {
+      name: "Commonlands PDF",
+      description: "Endpoints for commonlands pdf",
+    },
+    {
+      name: "Commonlands Document",
+      description: "Endpoints for commonlands document",
+    },
   ],
 };
