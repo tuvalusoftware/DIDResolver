@@ -1,6 +1,14 @@
 export const tags = {
   tags: [
     {
+      name: "Commonlands PDF",
+      description: "Endpoints for commonlands pdf",
+    },
+    {
+      name: "Commonlands Document",
+      description: "Endpoints for commonlands document",
+    },
+    {
       name: "DID document",
       description: "API for DID document",
     },
@@ -20,14 +28,6 @@ export const tags = {
       name: "Access token",
       description:
         "Endpoints for authenticate. Run this endpoint before test the other.",
-    },
-    {
-      name: "Commonlands PDF",
-      description: "Endpoints for commonlands pdf",
-    },
-    {
-      name: "Commonlands Document",
-      description: "Endpoints for commonlands document",
     },
   ],
 };
