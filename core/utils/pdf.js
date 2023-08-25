@@ -336,4 +336,11 @@ const readPdf = async ({ fileName }) => {
   }
 };
 
-export { createPdf, encryptPdf, readPdf, verifyPdf };
+export {
+  createPdf,
+  encryptPdf,
+  readPdf,
+  verifyPdf,
+  getPdfBufferFromUrl,
+  bufferToPDFDocument,
+};

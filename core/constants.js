@@ -110,4 +110,8 @@ export const ERRORS = {
     error_code: 400,
     error_message: "Cannot found DID document!",
   },
+  REVOKE_DOCUMENT_FAILED: {
+    error_code: 400,
+    error_message: "Revoke document failed!",
+  }
 };

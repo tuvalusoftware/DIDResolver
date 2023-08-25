@@ -403,12 +403,6 @@ export default {
           error_message: "Bad request. Invalid did document.",
           detail: valid.detail,
         });
-
-      // Call DID Controller
-      // success:
-      //   { message: string }
-      // error:
-      //   { error_code: number, message: string }
       const { data } = await axios.put(
         SERVERS.DID_CONTROLLER + "/api/doc",
         {
@@ -462,11 +456,6 @@ export default {
           data: { config },
         }
       );
-
-      // data?.code !== 0
-      //   ? Logger.apiError(req, res, `${JSON.stringify(data)}`)
-      //   : Logger.apiInfo(req, res, `Success.\n${JSON.stringify(data)}`);
-
       return res.status(200).json(data);
     } catch (error) {
       Logger.apiError(req, res, `${JSON.stringify(error?.message || error)}`);
