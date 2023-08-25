@@ -1,7 +1,13 @@
+// * Utilities
 import crypto from "node:crypto";
 import { PDFDocument } from "pdf-lib";
 import fs from "fs";
-import { createPdf } from "../../../core/utils/pdf.js";
+import { readPdf, verifyPdf } from "../../../core/utils/pdf.js";
+import { checkUndefinedVar } from "../../../core/index.js";
+import logger from "../../../logger.js";
+
+// * Constants
+import { ERRORS } from "../../../core/constants.js";
 
 export default {
   savePdfFile: async (req, res) => {
@@ -32,21 +38,82 @@ export default {
         hash: hashHex,
       });
     } catch (error) {
-      return error.response
-        ? res.status(400).json(error?.response?.data)
-        : res.status(400).json(error);
+      error?.error_code
+        ? res.status(200).json(error)
+        : res.status(200).json({
+            error_code: 400,
+            message: error?.message || "Something went wrong!",
+          });
     }
   },
-  savePdfToDatabase: async (req, res) => {
+  readPdfFile: async (req, res) => {
     try {
-      await createPdf({
-        fileName: "",
+      const { fileName } = req.query;
+      const undefinedVar = checkUndefinedVar({
+        fileName,
       });
-      return res.status(200).json({});
+      if (undefinedVar.undefined) {
+        logger.apiError(
+          req,
+          res,
+          `Error: ${JSON.stringify(undefinedVar?.detail)}`
+        );
+        return res.status(200).json({
+          ...ERRORS.MISSING_PARAMETERS,
+          detail: undefinedVar?.detail,
+        });
+      }
+      const pdf = await readPdf({
+        fileName: fileName,
+      });
+      return res.status(200).json({
+        message: "SUCCESS",
+      });
     } catch (error) {
-      return error.response
-        ? res.status(400).json(error?.response?.data)
-        : res.status(400).json(error);
+      error?.error_code
+        ? res.status(200).json(error)
+        : res.status(200).json({
+            error_code: 400,
+            message: error?.message || "Something went wrong!",
+          });
+    }
+  },
+  verifyPdfFile: async (req, res) => {
+    try {
+      const { url } = req.body;
+      const undefinedVar = checkUndefinedVar({
+        url,
+      });
+      if (undefinedVar.undefined) {
+        logger.apiError(
+          req,
+          res,
+          `Error: ${JSON.stringify(undefinedVar?.detail)}`
+        );
+        return res.status(200).json({
+          ...ERRORS.MISSING_PARAMETERS,
+          detail: undefinedVar?.detail,
+        });
+      }
+      const {valid} = await verifyPdf({
+        url: url,
+      });
+      if(valid){
+        return res.status(200).json({
+          isValid: true
+        });
+      }
+      return res.status(200).json({
+        error_code: 200,
+        error_message: 'This PDF file is not valid!'
+      })
+    } catch (error) {
+      error?.error_code
+        ? res.status(200).json(error)
+        : res.status(200).json({
+            error_code: 400,
+            message: error?.message || "Something went wrong!",
+          });
     }
   },
 };

@@ -1,6 +1,12 @@
-import * as dotenv from "dotenv";
+// * Utilities
 dotenv.config();
+import * as dotenv from "dotenv";
 import htmlPDF from "puppeteer-html-pdf";
+import { PDFDocument } from "pdf-lib";
+import crypto from "node:crypto";
+import fs from "fs";
+import axios from "axios";
+
 /**
  * Function used for creating pdf file
  * @param {String} fileName - name of file
@@ -186,4 +192,143 @@ const createPdf = async ({ fileName, data }) => {
   }
 };
 
-export { createPdf };
+/**
+ * Function used for encrypting pdf file
+ * @param {String} fileName - name of file
+ * @param {String} targetHash - target hash
+ * @param {String} did - did
+ * @returns {Promise} - Promise of encrypted pdf file
+ */
+const encryptPdf = async ({ fileName, targetHash, did }) => {
+  try {
+    const pdfDoc = await PDFDocument.load(
+      fs.readFileSync(`./assets/pdf/${fileName}.pdf`)
+    );
+    const originalCreationDate = pdfDoc.getCreationDate();
+    const originalModificationDate = pdfDoc.getModificationDate();
+    pdfDoc.setKeywords([`targetHash:${targetHash}`, `did:${did}`]);
+    pdfDoc.setCreationDate(new Date(process.env.HASH_DATE));
+    pdfDoc.setModificationDate(new Date(process.env.HASH_DATE));
+    pdfDoc.setProducer(process.env.COMPANY_NAME);
+    const pdfBytes = await pdfDoc.save();
+    const hash = crypto.createHash("sha256");
+    hash.update(pdfBytes);
+    const hashHex = hash.digest("hex");
+    pdfDoc.setCreationDate(originalCreationDate);
+    pdfDoc.setModificationDate(originalModificationDate);
+    pdfDoc.setKeywords([
+      `targetHash:${targetHash}`,
+      `did:${did}`,
+      `hash:${hashHex}`,
+      `fileName:${fileName}`,
+    ]);
+    const updatedPdfBytes = await pdfDoc.save();
+    fs.writeFileSync(`./assets/pdf/${fileName}.pdf`, updatedPdfBytes);
+  } catch (e) {
+    throw e;
+  }
+};
+
+async function getPdfBufferFromUrl(pdfUrl) {
+  try {
+    const response = await axios.get(pdfUrl, {
+      responseType: "arraybuffer", // Set the response type to arraybuffer
+    });
+
+    if (response.status === 200) {
+      const pdfBuffer = Buffer.from(response.data);
+      return pdfBuffer;
+    } else {
+      throw new Error(
+        `Failed to fetch PDF from URL. Status code: ${response.status}`
+      );
+    }
+  } catch (error) {
+    console.error("Error fetching PDF:", error.message);
+    throw error;
+  }
+}
+
+async function bufferToPDFDocument(buffer) {
+  const pdfDoc = await PDFDocument.load(buffer);
+  return pdfDoc;
+}
+
+const verifyPdf = async ({ url }) => {
+  try {
+    const pdfDocBuffer = await getPdfBufferFromUrl(url);
+    const pdfDoc = await bufferToPDFDocument(pdfDocBuffer);
+    const originalCreationDate = pdfDoc.getCreationDate();
+    const originalModificationDate = pdfDoc.getModificationDate();
+    const keywords = pdfDoc.getKeywords();
+    const targetHash = keywords.split(" ")[0].split(":")[1];
+    const didParameters = keywords.split(" ")[1].split(":");
+    const fileName = keywords.split(" ")[3].split(":")[1];
+    const did =
+      didParameters[1] +
+      ":" +
+      didParameters[2] +
+      ":" +
+      didParameters[3] +
+      ":" +
+      didParameters[4] +
+      ":" +
+      didParameters[5] +
+      ":" +
+      didParameters[6];
+    const pdfHash = keywords.split(" ")[2].split(":")[1];
+    if (!pdfHash || !did || !targetHash) {
+      throw {
+        error_code: 400,
+        error_message: "Error while getting document information!",
+      };
+    }
+    pdfDoc.setKeywords([`targetHash:${targetHash}`, `did:${did}`]);
+    pdfDoc.setCreationDate(new Date(process.env.HASH_DATE));
+    pdfDoc.setModificationDate(new Date(process.env.HASH_DATE));
+    pdfDoc.setProducer(process.env.COMPANY_NAME);
+    const pdfBytes = await pdfDoc.save();
+    const hash = crypto.createHash("sha256");
+    hash.update(pdfBytes);
+    const hashHex = hash.digest("hex");
+    if (hashHex !== pdfHash) {
+      throw {
+        error_code: 400,
+        error_message: "PDF has been modified! Please check your PDF again!",
+      };
+    }
+    pdfDoc.setCreationDate(originalCreationDate);
+    pdfDoc.setModificationDate(originalModificationDate);
+    pdfDoc.setKeywords([
+      `targetHash:${targetHash}`,
+      `did:${did}`,
+      `hash:${hashHex}`,
+      `fileName:${fileName}`,
+    ]);
+    const updatedPdfBytes = await pdfDoc.save();
+    fs.writeFileSync(`./assets/pdf/${fileName}.pdf`, updatedPdfBytes);
+    return {
+      valid: true,
+    };
+  } catch (e) {
+    throw e;
+  }
+};
+
+/**
+ * Function used for reading pdf file
+ * @param {String} fileName
+ * @returns {Promise} - Promise of pdf file
+ */
+const readPdf = async ({ fileName }) => {
+  try {
+    const pdfDoc = await PDFDocument.load(
+      fs.readFileSync(`./assets/pdf/${fileName}.pdf`)
+    );
+    return pdfDoc;
+  } catch (e) {
+    throw e;
+  }
+};
+
+export { createPdf, encryptPdf, readPdf, verifyPdf };

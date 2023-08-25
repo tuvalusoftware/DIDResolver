@@ -3,6 +3,7 @@ import pdfController from "../controllers/pdf/pdfController.js";
 
 const router = express.Router();
 router.post("", pdfController.savePdfFile);
-router.post("/upload", pdfController.savePdfToDatabase);
+router.get("", pdfController.readPdfFile);
+router.post('/verify', pdfController.verifyPdfFile);
 
 export default router;

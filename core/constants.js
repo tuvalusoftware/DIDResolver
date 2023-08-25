@@ -23,7 +23,7 @@ export const SERVERS = {
     process.env.AUTHENTICATION_SERVICE || "http://localhost:12000",
   ALGORAND_SERVICE: process.env.ALGORAND_SERVICE || "http://localhost:10005",
   STAGING_SERVER:
-    process.env.STAGING_SERVICE || "https://a8b5-125-235-236-11.ngrok-free.app",
+    process.env.STAGING_SERVICE || "https://commonlands-user.ap.ngrok.io/",
   COMMONLANDS_GITHUB_SERVICE:
     process.env.COMMONLANDS_GITHUB_SERVICE ||
     "https://commonlands-gitdb.ap.ngrok.io",
@@ -106,4 +106,8 @@ export const ERRORS = {
     error_code: 400,
     error_message: "Document is existed!",
   },
+  CANNOT_FOUND_DID_DOCUMENT: {
+    error_code: 400,
+    error_message: "Cannot found DID document!",
+  }
 };
