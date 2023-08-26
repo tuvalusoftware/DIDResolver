@@ -6,8 +6,8 @@ export const swaggerDocument = {
   openapi: "3.1.0",
   info: {
     version: "v1.0",
-    title: "DID Resolver",
-    description: "DID resolver for DOMINIUM and COMMONLANDS Projects",
+    title: "Commonlands Resolver",
+    description: "Resolver service for Commonlands Project",
   },
   servers: [
     {

@@ -47,70 +47,71 @@ export const paths = {
     ...setCookie,
     ...clearCookie,
   },
-  "/did/": {
-    ...retrieveSpecificDid,
-  },
-  "/did/all/": {
-    ...retrieveAllDids,
-  },
-  "/auth/public-key/": {
-    ...getPublicKeyFromAddress,
-  },
-  "/auth/public-key/v2": {
-    ...verifyAlgorandAddress,
-  },
 
-  "/wrapped-document/": {
-    ...getWrappedDocument,
-    ...createWrappedDocument,
-  },
-  "/wrapped-document/exist/": {
-    ...checkWrappedDocumentExistence,
-  },
-  "/wrapped-document/valid/": {
-    ...validateWrappedDocument,
-  },
-  "/wrapped-document/user": {
-    ...getAllWrappedDocumentsOfUser,
-  },
-  "/wrapped-document/transfer": {
-    ...transferWrappedDocument,
-  },
-  "/wrapped-document/search": {
-    ...searchWrappedDocument,
-  },
-  "/wrapped-document/revoke": {
-    ...revokeWrappedDocument,
-  },
+  // "/did/": {
+  //   ...retrieveSpecificDid,
+  // },
+  // "/did/all/": {
+  //   ...retrieveAllDids,
+  // },
+  // "/auth/public-key/": {
+  //   ...getPublicKeyFromAddress,
+  // },
+  // "/auth/public-key/v2": {
+  //   ...verifyAlgorandAddress,
+  // },
 
-  "/credential/": {
-    ...createCredential,
-  },
+  // "/wrapped-document/": {
+  //   ...getWrappedDocument,
+  //   ...createWrappedDocument,
+  // },
+  // "/wrapped-document/exist/": {
+  //   ...checkWrappedDocumentExistence,
+  // },
+  // "/wrapped-document/valid/": {
+  //   ...validateWrappedDocument,
+  // },
+  // "/wrapped-document/user": {
+  //   ...getAllWrappedDocumentsOfUser,
+  // },
+  // "/wrapped-document/transfer": {
+  //   ...transferWrappedDocument,
+  // },
+  // "/wrapped-document/search": {
+  //   ...searchWrappedDocument,
+  // },
+  // "/wrapped-document/revoke": {
+  //   ...revokeWrappedDocument,
+  // },
 
-  "/nfts/": {
-    ...getNFTs,
-  },
-  "/hash/verify/": {
-    ...verifyHash,
-  },
-  "/signature/verify/": {
-    ...verifySignature,
-  },
+  // "/credential/": {
+  //   ...createCredential,
+  // },
 
-  // * Algorand
-  "/credential/v2/": {
-    ...createAlgorandCredential,
-  },
-  "/nfts/v2/": {
-    ...getAlgorandNFTs,
-  },
-  "/signature/verify/v2/": {
-    ...verifyAlgorandSignature,
-  },
-  "/hash/verify/v2/": {
-    ...verifyAlgorandHash,
-  },
-  "/wrapped-document/v2/": {
-    ...algorandDocument,
-  }
+  // "/nfts/": {
+  //   ...getNFTs,
+  // },
+  // "/hash/verify/": {
+  //   ...verifyHash,
+  // },
+  // "/signature/verify/": {
+  //   ...verifySignature,
+  // },
+
+  // // * Algorand
+  // "/credential/v2/": {
+  //   ...createAlgorandCredential,
+  // },
+  // "/nfts/v2/": {
+  //   ...getAlgorandNFTs,
+  // },
+  // "/signature/verify/v2/": {
+  //   ...verifyAlgorandSignature,
+  // },
+  // "/hash/verify/v2/": {
+  //   ...verifyAlgorandHash,
+  // },
+  // "/wrapped-document/v2/": {
+  //   ...algorandDocument,
+  // }
 };
