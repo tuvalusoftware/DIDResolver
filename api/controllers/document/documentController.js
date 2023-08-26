@@ -125,10 +125,7 @@ export default {
 
       const documentHash = wrappedDocument?.signature?.targetHash;
       if (!documentDid) {
-        return res.status(200).json({
-          error_code: 400,
-          error_message: "Error while getting document information!",
-        });
+        return res.status(200).json(ERRORS.CANNOT_GET_DOCUMENT_INFORMATION);
       }
       logger.apiInfo(
         req,
@@ -144,7 +141,7 @@ export default {
           error_message: error?.message || error || "Error while creating PDF",
         });
       });
-      logger.apiInfo(req, res, `Created PDF file ${pdfFileName}`);
+      logger.apiInfo(req, res, `Created PDF file ${pdfFileName} successfully!`);
       await encryptPdf({
         fileName: pdfFileName,
         did: documentDid,

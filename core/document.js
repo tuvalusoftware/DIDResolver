@@ -30,6 +30,14 @@ import {
 } from "../fuixlabs-documentor/constants/type.js";
 import { ERRORS, SERVERS } from "../core/constants.js";
 
+/**
+ * Function used for generating wrapped document
+ * @param {Object} wrappedDocument
+ * @param {String} encryptedIssuerAddress
+ * @param {Object} mintingNFTConfig
+ * @param {String} access_token
+ * @returns {Promise<Object>} - Promise object includes wrapped document
+ */
 export const generateWrappedDocument = async ({
   wrappedDocument,
   encryptedIssuerAddress,

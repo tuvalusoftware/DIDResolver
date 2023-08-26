@@ -113,5 +113,9 @@ export const ERRORS = {
   REVOKE_DOCUMENT_FAILED: {
     error_code: 400,
     error_message: "Revoke document failed!",
-  }
+  },
+  CANNOT_GET_DOCUMENT_INFORMATION: {
+    error_code: 400,
+    error_message: "Cannot get document information!",
+  },
 };

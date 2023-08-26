@@ -232,6 +232,11 @@ const encryptPdf = async ({ fileName, targetHash, did }) => {
   }
 };
 
+/**
+ * Function used for getting pdf buffer from url
+ * @param {String} pdfUrl
+ * @returns {Buffer} - Buffer of pdf file
+ */
 async function getPdfBufferFromUrl(pdfUrl) {
   try {
     const response = await axios.get(pdfUrl, {
@@ -252,11 +257,21 @@ async function getPdfBufferFromUrl(pdfUrl) {
   }
 }
 
+/**
+ * Function used for converting buffer to pdf document
+ * @param {Buffer} buffer
+ * @returns {PDFDocument}
+ */
 async function bufferToPDFDocument(buffer) {
   const pdfDoc = await PDFDocument.load(buffer);
   return pdfDoc;
 }
 
+/**
+ * Function used for verifying pdf file by given url on AWS S3
+ * @param {String} url -
+ * @returns {Object} - { valid: true } if valid, throw error otherwise
+ */
 const verifyPdf = async ({ url }) => {
   try {
     const pdfDocBuffer = await getPdfBufferFromUrl(url);

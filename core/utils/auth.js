@@ -9,19 +9,15 @@ import { SERVERS } from "../constants.js";
 import jwt_decode from "jwt-decode";
 import { getPublicKeyFromAddress } from "../../core/index.js";
 
-const getDappInfo = async () => {
-  try {
-    const dappKey = process.env.DAPP_KEY;
-    const dappInfoRequest = await axios.get(
-      `${SERVERS.AUTHENTICATION_SERVICE}/api/app?app-key=${dappKey}`
-    );
-    if (!dappInfoRequest?.data) throw new Error("Dapp info not found");
-    return dappInfoRequest?.data?.data;
-  } catch (e) {
-    throw e;
-  }
-};
-
+/**
+ * Function used for getting authentication token from authentication service
+ * @param {String} randomNumber
+ * @param {String} timestamp
+ * @param {String} signedData
+ * @param {String} address
+ * @param {String} accessToken
+ * @returns {String} - access token
+ */
 const getAuthenticationToken = async ({
   randomNumber,
   timestamp,
@@ -55,6 +51,10 @@ const getAuthenticationToken = async ({
   }
 };
 
+/**
+ * Function used for getting random number from authentication service
+ * @returns {String} - random number
+ */
 const getRandomNumberEncryption = async () => {
   try {
     const randomNumberResponse = await axios.get(
@@ -68,6 +68,10 @@ const getRandomNumberEncryption = async () => {
   }
 };
 
+/**
+ * Function used for getting authentication token, this token is used for accessing to other services
+ * @returns {String} - access token
+ */
 const authenticationProgress = async () => {
   try {
     const randomNumberEncryption = await getRandomNumberEncryption();

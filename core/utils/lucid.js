@@ -5,9 +5,15 @@ import { Lucid } from "lucid-cardano";
 import cryptoRandomString from "crypto-random-string";
 import "dotenv/config";
 
+/**
+ * Function used for validating address bytes
+ * @param {String} address 
+ * @returns {Boolean} - true if valid, false otherwise
+ */
 const isValidAddressBytes = async (address) => {
+  const supportNetworkId = 'preprod'
   const network = {
-    id: "preprod",
+    id: supportNetworkId,
   };
   try {
     const addr = CardanoWasm.Address.from_bytes(address);

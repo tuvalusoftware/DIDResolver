@@ -2,14 +2,16 @@ import cardanoSerialization from "@emurgo/cardano-serialization-lib-nodejs";
 import Ajv from "ajv";
 import Logger from "../logger.js";
 import * as dotenv from "dotenv";
-import fs from "fs";
-const fsPromises = fs.promises;
 
 dotenv.config();
 
+/**
+ * Function used for validating DID syntax
+ * @param {String} did - DID to be validated
+ * @param {*} isSalted - true if did is salted, false otherwise
+ * @returns {Object} - { valid: Boolean, detail: String }
+ */
 const validateDIDSyntax = (did, isSalted) => {
-  // DID syntax = did:method:companyName:fileNameOrPublicKey
-  // Salted DID = uuid:string:did:method:companyName:fileNameOrPublicKey
   if (!did) {
     Logger.error("Undefined did.");
     return { valid: false, detail: "Undefined did." };
@@ -29,7 +31,6 @@ const validateDIDSyntax = (did, isSalted) => {
     );
     return { valid: false };
   }
-
   Logger.info("Valid did.");
   return {
     valid: true,
@@ -38,6 +39,11 @@ const validateDIDSyntax = (did, isSalted) => {
   };
 };
 
+/**
+ * Function used to get address from hex encoded address
+ * @param {String} hexAddress - hex encoded address
+ * @returns {String} - bech32 address
+ */
 const getAddressFromHexEncoded = (hexAddress) => {
   const address = cardanoSerialization.Address.from_bytes(
     Buffer.from(hexAddress, "hex")
@@ -47,6 +53,11 @@ const getAddressFromHexEncoded = (hexAddress) => {
   return address;
 };
 
+/**
+ * Function used for getting public key from bech32 address
+ * @param {String} bech32Address - bech32 address
+ * @returns {String} - public key
+ */
 const getPublicKeyFromAddress = (bech32Address) => {
   const address = cardanoSerialization.Address.from_bech32(bech32Address);
   const publicKey = Buffer.from(address.to_bytes(), "hex").toString("hex");
@@ -54,34 +65,46 @@ const getPublicKeyFromAddress = (bech32Address) => {
   return publicKey;
 };
 
+/**
+ * Function used for validating JSON schema
+ * @param {Object} rawSchema - JSON schema
+ * @param {Object} object - object to be validated
+ * @returns {Object} - { valid: Boolean, detail: String }
+ */
 const validateJSONSchema = (rawSchema, object) => {
   const schema = (({ example, ...props }) => props)(rawSchema);
-
   const ajv = new Ajv();
   const validate = ajv.compile(schema);
-
   const valid = validate(object);
   if (!valid)
     Logger.error(`Invalid object.\n${JSON.stringify(validate.errors)}`);
   return valid ? { valid } : { valid, detail: validate.errors };
 };
 
+/**
+ * Function used for checking if there is any undefined variable in JSON object
+ * @param {Object} object - JSON object
+ * @returns {Object} - { undefined: Boolean, detail: String }
+ */
 const checkUndefinedVar = (object) => {
   let detail = "Not found:",
     flag = false;
-
   for (const [key, value] of Object.entries(object)) {
     if (value === undefined) {
       detail += " " + key;
       flag = true;
     }
   }
-
   if (flag) Logger.error(`${detail}`);
   else Logger.info(`Valid JSON object.`);
   return flag ? { undefined: true, detail } : { undefined: false };
 };
 
+/**
+ * Function used for checking if there is any special character in strings
+ * @param {String} strings - strings to be checked
+ * @returns {Object} - { valid: Boolean, string: String }
+ */
 const checkForSpecialChar = (strings) => {
   const specialChars = `\`!@#$%^&*()+\-=\[\]{};':"\\|,.<>\/?~`;
   for (const index in strings) {
@@ -103,6 +126,12 @@ const checkForSpecialChar = (strings) => {
   };
 };
 
+/**
+ * Function used for checking if two error objects are the same
+ * @param {Object} obj - error object
+ * @param {Object} errorObj - error object
+ * @returns {Boolean} - true if two error objects are the same, false otherwise
+ */
 const isSameError = (obj, errorObj) => {
   return obj.error_code === errorObj.error_code &&
     obj.error_message === errorObj.error_message

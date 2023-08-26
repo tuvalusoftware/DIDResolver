@@ -15,7 +15,6 @@ export const swaggerDocument = {
       description: "Local server",
     },
   ],
-  // schemes: ["http", "https"],
   tags: tags,
   components: components,
   paths: paths,

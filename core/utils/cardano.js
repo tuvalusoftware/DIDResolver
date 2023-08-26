@@ -4,6 +4,13 @@ import axios from "axios";
 // * Constants
 import { SERVERS, ERRORS } from "../constants.js";
 
+/**
+ * Function used for verifying dose the given document exist on the blockchain
+ * @param {String} hashofdocument
+ * @param {String} policyid 
+ * @param {String} accessToken
+ * @returns {Object} 
+ */
 const verifyCardanoNft = async ({ hashofdocument, policyid, accessToken }) => {
   let query = { policyId: policyid };
   if (hashofdocument) {
@@ -24,6 +31,15 @@ const verifyCardanoNft = async ({ hashofdocument, policyid, accessToken }) => {
   }
 };
 
+/**
+ * Function used for verifying dose the given signature is valid
+ * @param {String} address 
+ * @param {Object} payload
+ * @param {String} signature
+ * @param {String} key
+ * @param {String} accessToken
+ * @returns {Object} 
+ */
 const verifyCardanoSignature = async ({
   address,
   payload,
