@@ -94,22 +94,38 @@ export const commonlandsDocument = {
         description: "Return an object include url of pdf file if success",
         content: {
           "application/json": {
-            example: {
-              type: "object",
-              properties: {
-                url: {
-                  type: "string",
-                  example:
-                    "https://raw.githubusercontent.com/dev-fuixlabs/Commonlands_DOC/IMAGE/1692991473198_COMMONLANDS_2-LandCertificate-14088960050-64db86559e77a4ffc2395ada-30.pdf",
+            examples: {
+              "Create document Successfully": {
+                value: {
+                  url: "https://raw.githubusercontent.com/dev-fuixlabs/Commonlands_DOC/IMAGE/1692991473198_COMMONLANDS_2-LandCertificate-14088960050-64db86559e77a4ffc2395ada-30.pdf",
+                  path: "1692991473198_COMMONLANDS_2-LandCertificate-14088960050-64db86559e77a4ffc2395ada-30.pdf",
+                  message: "Create document Successfully",
                 },
-                path: {
-                  type: "string",
-                  example:
-                    "1692991473198_COMMONLANDS_2-LandCertificate-14088960050-64db86559e77a4ffc2395ada-30.pdf",
+              },
+              "Missing parameters": {
+                value: {
+                  error_code: 400,
+                  error_message: "Bad request. Missing parameters.",
+                  detail: "Not found: owner",
                 },
-                message: {
-                  type: "string",
-                  example: "Successfully Saved",
+              },
+              "Document already exists": {
+                value: {
+                  error_code: 400,
+                  error_message: "Bad request. Document already exists.",
+                },
+              },
+              "Cannot get document information": {
+                value: {
+                  error_code: 400,
+                  error_message:
+                    "Bad request. Cannot get document information.",
+                },
+              },
+              "Error while creating PDF": {
+                value: {
+                  error_code: 400,
+                  error_message: "Bad request. Error while creating PDF.",
                 },
               },
             },
@@ -147,12 +163,23 @@ export const revokeCommonlandsDocument = {
         description: "Return an object include revoked is true if success",
         content: {
           "application/json": {
-            example: {
-              type: "object",
-              properties: {
-                revoked: {
-                  type: "boolean",
-                  example: true,
+            examples: {
+              "Revoke document Successfully": {
+                value: {
+                  revoked: true,
+                },
+              },
+              "Missing parameters": {
+                value: {
+                  error_code: 400,
+                  error_message: "Bad request. Missing parameters.",
+                  detail: "Not found: owner",
+                },
+              },
+              "Revoke document failed": {
+                value: {
+                  error_code: 400,
+                  error_message: "Bad request. Revoke document failed.",
                 },
               },
             },
@@ -200,13 +227,17 @@ export const commonlandsPdf = {
         description: "Return an object include hash of pdf file if success",
         content: {
           "application/json": {
-            example: {
-              type: "object",
-              properties: {
-                hash: {
-                  type: "string",
-                  example:
-                    "0x1a2b3c4d5e6f7g8h9i0j1k2l3m4n5o6p7q8r9s0t1u2v3w4x5y6z",
+            examples: {
+              "Save PDF file successfully ": {
+                value: {
+                  hash: "0x1a2b3c4d5e6f7g8h9i0j1k2l3m4n5o6p7q8r9s0t1u2v3w4x5y6z",
+                },
+              },
+              "Missing parameters": {
+                value: {
+                  error_code: 400,
+                  error_message: "Bad request. Missing parameters.",
+                  detail: "Not found: owner",
                 },
               },
             },
@@ -244,12 +275,22 @@ export const verifyCommonlandsPdf = {
         description: "Return an object include isValid is true if success",
         content: {
           "application/json": {
-            example: {
-              type: "object",
-              properties: {
-                isValid: {
-                  type: "boolean",
-                  example: true,
+            examples: {
+              "Verify PDF file successfully": {
+                value: {
+                  isValid: true,
+                },
+              },
+              "Missing parameters": {
+                value: {
+                  error_code: 400,
+                  error_message: "Bad request. Missing parameters.",
+                },
+              },
+              "This PDF file is not valid!": {
+                value: {
+                  error_code: 400,
+                  error_message: "This PDF file is not valid!",
                 },
               },
             },

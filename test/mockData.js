@@ -1,4 +1,4 @@
-module.exports.DID_DATA = {
+export const DID_DATA = {
   SINGLE_DID: {
     name: "public_key",
     content: {
@@ -141,7 +141,7 @@ module.exports.DID_DATA = {
   },
 };
 
-module.exports.DOC_DATA = {
+export const DOC_DATA = {
   SINGLE_DOC: {
     wrappedDoc: {
       data: {
@@ -987,10 +987,10 @@ module.exports.DOC_DATA = {
   UNKNOWN_ERROR: {
     error_code: 10000,
     error_message: "Something went wrong with the server!",
-},
+  },
 };
 
-module.exports.ALGORAND_DATA = {
+export const ALGORAND_DATA = {
   VERIFY_SUCCESS_HASH_RESULT: {
     code: 0,
     message: "SUCCESS",
@@ -1084,7 +1084,7 @@ module.exports.ALGORAND_DATA = {
   },
 };
 
-module.exports.CREDENTIAL_DATA = {
+export const CREDENTIAL_DATA = {
   SINGLE_CREDENTIAL: {
     issuer: "did:company:owner_public_key",
     subject: "did:company2:other_public_key",
@@ -1103,7 +1103,7 @@ module.exports.CREDENTIAL_DATA = {
   },
 };
 
-module.exports.AUTH_DATA = {
+export const AUTH_DATA = {
   USER_ADDR_FROM_TOKEN: {
     data: {
       address:
@@ -1118,11 +1118,11 @@ module.exports.AUTH_DATA = {
   },
   INVALID_ACCESS_TOKEN: {
     error_code: 10001,
-    error_message: 'Unauthorized',
-  }
+    error_message: "Unauthorized",
+  },
 };
 
-module.exports.CARDANO_DATA = {
+export const CARDANO_DATA = {
   MINT_NFT_WRAPPED_DOC: {
     code: 0,
     message: "SUCCESS",
@@ -1204,14 +1204,14 @@ module.exports.CARDANO_DATA = {
   },
 };
 
-module.exports.DID_CONTROLLER_OPERATION_STATUS = {
+export const DID_CONTROLLER_OPERATION_STATUS = {
   SAVE_SUCCESS: { message: "Successfully Saved" },
   CLONE_SUCCESS: { message: "Successfully Cloned" },
   UPDATE_SUCCESS: { message: "Successfully Updated" },
   DELETE_SUCCESS: { message: "Successfully Deleted" },
 };
 
-module.exports.OTHER_DATA = {
+export const OTHER_DATA = {
   CREATE_WRAPPED_DOC_ARGS: {
     wrappedDocument: {
       version: "https://schema.openattestation.com/2.0/schema.json",

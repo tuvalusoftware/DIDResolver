@@ -120,7 +120,7 @@ export default {
         });
       }
       return res.status(200).json({
-        error_code: 200,
+        error_code: 400,
         error_message: "This PDF file is not valid!",
       });
     } catch (error) {
