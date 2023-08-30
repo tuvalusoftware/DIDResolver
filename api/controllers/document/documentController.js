@@ -23,6 +23,7 @@ import {
   encryptPdf,
   getPdfBufferFromUrl,
   bufferToPDFDocument,
+  deleteFile
 } from "../../../core/utils/pdf.js";
 import { unsalt } from "../../../fuixlabs-documentor/utils/data.js";
 import logger from "../../../logger.js";
@@ -57,7 +58,7 @@ export default {
         });
       }
       const pdfFileName =
-        `LandCertificate-${owner?.phoneNumber.replace("+", "")}-${plot?._id}` ||
+        `LandCertificate-${owner?.phoneNumber.replace("+", "")}-${plot?._id}-52` ||
         "";
       const isExistedResponse = await axios.get(
         SERVERS.DID_CONTROLLER + "/api/doc/exists",
@@ -167,6 +168,7 @@ export default {
         res,
         `Response from service: ${JSON.stringify(uploadResponse?.data)}`
       );
+      await deleteFile(`./assets/pdf/${pdfFileName}.pdf`);
       return res.status(200).json(uploadResponse?.data);
     } catch (error) {
       logger.apiError(

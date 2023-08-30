@@ -267,6 +267,15 @@ async function bufferToPDFDocument(buffer) {
   return pdfDoc;
 }
 
+async function deleteFile(path) {
+  fs.unlink(path, (err) => {
+    if (err) {
+      console.error(err);
+      return;
+    }
+  });
+}
+
 /**
  * Function used for verifying pdf file by given url on AWS S3
  * @param {String} url -
@@ -322,8 +331,6 @@ const verifyPdf = async ({ url, buffer }) => {
       `hash:${hashHex}`,
       `fileName:${fileName}`,
     ]);
-    const updatedPdfBytes = await pdfDoc.save();
-    fs.writeFileSync(`./assets/pdf/${fileName}.pdf`, updatedPdfBytes);
     const accessToken = await authenticationProgress();
     const { wrappedDoc } = await getDocumentContentByDid({
       did: did,
@@ -361,4 +368,5 @@ export {
   verifyPdf,
   getPdfBufferFromUrl,
   bufferToPDFDocument,
+  deleteFile
 };
