@@ -272,9 +272,12 @@ async function bufferToPDFDocument(buffer) {
  * @param {String} url -
  * @returns {Object} - { valid: true } if valid, throw error otherwise
  */
-const verifyPdf = async ({ url }) => {
+const verifyPdf = async ({ url, buffer }) => {
   try {
-    const pdfDocBuffer = await getPdfBufferFromUrl(url);
+    let pdfDocBuffer = buffer;
+    if (url) {
+      pdfDocBuffer = await getPdfBufferFromUrl(url);
+    }
     const pdfDoc = await bufferToPDFDocument(pdfDocBuffer);
     const originalCreationDate = pdfDoc.getCreationDate();
     const originalModificationDate = pdfDoc.getModificationDate();

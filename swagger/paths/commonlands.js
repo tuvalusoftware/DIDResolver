@@ -352,3 +352,20 @@ export const verifyCommonlandsPdf = {
     },
   },
 };
+
+export const verifyUploadedCommonlandsPdf = {
+  post: {
+    tags: ["Commonlands PDF"],
+    summary: '',
+    requestBody: {
+      require: true,
+      content: {
+        'multipart/form-data': {
+          'schema': {
+            
+          }
+        }
+      }
+    }
+  }
+}

@@ -132,4 +132,28 @@ export default {
           });
     }
   },
+  verifyUploadedPdf: async (req, res) => {
+    try {
+      const uploadedFile = req.file;
+      const { valid } = await verifyPdf({
+        buffer: uploadedFile?.buffer,
+      });
+      if (valid) {
+        return res.status(200).json({
+          isValid: true,
+        });
+      }
+      return res.status(200).json({
+        error_code: 400,
+        error_message: "This PDF file is not valid!",
+      });
+    } catch (error) {
+      error?.error_code
+        ? res.status(200).json(error)
+        : res.status(200).json({
+            error_code: 400,
+            message: error?.message || "Something went wrong!",
+          });
+    }
+  },
 };
