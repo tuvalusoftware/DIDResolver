@@ -494,7 +494,43 @@ export const verifyUploadedCommonlandsPdf = {
       require: true,
       content: {
         "multipart/form-data": {
-          schema: {},
+          schema: {
+            type: "object",
+            properties: {
+              file: {
+                type: "string",
+                format: "binary",
+              }
+            }
+          }
+        }
+      }
+    },
+    responses: {
+      200: {
+        description: "Return an object include isValid is true if success",
+        content: {
+          "application/json": {
+            examples: {
+              "Verify PDF file successfully": {
+                value: {
+                  isValid: true,
+                },
+              },
+              "This PDF file is not valid!": {
+                value: {
+                  error_code: 400,
+                  error_message: "This PDF file is not valid!",
+                },
+              },
+              "Missing parameters": {
+                value: {
+                  error_code: 400,
+                  error_message: "Missing file.",
+                },
+              },
+            },
+          },
         },
       },
     },

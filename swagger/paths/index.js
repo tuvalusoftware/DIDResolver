@@ -28,7 +28,8 @@ import {
   verifyCommonlandsPdf,
   revokeCommonlandsDocument,
   multipleCommonlandsDocumentSigning,
-  hashDocumentContent
+  hashDocumentContent,
+  verifyUploadedCommonlandsPdf
 } from "./commonlands.js";
 
 export const paths = {
@@ -50,6 +51,9 @@ export const paths = {
   },
   "/pdf/verify": {
     ...verifyCommonlandsPdf,
+  },
+  '/pdf/upload-verify': {
+    ...verifyUploadedCommonlandsPdf
   },
   "/": {
     ...setCookie,

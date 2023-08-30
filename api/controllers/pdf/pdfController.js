@@ -135,6 +135,12 @@ export default {
   verifyUploadedPdf: async (req, res) => {
     try {
       const uploadedFile = req.file;
+      if (!uploadedFile) {
+        return res.status(200).json({
+          error_code: 400,
+          error_message: "Missing file!",
+        });
+      }
       const { valid } = await verifyPdf({
         buffer: uploadedFile?.buffer,
       });
