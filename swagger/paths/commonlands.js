@@ -136,6 +136,139 @@ export const commonlandsDocument = {
   },
 };
 
+export const hashDocumentContent = {
+  post: {
+    tags: ["Commonlands Document"],
+    summary:
+      "Hash a Land Certificate for the Commonlands Project using given contract information",
+    requestBody: {
+      require: true,
+      content: {
+        "application/json": {
+          schema: {
+            type: "object",
+            properties: {
+              plot: {
+                type: "object",
+                example: {
+                  geojson: {
+                    geometry: {
+                      type: "Polygon",
+                      coordinates: [
+                        [
+                          [31.98189641838985, 1.46410111221806],
+                          [31.982118613007515, 1.4639804317163083],
+                          [31.982179847744703, 1.463763556594884],
+                          [31.982376575336104, 1.4635196171409035],
+                          [31.982473607268105, 1.4637163726349343],
+                          [31.981983957396352, 1.4641969951430553],
+                          [31.98189641838985, 1.46410111221806],
+                        ],
+                      ],
+                    },
+                    type: "Feature",
+                  },
+                  centroid: [31.98217150319044, 1.4638796809080243],
+                  _id: "64db86559e77a4ffc2395ada",
+                  area: 1216.42,
+                  placeName: "Nakasongola, Uganda",
+                  createdAt: 1692108373160,
+                  name: "VNZ-739",
+                  id: "Plot:64db86559e77a4ffc2395adc",
+                  isDisputed: true,
+                  isBoundaryDispute: false,
+                  isOwnershipDispute: true,
+                  disputes: [
+                    {
+                      plot: {
+                        geojson: {
+                          geometry: {
+                            type: "Polygon",
+                            coordinates: [
+                              [
+                                [31.98234437709405, 1.4634632209726135],
+                                [31.982375037267257, 1.463521524324699],
+                                [31.982179847744703, 1.463763556594884],
+                                [31.9821169752085, 1.4639828740821343],
+                                [31.981902153285628, 1.464097997425691],
+                                [31.98181110302778, 1.4640200251540705],
+                                [31.982170078860577, 1.463646562551176],
+                                [31.98234437709405, 1.4634632209726135],
+                              ],
+                            ],
+                          },
+                          type: "Feature",
+                        },
+                        centroid: [31.982128510355498, 1.463785108729324],
+                        _id: "64df16564b6bdbcb6559ebac",
+                        area: 1106.31,
+                        placeName: "Nakasongola, Uganda",
+                        createdAt: 1692341846551,
+                        name: "XTE-464",
+                        id: "Plot:64df16564b6bdbcb6559ebae",
+                        isBoundaryDispute: false,
+                        isOwnershipDispute: true,
+                      },
+                      type: "ownership",
+                    },
+                  ],
+                  claimchainSize: 1,
+                },
+              },
+              claimant: {
+                type: "object",
+                example: {
+                  documentation: {
+                    nationalID: [],
+                    driverLicense: [],
+                    passport: [],
+                  },
+                  _id: "64db85b39e77a4ffc23959da",
+                  phoneNumber: "+14088960050",
+                  photoOfFace: "1692108209887-Darius%20Golkar.jpg",
+                  avatar:
+                    "https://commonlands-dev-bucket-aws.s3.us-west-1.amazonaws.com/1692108209887-Darius%2520Golkar.jpg_avatar?X-Amz-Algorithm=AWS4-HMAC-SHA256&X-Amz-Content-Sha256=UNSIGNED-PAYLOAD&X-Amz-Credential=AKIAZBVJQENNESITE3MS%2F20230823%2Fus-west-1%2Fs3%2Faws4_request&X-Amz-Date=20230823T065041Z&X-Amz-Expires=604800&X-Amz-Signature=bc409ae32ddafef898259c211778e1c1750e0d340f6f0794028efcbf3377c472&X-Amz-SignedHeaders=host&x-id=GetObject",
+                  publicKey:
+                    "addr_test1qzj2pgqct6jwpvw7mjtjtess4nlmu385hzarszh9jxcv9eudvd5vt62wt4n97tqqcr43qs7d0v2eex2rkn763zzkys2swwrcxw",
+                  fullName: "Darius Golkar",
+                  gender: "male",
+                  lastLogin: 1692108211,
+                  firstLogin: false,
+                  createdAt: 1692108211874,
+                  did: "did:user:addr_test1qzj2pgqct6jwpvw7mjtjtess4nlmu385hzarszh9jxcv9eudvd5vt62wt4n97tqqcr43qs7d0v2eex2rkn763zzkys2swwrcxw",
+                  oldNumbers: [],
+                  role: "owner",
+                },
+              },
+            },
+          },
+        },
+      },
+    },
+    responses: {
+      200: {
+        description: "Return a target hash if success",
+        content: {
+          "application/json": {
+            examples: {
+              "Hash document content successfully": {
+                value: "0x1a2b3c4d5e6f7g8h9i0j1k2l3m4n5o6p7q8r9s0t1u2v3w4x5y6z",
+              },
+              "Missing parameters": {
+                value: {
+                  error_code: 400,
+                  error_message: "Bad request. Missing parameters.",
+                  detail: "Not found: owner",
+                },
+              },
+            },
+          },
+        },
+      },
+    },
+  },
+};
+
 export const revokeCommonlandsDocument = {
   post: {
     tags: ["Commonlands Document"],
@@ -356,16 +489,14 @@ export const verifyCommonlandsPdf = {
 export const verifyUploadedCommonlandsPdf = {
   post: {
     tags: ["Commonlands PDF"],
-    summary: '',
+    summary: "",
     requestBody: {
       require: true,
       content: {
-        'multipart/form-data': {
-          'schema': {
-            
-          }
-        }
-      }
-    }
-  }
-}
+        "multipart/form-data": {
+          schema: {},
+        },
+      },
+    },
+  },
+};

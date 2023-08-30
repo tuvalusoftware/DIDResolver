@@ -9,7 +9,10 @@ import {
   getCurrentDateTime,
   getPublicKeyFromAddress,
 } from "../../../core/index.js";
-import { createDocumentForCommonlands } from "../../../core/document.js";
+import {
+  createDocumentForCommonlands,
+  hashDocumentContent,
+} from "../../../core/document.js";
 import fs from "fs";
 import FormData from "form-data";
 import { getAccountBySeedPhrase } from "../../../core/utils/lucid.js";
@@ -54,9 +57,8 @@ export default {
         });
       }
       const pdfFileName =
-        `LandCertificate-${owner?.phoneNumber.replace("+", "")}-${
-          plot?._id
-        }-50` || "";
+        `LandCertificate-${owner?.phoneNumber.replace("+", "")}-${plot?._id}` ||
+        "";
       const isExistedResponse = await axios.get(
         SERVERS.DID_CONTROLLER + "/api/doc/exists",
         {
@@ -291,6 +293,84 @@ export default {
       // );
       return res.status(200).json({
         message: "Coming soon...",
+      });
+    } catch (error) {
+      error?.error_code
+        ? res.status(200).json(error)
+        : res.status(200).json({
+            error_code: 400,
+            message: error?.message || "Something went wrong!",
+          });
+    }
+  },
+  hashDocument: async (req, res) => {
+    try {
+      const { plot, claimant } = req.body;
+      const undefinedVar = checkUndefinedVar({
+        plot,
+        claimant,
+      });
+      if (undefinedVar.undefined) {
+        logger.apiError(
+          req,
+          res,
+          `Error: ${JSON.stringify(undefinedVar?.detail)}`
+        );
+        return res.status(200).json({
+          ...ERRORS.MISSING_PARAMETERS,
+          detail: undefinedVar?.detail,
+        });
+      }
+      const pdfFileName =
+        `LandCertificate-${claimant?.phoneNumber?.replace("+", "")}-${
+          plot?._id
+        }` || "";
+      const plotDetailForm = {
+        profileImage: "sampleProfileImage",
+        fileName: pdfFileName,
+        name: `Land Certificate`,
+        title: `Land-Certificate-${plot?.name || ""}`,
+        No: plot?.no || "CML21566325",
+        dateIssue: getCurrentDateTime(),
+        personalInformation: {
+          claimant: claimant?.fullName || "",
+          right: claimant?.role || "",
+          phoneNumber: claimant?.phoneNumber || "",
+          claimrank: "okay",
+          description:
+            "Okay is the starting point. This level may have some boundaries unverified and may include one boundary dispute. If there is an ownership dispute of a plot but and one of the owners is part of a claimchain and the other’s has not completed a claimchain, the completed claimchain person will be listed as Okay. ",
+        },
+        plotInformation: {
+          plotName: plot?.name || "",
+          plotId: plot?.id || "",
+          plotStatus: "Free & Clear",
+          plotPeople: "Verified by 3 claimants, 6 Neighbors",
+          plotLocation: plot?.placeName || "",
+        },
+        certificateByCommonlands: {
+          publicSignature: "commonlandsSignatureImage",
+          name: "Commonlands System LLC",
+          commissionNumber: "139668234",
+          commissionExpiries: "09/12/2030",
+        },
+        certificateByCEO: {
+          publicSignature: "ceoSignature",
+          name: "Darius Golkar",
+          commissionNumber: "179668234",
+          commissionExpiries: "09/12/2030",
+        },
+      };
+      const { currentWallet } = await getAccountBySeedPhrase({
+        seedPhrase: process.env.ADMIN_SEED_PHRASE,
+      });
+      
+      const targetHash = await hashDocumentContent({
+        document: plotDetailForm,
+        address: getPublicKeyFromAddress(currentWallet?.paymentAddr),
+      });
+      logger.apiInfo(req, res, `Hash of document: ${targetHash}`);
+      return res.status(200).json({
+        targetHash,
       });
     } catch (error) {
       error?.error_code

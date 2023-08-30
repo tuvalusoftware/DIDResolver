@@ -27,7 +27,8 @@ import {
   commonlandsPdf,
   verifyCommonlandsPdf,
   revokeCommonlandsDocument,
-  multipleCommonlandsDocumentSigning
+  multipleCommonlandsDocumentSigning,
+  hashDocumentContent
 } from "./commonlands.js";
 
 export const paths = {
@@ -40,6 +41,9 @@ export const paths = {
   },
   '/commonlands/document/multiple': {
     ...multipleCommonlandsDocumentSigning
+  },
+  '/commonlands/document/hash': {
+    ...hashDocumentContent
   },
   "/pdf": {
     ...commonlandsPdf,
