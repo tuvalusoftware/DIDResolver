@@ -54,8 +54,9 @@ export default {
         });
       }
       const pdfFileName =
-        `LandCertificate-${owner?.phoneNumber.replace("+", "")}-${plot?._id}` ||
-        "";
+        `LandCertificate-${owner?.phoneNumber.replace("+", "")}-${
+          plot?._id
+        }-${new Date().toUTCString()}` || "";
       const isExistedResponse = await axios.get(
         SERVERS.DID_CONTROLLER + "/api/doc/exists",
         {
@@ -222,6 +223,74 @@ export default {
       logger.apiInfo(req, res, `Revoke document successfully!`);
       return res.status(200).json({
         revoked: true,
+      });
+    } catch (error) {
+      error?.error_code
+        ? res.status(200).json(error)
+        : res.status(200).json({
+            error_code: 400,
+            message: error?.message || "Something went wrong!",
+          });
+    }
+  },
+  multipleDocumentSigning: async (req, res) => {
+    try {
+      const { content, claimants } = req.body;
+      const undefinedVar = checkUndefinedVar({
+        content,
+        claimants,
+      });
+      if (undefinedVar.undefined) {
+        return res.status(200).json({
+          ...ERRORS.MISSING_PARAMETERS,
+          detail: undefinedVar?.detail,
+        });
+      }
+      const accessToken = await authenticationProgress();
+      const secretKey = process.env.COMMONLANDS_SECRET_KEY;
+      const pdfFileName = `LandCertificate-${new Date().toUTCString()}` || "";
+      // const isExistedResponse = await axios.get(
+      //   SERVERS.DID_CONTROLLER + "/api/doc/exists",
+      //   {
+      //     withCredentials: true,
+      //     headers: {
+      //       Cookie: `access_token=${secretKey}`,
+      //     },
+      //     params: {
+      //       companyName: process.env.COMPANY_NAME,
+      //       fileName: pdfFileName,
+      //     },
+      //   }
+      // );
+      // if (isExistedResponse?.data?.isExisted) {
+      //   logger.apiError(req, res, `Document existed: ${pdfFileName}`);
+      //   return res.status(200).json(ERRORS.DOCUMENT_IS_EXISTED);
+      // }
+      // const { currentWallet, lucidClient } = await getAccountBySeedPhrase({
+      //   seedPhrase: process.env.ADMIN_SEED_PHRASE,
+      // });
+      // const { wrappedDocument } = await createDocumentForCommonlands({
+      //   seedPhrase: process.env.ADMIN_SEED_PHRASE,
+      //   documents: [content],
+      //   address: getPublicKeyFromAddress(currentWallet?.paymentAddr),
+      //   access_token: accessToken,
+      //   client: lucidClient,
+      //   currentWallet: currentWallet,
+      // });
+      // const documentDid = `did:fuixlabs:${process.env.COMPANY_NAME}:${unsalt(
+      //   wrappedDocument?.data?.fileName
+      // )}`;
+      // const documentHash = wrappedDocument?.signature?.targetHash;
+      // if (!documentDid) {
+      //   return res.status(200).json(ERRORS.CANNOT_GET_DOCUMENT_INFORMATION);
+      // }
+      // logger.apiInfo(
+      //   req,
+      //   res,
+      //   `Wrapped document ${JSON.stringify(wrappedDocument)}`
+      // );
+      return res.status(200).json({
+        message: "Coming soon...",
       });
     } catch (error) {
       error?.error_code

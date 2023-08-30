@@ -27,6 +27,7 @@ import {
   commonlandsPdf,
   verifyCommonlandsPdf,
   revokeCommonlandsDocument,
+  multipleCommonlandsDocumentSigning
 } from "./commonlands.js";
 
 export const paths = {
@@ -36,6 +37,9 @@ export const paths = {
   },
   "/commonlands/document/revoke": {
     ...revokeCommonlandsDocument,
+  },
+  '/commonlands/document/multiple': {
+    ...multipleCommonlandsDocumentSigning
   },
   "/pdf": {
     ...commonlandsPdf,
@@ -47,7 +51,6 @@ export const paths = {
     ...setCookie,
     ...clearCookie,
   },
-
   // "/did/": {
   //   ...retrieveSpecificDid,
   // },

@@ -190,6 +190,58 @@ export const revokeCommonlandsDocument = {
   },
 };
 
+export const multipleCommonlandsDocumentSigning = {
+  post: {
+    tags: ["Commonlands Document"],
+    summary: "Multiple sign a Land Certificate for the Commonlands Project",
+    requestBody: {
+      require: true,
+      content: {
+        "application/json": {
+          schema: {
+            type: "object",
+            properties: {
+              content: {
+                type: "object",
+                example: {},
+              },
+              claimants: {
+                type: "array",
+                example: [],
+              },
+            },
+          },
+        },
+      },
+    },
+    responses: {
+      200: {
+        description: "Return an object include url of pdf file if success",
+        content: {
+          "application/json": {
+            examples: {
+              "Multiple sign successfully": {
+                value: {
+                  url: "https://raw.githubusercontent.com/dev-fuixlabs/Commonlands_DOC/IMAGE/1692991473198_COMMONLANDS_2-LandCertificate-14088960050-64db86559e77a4ffc2395ada-30.pdf",
+                  path: "1692991473198_COMMONLANDS_2-LandCertificate-14088960050-64db86559e77a4ffc2395ada-30.pdf",
+                  message: "Multiple sign successfully",
+                },
+              },
+              "Missing parameters": {
+                value: {
+                  error_code: 400,
+                  error_message: "Bad request. Missing parameters.",
+                  detail: "Not found: owner",
+                },
+              },
+            },
+          },
+        },
+      },
+    },
+  },
+};
+
 export const commonlandsPdf = {
   post: {
     tags: ["Commonlands PDF"],

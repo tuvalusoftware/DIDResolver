@@ -244,14 +244,6 @@ export const createDocumentForCommonlands = async ({
           access_token: access_token,
         };
         const wrappedResult = await generateWrappedDocument(requestBody);
-        // const doc = wrappedResult.data;
-        // let credentialConfig = { ...wrappedResult?.data?.mintingNFTConfig };
-        // credentialConfig.policy = {
-        //   ...credentialConfig.policy,
-        //   reuse: true,
-        // };
-        // // await createInitializationCredential(address, credentialConfig, currentWallet, doc);
-        // // * Create initialization credential
         return {
           wrappedDocument: wrappedResult,
         };
@@ -262,6 +254,102 @@ export const createDocumentForCommonlands = async ({
           "Something went wrong! Please try again later."
         );
       }
+    }
+  } catch (e) {
+    throw e;
+  }
+};
+
+export const createDocumentWithMultipleSign = async ({
+  document,
+  access_token,
+  claimants,
+}) => {
+  try {
+    document = deepMap(document, unsalt);
+    try {
+      let createdDocument = {};
+      for (const key in document) {
+        let currentField = document[key];
+        if (key === "fileName") {
+          let specialVar = checkForSpecialChar({ currentField });
+          let lengthVar = checkLengthOfInput(currentField);
+          if (!lengthVar?.valid) {
+            throw VERIFIER_ERROR_CODE.FILENAME_IS_TOO_SHORT;
+          }
+          if (!specialVar?.valid) {
+            throw VERIFIER_ERROR_CODE.STRING_INCLUDE_SPECIAL_CHARATERS;
+          }
+          let endWithSpecialCharacters =
+            checkForStringEndWithSpecialCharacters(currentField);
+          if (!endWithSpecialCharacters?.valid) {
+            throw VERIFIER_ERROR_CODE.END_WITH_SPECIAL_CHARACTER;
+          }
+          if (!nonIsoValidator(currentField)) {
+            throw VERIFIER_ERROR_CODE.STRING_INCLUDE_SPECIAL_CHARATERS;
+          }
+        } else {
+          let lengthVar = checkRequirementOfInput(currentField);
+          if (!lengthVar?.valid) {
+            throw {
+              error_code: 400,
+              error_message: `${
+                lengthVar?._key || key
+              } is required! Please check your input again!`,
+            };
+          }
+        }
+        if (key !== "did")
+          createdDocument = Object.assign(createdDocument, {
+            [key]: document[key],
+          });
+      }
+      createdDocument = Object.assign(createdDocument, {
+        companyName: process.env.COMPANY_NAME,
+        intention: VALID_DOCUMENT_NAME_TYPE.find(
+          (prop) => prop.name === createdDocument.name
+        ).type,
+      });
+      const did = generateDid(process.env.COMPANY_NAME, address);
+      let res = await createWrappedDocument(
+        createdDocument,
+        SAMPLE_SERVICE,
+        address,
+        did
+      );
+      const { _document, targetHash, ddidDocument } = res;
+      const signMessage = await client
+        ?.newMessage(
+          getPublicKeyFromAddress(currentWallet?.paymentAddr),
+          Buffer.from(
+            JSON.stringify({
+              address: getPublicKeyFromAddress(currentWallet?.paymentAddr),
+              targetHash: targetHash,
+            })
+          ).toString("hex")
+        )
+        .sign();
+      const response = wrapDocument({
+        document: _document,
+        walletAddress: address,
+        signedData: signMessage,
+        targetHash: targetHash,
+      });
+      const wrappedDocument = response;
+      let requestBody = {
+        wrappedDocument: wrappedDocument,
+        encryptedIssuerAddress: address,
+        did: ddidDocument,
+        access_token: access_token,
+      };
+      const wrappedResult = await generateWrappedDocument(requestBody);
+      return {
+        wrappedDocument: wrappedResult,
+      };
+    } catch (e) {
+      throw (
+        e || e?.error_message || "Something went wrong! Please try again later."
+      );
     }
   } catch (e) {
     throw e;
