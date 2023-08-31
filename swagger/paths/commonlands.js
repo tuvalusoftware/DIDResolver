@@ -375,6 +375,69 @@ export const multipleCommonlandsDocumentSigning = {
   },
 };
 
+export const commonlandsCredential = {
+  post: {
+    tags: ["Commonlands Credential"],
+    summary: "Create a credential for the Commonlands Project",
+    requestBody: {
+      require: true,
+      content: {
+        "application/json": {
+          schema: {
+            type: "object",
+            properties: {
+              didoWrappedDocument: {
+                type: "string",
+                example:
+                  "did:cardano:addr_test1qzj2pgqct6jwpvw7mjtjtess4nlmu385hzarszh9jxcv9eudvd5vt62wt4n97tqqcr43qs7d0v2eex2rkn763zzkys2swwrcxw",
+              },
+              metadata: {
+                type: "object",
+                example: {},
+              },
+              seedPhrase: {
+                type: "string",
+                example: "test test",
+              },
+              config: {
+                type: "object",
+                example: {},
+              },
+              url: {
+                type: "string",
+                example:
+                  "https://raw.githubusercontent.com/dev-fuixlabs/Commonlands_DOC/IMAGE/1692991473198_COMMONLANDS_2-LandCertificate-14088960050-64db86559e77a4ffc2395ada-30.pdf",
+              },
+            },
+          },
+        },
+      },
+    },
+    responses: {
+      200: {
+        description: "Return an object include url of pdf file if success",
+        content: {
+          "application/json": {
+            examples: {
+              "Create credential successfully": {
+                value: {
+                  message: "Successfully Saved",
+                },
+              },
+              "Missing parameters": {
+                value: {
+                  error_code: 400,
+                  error_message: "Bad request. Missing parameters.",
+                },
+              },
+            },
+          },
+        },
+      },
+    },
+  },
+};
+
 export const commonlandsPdf = {
   post: {
     tags: ["Commonlands PDF"],
@@ -500,11 +563,11 @@ export const verifyUploadedCommonlandsPdf = {
               file: {
                 type: "string",
                 format: "binary",
-              }
-            }
-          }
-        }
-      }
+              },
+            },
+          },
+        },
+      },
     },
     responses: {
       200: {

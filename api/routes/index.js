@@ -1,6 +1,5 @@
 import authRoutes from "./authRoutes.js";
 import didRoutes from "./didRoutes.js";
-import credentialRoutes from "./credentialRoutes.js";
 import wrappedDocRoutes from "./wrappedDocRoutes.js";
 import accessTokenRoutes from "./accessTokenRoutes.js";
 import pdfRoutes from "./pdfRoute.js";
@@ -10,6 +9,7 @@ import signatureController from "../controllers/commonlands/signatureController.
 import authController from "../controllers/cardano/authController.js";
 import cardanoController from "../controllers/cardano/cardanoController.js";
 import algorandController from "../controllers/algorand/algorandController.js";
+import cmlCredentialRoutes from "./cmlCredentialRoutes.js";
 
 export default (app) => {
   /**
@@ -22,11 +22,11 @@ export default (app) => {
   // app.use("/resolver/did", didRoutes);
   // app.use("/resolver/credential", credentialRoutes);
   app.use("/resolver/wrapped-document", wrappedDocRoutes);
+  app.use("/resolver/credential", cmlCredentialRoutes);
   // PDF controller services
   app.use("/resolver/pdf", pdfRoutes);
   app.post("/resolver/signature", signatureController.signMessageBySeedPhrase);
   app.post("/resolver/account", signatureController.accountFromSeedPhrase);
-
   // app.get(
   //   "/resolver/nfts",
   //   authController.ensureAuthenticated,

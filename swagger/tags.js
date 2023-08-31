@@ -9,6 +9,10 @@ export const tags = {
       description: "Endpoints for commonlands document",
     },
     {
+      name: "Commonlands Credential",
+      description: "Endpoints for commonlands credential",
+    },
+    {
       name: "DID document",
       description: "API for DID document",
     },

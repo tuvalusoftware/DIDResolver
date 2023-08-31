@@ -29,7 +29,8 @@ import {
   revokeCommonlandsDocument,
   multipleCommonlandsDocumentSigning,
   hashDocumentContent,
-  verifyUploadedCommonlandsPdf
+  verifyUploadedCommonlandsPdf,
+  commonlandsCredential
 } from "./commonlands.js";
 
 export const paths = {
@@ -45,6 +46,9 @@ export const paths = {
   },
   '/commonlands/document/hash': {
     ...hashDocumentContent
+  },
+  '/resolver/credential': {
+    ...commonlandsCredential
   },
   "/pdf": {
     ...commonlandsPdf,

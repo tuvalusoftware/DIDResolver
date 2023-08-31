@@ -23,7 +23,7 @@ import {
   encryptPdf,
   getPdfBufferFromUrl,
   bufferToPDFDocument,
-  deleteFile
+  deleteFile,
 } from "../../../core/utils/pdf.js";
 import { unsalt } from "../../../fuixlabs-documentor/utils/data.js";
 import logger from "../../../logger.js";
@@ -58,7 +58,7 @@ export default {
         });
       }
       const pdfFileName =
-        `LandCertificate-${owner?.phoneNumber.replace("+", "")}-${plot?._id}-52` ||
+        `LandCertificate-${owner?.phoneNumber.replace("+", "")}-${plot?._id}` ||
         "";
       const isExistedResponse = await axios.get(
         SERVERS.DID_CONTROLLER + "/api/doc/exists",
@@ -365,7 +365,7 @@ export default {
       const { currentWallet } = await getAccountBySeedPhrase({
         seedPhrase: process.env.ADMIN_SEED_PHRASE,
       });
-      
+
       const targetHash = await hashDocumentContent({
         document: plotDetailForm,
         address: getPublicKeyFromAddress(currentWallet?.paymentAddr),
