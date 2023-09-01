@@ -17,19 +17,17 @@ import { verifyWrappedDocument } from "../../fuixlabs-documentor/verifyDocument.
  */
 const createPdf = async ({ fileName, data }) => {
   const options = {
-    width: "210mm" /* A4 width in millimeters */,
-    height: "297mm" /* A4 height in millimeters */,
+    width: "180mm" /* A4 width in millimeters */,
+    height: "270mm" /* A4 height in millimeters */,
     path: `./assets/pdf/${fileName}.pdf`, // you can pass path to save the file
   };
 
   const content = `
       <div style="
-      border: 1px solid rgba(0, 0, 0, 0.12);
       border-radius: 4px;
-      box-shadow: 0px 2px 2px rgba(0, 0, 0, 0.1);
       background-color: #fff;
-      width: 210mm; /* A4 width in millimeters */
-      height: 297mm; /* A4 height in millimeters */
+      width: 180mm; /* A4 width in millimeters */
+      height: 260mm; /* A4 height in millimeters */
       font-family: Roboto, sans-serif
     ">
         <p style="padding-left: 20px; color: rgba(0, 0, 0, 0.50);
@@ -192,7 +190,7 @@ const createPdf = async ({ fileName, data }) => {
               <span>Public Key</span>
               <div
                 style="border-bottom: 2px solid #000; margin-left: 5px; display: flex; flex-direction: row; align-items: center; width: 100%; margin-top: 0px; justify-content: center">
-                <span style="line-height: 30px;"></span>
+                <span style="line-height: 30px;">Commonlands Systems LLC</span>
               </div>
             </div>
           </div>
@@ -204,7 +202,7 @@ const createPdf = async ({ fileName, data }) => {
                 <div
                   style="border-bottom: 2px solid #000; display: flex; flex-direction: row; align-items: center; width: 100%; justify-content: center;">
                   <img
-                    src="https://raw.githubusercontent.com/dev-fuixlabs/Commonlands_DOC/IMAGE/1692850378560_darius-signature.svg"
+                    src="https://raw.githubusercontent.com/dev-fuixlabs/Commonlands_DOC/IMAGE/1693592619798_darius-signature.svg"
                     style="height: 40px; width: 80px;" alt="commonlands-signature" />
                 </div>
               </div>
@@ -220,7 +218,7 @@ const createPdf = async ({ fileName, data }) => {
               <span>Public Key</span>
               <div
                 style="border-bottom: 2px solid #000; margin-left: 5px; display: flex; flex-direction: row; align-items: center; width: 100%; margin-top: 0px; justify-content: center;">
-                <span style="line-height: 30px;"></span>
+                <span style="line-height: 30px;">Commonlands Systems LLC</span>
               </div>
             </div>
           </div>
