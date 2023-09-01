@@ -45,7 +45,7 @@ app.use(
 
 // ROUTES
 const server = http.createServer(app);
-server.timeout = 60000;
+server.timeout = 300000;
 import routes from "./api/routes/index.js";
 routes(app);
 
