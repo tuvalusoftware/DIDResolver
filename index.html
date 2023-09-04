@@ -1,40 +1,15 @@
-// * Utilities
-dotenv.config();
-import * as dotenv from "dotenv";
-import htmlPDF from "puppeteer-html-pdf";
-import { PDFDocument } from "pdf-lib";
-import crypto from "node:crypto";
-import fs from "fs";
-import axios from "axios";
-import { getDocumentContentByDid } from "./controller.js";
-import { generateQRCode } from "../index.js";
-import { authenticationProgress } from "./auth.js";
-import { verifyWrappedDocument } from "../../fuixlabs-documentor/verifyDocument.js";
+<!DOCTYPE html>
+<html lang="en">
 
-/**
- * Function used for creating pdf file
- * @param {String} fileName - name of file
- * @returns {Promise} - Promise of pdf file
- */
-const createPdf = async ({ fileName, data }) => {
-  const options = {
-    width: "180mm" /* A4 width in millimeters */,
-    height: "270mm" /* A4 height in millimeters */,
-    path: `./assets/pdf/${fileName}.pdf`, // you can pass path to save the file
-  };
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Document</title>
+</head>
 
-  let qrBuffer;
+<body style='display: flex; justify-content: center; align-items: center;'>
 
-  // generateQRCode('https://example.com', '#FFF', '#000', 200)
-  // .then((imageBuffer) => {
-  //   // Save the image buffer as a file or send it as a response
-  //   qrBuffer = imageBuffer;
-  // })
-  // .catch((error) => {
-  //   throw error;
-  // });
-
-  const content = `  <div style="
+  <div style="
   border-radius: 4px;
   background-color: #fff;
   width: 180mm; /* A4 width in millimeters */
@@ -65,7 +40,7 @@ const createPdf = async ({ fileName, data }) => {
         <img style='
           height: 90px;
           width: 90px;
-        ' src=""
+        ' src="https://raw.githubusercontent.com/dev-fuixlabs/Commonlands_DOC/IMAGE/1693415966212_qrcode.svg"
           alt="qrcode" />
         <span
           style="color: rgba(0, 0, 0, 0.50); font-size: 10px; font-weight: 400; margin-top: 10px; font-style: italic;">Scan
@@ -275,187 +250,8 @@ margin-left: 10px;
         https://commonlands.org
       </span>
     </div>
-  </div>`;
+  </div>
 
-  try {
-    return await htmlPDF.create(content, options);
-  } catch (error) {
-    throw error;
-  }
-};
+</body>
 
-/**
- * Function used for encrypting pdf file
- * @param {String} fileName - name of file
- * @param {String} targetHash - target hash
- * @param {String} did - did
- * @returns {Promise} - Promise of encrypted pdf file
- */
-const encryptPdf = async ({ fileName, targetHash, did }) => {
-  try {
-    const pdfDoc = await PDFDocument.load(
-      fs.readFileSync(`./assets/pdf/${fileName}.pdf`)
-    );
-    const originalCreationDate = pdfDoc.getCreationDate();
-    const originalModificationDate = pdfDoc.getModificationDate();
-    pdfDoc.setKeywords([`targetHash:${targetHash}`, `did:${did}`]);
-    pdfDoc.setCreationDate(new Date(process.env.HASH_DATE));
-    pdfDoc.setModificationDate(new Date(process.env.HASH_DATE));
-    pdfDoc.setProducer(process.env.COMPANY_NAME);
-    const pdfBytes = await pdfDoc.save();
-    const hash = crypto.createHash("sha256");
-    hash.update(pdfBytes);
-    const hashHex = hash.digest("hex");
-    pdfDoc.setCreationDate(originalCreationDate);
-    pdfDoc.setModificationDate(originalModificationDate);
-    pdfDoc.setKeywords([
-      `targetHash:${targetHash}`,
-      `did:${did}`,
-      `hash:${hashHex}`,
-      `fileName:${fileName}`,
-    ]);
-    const updatedPdfBytes = await pdfDoc.save();
-    fs.writeFileSync(`./assets/pdf/${fileName}.pdf`, updatedPdfBytes);
-  } catch (e) {
-    throw e;
-  }
-};
-
-/**
- * Function used for getting pdf buffer from url
- * @param {String} pdfUrl
- * @returns {Buffer} - Buffer of pdf file
- */
-async function getPdfBufferFromUrl(pdfUrl) {
-  try {
-    const response = await axios.get(pdfUrl, {
-      responseType: "arraybuffer", // Set the response type to arraybuffer
-    });
-
-    if (response.status === 200) {
-      const pdfBuffer = Buffer.from(response.data);
-      return pdfBuffer;
-    } else {
-      throw new Error(
-        `Failed to fetch PDF from URL. Status code: ${response.status}`
-      );
-    }
-  } catch (error) {
-    console.error("Error fetching PDF:", error.message);
-    throw error;
-  }
-}
-
-/**
- * Function used for converting buffer to pdf document
- * @param {Buffer} buffer
- * @returns {PDFDocument}
- */
-async function bufferToPDFDocument(buffer) {
-  const pdfDoc = await PDFDocument.load(buffer);
-  return pdfDoc;
-}
-
-async function deleteFile(path) {
-  fs.unlink(path, (err) => {
-    if (err) {
-      console.error(err);
-      return;
-    }
-  });
-}
-
-/**
- * Function used for verifying pdf file by given url on AWS S3
- * @param {String} url -
- * @returns {Object} - { valid: true } if valid, throw error otherwise
- */
-const verifyPdf = async ({ url, buffer }) => {
-  try {
-    let pdfDocBuffer = buffer;
-    if (url) {
-      pdfDocBuffer = await getPdfBufferFromUrl(url);
-    }
-    const pdfDoc = await bufferToPDFDocument(pdfDocBuffer);
-    const originalCreationDate = pdfDoc.getCreationDate();
-    const originalModificationDate = pdfDoc.getModificationDate();
-    const keywords = pdfDoc.getKeywords();
-    const targetHash = keywords.split(" ")[0].split(":")[1];
-    const didParameters = keywords.split(" ")[1].split(":");
-    const fileName = keywords.split(" ")[3].split(":")[1];
-    const did =
-      didParameters[1] +
-      ":" +
-      didParameters[2] +
-      ":" +
-      didParameters[3] +
-      ":" +
-      didParameters[4];
-    const pdfHash = keywords.split(" ")[2].split(":")[1];
-    if (!pdfHash || !did || !targetHash) {
-      throw {
-        error_code: 400,
-        error_message: "Error while getting document information!",
-      };
-    }
-    pdfDoc.setKeywords([`targetHash:${targetHash}`, `did:${did}`]);
-    pdfDoc.setCreationDate(new Date(process.env.HASH_DATE));
-    pdfDoc.setModificationDate(new Date(process.env.HASH_DATE));
-    pdfDoc.setProducer(process.env.COMPANY_NAME);
-    const pdfBytes = await pdfDoc.save();
-    const hash = crypto.createHash("sha256");
-    hash.update(pdfBytes);
-    const hashHex = hash.digest("hex");
-    if (hashHex !== pdfHash) {
-      throw {
-        error_code: 400,
-        error_message: "PDF has been modified! Please check your PDF again!",
-      };
-    }
-    pdfDoc.setCreationDate(originalCreationDate);
-    pdfDoc.setModificationDate(originalModificationDate);
-    pdfDoc.setKeywords([
-      `targetHash:${targetHash}`,
-      `did:${did}`,
-      `hash:${hashHex}`,
-      `fileName:${fileName}`,
-    ]);
-    const accessToken = await authenticationProgress();
-    const { wrappedDoc } = await getDocumentContentByDid({
-      did: did,
-      accessToken: accessToken,
-    });
-    await verifyWrappedDocument(wrappedDoc, " ", "cardano");
-    return {
-      valid: true,
-    };
-  } catch (e) {
-    throw e;
-  }
-};
-
-/**
- * Function used for reading pdf file
- * @param {String} fileName
- * @returns {Promise} - Promise of pdf file
- */
-const readPdf = async ({ fileName }) => {
-  try {
-    const pdfDoc = await PDFDocument.load(
-      fs.readFileSync(`./assets/pdf/${fileName}.pdf`)
-    );
-    return pdfDoc;
-  } catch (e) {
-    throw e;
-  }
-};
-
-export {
-  createPdf,
-  encryptPdf,
-  readPdf,
-  verifyPdf,
-  getPdfBufferFromUrl,
-  bufferToPDFDocument,
-  deleteFile,
-};
+</html>

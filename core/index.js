@@ -2,6 +2,8 @@ import cardanoSerialization from "@emurgo/cardano-serialization-lib-nodejs";
 import Ajv from "ajv";
 import Logger from "../logger.js";
 import * as dotenv from "dotenv";
+import { createCanvas, loadImage } from "canvas";
+import QRCode from "qrcode";
 
 dotenv.config();
 
@@ -155,6 +157,28 @@ function getCurrentDateTime() {
   return formattedDateTime;
 }
 
+/**
+ * Function used for generating QR code
+ * @param {String} text 
+ * @param {String} backgroundColor 
+ * @param {String} color 
+ * @param {Number} size 
+ * @returns {Buffer} - QR code
+ */
+async function generateQRCode(text, backgroundColor, color, size) {
+  const qrCodeData = await QRCode.toDataURL(text, {
+    width: size,
+    color: {
+      dark: color,
+      light: backgroundColor,
+    },
+  });
+  const canvas = createCanvas(size, size);
+  const ctx = canvas.getContext('2d');
+  const img = await loadImage(qrCodeData);
+  ctx.drawImage(img, 0, 0);
+  return canvas.toBuffer('image/png'); 
+}
 export {
   validateDIDSyntax,
   getAddressFromHexEncoded,
@@ -164,4 +188,5 @@ export {
   checkForSpecialChar,
   isSameError,
   getCurrentDateTime,
+  generateQRCode,
 };

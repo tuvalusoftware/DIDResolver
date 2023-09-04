@@ -6,7 +6,6 @@ import axios from "axios";
 import "dotenv/config";
 import {
   checkUndefinedVar,
-  getCurrentDateTime,
   getPublicKeyFromAddress,
 } from "../../../core/index.js";
 import { createVerifiableCredential } from "../../../core/utils/credential.js";
@@ -37,8 +36,8 @@ export default {
           })}`
         );
         return res.status(200).json({
-          ...ERRORS.MISSING_PARAMETERS,
-          detail: "Missing config or url",
+          error_code: 400,
+          error_message: "We need config or url to mint NFT! Make sure you have at least one of them!"
         });
       }
       const undefinedVar = checkUndefinedVar({
@@ -57,7 +56,6 @@ export default {
         });
       }
       const accessToken = await authenticationProgress();
-
       let mintingConfig = config;
       let didDocument;
       if (url) {

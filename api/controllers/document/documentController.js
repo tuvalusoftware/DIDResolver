@@ -26,6 +26,7 @@ import {
   deleteFile,
 } from "../../../core/utils/pdf.js";
 import { unsalt } from "../../../fuixlabs-documentor/utils/data.js";
+import { generateDid } from "../../../fuixlabs-documentor/utils/did.js";
 import logger from "../../../logger.js";
 
 axios.defaults.withCredentials = true;
@@ -43,7 +44,6 @@ export default {
       const secretKey = process.env.COMMONLANDS_SECRET_KEY;
       const undefinedVar = checkUndefinedVar({
         plot,
-        accessToken,
         owner,
       });
       if (undefinedVar.undefined) {
@@ -57,9 +57,10 @@ export default {
           detail: undefinedVar?.detail,
         });
       }
-      const pdfFileName =
-        `LandCertificate-${owner?.phoneNumber.replace("+", "")}-${plot?._id}` ||
-        "";
+      const pdfFileName = `LandCertificate-${owner?.phoneNumber.replace(
+        "+",
+        ""
+      )}-${plot?._id}`;
       const isExistedResponse = await axios.get(
         SERVERS.DID_CONTROLLER + "/api/doc/exists",
         {
@@ -81,23 +82,24 @@ export default {
         profileImage: "sampleProfileImage",
         fileName: pdfFileName,
         name: `Land Certificate`,
-        title: `Land-Certificate-${plot?.name || ""}`,
+        title: `Land-Certificate-${plot?.name}`,
         No: plot?.no || "CML21566325",
         dateIssue: getCurrentDateTime(),
         personalInformation: {
-          claimant: owner?.fullName || "",
-          right: owner?.role || "",
-          phoneNumber: owner?.phoneNumber || "",
+          claimant: owner?.fullName,
+          right: owner?.role,
+          phoneNumber: owner?.phoneNumber,
           claimrank: "okay",
           description:
             "Okay is the starting point. This level may have some boundaries unverified and may include one boundary dispute. If there is an ownership dispute of a plot but and one of the owners is part of a claimchain and the other’s has not completed a claimchain, the completed claimchain person will be listed as Okay. ",
         },
         plotInformation: {
-          plotName: plot?.name || "",
-          plotId: plot?.id || "",
+          plotName: plot?.name,
+          plotId: plot?.id,
           plotStatus: "Free & Clear",
           plotPeople: "Verified by 3 claimants, 6 Neighbors",
-          plotLocation: plot?.placeName || "",
+          plotLocation: plot?.placeName,
+          plotCoordinates: plot?.centroid?.join(","),
         },
         certificateByCommonlands: {
           publicSignature: "commonlandsSignatureImage",
@@ -123,14 +125,14 @@ export default {
         client: lucidClient,
         currentWallet: currentWallet,
       });
-      const documentDid = `did:fuixlabs:${process.env.COMPANY_NAME}:${unsalt(
-        wrappedDocument?.data?.fileName
-      )}`;
-
-      const documentHash = wrappedDocument?.signature?.targetHash;
+      const documentDid = generateDid(
+        process.env.COMPANY_NAME,
+        unsalt(wrappedDocument?.data?.fileName)
+      );
       if (!documentDid) {
         return res.status(200).json(ERRORS.CANNOT_GET_DOCUMENT_INFORMATION);
       }
+      const documentHash = wrappedDocument?.signature?.targetHash;
       logger.apiInfo(
         req,
         res,
@@ -140,6 +142,7 @@ export default {
         fileName: pdfFileName,
         data: plotDetailForm,
       }).catch((error) => {
+        logger.apiError(req, res, `Error while creating PDF`);
         return res.status(200).json({
           error_code: 400,
           error_message: error?.message || error || "Error while creating PDF",
@@ -163,12 +166,12 @@ export default {
         `${SERVERS?.COMMONLANDS_GITHUB_SERVICE}/api/git/upload/file`,
         formData
       );
+      // await deleteFile(`./assets/pdf/${pdfFileName}.pdf`);
       logger.apiInfo(
         req,
         res,
         `Response from service: ${JSON.stringify(uploadResponse?.data)}`
       );
-      await deleteFile(`./assets/pdf/${pdfFileName}.pdf`);
       return res.status(200).json(uploadResponse?.data);
     } catch (error) {
       logger.apiError(
@@ -350,16 +353,10 @@ export default {
           plotLocation: plot?.placeName || "",
         },
         certificateByCommonlands: {
-          publicSignature: "commonlandsSignatureImage",
           name: "Commonlands System LLC",
-          commissionNumber: "139668234",
-          commissionExpiries: "09/12/2030",
         },
         certificateByCEO: {
-          publicSignature: "ceoSignature",
           name: "Darius Golkar",
-          commissionNumber: "179668234",
-          commissionExpiries: "09/12/2030",
         },
       };
       const { currentWallet } = await getAccountBySeedPhrase({
