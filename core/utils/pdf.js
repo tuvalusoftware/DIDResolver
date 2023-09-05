@@ -58,7 +58,9 @@ const createPdf = async ({ fileName, data }) => {
     <p style="padding-left: 20px; color: rgba(0, 0, 0, 0.50);
     font-size: 10px;
     font-weight: 400;">View a digital version including more details visit:
-      https://commonlands-user.ap.ngrok.io/public/?id=${data?.plotInformation?.plotId}</p>
+      https://commonlands-user.ap.ngrok.io/public/?id=${
+        data?.plotInformation?.plotId
+      }</p>
     <div
       style="display: flex; flex-direction: row; justify-content: space-between; align-items: center; padding: 20px;">
       <div style="display: flex; flex-direction: row; justify-content: center; align-items: center;">
@@ -67,8 +69,12 @@ const createPdf = async ({ fileName, data }) => {
         <div style="display: flex; flex-direction: column; margin-left: 20px;">
           <span style="font-size: 21px; font-weight: bold; line-height: 40px; white-space: nowrap;">Land
             Certificate</span>
-          <span style="font-size: 10px; line-height: 20px;">No. ${data?.No}</span>
-          <span style="font-size: 10px; line-height: 20px;">Date Issued: ${data?.dateIssue}</span>
+          <span style="font-size: 10px; line-height: 20px;">No. ${
+            data?.No
+          }</span>
+          <span style="font-size: 10px; line-height: 20px;">Date Issued: ${
+            data?.dateIssue
+          }</span>
         </div>
       </div>
       <div style="display: flex; flex-direction: column; justify-content: center; align-items: flex-end;">
@@ -100,7 +106,9 @@ const createPdf = async ({ fileName, data }) => {
             style="display: flex; flex-direction: row; align-items: center ; border-bottom: 1px solid rgba(0, 0, 0, 0.15); width: 100%;">
             <div
               style='width: 100%; border-right: 1px solid rgba(0, 0, 0, 0.15); height: 45px; display: flex; align-items: center; padding-left: 15px;'>
-              <span>Claimant: <b>${data?.personalInformation?.claimant}</b></span>
+              <span>Claimant: <b>${
+                data?.personalInformation?.claimant
+              }</b></span>
             </div>
             <div style="display: flex; flex-direction: row; align-items: center; width: 100%; padding: 10px">
               <span>Right to Claim: </span>
@@ -113,7 +121,9 @@ const createPdf = async ({ fileName, data }) => {
             border-bottom: 1px solid rgba(0, 0, 0, 0.15);
             padding: 10px 15px
           '>
-            <span>Phone Number: <b>${data?.personalInformation?.phoneNumber}</b><br /></span>
+            <span>Phone Number: <b>${
+              data?.personalInformation?.phoneNumber
+            }</b><br /></span>
             <div style="margin-top: 8px;">
               <span style='
                 color: rgba(0, 0, 0, 0.50); font-style: italic;
@@ -128,7 +138,9 @@ const createPdf = async ({ fileName, data }) => {
               ${data?.personalInformation?.claimrank}</div>
           </div>
           <div style='padding: 15px; padding-top: 0px;'>
-            <span style="margin-top: 10px; font-weight: bold;">${data?.personalInformation?.description}</span>
+            <span style="margin-top: 10px; font-weight: bold;">${
+              data?.personalInformation?.description
+            }</span>
           </div>
         </div>
       </div>
@@ -179,7 +191,9 @@ const createPdf = async ({ fileName, data }) => {
       </div>
       <div
         style="font-weight: bold; border-left: 1px solid rgba(0, 0, 0, 0.15); height: 50px; padding-left: 15px; display: flex;align-items: center;">
-        <span>Verified by ${data?.plotInformation?.plotClaimants} Claimants, ${data?.plotInformation?.plotNeighbors} Neighbors</span>
+        <span>Verified by ${data?.plotInformation?.plotClaimants} Claimants, ${
+    data?.plotInformation?.plotNeighbors
+  } Neighbors</span>
       </div>
       <div style = "
         border-left: 1px solid rgba(0, 0, 0, 0.15);
@@ -208,7 +222,9 @@ const createPdf = async ({ fileName, data }) => {
 background: #EBEBEB;
 margin-left: 10px;
         '>
-          <span style='font-size: 12px;'>17.304713°, 17.304713°</span>
+          <span style='font-size: 12px;'>${
+            data?.plotInformation?.plotCoordinates.split(",")[0]
+          }°,${data?.plotInformation?.plotCoordinates.split(",")[1]}°</span>
         </div>
       </div>
     </div>
@@ -230,7 +246,9 @@ margin-left: 10px;
           <span>Name</span>
           <div
             style="border-bottom: 2px solid #000; margin-left: 5px; display: flex; flex-direction: row; align-items: center; width: 100%; margin-top: 10px; justify-content: center;">
-            <span style="line-height: 20px;">${data?.certificateByCommonlands?.name}</span>
+            <span style="line-height: 20px;">${
+              data?.certificateByCommonlands?.name
+            }</span>
           </div>
         </div>
         <div style="display: flex; flex-direction: row; align-items: flex-end; width: 100%;">
@@ -258,7 +276,9 @@ margin-left: 10px;
           <span>Name</span>
           <div
             style="border-bottom: 2px solid #000; margin-left: 5px; display: flex; flex-direction: row; align-items: center; width: 100%; margin-top: 10px; justify-content: center;">
-            <span style="line-height: 20px;">${data?.certificateByCEO?.name}</span>
+            <span style="line-height: 20px;">${
+              data?.certificateByCEO?.name
+            }</span>
           </div>
         </div>
         <div style="display: flex; flex-direction: row; align-items: flex-end; width: 100%;">
