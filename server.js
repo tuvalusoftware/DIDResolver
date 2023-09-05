@@ -63,7 +63,7 @@ app.use((err, res) => {
   });
 });
 
-const port = process.env.NODE_ENV !== "test" ? 8000 : 8001;
+const port = process.env.NODE_PORT || 8000;
 server.listen(port, () => {
   //   Logger.info(`Server is live on port ${port}: http://localhost:${port}/`);
 });
