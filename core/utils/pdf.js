@@ -11,6 +11,13 @@ import { authenticationProgress } from "./auth.js";
 import { verifyWrappedDocument } from "../../fuixlabs-documentor/verifyDocument.js";
 import QRCode from "qrcode";
 import Jimp from "jimp";
+import {
+  commonlandsLogo,
+  commonlandsSignature,
+  dariusSignature,
+  verifiableSignature,
+  backgroundLogo,
+} from "../../assets/images/index.js";
 
 /**
  * Function used for creating pdf file
@@ -30,14 +37,12 @@ const createPdf = async ({ fileName, data }) => {
     Buffer.from(dataUrl.split(",")[1], "base64")
   );
   // Add additional styling (e.g., a logo)
-  const logo = await Jimp.read("./assets/images/sample.jpeg");
+  const logo = await Jimp.read("./assets/images/verifiable-signture.png");
   qrCodeImage.composite(
     logo,
     qrCodeImage.getWidth() / 3,
     qrCodeImage.getHeight() / 3
   );
-
-  //  plotId
 
   const content = `  <div style="
   border-radius: 4px;
@@ -46,7 +51,7 @@ const createPdf = async ({ fileName, data }) => {
   height: 260mm; /* A4 height in millimeters */
   font-family: Roboto, sans-serif;
   border: 1px solid rgba(0, 0, 0, 0.15);
-  background-image: url('https://raw.githubusercontent.com/dev-fuixlabs/Commonlands_DOC/IMAGE/1693647602487_certificate.svg');
+  background-image: url('data:image/png;base64,${backgroundLogo}');
   background-position: center center;
   background-repeat: no-repeat;
 ">
@@ -57,7 +62,7 @@ const createPdf = async ({ fileName, data }) => {
     <div
       style="display: flex; flex-direction: row; justify-content: space-between; align-items: center; padding: 20px;">
       <div style="display: flex; flex-direction: row; justify-content: center; align-items: center;">
-        <img src="https://raw.githubusercontent.com/dev-fuixlabs/Commonlands_DOC/IMAGE/1692850294707_commonlands.svg"
+        <img src="${commonlandsLogo}"
           alt="commonlands" style="height: 62px; width: 55px; margin-right: 30px;" />
         <div style="display: flex; flex-direction: column; margin-left: 20px;">
           <span style="font-size: 21px; font-weight: bold; line-height: 40px; white-space: nowrap;">Land
@@ -83,7 +88,7 @@ const createPdf = async ({ fileName, data }) => {
       <div style="display: flex; flex-direction: row;">
         <div
           style="width: 193px; border-right: 1px solid rgba(0, 0, 0, 0.15); display: flex; justify-content: center; padding-top: 15px;">
-          <img src="https://raw.githubusercontent.com/dev-fuixlabs/Commonlands_DOC/IMAGE/1693553688989_avatar.svg"
+          <img src="${data?.avatar}"
             alt="profile" style="
             width: 120px;
             height: 150px;
@@ -174,7 +179,19 @@ const createPdf = async ({ fileName, data }) => {
       </div>
       <div
         style="font-weight: bold; border-left: 1px solid rgba(0, 0, 0, 0.15); height: 50px; padding-left: 15px; display: flex;align-items: center;">
-        <span>${data?.plotInformation?.plotName}</span>
+        <span>Verified by ${data?.plotInformation?.plotClaimants} Claimants, ${data?.plotInformation?.plotNeighbors} Neighbors</span>
+      </div>
+      <div style = "
+        border-left: 1px solid rgba(0, 0, 0, 0.15);
+        margin-left: 20px;
+        padding-left: 20px;
+        height: 50px;
+        display: flex;
+        justify-content: center;
+        align-items: center;
+        font-weight: bold;
+      ">
+        <p>Disputed by ${data?.plotInformation?.plotDisputes} Claimants</p>
       </div>
     </div>
     <div
@@ -204,7 +221,7 @@ margin-left: 10px;
             <div
               style="border-bottom: 2px solid #000; display: flex; flex-direction: row; align-items: center; width: 100%; justify-content: center; align-items: center;">
               <img
-                src="https://raw.githubusercontent.com/dev-fuixlabs/Commonlands_DOC/IMAGE/1692850451282_commonlands-signature.svg"
+                src="${commonlandsSignature}"
                 style="height: 40px; width: 80px;" alt="commonlands-signature" />
             </div>
           </div>
@@ -232,7 +249,7 @@ margin-left: 10px;
             <div
               style="border-bottom: 2px solid #000; display: flex; flex-direction: row; align-items: center; width: 100%; justify-content: center;">
               <img
-                src="https://raw.githubusercontent.com/dev-fuixlabs/Commonlands_DOC/IMAGE/1693592619798_darius-signature.svg"
+                src="${dariusSignature}"
                 style="height: 40px; width: 80px;" alt="commonlands-signature" />
             </div>
           </div>
@@ -254,7 +271,7 @@ margin-left: 10px;
       </div>
       <div style="display: flex; justify-content: center; align-items: center;">
         <img
-          src="https://raw.githubusercontent.com/dev-fuixlabs/Commonlands_DOC/IMAGE/1692865462387_commonlands-certificate.svg"
+          src="${verifiableSignature}"
           alt="certificate" style="height: 120px; width: 120px;" />
       </div>
     </div>

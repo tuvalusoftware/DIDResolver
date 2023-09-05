@@ -85,6 +85,7 @@ export default {
         title: `Land-Certificate-${plot?.name}`,
         No: plot?.no || "CML21566325",
         dateIssue: getCurrentDateTime(),
+        avatar: owner?.avatar,
         personalInformation: {
           claimant: owner?.fullName,
           right: owner?.role,
@@ -100,6 +101,9 @@ export default {
           plotPeople: "Verified by 3 claimants, 6 Neighbors",
           plotLocation: plot?.placeName,
           plotCoordinates: plot?.centroid?.join(","),
+          plotNeighbors: plot?.neighbors?.length,
+          plotClaimants: plot?.claimants?.length,
+          plotDisputes: plot?.disputes?.length,
         },
         certificateByCommonlands: {
           publicSignature: "commonlandsSignatureImage",

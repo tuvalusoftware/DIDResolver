@@ -30,6 +30,7 @@
     "nodemon": "^2.0.16"
   },
   "dependencies": {
+    "@aws-sdk/s3-request-presigner": "^3.405.0",
     "@emurgo/cardano-serialization-lib-nodejs": "^10.1.0",
     "@meshsdk/core": "^1.5.5",
     "@rollup/plugin-commonjs": "^25.0.4",
