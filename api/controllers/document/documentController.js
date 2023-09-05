@@ -166,7 +166,7 @@ export default {
         `${SERVERS?.COMMONLANDS_GITHUB_SERVICE}/api/git/upload/file`,
         formData
       );
-      // await deleteFile(`./assets/pdf/${pdfFileName}.pdf`);
+      await deleteFile(`./assets/pdf/${pdfFileName}.pdf`);
       logger.apiInfo(
         req,
         res,

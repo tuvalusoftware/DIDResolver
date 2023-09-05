@@ -7,9 +7,10 @@ import crypto from "node:crypto";
 import fs from "fs";
 import axios from "axios";
 import { getDocumentContentByDid } from "./controller.js";
-import { generateQRCode } from "../index.js";
 import { authenticationProgress } from "./auth.js";
 import { verifyWrappedDocument } from "../../fuixlabs-documentor/verifyDocument.js";
+import QRCode from "qrcode";
+import Jimp from "jimp";
 
 /**
  * Function used for creating pdf file
@@ -23,16 +24,20 @@ const createPdf = async ({ fileName, data }) => {
     path: `./assets/pdf/${fileName}.pdf`, // you can pass path to save the file
   };
 
-  let qrBuffer;
+  const qrCodeData = `https://commonlands-user.ap.ngrok.io/public/?id=${data?.plotInformation?.plotId}`;
+  const dataUrl = await QRCode.toDataURL(qrCodeData);
+  const qrCodeImage = await Jimp.read(
+    Buffer.from(dataUrl.split(",")[1], "base64")
+  );
+  // Add additional styling (e.g., a logo)
+  const logo = await Jimp.read("./assets/images/sample.jpeg");
+  qrCodeImage.composite(
+    logo,
+    qrCodeImage.getWidth() / 3,
+    qrCodeImage.getHeight() / 3
+  );
 
-  // generateQRCode('https://example.com', '#FFF', '#000', 200)
-  // .then((imageBuffer) => {
-  //   // Save the image buffer as a file or send it as a response
-  //   qrBuffer = imageBuffer;
-  // })
-  // .catch((error) => {
-  //   throw error;
-  // });
+  //  plotId
 
   const content = `  <div style="
   border-radius: 4px;
@@ -48,7 +53,7 @@ const createPdf = async ({ fileName, data }) => {
     <p style="padding-left: 20px; color: rgba(0, 0, 0, 0.50);
     font-size: 10px;
     font-weight: 400;">View a digital version including more details visit:
-      https://commonlands.org/viewmap/plot-256aaa-001</p>
+      https://commonlands-user.ap.ngrok.io/public/?id=${data?.plotInformation?.plotId}</p>
     <div
       style="display: flex; flex-direction: row; justify-content: space-between; align-items: center; padding: 20px;">
       <div style="display: flex; flex-direction: row; justify-content: center; align-items: center;">
@@ -65,7 +70,7 @@ const createPdf = async ({ fileName, data }) => {
         <img style='
           height: 90px;
           width: 90px;
-        ' src=""
+        ' src="${dataUrl}"
           alt="qrcode" />
         <span
           style="color: rgba(0, 0, 0, 0.50); font-size: 10px; font-weight: 400; margin-top: 10px; font-style: italic;">Scan
@@ -84,12 +89,6 @@ const createPdf = async ({ fileName, data }) => {
             height: 150px;
             border-radius: 12px;
             " />
-          <img style="
-            position: absolute;
-            opacity: 0.4;
-            left: 150px;
-            top: 290px
-          " src = 'https://raw.githubusercontent.com/dev-fuixlabs/Commonlands_DOC/IMAGE/1693647864498_small-certificate.svg' alt = 'certificate' />
         </div>
         <div style="width: 100%; font-size: 11px;">
           <div
