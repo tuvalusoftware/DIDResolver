@@ -27,7 +27,7 @@ import {
 } from "../../../core/utils/pdf.js";
 import { unsalt } from "../../../fuixlabs-documentor/utils/data.js";
 import { generateDid } from "../../../fuixlabs-documentor/utils/did.js";
-import AWSService from "../../../core/utils/aws.js";
+// import AWSService from "../../../core/utils/aws.js";
 import logger from "../../../logger.js";
 
 axios.defaults.withCredentials = true;
