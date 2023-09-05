@@ -27,6 +27,7 @@ import {
 } from "../../../core/utils/pdf.js";
 import { unsalt } from "../../../fuixlabs-documentor/utils/data.js";
 import { generateDid } from "../../../fuixlabs-documentor/utils/did.js";
+import AWSService from "../../../core/utils/aws.js";
 import logger from "../../../logger.js";
 
 axios.defaults.withCredentials = true;
@@ -42,6 +43,7 @@ export default {
       const { plot, owner } = req.body;
       const accessToken = await authenticationProgress();
       const secretKey = process.env.COMMONLANDS_SECRET_KEY;
+
       const undefinedVar = checkUndefinedVar({
         plot,
         owner,
@@ -96,7 +98,7 @@ export default {
         },
         plotInformation: {
           plotName: plot?.name,
-          plotId: plot?.id,
+          plotId: plot?._id,
           plotStatus: "Free & Clear",
           plotPeople: "Verified by 3 claimants, 6 Neighbors",
           plotLocation: plot?.placeName,
