@@ -40,10 +40,9 @@ export default {
         res,
         `API Request: Create Document using Seed Phrase`
       );
-      const { plot, owner } = req.body;
+      const { plot, owner, companyName: _companyName } = req.body;
       const accessToken = await authenticationProgress();
       const secretKey = process.env.COMMONLANDS_SECRET_KEY;
-
       const undefinedVar = checkUndefinedVar({
         plot,
         owner,
@@ -59,6 +58,7 @@ export default {
           detail: undefinedVar?.detail,
         });
       }
+      const companyName = _companyName || process.env.COMPANY_NAME;
       const pdfFileName = `LandCertificate-${owner?.phoneNumber.replace(
         "+",
         ""
@@ -71,7 +71,7 @@ export default {
             Cookie: `access_token=${secretKey}`,
           },
           params: {
-            companyName: process.env.COMPANY_NAME,
+            companyName: companyName,
             fileName: pdfFileName,
           },
         }
@@ -132,7 +132,7 @@ export default {
         currentWallet: currentWallet,
       });
       const documentDid = generateDid(
-        process.env.COMPANY_NAME,
+        companyName,
         unsalt(wrappedDocument?.data?.fileName)
       );
       if (!documentDid) {
@@ -165,7 +165,7 @@ export default {
         "uploadedFile",
         fs.readFileSync(`./assets/pdf/${pdfFileName}.pdf`),
         {
-          filename: `${process.env.COMPANY_NAME}-${pdfFileName}.pdf`,
+          filename: `${companyName}-${pdfFileName}.pdf`,
         }
       );
       const uploadResponse = await axios.post(
