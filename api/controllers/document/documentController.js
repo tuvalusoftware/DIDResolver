@@ -202,7 +202,6 @@ export default {
         did: documentDid,
         accessToken: accessToken,
       });
-      console.log("didResponse", didResponse?.data);
       if (!didResponse?.didDoc) {
         logger.apiError(req, res, `Error while getting DID document`);
         return res.status(200).json({
@@ -210,7 +209,6 @@ export default {
           error_message: "Error while getting DID document",
         });
       }
-      console.log("uploadResponse", uploadResponse);
       const updateDidDoc = {
         ...didResponse?.didDoc,
         pdfUrl: uploadResponse?.data?.url,

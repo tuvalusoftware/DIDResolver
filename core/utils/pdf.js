@@ -179,8 +179,7 @@ const createPdf = async ({ fileName, data }) => {
       <div
         style="grid-column: 9; padding-left: 15px; display: flex; flex-direction: column;  border-left: 1px solid rgba(0, 0, 0, 0.15); padding: 15px">
         <span style="margin-bottom: 10px; font-weight: bold;">
-          This plot has been granted an official Commonlands Certificate and is in good standing. Owners are free to
-          utilize the plot for securing contracts if desired and have the ability to sell or trade it.
+          ${currentStatus?.description}
         </span>
         <div style="border-radius: 28px; background: ${
           currentStatus?.color

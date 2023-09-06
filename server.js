@@ -15,9 +15,6 @@ const corsOptions = {
   ],
   credentials: true,
 };
-app.use((req, res) => {
-  res.status(404).send("404: Not Found");
-});
 app.use(cors(corsOptions));
 app.use(cookieParser());
 app.use(compression());
