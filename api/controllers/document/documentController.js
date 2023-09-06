@@ -8,6 +8,7 @@ import {
   checkUndefinedVar,
   getCurrentDateTime,
   getPublicKeyFromAddress,
+  generateRandomString,
 } from "../../../core/index.js";
 import {
   createDocumentForCommonlands,
@@ -103,7 +104,7 @@ export default {
         fileName: pdfFileName,
         name: `Land Certificate`,
         title: `Land-Certificate-${plot?.name}`,
-        No: plot?.no || "CML21566325",
+        No: generateRandomString(plot._id, 7),
         dateIssue: getCurrentDateTime(),
         avatar: owner?.avatar,
         personalInformation: {

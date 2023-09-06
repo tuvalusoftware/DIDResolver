@@ -3,6 +3,7 @@ import Ajv from "ajv";
 import Logger from "../logger.js";
 import * as dotenv from "dotenv";
 import { createCanvas, loadImage } from "canvas";
+import crypto from "crypto";
 import QRCode from "qrcode";
 
 dotenv.config();
@@ -159,10 +160,10 @@ function getCurrentDateTime() {
 
 /**
  * Function used for generating QR code
- * @param {String} text 
- * @param {String} backgroundColor 
- * @param {String} color 
- * @param {Number} size 
+ * @param {String} text
+ * @param {String} backgroundColor
+ * @param {String} color
+ * @param {Number} size
  * @returns {Buffer} - QR code
  */
 async function generateQRCode(text, backgroundColor, color, size) {
@@ -174,11 +175,30 @@ async function generateQRCode(text, backgroundColor, color, size) {
     },
   });
   const canvas = createCanvas(size, size);
-  const ctx = canvas.getContext('2d');
+  const ctx = canvas.getContext("2d");
   const img = await loadImage(qrCodeData);
   ctx.drawImage(img, 0, 0);
-  return canvas.toBuffer('image/png'); 
+  return canvas.toBuffer("image/png");
 }
+
+/**
+ * Function used for generating random string with given seed and length
+ * @param {String} seed - seed to generate random string
+ * @param {Number} length - length of random string
+ * @returns {String} - random string
+ */
+function generateRandomString(seed, length) {
+  const hash = crypto.createHash("sha256");
+  hash.update(seed);
+  const seedHash = hash.digest("hex");
+  let result = "";
+  for (let i = 0; i < length; i++) {
+    const randomIndex = Math.floor(Math.random() * seedHash.length);
+    result += seedHash.charAt(randomIndex);
+  }
+  return result;
+}
+
 export {
   validateDIDSyntax,
   getAddressFromHexEncoded,
@@ -189,4 +209,5 @@ export {
   isSameError,
   getCurrentDateTime,
   generateQRCode,
+  generateRandomString,
 };

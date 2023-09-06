@@ -26,12 +26,9 @@ import {
  */
 const createPdf = async ({ fileName, data }) => {
   const options = {
-    width: "200mm" /* A4 width in millimeters */,
+    width: "180mm" /* A4 width in millimeters */,
     height: "270mm" /* A4 height in millimeters */,
     path: `./assets/pdf/${fileName}.pdf`, // you can pass path to save the file
-    margin: {
-      left: "60px",
-    },
   };
 
   const qrCodeData = `https://commonlands-user.ap.ngrok.io/public/?id=${data?.plotInformation?.plotId}`;
@@ -50,7 +47,7 @@ const createPdf = async ({ fileName, data }) => {
   const content = `  <div style="
   border-radius: 4px;
   background-color: #fff;
-  width: 200mm; /* A4 width in millimeters */
+  width: 180mm; /* A4 width in millimeters */
   height: 270mm; /* A4 height in millimeters */
   font-family: Roboto, sans-serif;
   background-image: url('data:image/png;base64,${backgroundLogo}');
@@ -69,7 +66,7 @@ const createPdf = async ({ fileName, data }) => {
         <img src="${commonlandsLogo}"
           alt="commonlands" style="height: 62px; width: 55px; margin-right: 30px;" />
         <div style="display: flex; flex-direction: column; margin-left: 20px;">
-          <span style="font-size: 21px; font-weight: bold; line-height: 40px; white-space: nowrap;">Land
+          <span style="font-size: 21px; font-weight: bold; line-height: 40px; white-space: nowrap;">Commonlands
             Certificate</span>
           <span style="font-size: 10px; line-height: 20px;">No. ${
             data?.No
