@@ -125,6 +125,7 @@ export default {
           plotNeighbors: plot?.neighbors?.length,
           plotClaimants: plot?.claimants?.length,
           plotDisputes: plot?.disputes?.length,
+          plotStatus: plot?.status,
         },
         certificateByCommonlands: {
           publicSignature: "commonlandsSignatureImage",
@@ -192,10 +193,16 @@ export default {
         `${SERVERS?.COMMONLANDS_GITHUB_SERVICE}/api/git/upload/file`,
         formData
       );
+      if (uploadResponse?.data?.error_code) {
+        logger.apiError(req, res, `Error while uploading PDF`);
+        return res.status(200).json(uploadResponse);
+      }
+      await deleteFile(`./assets/pdf/${pdfFileName}.pdf`);
       const didResponse = await getDidDocumentByDid({
         did: documentDid,
         accessToken: accessToken,
       });
+      console.log("didResponse", didResponse?.data);
       if (!didResponse?.didDoc) {
         logger.apiError(req, res, `Error while getting DID document`);
         return res.status(200).json({
@@ -203,6 +210,7 @@ export default {
           error_message: "Error while getting DID document",
         });
       }
+      console.log("uploadResponse", uploadResponse);
       const updateDidDoc = {
         ...didResponse?.didDoc,
         pdfUrl: uploadResponse?.data?.url,
@@ -219,7 +227,6 @@ export default {
           error_message: "Error while push url to DID document",
         });
       }
-      await deleteFile(`./assets/pdf/${pdfFileName}.pdf`);
       logger.apiInfo(
         req,
         res,

@@ -16,6 +16,33 @@ export const SCHEMAS = {
   NOTIFICATION,
 };
 
+export const PLOT_STATUSES = {
+  "F&C": {
+    label: "Free & Clear",
+    color: "#5EC4AC",
+  },
+  pending: {
+    label: "Pending",
+    color: "#FFF9C1",
+  },
+  boundaryDispute: {
+    label: "Boundary Dispute",
+    color: "#FFC329",
+  },
+  ownershipDispute: {
+    label: "Ownership Dispute",
+    color: "#FF7070",
+  },
+  locked: {
+    label: "Locked",
+    color: "#61C7DF",
+  },
+  default: {
+    label: "Default",
+    color: "#DF5353",
+  },
+};
+
 export const SERVERS = {
   DID_CONTROLLER: process.env.DID_CONTROLLER,
   CARDANO_SERVICE: process.env.CARDANO_SERVICE || "http://localhost:10003",

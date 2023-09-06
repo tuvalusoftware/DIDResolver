@@ -12,35 +12,38 @@
   border-radius: 4px;
   background-color: #fff;
   width: 180mm; /* A4 width in millimeters */
-  height: 260mm; /* A4 height in millimeters */
+  height: 270mm; /* A4 height in millimeters */
   font-family: Roboto, sans-serif;
-  border: 1px solid rgba(0, 0, 0, 0.15);
-  background-image: url('https://raw.githubusercontent.com/dev-fuixlabs/Commonlands_DOC/IMAGE/1693647602487_certificate.svg');
+  background-image: url('data:image/png;base64,${backgroundLogo}');
   background-position: center center;
   background-repeat: no-repeat;
 ">
     <p style="padding-left: 20px; color: rgba(0, 0, 0, 0.50);
     font-size: 10px;
     font-weight: 400;">View a digital version including more details visit:
-      https://commonlands.org/viewmap/plot-256aaa-001</p>
+      https://commonlands-user.ap.ngrok.io/public/?id=${
+      data?.plotInformation?.plotId
+      }</p>
     <div
       style="display: flex; flex-direction: row; justify-content: space-between; align-items: center; padding: 20px;">
       <div style="display: flex; flex-direction: row; justify-content: center; align-items: center;">
-        <img src="https://raw.githubusercontent.com/dev-fuixlabs/Commonlands_DOC/IMAGE/1692850294707_commonlands.svg"
-          alt="commonlands" style="height: 62px; width: 55px; margin-right: 30px;" />
+        <img src="${commonlandsLogo}" alt="commonlands" style="height: 62px; width: 55px; margin-right: 30px;" />
         <div style="display: flex; flex-direction: column; margin-left: 20px;">
-          <span style="font-size: 21px; font-weight: bold; line-height: 40px; white-space: nowrap;">Land
+          <span style="font-size: 21px; font-weight: bold; line-height: 40px; white-space: nowrap;">Commonlands
             Certificate</span>
-          <span style="font-size: 10px; line-height: 20px;">No. ${data?.No}</span>
-          <span style="font-size: 10px; line-height: 20px;">Date Issued: ${data?.dateIssue}</span>
+          <span style="font-size: 10px; line-height: 20px;">No. ${
+            data?.No
+            }</span>
+          <span style="font-size: 10px; line-height: 20px;">Date Issued: ${
+            data?.dateIssue
+            }</span>
         </div>
       </div>
       <div style="display: flex; flex-direction: column; justify-content: center; align-items: flex-end;">
         <img style='
           height: 90px;
           width: 90px;
-        ' src="https://raw.githubusercontent.com/dev-fuixlabs/Commonlands_DOC/IMAGE/1693415966212_qrcode.svg"
-          alt="qrcode" />
+        ' src="${dataUrl}" alt="qrcode" />
         <span
           style="color: rgba(0, 0, 0, 0.50); font-size: 10px; font-weight: 400; margin-top: 10px; font-style: italic;">Scan
           the QR code
@@ -52,38 +55,35 @@
       <div style="display: flex; flex-direction: row;">
         <div
           style="width: 193px; border-right: 1px solid rgba(0, 0, 0, 0.15); display: flex; justify-content: center; padding-top: 15px;">
-          <img src="https://raw.githubusercontent.com/dev-fuixlabs/Commonlands_DOC/IMAGE/1693553688989_avatar.svg"
-            alt="profile" style="
+          <img src="${data?.avatar}" alt="profile" style="
             width: 120px;
             height: 150px;
             border-radius: 12px;
             " />
-          <!-- <img style="
-            position: absolute;
-            opacity: 0.4;
-            left: 150px;
-            top: 290px
-          " src = 'https://raw.githubusercontent.com/dev-fuixlabs/Commonlands_DOC/IMAGE/1693647864498_small-certificate.svg' alt = 'certificate' /> -->
         </div>
         <div style="width: 100%; font-size: 11px;">
           <div
             style="display: flex; flex-direction: row; align-items: center ; border-bottom: 1px solid rgba(0, 0, 0, 0.15); width: 100%;">
             <div
               style='width: 100%; border-right: 1px solid rgba(0, 0, 0, 0.15); height: 45px; display: flex; align-items: center; padding-left: 15px;'>
-              <span>Claimant: <b>${data?.personalInformation?.claimant}</b></span>
+              <span>Claimant: <b>${
+                  data?.personalInformation?.claimant
+                  }</b></span>
             </div>
             <div style="display: flex; flex-direction: row; align-items: center; width: 100%; padding: 10px">
               <span>Right to Claim: </span>
               <div
                 style="border-radius: 21px; background: #3A97AD; color: #FFF; font-weight: bold; padding: 7px; margin-left: 10px;">
-                ${data?.personalInformation?.right}</div>
+                ${splitCamelCase(data?.personalInformation?.right)}</div>
             </div>
           </div>
           <div style='
             border-bottom: 1px solid rgba(0, 0, 0, 0.15);
             padding: 10px 15px
           '>
-            <span>Phone Number: <b>${data?.personalInformation?.phoneNumber}</b><br /></span>
+            <span>Phone Number: <b>${
+                data?.personalInformation?.phoneNumber
+                }</b><br /></span>
             <div style="margin-top: 8px;">
               <span style='
                 color: rgba(0, 0, 0, 0.50); font-style: italic;
@@ -98,7 +98,9 @@
               ${data?.personalInformation?.claimrank}</div>
           </div>
           <div style='padding: 15px; padding-top: 0px;'>
-            <span style="margin-top: 10px; font-weight: bold;">${data?.personalInformation?.description}</span>
+            <span style="margin-top: 10px; font-weight: bold;">${
+              data?.personalInformation?.description
+              }</span>
           </div>
         </div>
       </div>
@@ -149,7 +151,21 @@
       </div>
       <div
         style="font-weight: bold; border-left: 1px solid rgba(0, 0, 0, 0.15); height: 50px; padding-left: 15px; display: flex;align-items: center;">
-        <span>${data?.plotInformation?.plotName}</span>
+        <span>Verified by ${data?.plotInformation?.plotClaimants} Claimants, ${
+          data?.plotInformation?.plotNeighbors
+          } Neighbors</span>
+      </div>
+      <div style="
+        border-left: 1px solid rgba(0, 0, 0, 0.15);
+        margin-left: 20px;
+        padding-left: 20px;
+        height: 50px;
+        display: flex;
+        justify-content: center;
+        align-items: center;
+        font-weight: bold;
+      ">
+        <p>Disputed by ${data?.plotInformation?.plotDisputes} Claimants</p>
       </div>
     </div>
     <div
@@ -166,7 +182,9 @@
 background: #EBEBEB;
 margin-left: 10px;
         '>
-          <span style='font-size: 12px;'>17.304713°, 17.304713°</span>
+          <span style='font-size: 12px;'>${
+            data?.plotInformation?.plotCoordinates.split(",")[0]
+            }°,${data?.plotInformation?.plotCoordinates.split(",")[1]}°</span>
         </div>
       </div>
     </div>
@@ -178,9 +196,7 @@ margin-left: 10px;
             <span style="width: 60%">Public Signature</span>
             <div
               style="border-bottom: 2px solid #000; display: flex; flex-direction: row; align-items: center; width: 100%; justify-content: center; align-items: center;">
-              <img
-                src="https://raw.githubusercontent.com/dev-fuixlabs/Commonlands_DOC/IMAGE/1692850451282_commonlands-signature.svg"
-                style="height: 40px; width: 80px;" alt="commonlands-signature" />
+              <img src="${commonlandsSignature}" style="height: 40px; width: 80px;" alt="commonlands-signature" />
             </div>
           </div>
         </div>
@@ -188,7 +204,9 @@ margin-left: 10px;
           <span>Name</span>
           <div
             style="border-bottom: 2px solid #000; margin-left: 5px; display: flex; flex-direction: row; align-items: center; width: 100%; margin-top: 10px; justify-content: center;">
-            <span style="line-height: 20px;">${data?.certificateByCommonlands?.name}</span>
+            <span style="line-height: 20px;">${
+              data?.certificateByCommonlands?.name
+              }</span>
           </div>
         </div>
         <div style="display: flex; flex-direction: row; align-items: flex-end; width: 100%;">
@@ -206,9 +224,7 @@ margin-left: 10px;
             <span style="width: 60%">Public Signature</span>
             <div
               style="border-bottom: 2px solid #000; display: flex; flex-direction: row; align-items: center; width: 100%; justify-content: center;">
-              <img
-                src="https://raw.githubusercontent.com/dev-fuixlabs/Commonlands_DOC/IMAGE/1693592619798_darius-signature.svg"
-                style="height: 40px; width: 80px;" alt="commonlands-signature" />
+              <img src="${dariusSignature}" style="height: 40px; width: 80px;" alt="commonlands-signature" />
             </div>
           </div>
         </div>
@@ -216,7 +232,9 @@ margin-left: 10px;
           <span>Name</span>
           <div
             style="border-bottom: 2px solid #000; margin-left: 5px; display: flex; flex-direction: row; align-items: center; width: 100%; margin-top: 10px; justify-content: center;">
-            <span style="line-height: 20px;">${data?.certificateByCEO?.name}</span>
+            <span style="line-height: 20px;">${
+              data?.certificateByCEO?.name
+              }</span>
           </div>
         </div>
         <div style="display: flex; flex-direction: row; align-items: flex-end; width: 100%;">
@@ -228,9 +246,7 @@ margin-left: 10px;
         </div>
       </div>
       <div style="display: flex; justify-content: center; align-items: center;">
-        <img
-          src="https://raw.githubusercontent.com/dev-fuixlabs/Commonlands_DOC/IMAGE/1692865462387_commonlands-certificate.svg"
-          alt="certificate" style="height: 120px; width: 120px;" />
+        <img src="${verifiableSignature}" alt="certificate" style="height: 120px; width: 120px;" />
       </div>
     </div>
     <div style='
@@ -250,7 +266,6 @@ margin-left: 10px;
       </span>
     </div>
   </div>
-
 </body>
 
 </html>

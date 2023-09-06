@@ -11,6 +11,7 @@ import { authenticationProgress } from "./auth.js";
 import { verifyWrappedDocument } from "../../fuixlabs-documentor/verifyDocument.js";
 import QRCode from "qrcode";
 import Jimp from "jimp";
+import _ from "lodash";
 import {
   commonlandsLogo,
   commonlandsSignature,
@@ -18,6 +19,10 @@ import {
   verifiableSignature,
   backgroundLogo,
 } from "../../assets/images/index.js";
+import { splitCamelCase } from "../index.js";
+
+// * Constants
+import { PLOT_STATUSES } from "../constants.js";
 
 /**
  * Function used for creating pdf file
@@ -27,10 +32,11 @@ import {
 const createPdf = async ({ fileName, data }) => {
   const options = {
     width: "180mm" /* A4 width in millimeters */,
-    height: "270mm" /* A4 height in millimeters */,
+    height: "260mm" /* A4 height in millimeters */,
     path: `./assets/pdf/${fileName}.pdf`, // you can pass path to save the file
   };
 
+  const currentStatus = PLOT_STATUSES[data?.plotInformation?.plotStatus];
   const qrCodeData = `https://commonlands-user.ap.ngrok.io/public/?id=${data?.plotInformation?.plotId}`;
   const dataUrl = await QRCode.toDataURL(qrCodeData);
   const qrCodeImage = await Jimp.read(
@@ -48,9 +54,9 @@ const createPdf = async ({ fileName, data }) => {
   border-radius: 4px;
   background-color: #fff;
   width: 180mm; /* A4 width in millimeters */
-  height: 270mm; /* A4 height in millimeters */
+  height: 240mm; /* A4 height in millimeters */
   font-family: Roboto, sans-serif;
-  background-image: url('data:image/png;base64,${backgroundLogo}');
+  background-image: url('${backgroundLogo}');
   background-position: center center;
   background-repeat: no-repeat;
 ">
@@ -113,7 +119,7 @@ const createPdf = async ({ fileName, data }) => {
               <span>Right to Claim: </span>
               <div
                 style="border-radius: 21px; background: #3A97AD; color: #FFF; font-weight: bold; padding: 7px; margin-left: 10px;">
-                ${data?.personalInformation?.right}</div>
+                ${splitCamelCase(data?.personalInformation?.right)}</div>
             </div>
           </div>
           <div style='
@@ -176,9 +182,11 @@ const createPdf = async ({ fileName, data }) => {
           This plot has been granted an official Commonlands Certificate and is in good standing. Owners are free to
           utilize the plot for securing contracts if desired and have the ability to sell or trade it.
         </span>
-        <div style="border-radius: 28px; background: #5EC4AC; width: fit-content; padding: 5px 10px;">
+        <div style="border-radius: 28px; background: ${
+          currentStatus?.color
+        }; width: fit-content; padding: 5px 10px;">
           <span style="font-weight: bold; color: #FFF; font-size: 10px;">
-            ${data?.plotInformation?.plotStatus}
+            ${currentStatus?.label}
           </span>
         </div>
       </div>

@@ -5,6 +5,7 @@ import * as dotenv from "dotenv";
 import { createCanvas, loadImage } from "canvas";
 import crypto from "crypto";
 import QRCode from "qrcode";
+import _ from "lodash";
 
 dotenv.config();
 
@@ -199,6 +200,10 @@ function generateRandomString(seed, length) {
   return result;
 }
 
+function splitCamelCase(input) {
+  return _.startCase(input).replace(/([a-z])([A-Z])/g, "$1 $2");
+}
+
 export {
   validateDIDSyntax,
   getAddressFromHexEncoded,
@@ -210,4 +215,5 @@ export {
   getCurrentDateTime,
   generateQRCode,
   generateRandomString,
+  splitCamelCase,
 };
