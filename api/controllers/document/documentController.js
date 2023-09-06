@@ -17,7 +17,11 @@ import fs from "fs";
 import FormData from "form-data";
 import { getAccountBySeedPhrase } from "../../../core/utils/lucid.js";
 import { authenticationProgress } from "../../../core/utils/auth.js";
-import { getDocumentContentByDid } from "../../../core/utils/controller.js";
+import {
+  getDocumentContentByDid,
+  updateDocumentDid,
+  getDidDocumentByDid,
+} from "../../../core/utils/controller.js";
 import {
   createPdf,
   encryptPdf,
@@ -27,7 +31,7 @@ import {
 } from "../../../core/utils/pdf.js";
 import { unsalt } from "../../../fuixlabs-documentor/utils/data.js";
 import { generateDid } from "../../../fuixlabs-documentor/utils/did.js";
-// import AWSService from "../../../core/utils/aws.js";
+import { uploadMultipleImages } from "../../../core/utils/aws.js";
 import logger from "../../../logger.js";
 
 axios.defaults.withCredentials = true;
@@ -68,7 +72,7 @@ export default {
         {
           withCredentials: true,
           headers: {
-            Cookie: `access_token=${secretKey}`,
+            Cookie: `access_token=${accessToken}`,
           },
           params: {
             companyName: companyName,
@@ -77,8 +81,22 @@ export default {
         }
       );
       if (isExistedResponse?.data?.isExisted) {
-        logger.apiError(req, res, `Document existed: ${pdfFileName}`);
-        return res.status(200).json(ERRORS.DOCUMENT_IS_EXISTED);
+        const existedDidDoc = await getDidDocumentByDid({
+          accessToken: accessToken,
+          did: generateDid(companyName, pdfFileName),
+        });
+        if (existedDidDoc?.data?.error_code) {
+          logger.apiError(req, res, `Error while getting DID document`);
+          return res.status(200).json(ERRORS?.CANNOT_FOUND_DID_DOCUMENT);
+        }
+        logger.apiInfo(
+          req,
+          res,
+          `Pdf url of existed document: ${existedDidDoc?.didDoc?.pdfUrl}`
+        );
+        return res.status(200).json({
+          url: existedDidDoc?.didDoc?.pdfUrl,
+        });
       }
       const plotDetailForm = {
         profileImage: "sampleProfileImage",
@@ -130,6 +148,7 @@ export default {
         access_token: accessToken,
         client: lucidClient,
         currentWallet: currentWallet,
+        companyName: companyName,
       });
       const documentDid = generateDid(
         companyName,
@@ -172,6 +191,33 @@ export default {
         `${SERVERS?.COMMONLANDS_GITHUB_SERVICE}/api/git/upload/file`,
         formData
       );
+      const didResponse = await getDidDocumentByDid({
+        did: documentDid,
+        accessToken: accessToken,
+      });
+      if (!didResponse?.didDoc) {
+        logger.apiError(req, res, `Error while getting DID document`);
+        return res.status(200).json({
+          error_code: 400,
+          error_message: "Error while getting DID document",
+        });
+      }
+      const updateDidDoc = {
+        ...didResponse?.didDoc,
+        pdfUrl: uploadResponse?.data?.url,
+      };
+      const updateDidDocResponse = await updateDocumentDid({
+        did: documentDid,
+        accessToken: accessToken,
+        didDoc: updateDidDoc,
+      });
+      if (updateDidDocResponse?.error_code) {
+        logger.apiError(req, res, `Error while push url to DID document`);
+        return res.status(200).json({
+          error_code: 400,
+          error_message: "Error while push url to DID document",
+        });
+      }
       await deleteFile(`./assets/pdf/${pdfFileName}.pdf`);
       logger.apiInfo(
         req,

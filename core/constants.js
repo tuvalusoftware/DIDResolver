@@ -70,11 +70,11 @@ export const ERRORS = {
     error_message: "Conflict. Resource already exsits.",
   },
   CANNOT_MINT_NFT: {
-    error_code: 500,
+    error_code: 400,
     error_message: "Error. Cannot mint NFT.",
   },
   CANNOT_FETCH_NFT: {
-    error_code: 500,
+    error_code: 400,
     error_message: "Error. Cannot fetch NFT.",
   },
   INVALID_STRING: {

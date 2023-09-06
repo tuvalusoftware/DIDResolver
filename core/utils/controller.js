@@ -74,4 +74,62 @@ const getDidDocumentByDid = async ({ did, accessToken }) => {
   }
 };
 
-export { getDocumentContentByDid, getDidDocumentByDid };
+/**
+ *
+ * @param {String} did - DID of the document
+ * @param {String} accessToken - access token of the user
+ * @param {Object} didDoc - Did document need to be updated
+ * @return {Object} - updated document
+ */
+const updateDocumentDid = async ({ did, accessToken, didDoc }) => {
+  try {
+    const didComponents = did.split(":");
+    const companyName = didComponents[2];
+    const fileName = didComponents[3];
+    const createUserDidReq = await axios.put(
+      SERVERS.DID_CONTROLLER + "/api/doc",
+      {
+        companyName,
+        fileName,
+        didDoc: didDoc,
+      },
+      {
+        withCredentials: true,
+        headers: {
+          Cookie: `access_token=${accessToken};`,
+        },
+      }
+    );
+    return createUserDidReq.data;
+  } catch (e) {
+    throw e;
+  }
+};
+
+const retrieveDocumentDid = async ({ did, accessToken }) => {
+  try {
+    const didComponents = did.split(":");
+    const companyName = didComponents[2];
+    const publicKey = didComponents[3];
+    const didResponse = await axios.get(SERVERS.DID_CONTROLLER + "/api/did", {
+      withCredentials: true,
+      headers: {
+        Cookie: `access_token=${accessToken};`,
+      },
+      params: {
+        companyName,
+        publicKey,
+      },
+    });
+    return didResponse?.data;
+  } catch (e) {
+    throw e;
+  }
+};
+
+export {
+  getDocumentContentByDid,
+  getDidDocumentByDid,
+  updateDocumentDid,
+  retrieveDocumentDid,
+};

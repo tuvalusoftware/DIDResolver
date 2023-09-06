@@ -189,4 +189,20 @@ class AWSService {
   }
 }
 
+/**
+ * Function used for uploading multiple images to AWS S3
+ * @param {Array} files - Array of files to be uploaded
+ * @returns {Promise<Array>} - Array of upload results
+ */
+const uploadMultipleImages = async (files) => {
+  const awsService = new AWSService();
+  const uploadResults = await Promise.allSettled(
+    files.map(async (file) => {
+      awsService.uploadObjects(file.buffer, file.originalname, file.mimetype);
+    })
+  );
+  return uploadResults;
+};
+
 export default AWSService;
+export { uploadMultipleImages };

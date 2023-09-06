@@ -150,10 +150,7 @@ export const generateWrappedDocument = async ({
   }
 };
 
-export const hashDocumentContent = async ({
-  document,
-  address
-}) => {
+export const hashDocumentContent = async ({ document, address }) => {
   try {
     document = deepMap(document, unsalt);
     let createdDocument = {};
@@ -224,6 +221,7 @@ export const createDocumentForCommonlands = async ({
   access_token,
   client,
   currentWallet,
+  companyName,
 }) => {
   try {
     for (let index = 0; index < documents.length; index++) {
@@ -267,12 +265,12 @@ export const createDocumentForCommonlands = async ({
             });
         }
         createdDocument = Object.assign(createdDocument, {
-          companyName: process.env.COMPANY_NAME,
+          companyName: companyName,
           intention: VALID_DOCUMENT_NAME_TYPE.find(
             (prop) => prop.name === createdDocument.name
           ).type,
         });
-        const did = generateDid(process.env.COMPANY_NAME, address);
+        const did = generateDid(companyName, address);
         let res = await createWrappedDocument(
           createdDocument,
           SAMPLE_SERVICE,

@@ -26,9 +26,12 @@ import {
  */
 const createPdf = async ({ fileName, data }) => {
   const options = {
-    width: "180mm" /* A4 width in millimeters */,
+    width: "200mm" /* A4 width in millimeters */,
     height: "270mm" /* A4 height in millimeters */,
     path: `./assets/pdf/${fileName}.pdf`, // you can pass path to save the file
+    margin: {
+      left: "60px",
+    },
   };
 
   const qrCodeData = `https://commonlands-user.ap.ngrok.io/public/?id=${data?.plotInformation?.plotId}`;
@@ -47,10 +50,9 @@ const createPdf = async ({ fileName, data }) => {
   const content = `  <div style="
   border-radius: 4px;
   background-color: #fff;
-  width: 180mm; /* A4 width in millimeters */
-  height: 260mm; /* A4 height in millimeters */
+  width: 200mm; /* A4 width in millimeters */
+  height: 270mm; /* A4 height in millimeters */
   font-family: Roboto, sans-serif;
-  border: 1px solid rgba(0, 0, 0, 0.15);
   background-image: url('data:image/png;base64,${backgroundLogo}');
   background-position: center center;
   background-repeat: no-repeat;
