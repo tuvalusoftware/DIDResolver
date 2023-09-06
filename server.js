@@ -15,6 +15,9 @@ const corsOptions = {
   ],
   credentials: true,
 };
+app.use((req, res) => {
+  res.status(404).send("404: Not Found");
+});
 app.use(cors(corsOptions));
 app.use(cookieParser());
 app.use(compression());
@@ -47,6 +50,7 @@ app.use(
 const server = http.createServer(app);
 server.timeout = 300000;
 import routes from "./api/routes/index.js";
+import logger from "./logger.js";
 routes(app);
 
 // GLOBAL ERROR HANDLER
@@ -65,7 +69,7 @@ app.use((err, res) => {
 
 const port = process.env.NODE_PORT || 8000;
 server.listen(port, () => {
-  //   Logger.info(`Server is live on port ${port}: http://localhost:${port}/`);
+  logger.info(`Server is live on port ${port}: http://localhost:${port}/`);
 });
 
 export default server;
