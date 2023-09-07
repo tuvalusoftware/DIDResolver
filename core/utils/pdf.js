@@ -238,7 +238,7 @@ margin-left: 10px;
     <div style="display: grid; grid-template-columns: 4.5fr 4.5fr 3fr; white-space: nowrap; font-size: 10px;">
       <div style="border-right: 1px solid rgba(0, 0, 0, 0.15); padding: 20px">
         <div>
-          <span style="font-weight: bold; font-size: 12px;">Certificate by Commonlands</span>
+          <span style="font-weight: bold; font-size: 12px;">Certification by Commonlands</span>
           <div style="display: flex; flex-direction: row; align-items: flex-end; margin-top: 25px;">
             <span style="width: 60%">Public Signature</span>
             <div
