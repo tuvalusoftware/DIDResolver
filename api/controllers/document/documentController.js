@@ -29,6 +29,7 @@ import {
   getPdfBufferFromUrl,
   bufferToPDFDocument,
   deleteFile,
+  createCommonlandsContract,
 } from "../../../core/utils/pdf.js";
 import { unsalt } from "../../../fuixlabs-documentor/utils/data.js";
 import { generateDid } from "../../../fuixlabs-documentor/utils/did.js";
@@ -232,12 +233,160 @@ export default {
       );
       return res.status(200).json(uploadResponse?.data);
     } catch (error) {
-      logger.apiError(
+      error?.error_code
+        ? res.status(200).json(error)
+        : res.status(200).json({
+            error_code: 400,
+            message: error?.message || "Something went wrong!",
+          });
+    }
+  },
+  createContract: async (req, res) => {
+    try {
+      logger.apiInfo(req, res, `API Request: Create Commonlands Contract`);
+      const { content, companyName: _companyName, id } = req.body;
+      const undefinedVar = checkUndefinedVar({
+        content,
+        id,
+      });
+      if (undefinedVar.undefined) {
+        logger.apiError(
+          req,
+          res,
+          `Error: ${JSON.stringify(undefinedVar?.detail)}`
+        );
+        return res.status(200).json({
+          ...ERRORS.MISSING_PARAMETERS,
+          detail: undefinedVar?.detail,
+        });
+      }
+      const accessToken = await authenticationProgress();
+      const companyName = _companyName || process.env.COMPANY_NAME;
+      const contractFileName = `Contract-${id}`;
+      const isExistedResponse = await axios.get(
+        SERVERS.DID_CONTROLLER + "/api/doc/exists",
+        {
+          withCredentials: true,
+          headers: {
+            Cookie: `access_token=${accessToken}`,
+          },
+          params: {
+            companyName: companyName,
+            fileName: contractFileName,
+          },
+        }
+      );
+      if (isExistedResponse?.data?.isExisted) {
+        logger.apiError(res, req, `Contract existed: ${contractFileName}`);
+        return res.status(200).json(ERRORS?.DOCUMENT_IS_EXISTED);
+      }
+      const contractContent = {
+        ...content,
+        fileName: contractFileName,
+        name: `Commonlands Contract`,
+      };
+      const { currentWallet, lucidClient } = await getAccountBySeedPhrase({
+        seedPhrase: process.env.ADMIN_SEED_PHRASE,
+      });
+      const { wrappedDocument } = await createDocumentForCommonlands({
+        seedPhrase: process.env.ADMIN_SEED_PHRASE,
+        documents: [contractContent],
+        address: getPublicKeyFromAddress(currentWallet?.paymentAddr),
+        access_token: accessToken,
+        client: lucidClient,
+        currentWallet: currentWallet,
+        companyName: companyName,
+      });
+      const documentDid = generateDid(
+        companyName,
+        unsalt(wrappedDocument?.data?.fileName)
+      );
+      if (!documentDid) {
+        return res.status(200).json(ERRORS.CANNOT_GET_DOCUMENT_INFORMATION);
+      }
+      const documentHash = wrappedDocument?.signature?.targetHash;
+      logger.apiInfo(
         req,
         res,
-        `Error: ${JSON.stringify(error?.message || error)}`
+        `Wrapped document ${JSON.stringify(wrappedDocument)}`
       );
-      return res.status(200).json(error);
+      await createCommonlandsContract({
+        fileName: contractFileName,
+        data: contractContent,
+      }).catch((error) => {
+        logger.apiError(req, res, `Error while creating PDF`);
+        return res.status(200).json({
+          error_code: 400,
+          error_message: error?.message || error || "Error while creating PDF",
+        });
+      });
+      logger.apiInfo(
+        req,
+        res,
+        `Created PDF file ${contractFileName} successfully!`
+      );
+      await encryptPdf({
+        fileName: contractFileName,
+        did: documentDid,
+        targetHash: documentHash,
+      });
+      const formData = new FormData();
+      formData.append(
+        "uploadedFile",
+        fs.readFileSync(`./assets/pdf/${contractFileName}.pdf`),
+        {
+          filename: `${companyName}-${contractFileName}.pdf`,
+        }
+      );
+      const uploadResponse = await axios.post(
+        `${SERVERS?.COMMONLANDS_GITHUB_SERVICE}/api/git/upload/file`,
+        formData
+      );
+      if (uploadResponse?.data?.error_code) {
+        logger.apiError(req, res, `Error while uploading PDF`);
+        return res.status(200).json(uploadResponse);
+      }
+      await deleteFile(`./assets/pdf/${contractFileName}.pdf`);
+      const didResponse = await getDidDocumentByDid({
+        did: documentDid,
+        accessToken: accessToken,
+      });
+      if (!didResponse?.didDoc) {
+        logger.apiError(req, res, `Error while getting DID document`);
+        return res.status(200).json({
+          error_code: 400,
+          error_message: "Error while getting DID document",
+        });
+      }
+      const updateDidDoc = {
+        ...didResponse?.didDoc,
+        pdfUrl: uploadResponse?.data?.url,
+      };
+      const updateDidDocResponse = await updateDocumentDid({
+        did: documentDid,
+        accessToken: accessToken,
+        didDoc: updateDidDoc,
+      });
+      if (updateDidDocResponse?.error_code) {
+        logger.apiError(req, res, `Error while push url to DID document`);
+        return res.status(200).json({
+          error_code: 400,
+          error_message: "Error while push url to DID document",
+        });
+      }
+      logger.apiInfo(
+        req,
+        res,
+        `Response from service: ${JSON.stringify(uploadResponse?.data)}`
+      );
+      return res.status(200).json(uploadResponse?.data);
+    } catch (error) {
+      error?.error_code
+        ? res.status(200).json(error)
+        : res.status(200).json({
+            error_code: 400,
+            message: error?.message || "Something went wrong!",
+          });
     }
   },
   revokeDocument: async (req, res) => {

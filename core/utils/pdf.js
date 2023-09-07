@@ -34,6 +34,7 @@ const createPdf = async ({ fileName, data }) => {
     width: "180mm" /* A4 width in millimeters */,
     height: "260mm" /* A4 height in millimeters */,
     path: `./assets/pdf/${fileName}.pdf`, // you can pass path to save the file
+    margin: 0
   };
 
   const currentStatus = PLOT_STATUSES[data?.plotInformation?.plotStatus];
@@ -326,6 +327,32 @@ margin-left: 10px;
   }
 };
 
+const createCommonlandsContract = async ({ fileName, data }) => {
+  try {
+    const options = {
+      width: "180mm" /* A4 width in millimeters */,
+      height: "260mm" /* A4 height in millimeters */,
+      path: `./assets/pdf/${fileName}.pdf`, // you can pass path to save the file
+      margin: 0
+    };
+    const content = `  
+    <div style="
+      border-radius: 4px;
+      background-color: #fff;
+      width: 180mm; /* A4 width in millimeters */
+      height: 240mm; /* A4 height in millimeters */
+      font-family: Roboto, sans-serif;
+      background-position: center center;
+      background-repeat: no-repeat;
+    ">
+      <span>${data?.description}</span>
+    </div>`;
+    return await htmlPDF.create(content, options);
+  } catch (error) {
+    throw error;
+  }
+}
+
 /**
  * Function used for encrypting pdf file
  * @param {String} fileName - name of file
@@ -500,4 +527,5 @@ export {
   getPdfBufferFromUrl,
   bufferToPDFDocument,
   deleteFile,
+  createCommonlandsContract
 };

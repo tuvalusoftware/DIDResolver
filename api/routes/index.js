@@ -9,6 +9,7 @@ import signatureController from "../controllers/commonlands/signatureController.
 import authController from "../controllers/cardano/authController.js";
 import cardanoController from "../controllers/cardano/cardanoController.js";
 import algorandController from "../controllers/algorand/algorandController.js";
+import contractRoutes from "./contractRoutes.js";
 import cmlCredentialRoutes from "./cmlCredentialRoutes.js";
 
 export default (app) => {
@@ -27,6 +28,8 @@ export default (app) => {
   app.use("/resolver/pdf", pdfRoutes);
   app.post("/resolver/signature", signatureController.signMessageBySeedPhrase);
   app.post("/resolver/account", signatureController.accountFromSeedPhrase);
+  // Contract controller services
+  app.use("/resolver/contract", contractRoutes);
   // app.get(
   //   "/resolver/nfts",
   //   authController.ensureAuthenticated,

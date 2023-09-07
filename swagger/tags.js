@@ -21,6 +21,10 @@ export const tags = {
       description: "API for wrapped document",
     },
     {
+      name: 'Commonlands Contract',
+      description: 'Endpoints for contract'
+    },
+    {
       name: "Credential",
       description: "API for credential",
     },

@@ -14,6 +14,10 @@ export const VALID_DOCUMENT_NAME_TYPE = [
   {
     name: 'Land Certificate',
     type: 'trade',
+  },
+  {
+    name: 'Commonlands Contract',
+    type: 'trade',
   }
 ];
 

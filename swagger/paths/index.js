@@ -32,6 +32,9 @@ import {
   verifyUploadedCommonlandsPdf,
   commonlandsCredential
 } from "./commonlands.js";
+import {
+  contract,
+} from './contract.js'
 
 export const paths = {
    // * Commonlands
@@ -40,6 +43,9 @@ export const paths = {
   },
   "/commonlands/document/revoke": {
     ...revokeCommonlandsDocument,
+  },
+  "/commonlands/document/contract": {
+    ...contract
   },
   '/commonlands/document/multiple': {
     ...multipleCommonlandsDocumentSigning
