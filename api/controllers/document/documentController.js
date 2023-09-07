@@ -194,6 +194,7 @@ export default {
         `${SERVERS?.COMMONLANDS_GITHUB_SERVICE}/api/git/upload/file`,
         formData
       );
+      logger.apiInfo(req, res, `Response from service: ${JSON.stringify(uploadResponse?.data)}`);
       if (uploadResponse?.data?.error_code) {
         logger.apiError(req, res, `Error while uploading PDF`);
         return res.status(200).json(uploadResponse);
