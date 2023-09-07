@@ -38,7 +38,7 @@ const createPdf = async ({ fileName, data }) => {
   };
 
   const currentStatus = PLOT_STATUSES[data?.plotInformation?.plotStatus];
-  const qrCodeData = `https://commonlands-user.ap.ngrok.io/public/?id=${data?.plotInformation?.plotId}`;
+  const qrCodeData = `https://commonlands-user.ap.ngrok.io/public/?id=${data?.plotInformation?.plot_Id}`;
   const dataUrl = await QRCode.toDataURL(qrCodeData);
   const qrCodeImage = await Jimp.read(
     Buffer.from(dataUrl.split(",")[1], "base64")
