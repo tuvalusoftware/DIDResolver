@@ -1,7 +1,7 @@
 export default {
   COMMONLANDS_CONTRACT: {
     type: "object",
-    require: ["description"],
+    required: ["description"],
     properties: {
       description: {
         type: "string",

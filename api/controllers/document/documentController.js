@@ -1,5 +1,6 @@
 // * Constants
 import { ERRORS, SERVERS } from "../../../core/constants.js";
+import { COMMONLANDS } from "../../../core/schemas/index.js";
 
 // * Utilities
 import axios from "axios";
@@ -9,6 +10,7 @@ import {
   getCurrentDateTime,
   getPublicKeyFromAddress,
   generateRandomString,
+  validateJSONSchema,
 } from "../../../core/index.js";
 import {
   createDocumentForCommonlands,
@@ -279,6 +281,15 @@ export default {
       }
       const accessToken = await authenticationProgress();
       const companyName = _companyName || process.env.COMPANY_NAME;
+      const valid = validateJSONSchema(
+        COMMONLANDS?.COMMONLANDS_CONTRACT,
+        content
+      );
+      if (!valid.valid)
+        return res.status(200).json({
+          ...ERRORS.INVALID_INPUT,
+          detail: valid.detail,
+        });
       const contractFileName = `Contract-${id}`;
       const isExistedResponse = await axios.get(
         SERVERS.DID_CONTROLLER + "/api/doc/exists",
