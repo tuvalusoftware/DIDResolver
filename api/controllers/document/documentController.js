@@ -129,7 +129,8 @@ export default {
         },
         plotInformation: {
           plotName: plot?.name,
-          plotId: plot?._id,
+          plotId: plot?.id,
+          plot_Id: plot?._id,
           plotStatus: "Free & Clear",
           plotPeople: "Verified by 3 claimants, 6 Neighbors",
           plotLocation: plot?.placeName,

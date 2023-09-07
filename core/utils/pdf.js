@@ -65,7 +65,7 @@ const createPdf = async ({ fileName, data }) => {
     font-size: 10px;
     font-weight: 400;">View a digital version including more details visit:
       https://commonlands-user.ap.ngrok.io/public/?id=${
-        data?.plotInformation?.plotId
+        data?.plotInformation?.plot_Id
       }</p>
     <div
       style="display: flex; flex-direction: row; justify-content: space-between; align-items: center; padding: 20px;">
