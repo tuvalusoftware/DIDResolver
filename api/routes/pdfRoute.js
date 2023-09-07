@@ -11,7 +11,7 @@ router.get("", pdfController.readPdfFile);
 router.post("/verify", pdfController.verifyPdfFile);
 router.post(
   "/upload-verify",
-  upload.single("pdf"),
+  upload.single("file"),
   pdfController.verifyUploadedPdf
 );
 

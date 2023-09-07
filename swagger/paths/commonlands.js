@@ -554,7 +554,6 @@ export const verifyUploadedCommonlandsPdf = {
     tags: ["Commonlands PDF"],
     summary: "",
     requestBody: {
-      require: true,
       content: {
         "multipart/form-data": {
           schema: {
