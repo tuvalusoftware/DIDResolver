@@ -69,6 +69,7 @@ export default {
         "+",
         ""
       )}-${plot?._id}`;
+      logger.apiInfo(req, res, `Pdf file name: ${pdfFileName}`);
       const isExistedResponse = await axios.get(
         SERVERS.DID_CONTROLLER + "/api/doc/exists",
         {
@@ -82,11 +83,21 @@ export default {
           },
         }
       );
+      logger.apiInfo(
+        req,
+        res,
+        `Response from service: ${JSON.stringify(isExistedResponse?.data)}`
+      );
       if (isExistedResponse?.data?.isExisted) {
         const existedDidDoc = await getDidDocumentByDid({
           accessToken: accessToken,
           did: generateDid(companyName, pdfFileName),
         });
+        logger.apiInfo(
+          req,
+          res,
+          `Response from service: ${JSON.stringify(existedDidDoc?.data)}`
+        );
         if (existedDidDoc?.data?.error_code) {
           logger.apiError(req, res, `Error while getting DID document`);
           return res.status(200).json(ERRORS?.CANNOT_FOUND_DID_DOCUMENT);
@@ -194,7 +205,11 @@ export default {
         `${SERVERS?.COMMONLANDS_GITHUB_SERVICE}/api/git/upload/file`,
         formData
       );
-      logger.apiInfo(req, res, `Response from service: ${JSON.stringify(uploadResponse?.data)}`);
+      logger.apiInfo(
+        req,
+        res,
+        `Response from service: ${JSON.stringify(uploadResponse?.data)}`
+      );
       if (uploadResponse?.data?.error_code) {
         logger.apiError(req, res, `Error while uploading PDF`);
         return res.status(200).json(uploadResponse);
