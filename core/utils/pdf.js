@@ -34,7 +34,7 @@ const createPdf = async ({ fileName, data }) => {
     width: "180mm" /* A4 width in millimeters */,
     height: "260mm" /* A4 height in millimeters */,
     path: `./assets/pdf/${fileName}.pdf`, // you can pass path to save the file
-    margin: 0
+    margin: 0,
   };
 
   const currentStatus = PLOT_STATUSES[data?.plotInformation?.plotStatus];
@@ -333,7 +333,7 @@ const createCommonlandsContract = async ({ fileName, data }) => {
       width: "180mm" /* A4 width in millimeters */,
       height: "260mm" /* A4 height in millimeters */,
       path: `./assets/pdf/${fileName}.pdf`, // you can pass path to save the file
-      margin: 0
+      margin: 0,
     };
     const content = `  
     <div style="
@@ -351,7 +351,7 @@ const createCommonlandsContract = async ({ fileName, data }) => {
   } catch (error) {
     throw error;
   }
-}
+};
 
 /**
  * Function used for encrypting pdf file
@@ -410,8 +410,10 @@ async function getPdfBufferFromUrl(pdfUrl) {
       );
     }
   } catch (error) {
-    console.error("Error fetching PDF:", error.message);
-    throw error;
+    throw {
+      error_code: 400,
+      error_message: "Cannot get pdf from url!",
+    };
   }
 }
 
@@ -527,5 +529,5 @@ export {
   getPdfBufferFromUrl,
   bufferToPDFDocument,
   deleteFile,
-  createCommonlandsContract
+  createCommonlandsContract,
 };
