@@ -42,10 +42,10 @@ export const paths = {
   "/commonlands/document/revoke": {
     ...revokeCommonlandsDocument,
   },
-  "/commonlands/document/contract": {
+  "/contract": {
     ...contract,
   },
-  "/commonlands/document/contract/verify": {
+  "/contract/verify": {
     ...verifyContract,
   },
   "/commonlands/document/multiple": {

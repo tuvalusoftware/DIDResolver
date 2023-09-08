@@ -1,9 +1,17 @@
-import express from 'express';
+import express from "express";
+import multer from "multer";
 import documentController from "../controllers/document/documentController.js";
+
+const storage = multer.memoryStorage();
+const upload = multer({ storage: storage });
 
 const router = express.Router();
 
-router.post('', documentController.createContract);
-router.post('/verify', documentController.verifyContract);
+router.post("", documentController.createContract);
+router.post(
+  "/verify",
+  upload.single("file"),
+  documentController.verifyContract
+);
 
 export default router;

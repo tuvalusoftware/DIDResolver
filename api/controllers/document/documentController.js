@@ -615,6 +615,7 @@ export default {
   },
   verifyContract: async (req, res) => {
     try {
+      logger.apiInfo(req, res, `API Request: Verify Commonlands Contract`);
       const uploadedFile = req.file;
       const { url } = req.body;
       if (!url && !uploadedFile) {
@@ -672,7 +673,7 @@ export default {
         })
         .catch(() => {
           logger.apiError(req, res, `Error while verifying contract`);
-          return res.status(200).json(CONTRACT_IS_NOT_VALID);
+          return res.status(200).json(ERRORS.CONTRACT_IS_NOT_VALID);
         });
     } catch (error) {
       error?.error_code

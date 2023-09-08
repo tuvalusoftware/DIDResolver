@@ -94,6 +94,17 @@ export const verifyContract = {
             },
           },
         },
+        "multipart/form-data": {
+          schema: {
+            type: "object",
+            properties: {
+              file: {
+                type: "string",
+                format: "binary",
+              },
+            },
+          },
+        },
       },
     },
     responses: {
@@ -110,7 +121,8 @@ export const verifyContract = {
               },
               "Contract is not valid": {
                 value: {
-                  isValid: true,
+                  error_code: 400,
+                  error_message: "Contract is not valid!",
                 },
               },
               "Contract is valid": {
