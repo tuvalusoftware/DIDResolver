@@ -395,7 +395,7 @@ const encryptPdf = async ({ fileName, targetHash, did }) => {
  * @param {String} pdfUrl
  * @returns {Buffer} - Buffer of pdf file
  */
-async function getPdfBufferFromUrl(pdfUrl) {
+const getPdfBufferFromUrl = async (pdfUrl) => {
   try {
     const response = await axios.get(pdfUrl, {
       responseType: "arraybuffer", // Set the response type to arraybuffer
@@ -415,26 +415,26 @@ async function getPdfBufferFromUrl(pdfUrl) {
       error_message: "Cannot get pdf from url!",
     };
   }
-}
+};
 
 /**
  * Function used for converting buffer to pdf document
  * @param {Buffer} buffer
  * @returns {PDFDocument}
  */
-async function bufferToPDFDocument(buffer) {
+const bufferToPDFDocument = async (buffer) => {
   const pdfDoc = await PDFDocument.load(buffer);
   return pdfDoc;
-}
+};
 
-async function deleteFile(path) {
+const deleteFile = async (path) => {
   fs.unlink(path, (err) => {
     if (err) {
       console.error(err);
       return;
     }
   });
-}
+};
 
 /**
  * Function used for verifying pdf file by given url on AWS S3
@@ -521,6 +521,38 @@ const readPdf = async ({ fileName }) => {
   }
 };
 
+/**
+ * Function used for reading content of pdf file
+ * @param {Buffer} pdfDocBuffer - Buffer of pdf file
+ * @returns {Object} - { targetHash, fileName, did, pdfHash }
+ */
+const readContentOfPdf = async ({ buffer }) => {
+  try {
+    const pdfDoc = await bufferToPDFDocument(buffer);
+    const keywords = pdfDoc.getKeywords();
+    const targetHash = keywords.split(" ")[0].split(":")[1];
+    const didParameters = keywords.split(" ")[1].split(":");
+    const fileName = keywords.split(" ")[3].split(":")[1];
+    const did =
+      didParameters[1] +
+      ":" +
+      didParameters[2] +
+      ":" +
+      didParameters[3] +
+      ":" +
+      didParameters[4];
+    const pdfHash = keywords.split(" ")[2].split(":")[1];
+    return {
+      targetHash,
+      fileName,
+      did,
+      pdfHash,
+    };
+  } catch (e) {
+    throw e;
+  }
+};
+
 export {
   createPdf,
   encryptPdf,
@@ -530,4 +562,5 @@ export {
   bufferToPDFDocument,
   deleteFile,
   createCommonlandsContract,
+  readContentOfPdf,
 };

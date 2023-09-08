@@ -157,4 +157,8 @@ export const ERRORS = {
     error_code: 400,
     error_message: "Cannot get document information!",
   },
+  COMMONLANDS_CONTRACT_IS_NOT_VALID: {
+    error_code: 400,
+    error_message: "Commonlands contract is not valid!",
+  },
 };

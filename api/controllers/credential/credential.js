@@ -10,8 +10,11 @@ import {
 } from "../../../core/index.js";
 import { createVerifiableCredential } from "../../../core/utils/credential.js";
 import { getAccountBySeedPhrase } from "../../../core/utils/lucid.js";
-import { generateDid } from "../../../fuixlabs-documentor/utils/did.js";
-import { getDocumentContentByDid } from "../../../core/utils/controller.js";
+import {
+  getDocumentContentByDid,
+  getDidDocumentByDid,
+  updateDocumentDid,
+} from "../../../core/utils/controller.js";
 import { authenticationProgress } from "../../../core/utils/auth.js";
 import {
   getPdfBufferFromUrl,
@@ -37,7 +40,8 @@ export default {
         );
         return res.status(200).json({
           error_code: 400,
-          error_message: "We need config or url to mint NFT! Make sure you have at least one of them!"
+          error_message:
+            "We need config or url to mint NFT! Make sure you have at least one of them!",
         });
       }
       const undefinedVar = checkUndefinedVar({
@@ -88,9 +92,6 @@ export default {
         seedPhrase: seedPhrase,
       });
       const publicKey = getPublicKeyFromAddress(currentWallet?.paymentAddr);
-      let dids = {
-        issuerKey: generateDid(process.env.COMPANY_NAME, publicKey),
-      };
       const props = {
         didoWrappedDocument: didDocument,
         metadata,
@@ -145,6 +146,50 @@ export default {
             Cookie: `access_token=${accessToken};`,
           },
         }
+      );
+      const didResponse = await getDidDocumentByDid({
+        accessToken: accessToken,
+        did: didDocument,
+      });
+      if (didResponse?.error_code) {
+        logger.apiError(req, res, `Error: ${JSON.stringify(didResponse)}`);
+        return res.status(200).json(didResponse);
+      }
+      const didUpdateResponse = await updateDocumentDid({
+        did: didDocument,
+        accessToken: accessToken,
+        didDoc: {
+          ...didResponse?.didDoc,
+          credentials: didResponse?.didDoc?.credentials
+            ? [
+                ...didResponse?.didDoc?.credentials,
+                sha256(
+                  Buffer.from(JSON.stringify(credential), "utf8").toString(
+                    "hex"
+                  )
+                ),
+              ]
+            : [
+                sha256(
+                  Buffer.from(JSON.stringify(credential), "utf8").toString(
+                    "hex"
+                  )
+                ),
+              ],
+        },
+      });
+      if (didUpdateResponse?.data?.error_code) {
+        logger.apiError(
+          req,
+          res,
+          `Error: ${JSON.stringify(didUpdateResponse?.data)}`
+        );
+        return res.status(200).json(didUpdateResponse?.data);
+      }
+      logger.apiInfo(
+        req,
+        res,
+        `Successfully saved: ${JSON.stringify(storeCredentialStatus.data)}`
       );
       return res.status(200).send(storeCredentialStatus.data);
     } catch (error) {
