@@ -61,17 +61,6 @@ export default {
           ...ERRORS.MISSING_PARAMETERS,
           detail: undefinedVar.detail,
         });
-
-      // Call Cardano Service
-      // v2
-      // success:
-      //   {
-      //     code: 0,
-      //     message: string,
-      //     data: [] or {}
-      //   }
-      // error:
-      //   { code: 1, message: string }
       let query = { policyId: policyid },
         undefinedCheck = { policyid };
       if (hashofdocument) {
@@ -93,10 +82,8 @@ export default {
       if (data.code) {
         apiError(req, res, `${JSON.stringify(data)}`);
         return res.status.json(ERRORS.CANNOT_FETCH_NFT);
-      } else {
-        // apiInfo(req, res, `Success.\n${JSON.stringify(data)}`);
-        return res.status(200).json(data.data);
       }
+      return res.status(200).json(data.data);
     } catch (error) {
       apiError(req, res, `${JSON.stringify(error?.message || error)}`);
       return error.response

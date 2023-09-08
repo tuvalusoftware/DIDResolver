@@ -106,6 +106,12 @@ const updateDocumentDid = async ({ did, accessToken, didDoc }) => {
   }
 };
 
+/**
+ *
+ * @param {String} did
+ * @param {String} accessToken
+ * @returns
+ */
 const retrieveDocumentDid = async ({ did, accessToken }) => {
   try {
     const didComponents = did.split(":");
@@ -127,9 +133,39 @@ const retrieveDocumentDid = async ({ did, accessToken }) => {
   }
 };
 
+/**
+ *
+ * @param {String} hash
+ * @param {String} accessToken
+ * @returns
+ */
+const getCredential = async ({ hash, accessToken }) => {
+  try {
+    const credentialResponse = await axios.get(
+      SERVERS.DID_CONTROLLER + "/api/credential",
+      {
+        withCredentials: true,
+        headers: {
+          Cookie: `access_token=${accessToken};`,
+        },
+        params: {
+          hash,
+        },
+      }
+    );
+    if (credentialResponse?.data?.error_code) {
+      throw credentialResponse;
+    }
+    return credentialResponse;
+  } catch (e) {
+    throw e;
+  }
+};
+
 export {
   getDocumentContentByDid,
   getDidDocumentByDid,
   updateDocumentDid,
   retrieveDocumentDid,
+  getCredential,
 };

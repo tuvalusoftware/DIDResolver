@@ -30,31 +30,32 @@ import {
   multipleCommonlandsDocumentSigning,
   hashDocumentContent,
   verifyUploadedCommonlandsPdf,
-  commonlandsCredential
+  commonlandsCredential,
 } from "./commonlands.js";
-import {
-  contract,
-} from './contract.js'
+import { contract, verifyContract } from "./contract.js";
 
 export const paths = {
-   // * Commonlands
-   "/commonlands/document": {
+  // * Commonlands
+  "/commonlands/document": {
     ...commonlandsDocument,
   },
   "/commonlands/document/revoke": {
     ...revokeCommonlandsDocument,
   },
   "/commonlands/document/contract": {
-    ...contract
+    ...contract,
   },
-  '/commonlands/document/multiple': {
-    ...multipleCommonlandsDocumentSigning
+  "/commonlands/document/contract/verify": {
+    ...verifyContract,
   },
-  '/commonlands/document/hash': {
-    ...hashDocumentContent
+  "/commonlands/document/multiple": {
+    ...multipleCommonlandsDocumentSigning,
   },
-  '/resolver/credential': {
-    ...commonlandsCredential
+  "/commonlands/document/hash": {
+    ...hashDocumentContent,
+  },
+  "/resolver/credential": {
+    ...commonlandsCredential,
   },
   "/pdf": {
     ...commonlandsPdf,
@@ -62,8 +63,8 @@ export const paths = {
   "/pdf/verify": {
     ...verifyCommonlandsPdf,
   },
-  '/pdf/upload-verify': {
-    ...verifyUploadedCommonlandsPdf
+  "/pdf/upload-verify": {
+    ...verifyUploadedCommonlandsPdf,
   },
   "/": {
     ...setCookie,

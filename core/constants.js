@@ -161,4 +161,12 @@ export const ERRORS = {
     error_code: 400,
     error_message: "Commonlands contract is not valid!",
   },
+  VERIFIABLE_CREDENTIAL_IS_NOT_VALID: {
+    error_code: 400,
+    error_message: "Verifiable credential is not valid!",
+  },
+  CONTRACT_IS_NOT_VALID: {
+    error_code: 400,
+    error_message: "Contract is not valid!",
+  },
 };

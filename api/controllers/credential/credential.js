@@ -114,7 +114,9 @@ export default {
         {
           config: mintingConfig,
           credential: sha256(
-            Buffer.from(JSON.stringify(credential), "utf8").toString("hex")
+            Buffer.from(JSON.stringify(verifiedCredential), "utf8").toString(
+              "hex"
+            )
           ),
         },
         {
@@ -134,7 +136,9 @@ export default {
         SERVERS.DID_CONTROLLER + "/api/credential",
         {
           hash: sha256(
-            Buffer.from(JSON.stringify(credential), "utf8").toString("hex")
+            Buffer.from(JSON.stringify(verifiedCredential), "utf8").toString(
+              "hex"
+            )
           ),
           content: {
             ...verifiedCredential,
@@ -164,16 +168,18 @@ export default {
             ? [
                 ...didResponse?.didDoc?.credentials,
                 sha256(
-                  Buffer.from(JSON.stringify(credential), "utf8").toString(
-                    "hex"
-                  )
+                  Buffer.from(
+                    JSON.stringify(verifiedCredential),
+                    "utf8"
+                  ).toString("hex")
                 ),
               ]
             : [
                 sha256(
-                  Buffer.from(JSON.stringify(credential), "utf8").toString(
-                    "hex"
-                  )
+                  Buffer.from(
+                    JSON.stringify(verifiedCredential),
+                    "utf8"
+                  ).toString("hex")
                 ),
               ],
         },

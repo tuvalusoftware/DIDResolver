@@ -37,8 +37,8 @@ import {
 } from "../../../core/utils/pdf.js";
 import { unsalt } from "../../../fuixlabs-documentor/utils/data.js";
 import { generateDid } from "../../../fuixlabs-documentor/utils/did.js";
-import { uploadMultipleImages } from "../../../core/utils/aws.js";
 import logger from "../../../logger.js";
+import { getAndVerifyCredential } from "../../../core/utils/credential.js";
 
 axios.defaults.withCredentials = true;
 
@@ -52,7 +52,6 @@ export default {
       );
       const { plot, owner, companyName: _companyName } = req.body;
       const accessToken = await authenticationProgress();
-      const secretKey = process.env.COMMONLANDS_SECRET_KEY;
       const undefinedVar = checkUndefinedVar({
         plot,
         owner,
@@ -333,9 +332,6 @@ export default {
           detail: undefinedVar?.detail,
         });
       }
-      const accessToken = await authenticationProgress();
-      const secretKey = process.env.COMMONLANDS_SECRET_KEY;
-      const pdfFileName = `LandCertificate-${new Date().toUTCString()}` || "";
       // const isExistedResponse = await axios.get(
       //   SERVERS.DID_CONTROLLER + "/api/doc/exists",
       //   {
@@ -637,12 +633,47 @@ export default {
         buffer: contractBuffer,
       });
       if (!valid) {
+        logger.apiError(req, res, "Error: Contract is not valid!");
         return res.status(200).json(ERRORS.COMMONLANDS_CONTRACT_IS_NOT_VALID);
       }
       // * Step 2: Verify each claimant's credential
-      const { targetHash, fileName, did, pdfHash } = await readContentOfPdf({
+      const { did } = await readContentOfPdf({
         buffer: contractBuffer,
       });
+      const accessToken = await authenticationProgress();
+      const didDocResponse = await getDidDocumentByDid({
+        did: did,
+        accessToken: accessToken,
+      });
+      if (!didDocResponse?.didDoc?.credentials) {
+        logger.apiError(
+          req,
+          res,
+          "There are no credentials related to this contract!"
+        );
+        return res.status(200).json({
+          error_code: 400,
+          error_message: "There are no credentials related to this contract!",
+        });
+      }
+      const credentials = didDocResponse?.didDoc?.credentials;
+      const promises = credentials.map((item) =>
+        getAndVerifyCredential({
+          credential: item,
+          accessToken: accessToken,
+        })
+      );
+      Promise.all(promises)
+        .then(() => {
+          logger.apiInfo(req, res, `Contract is verified!`);
+          return res.status(200).json({
+            isValid: true,
+          });
+        })
+        .catch(() => {
+          logger.apiError(req, res, `Error while verifying contract`);
+          return res.status(200).json(CONTRACT_IS_NOT_VALID);
+        });
     } catch (error) {
       error?.error_code
         ? res.status(200).json(error)
