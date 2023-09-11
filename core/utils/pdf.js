@@ -440,8 +440,15 @@ const getPdfBufferFromUrl = async (pdfUrl) => {
  * @returns {PDFDocument}
  */
 const bufferToPDFDocument = async (buffer) => {
-  const pdfDoc = await PDFDocument.load(buffer);
-  return pdfDoc;
+  try {
+    const pdfDoc = await PDFDocument.load(buffer);
+    return pdfDoc;
+  } catch (error) {
+    throw {
+      error_code: 400,
+      error_message: "Cannot get content of pdf!",
+    };
+  }
 };
 
 const deleteFile = async (path) => {
