@@ -18,39 +18,15 @@ import { SERVERS } from "../../core/constants.js";
  * @param {String} signature
  * @return {Object} - return a credential
  */
-const createVerifiableCredential = async (
-  { didoWrappedDocument, metadata, action },
-  currentUserPublicKey,
-  lucidClient,
-  currentWallet
-) => {
-  const credentialSubject = {
-    object: didoWrappedDocument,
-    action: action,
-  };
-  const payload = {
-    address: currentUserPublicKey,
-    subject: credentialSubject,
-  };
+const createVerifiableCredential = async ({ signData, issuerKey, subject }) => {
   try {
-    const signMessage = await lucidClient
-      ?.newMessage(
-        currentWallet?.paymentAddr,
-        Buffer.from(JSON.stringify(payload), "utf8").toString("hex")
-      )
-      .sign();
-    const hexStringPayload = Buffer.from(
-      JSON.stringify(payload),
-      "utf8"
-    ).toString("hex");
-    const signedData = signMessage;
-    let credential = {
-      issuer: generateDid(process.env.COMPANY_NAME, currentUserPublicKey),
-      credentialSubject,
-      signature: signedData,
+    const credential = {
+      issuer: generateDid(process.env.COMPANY_NAME, issuerKey),
+      subject,
+      signature: signData,
       metadata,
     };
-    return { credential, payload: hexStringPayload, signature: signedData };
+    return { credential };
   } catch (e) {
     throw e;
   }

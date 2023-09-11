@@ -382,35 +382,56 @@ export const commonlandsCredential = {
     requestBody: {
       require: true,
       content: {
-        "application/json": {
+        'application/json': {
           schema: {
-            type: "object",
+            type: 'object',
             properties: {
-              didoWrappedDocument: {
-                type: "string",
-                example:
-                  "did:cardano:addr_test1qzj2pgqct6jwpvw7mjtjtess4nlmu385hzarszh9jxcv9eudvd5vt62wt4n97tqqcr43qs7d0v2eex2rkn763zzkys2swwrcxw",
-              },
               metadata: {
-                type: "object",
-                example: {},
-              },
-              seedPhrase: {
-                type: "string",
-                example: "test test",
+                type: 'object',
+                example: {
+                  name: 'Land Certificate',
+                  description: 'Land Certificate for the Commonlands Project',
+                }
               },
               config: {
-                type: "object",
-                example: {},
+                type: 'object',
+                example: {
+                  contractAddress: '0x1a2b3c4d5e6f7g8h9i0j1k2l3m4n5o6p7q8r9s0t',
+                  contractName: 'Commonlands',
+                  contractType: 'ERC721',
+                  contractSymbol: 'CLNDS',
+                }
               },
-              url: {
-                type: "string",
-                example:
-                  "https://raw.githubusercontent.com/dev-fuixlabs/Commonlands_DOC/IMAGE/1692991473198_COMMONLANDS_2-LandCertificate-14088960050-64db86559e77a4ffc2395ada-30.pdf",
+              did: {
+                type: 'string',
+                example: 'did:cardano:addr_test1qzj2pgqct6jwpvw7mjtjtess4nlmu385hzarszh9jxcv9eudvd5vt62wt4n97tqqcr43qs7d0v2eex2rkn763zzkys2swwrcxw'
               },
-            },
-          },
-        },
+              subject: {
+                type: 'object',
+                example: {
+                  address: '0x1a2b3c4d5e6f7g8h9i0j1k2l3m4n5o6p7q8r9s0t',
+                  subject: {
+                    object: '0x1a2b3c4d5e6f7g8h9i0j1k2l3m4n5o6p7q8r9s0t',
+                    action: {
+                      code: 1
+                    }
+                  }
+                }
+              },
+              signData: {
+                type: 'object',
+                example: {
+                  key: '0x1a2b3c4d5e6f7g8h9i0j1k2l3m4n5o6p7q8r9s0t',
+                  signature: '0x1a2b3c4d5e6f7g8h9i0j1k2l3m4n5o6p7q8r9s0t'
+                }
+              },
+              issuerKey: {
+                type: 'string',
+                example: '0x1a2b3c4d5e6f7g8h9i0j1k2l3m4n5o6p7q8r9s0t'
+              },
+            }
+          }
+        }
       },
     },
     responses: {

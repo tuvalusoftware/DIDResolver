@@ -16,10 +16,6 @@ import {
   updateDocumentDid,
 } from "../../../core/utils/controller.js";
 import { authenticationProgress } from "../../../core/utils/auth.js";
-import {
-  getPdfBufferFromUrl,
-  bufferToPDFDocument,
-} from "../../../core/utils/pdf.js";
 import logger from "../../../logger.js";
 import { sha256 } from "js-sha256";
 
@@ -28,14 +24,14 @@ axios.defaults.withCredentials = true;
 export default {
   createCredential: async (req, res) => {
     try {
-      const { metadata, seedPhrase, config, url } = req.body;
-      if (!config && !url) {
+      const { metadata, did, subject, signData, issuerKey } = req.body;
+      if (!did) {
         logger.apiError(
           req,
           res,
           `Error: ${JSON.stringify({
             ...ERRORS.MISSING_PARAMETERS,
-            detail: "Missing config or url",
+            detail: "Missing config, did or url",
           })}`
         );
         return res.status(200).json({
@@ -46,7 +42,9 @@ export default {
       }
       const undefinedVar = checkUndefinedVar({
         metadata,
-        seedPhrase,
+        subject,
+        signData,
+        issuerKey,
       });
       if (undefinedVar?.undefined) {
         logger.apiError(
@@ -60,21 +58,8 @@ export default {
         });
       }
       const accessToken = await authenticationProgress();
-      let mintingConfig = config;
-      let didDocument;
-      if (url) {
-        const pdfDocBuffer = await getPdfBufferFromUrl(url);
-        const pdfDoc = await bufferToPDFDocument(pdfDocBuffer);
-        const keywords = pdfDoc.getKeywords();
-        const didParameters = keywords.split(" ")[1].split(":");
-        const did =
-          didParameters[1] +
-          ":" +
-          didParameters[2] +
-          ":" +
-          didParameters[3] +
-          ":" +
-          didParameters[4];
+      let mintingConfig;
+      if (did) {
         const { wrappedDoc } = await getDocumentContentByDid({
           did: did,
           accessToken: accessToken,
@@ -85,26 +70,13 @@ export default {
             message: "This document is not minted yet!",
           });
         }
-        didDocument = did;
         mintingConfig = wrappedDoc?.mintingNFTConfig;
       }
-      const { currentWallet, lucidClient } = await getAccountBySeedPhrase({
-        seedPhrase: seedPhrase,
+      const { credential } = await createVerifiableCredential({
+        signData,
+        issuerKey,
+        subject,
       });
-      const publicKey = getPublicKeyFromAddress(currentWallet?.paymentAddr);
-      const props = {
-        didoWrappedDocument: didDocument,
-        metadata,
-        action: {
-          code: 1,
-        },
-      };
-      const { credential } = await createVerifiableCredential(
-        props,
-        publicKey,
-        lucidClient,
-        currentWallet
-      );
       const verifiedCredential = {
         ...credential,
         timestamp: Date.now(),
@@ -153,14 +125,14 @@ export default {
       );
       const didResponse = await getDidDocumentByDid({
         accessToken: accessToken,
-        did: didDocument,
+        did: did,
       });
       if (didResponse?.error_code) {
         logger.apiError(req, res, `Error: ${JSON.stringify(didResponse)}`);
         return res.status(200).json(didResponse);
       }
       const didUpdateResponse = await updateDocumentDid({
-        did: didDocument,
+        did: did,
         accessToken: accessToken,
         didDoc: {
           ...didResponse?.didDoc,
