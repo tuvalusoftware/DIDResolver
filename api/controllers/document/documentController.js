@@ -51,6 +51,7 @@ export default {
         `API Request: Create Document using Seed Phrase`
       );
       const { plot, owner, companyName: _companyName } = req.body;
+      const currentRoute = req.path;
       const accessToken = await authenticationProgress();
       const undefinedVar = checkUndefinedVar({
         plot,
@@ -67,7 +68,9 @@ export default {
           detail: undefinedVar?.detail,
         });
       }
-      const companyName = _companyName || process.env.COMPANY_NAME;
+      const companyName = currentRoute.includes("testing")
+        ? process.env.TESTING_COMPANY_NAME
+        : process.env.COMPANY_NAME;
       const pdfFileName = `LandCertificate-${owner?.phoneNumber.replace(
         "+",
         ""

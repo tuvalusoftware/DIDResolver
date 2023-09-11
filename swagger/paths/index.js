@@ -39,6 +39,9 @@ export const paths = {
   "/commonlands/document": {
     ...commonlandsDocument,
   },
+  "/commonlands/document/testing": {
+    ...commonlandsDocument,
+  },
   "/commonlands/document/revoke": {
     ...revokeCommonlandsDocument,
   },
