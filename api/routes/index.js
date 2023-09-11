@@ -30,6 +30,9 @@ export default (app) => {
   app.post("/resolver/account", signatureController.accountFromSeedPhrase);
   // Contract controller services
   app.use("/resolver/contract", contractRoutes);
+  app.get("*", (req, res) => {
+    res.status(404).send("Not found");
+  });
   // app.get(
   //   "/resolver/nfts",
   //   authController.ensureAuthenticated,
