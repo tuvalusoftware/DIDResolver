@@ -8,5 +8,6 @@ export default {
         description: "Description of the contract",
       },
     },
+    additionalProperties: true,
   },
 };

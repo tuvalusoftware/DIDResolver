@@ -112,6 +112,7 @@ export default {
         );
         return res.status(200).json({
           url: existedDidDoc?.didDoc?.pdfUrl,
+          isExisted: true,
         });
       }
       let plotDetailForm = {
