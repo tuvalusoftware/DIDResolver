@@ -308,6 +308,7 @@ export default {
           data: { config: mintingConfig },
         }
       );
+      logger.apiError(req, res, `Response from service: ${JSON.stringify(revokeResponse?.data)}`)
       if (revokeResponse?.data?.code !== 0) {
         logger.apiError(
           req,
