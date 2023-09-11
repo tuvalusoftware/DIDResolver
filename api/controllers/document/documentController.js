@@ -114,7 +114,7 @@ export default {
           url: existedDidDoc?.didDoc?.pdfUrl,
         });
       }
-      const plotDetailForm = {
+      let plotDetailForm = {
         profileImage: "sampleProfileImage",
         fileName: pdfFileName,
         name: `Land Certificate`,
@@ -156,6 +156,12 @@ export default {
           commissionExpiries: "09/12/2030",
         },
       };
+      if (owner?.oldNumbers?.length > 0) {
+        plotDetailForm = {
+          ...plotDetailForm,
+          oldNumbers: owner?.oldNumbers[owner?.oldNumbers?.length - 1],
+        };
+      }
       const { currentWallet, lucidClient } = await getAccountBySeedPhrase({
         seedPhrase: process.env.ADMIN_SEED_PHRASE,
       });

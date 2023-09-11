@@ -18,6 +18,7 @@ import {
   dariusSignature,
   verifiableSignature,
   backgroundLogo,
+  tickIcon,
 } from "../../assets/images/index.js";
 import { splitCamelCase } from "../index.js";
 
@@ -43,6 +44,9 @@ const createPdf = async ({ fileName, data }) => {
   const qrCodeImage = await Jimp.read(
     Buffer.from(dataUrl.split(",")[1], "base64")
   );
+  const oldNumberComponent = data?.oldNumbers
+    ? `<span style = 'margin-left: 40px'><b>${data?.oldNumbers}</b> <i>(Old)</i> </span>`
+    : "";
   // Add additional styling (e.g., a logo)
   const logo = await Jimp.read("./assets/images/verifiable-signture.png");
   qrCodeImage.composite(
@@ -127,9 +131,22 @@ const createPdf = async ({ fileName, data }) => {
             border-bottom: 1px solid rgba(0, 0, 0, 0.15);
             padding: 10px 15px
           '>
-            <span>Phone Number: <b>${
-              data?.personalInformation?.phoneNumber
-            }</b><br /></span>
+            <div style = '
+              display: flex;
+              flex-direction: row;
+              width: 100%;
+            '>
+              <div style = '
+                display: flex;
+                flex-direction: row;
+              '>
+                <span>Phone Number: <b>${
+                  data?.personalInformation?.phoneNumber
+                }</b><br /></span>
+                <img style = 'margin-left: 5px' src = '${tickIcon}' alt = 'tick' />
+              </div>
+              ${oldNumberComponent}
+            </div>
             <div style="margin-top: 8px;">
               <span style='
                 color: rgba(0, 0, 0, 0.50); font-style: italic;
@@ -177,7 +194,7 @@ const createPdf = async ({ fileName, data }) => {
         style="min-width: 140px; display: flex; justify-content: flex-end; padding-right: 10px; padding-top: 10px; align-items: flex-start">
         <span>Plot Status</span>
       </div>
-      <div
+      <divP
         style="grid-column: 9; padding-left: 15px; display: flex; flex-direction: column;  border-left: 1px solid rgba(0, 0, 0, 0.15); padding: 15px">
         <span style="margin-bottom: 10px; font-weight: bold;">
           ${currentStatus?.description}
@@ -189,7 +206,7 @@ const createPdf = async ({ fileName, data }) => {
             ${currentStatus?.label}
           </span>
         </div>
-      </div>
+      </divP>
     </div>
     <div style="border-top: 1px solid rgba(0, 0, 0, 0.15);display: flex; align-items: center; font-size: 11px">
       <div
