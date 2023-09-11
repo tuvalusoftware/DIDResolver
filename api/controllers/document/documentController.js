@@ -613,7 +613,9 @@ export default {
         res,
         `Response from service: ${JSON.stringify(uploadResponse?.data)}`
       );
-      return res.status(200).json(uploadResponse?.data);
+      return res
+        .status(200)
+        .json({ ...uploadResponse?.data, did: documentDid });
     } catch (error) {
       error?.error_code
         ? res.status(200).json(error)
