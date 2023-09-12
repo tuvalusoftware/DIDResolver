@@ -57,7 +57,7 @@ export const paths = {
   "/commonlands/document/hash": {
     ...hashDocumentContent,
   },
-  "/resolver/credential": {
+  "/credential": {
     ...commonlandsCredential,
   },
   "/pdf": {
