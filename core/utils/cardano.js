@@ -26,7 +26,7 @@ const verifyCardanoNft = async ({ hashofdocument, policyid, accessToken }) => {
       },
     }
   );
-  if (data?.code !== 0) {
+  if (!data?.data?.asset) {
     throw ERRORS.CANNOT_FETCH_NFT;
   }
 };
