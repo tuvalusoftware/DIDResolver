@@ -35,7 +35,7 @@ import {
   verifyPdf,
   readContentOfPdf,
 } from "../../../core/utils/pdf.js";
-import { unsalt } from "../../../fuixlabs-documentor/utils/data.js";
+import { unsalt, deepUnsalt } from "../../../fuixlabs-documentor/utils/data.js";
 import { generateDid } from "../../../fuixlabs-documentor/utils/did.js";
 import logger from "../../../logger.js";
 import { getAndVerifyCredential } from "../../../core/utils/credential.js";
@@ -308,7 +308,11 @@ export default {
           data: { config: mintingConfig },
         }
       );
-      logger.apiError(req, res, `Response from service: ${JSON.stringify(revokeResponse?.data)}`)
+      logger.apiError(
+        req,
+        res,
+        `Response from service: ${JSON.stringify(revokeResponse?.data)}`
+      );
       if (revokeResponse?.data?.code !== 0) {
         logger.apiError(
           req,
@@ -688,6 +692,48 @@ export default {
           logger.apiError(req, res, `Error while verifying contract`);
           return res.status(200).json(ERRORS.CONTRACT_IS_NOT_VALID);
         });
+    } catch (error) {
+      error?.error_code
+        ? res.status(200).json(error)
+        : res.status(200).json({
+            error_code: 400,
+            message: error?.message || "Something went wrong!",
+          });
+    }
+  },
+  getContract: async (req, res) => {
+    try {
+      const { did } = req.query;
+      const undefinedVar = checkUndefinedVar({
+        did,
+      });
+      if (undefinedVar.undefined) {
+        logger.apiError(req, res, `Error: ${JSON.stringify(undefinedVar)}`);
+        return res.status(200).json({
+          ...ERRORS.MISSING_PARAMETERS,
+          detail: undefinedVar?.detail,
+        });
+      }
+      logger.apiInfo(req, res, `API Request: Get Commonlands Contract: ${did}`);
+      const accessToken = await authenticationProgress();
+      const docContentResponse = await getDocumentContentByDid({
+        did: did,
+        accessToken: accessToken,
+      });
+      if (docContentResponse?.error_code) {
+        logger.apiError(req, res, `Error while getting DID document`);
+        return res.status(200).json(ERRORS?.CANNOT_GET_DOCUMENT_INFORMATION);
+      }
+      logger.apiInfo(
+        req,
+        res,
+        `Response from service: ${JSON.stringify(
+          docContentResponse?.wrappedDoc
+        )}`
+      );
+      return res
+        .status(200)
+        .json(deepUnsalt(docContentResponse?.wrappedDoc?.data));
     } catch (error) {
       error?.error_code
         ? res.status(200).json(error)

@@ -71,6 +71,60 @@ export const contract = {
       },
     },
   },
+  get: {
+    tags: ["Commonlands Contract"],
+    summary: "Get a contract",
+    description: "Get a contract",
+    operationId: "getContract",
+    parameters: [
+      {
+        name: "did",
+        in: "query",
+        description: "DID of contract",
+        required: true,
+        schema: {
+          type: "string",
+        },
+      },
+    ],
+    responses: {
+      200: {
+        description: "return a object include url of contract",
+        content: {
+          "application/json": {
+            examples: {
+              "Get contract success": {
+                value: {
+                  description: "This is a contract",
+                  fileName: "Contract-sample_id_11",
+                  name: "Commonlands Contract",
+                  companyName: "COMMONLANDS_2",
+                  intention: "trade",
+                  did: "did:fuixlabs:COMMONLANDS_2:Contract-sample_id_11",
+                  issuers: [
+                    {
+                      identityProofType: {
+                        type: "DID",
+                        did: "did:fuixlabs:COMMONLANDS_2:00f6eeddadb8e07074d189629b43df0dd913c3d3087e7f00ccf58f98f149abe31f60b335bae8ca10853ab35cc2ee332c850dee261af01bc287",
+                      },
+                      address:
+                        "00f6eeddadb8e07074d189629b43df0dd913c3d3087e7f00ccf58f98f149abe31f60b335bae8ca10853ab35cc2ee332c850dee261af01bc287",
+                    },
+                  ],
+                },
+              },
+              "Missing parameters": {
+                value: {
+                  error_code: 400,
+                  message: "Missing parameters",
+                },
+              },
+            },
+          },
+        },
+      },
+    },
+  },
 };
 
 export const verifyContract = {
