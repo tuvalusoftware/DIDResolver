@@ -67,7 +67,7 @@ export default {
         if (!wrappedDoc?.mintingNFTConfig) {
           return res.status(200).json({
             error_code: 400,
-            message: "This document is not minted yet!",
+            error_message: "This document is not minted yet!",
           });
         }
         mintingConfig = wrappedDoc?.mintingNFTConfig;
@@ -76,6 +76,7 @@ export default {
         signData,
         issuerKey,
         subject,
+        metadata,
       });
       const verifiedCredential = {
         ...credential,
@@ -123,6 +124,9 @@ export default {
           },
         }
       );
+      if (storeCredentialStatus?.data?.error_code) {
+        return res.status(200).json(storeCredentialStatus?.data);
+      }
       const didResponse = await getDidDocumentByDid({
         accessToken: accessToken,
         did: did,
@@ -156,13 +160,13 @@ export default {
               ],
         },
       });
-      if (didUpdateResponse?.data?.error_code) {
+      if (didUpdateResponse?.error_code) {
         logger.apiError(
           req,
           res,
           `Error: ${JSON.stringify(didUpdateResponse?.data)}`
         );
-        return res.status(200).json(didUpdateResponse?.data);
+        return res.status(200).json(didUpdateResponse);
       }
       logger.apiInfo(
         req,
@@ -175,7 +179,7 @@ export default {
         ? res.status(200).json(error)
         : res.status(200).json({
             error_code: 400,
-            message: error?.message || "Something went wrong!",
+            error_message: error?.error_message || "Something went wrong!",
           });
     }
   },

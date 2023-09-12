@@ -18,11 +18,16 @@ import { SERVERS } from "../../core/constants.js";
  * @param {String} signature
  * @return {Object} - return a credential
  */
-const createVerifiableCredential = async ({ signData, issuerKey, subject }) => {
+const createVerifiableCredential = async ({
+  signData,
+  issuerKey,
+  subject,
+  metadata,
+}) => {
   try {
     const credential = {
       issuer: generateDid(process.env.COMPANY_NAME, issuerKey),
-      subject,
+      credentialSubject: subject,
       signature: signData,
       metadata,
     };
