@@ -6,16 +6,16 @@ import cookieParser from "cookie-parser";
 import methodOverride from "method-override";
 const app = express();
 
-// App configurations
-const corsOptions = {
-  origin: [
-    "http://18.139.84.180:11000",
-    "https://paperless-fuixlabs.ap.ngrok.io",
-    "http://localhost:4000",
-  ],
-  credentials: true,
-};
-app.use(cors(corsOptions));
+// // App configurations
+// const corsOptions = {
+//   origin: [
+//     "http://18.139.84.180:11000",
+//     "https://paperless-fuixlabs.ap.ngrok.io",
+//     "http://localhost:4000",
+//   ],
+//   credentials: true,
+// };
+app.use(cors());
 app.use(cookieParser());
 app.use(compression());
 app.use(express.json({ limit: "200mb" }));
