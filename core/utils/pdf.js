@@ -279,7 +279,7 @@ margin-left: 10px;
           <span>Public Key</span>
           <div
             style="border-bottom: 2px solid #000; margin-left: 5px; display: flex; flex-direction: row; align-items: center; width: 100%; margin-top: 10px; justify-content: center">
-            <span style="line-height: 20px;">Commonlands Systems LLC</span>
+            <span style="line-height: 20px;">atxhxzacejepgdacnp4uqmc2rszwfx8m</span>
           </div>
         </div>
       </div>
@@ -309,7 +309,7 @@ margin-left: 10px;
           <span>Public Key</span>
           <div
             style="border-bottom: 2px solid #000; margin-left: 5px; display: flex; flex-direction: row; align-items: center; width: 100%; margin-top: 10px; justify-content: center;">
-            <span style="line-height: 20px;">Commonlands Systems LLC</span>
+            <span style="line-height: 20px;">atxhxzacejepgdacnp4uqmc2rszwfx8m</span>
           </div>
         </div>
       </div>
