@@ -169,4 +169,8 @@ export const ERRORS = {
     error_code: 400,
     error_message: "Contract is not valid!",
   },
+  CREDENTIAL_FAILED: {
+    error_code: 400,
+    error_message: "Credential failed!",
+  }
 };
