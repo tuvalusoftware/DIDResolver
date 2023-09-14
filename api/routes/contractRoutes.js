@@ -8,6 +8,8 @@ const upload = multer({ storage: storage });
 const router = express.Router();
 router.get("", documentController.getContract);
 router.post("", documentController.createContract);
+router.post("/block", documentController.blockContract);
+router.post("/check-block", documentController.checkBlockContractStatus);
 router.post(
   "/verify",
   upload.single("file"),

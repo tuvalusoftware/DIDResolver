@@ -11,6 +11,7 @@ import {
   getPublicKeyFromAddress,
   generateRandomString,
   validateJSONSchema,
+  validateDID,
 } from "../../../core/index.js";
 import {
   createDocumentForCommonlands,
@@ -267,7 +268,7 @@ export default {
         ? res.status(200).json(error)
         : res.status(200).json({
             error_code: 400,
-            message: error?.message || "Something went wrong!",
+            error_message: error?.message || "Something went wrong!",
           });
     }
   },
@@ -330,7 +331,7 @@ export default {
         ? res.status(200).json(error)
         : res.status(200).json({
             error_code: 400,
-            message: error?.message || "Something went wrong!",
+            error_message: error?.message || "Something went wrong!",
           });
     }
   },
@@ -395,7 +396,7 @@ export default {
         ? res.status(200).json(error)
         : res.status(200).json({
             error_code: 400,
-            message: error?.message || "Something went wrong!",
+            error_message: error?.message || "Something went wrong!",
           });
     }
   },
@@ -467,7 +468,7 @@ export default {
         ? res.status(200).json(error)
         : res.status(200).json({
             error_code: 400,
-            message: error?.message || "Something went wrong!",
+            error_message: error?.message || "Something went wrong!",
           });
     }
   },
@@ -626,7 +627,7 @@ export default {
         ? res.status(200).json(error)
         : res.status(200).json({
             error_code: 400,
-            message: error?.message || "Something went wrong!",
+            error_message: error?.message || "Something went wrong!",
           });
     }
   },
@@ -697,7 +698,7 @@ export default {
         ? res.status(200).json(error)
         : res.status(200).json({
             error_code: 400,
-            message: error?.message || "Something went wrong!",
+            error_message: error?.message || "Something went wrong!",
           });
     }
   },
@@ -739,7 +740,132 @@ export default {
         ? res.status(200).json(error)
         : res.status(200).json({
             error_code: 400,
-            message: error?.message || "Something went wrong!",
+            error_message: error?.message || "Something went wrong!",
+          });
+    }
+  },
+  blockContract: async (req, res) => {
+    try {
+      logger.apiInfo(req, res, `API Request: Block Commonlands Contract`);
+      const { did } = req.body;
+      const undefinedVar = checkUndefinedVar({
+        did,
+      });
+      if (undefinedVar.undefined) {
+        logger.apiError(req, res, `Error: ${JSON.stringify(undefinedVar)}`);
+        return res.status(200).json({
+          ...ERRORS.MISSING_PARAMETERS,
+          detail: undefinedVar?.detail,
+        });
+      }
+      const { valid } = validateDID(did);
+      if (!valid) {
+        logger.apiError(req, res, `Error: ${JSON.stringify(undefinedVar)}`);
+        return res.status(200).json(ERRORS.INVALID_DID);
+      }
+      const accessToken = await authenticationProgress();
+      const didDocResponse = await getDidDocumentByDid({
+        did: did,
+        accessToken: accessToken,
+      });
+      if (didDocResponse?.error_code) {
+        logger.apiError(
+          req,
+          res,
+          `Error while getting DID document, detail ${JSON.stringify(
+            didDocResponse
+          )}`
+        );
+        return res
+          .status(200)
+          .json(didDocResponse || ERRORS?.CANNOT_GET_DOCUMENT_INFORMATION);
+      }
+      const didDoc = didDocResponse?.didDoc;
+      const updateDidDoc = {
+        ...didDoc,
+        isBlocked: true,
+      };
+      const updatedDidDocResponse = await updateDocumentDid({
+        did: did,
+        accessToken: accessToken,
+        didDoc: updateDidDoc,
+      });
+      if (updatedDidDocResponse?.error_code) {
+        logger.apiError(
+          req,
+          res,
+          `Error while updating DID document, detail ${JSON.stringify(
+            updatedDidDocResponse
+          )}`
+        );
+        return res
+          .status(200)
+          .json(
+            updatedDidDocResponse || ERRORS?.CANNOT_UPDATE_DOCUMENT_INFORMATION
+          );
+      }
+      return res.status(200).json({
+        message: `Blocked contract ${did} successfully!`,
+      });
+    } catch (error) {
+      error?.error_code
+        ? res.status(200).json(error)
+        : res.status(200).json({
+            error_code: 400,
+            error_message: error?.message || "Something went wrong!",
+          });
+    }
+  },
+  checkBlockContractStatus: async (req, res) => {
+    try {
+      logger.apiInfo(req, res, `API Request: Check Block Commonlands Contract`);
+      const { did } = req.body;
+      const undefinedVar = checkUndefinedVar({
+        did,
+      });
+      if (undefinedVar.undefined) {
+        logger.apiError(req, res, `Error: ${JSON.stringify(undefinedVar)}`);
+        return res.status(200).json({
+          ...ERRORS.MISSING_PARAMETERS,
+          detail: undefinedVar?.detail,
+        });
+      }
+      const { valid } = validateDID(did);
+      if (!valid) {
+        logger.apiError(req, res, `Error: ${JSON.stringify(undefinedVar)}`);
+        return res.status(200).json(ERRORS.INVALID_DID);
+      }
+      const accessToken = await authenticationProgress();
+      const didDocResponse = await getDidDocumentByDid({
+        did: did,
+        accessToken: accessToken,
+      });
+      if (didDocResponse?.error_code) {
+        logger.apiError(
+          req,
+          res,
+          `Error while getting DID document, detail ${JSON.stringify(
+            didDocResponse
+          )}`
+        );
+        return res
+          .status(200)
+          .json(didDocResponse || ERRORS?.CANNOT_GET_DOCUMENT_INFORMATION);
+      }
+      if (didDocResponse?.didDoc?.isBlocked) {
+        return res.status(200).json({
+          isBlocked: true,
+        });
+      }
+      return res.status(200).json({
+        isBlocked: false,
+      });
+    } catch (error) {
+      error?.error_code
+        ? res.status(200).json(error)
+        : res.status(200).json({
+            error_code: 400,
+            error_message: error?.message || "Something went wrong!",
           });
     }
   },

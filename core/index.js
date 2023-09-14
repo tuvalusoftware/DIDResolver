@@ -44,6 +44,30 @@ const validateDIDSyntax = (did, isSalted) => {
 };
 
 /**
+ * Function used for validating DID syntax
+ * @param {String} did - DID to be validated
+ * @returns {Object} - { valid: Boolean, detail: String }
+ */
+const validateDID = (did) => {
+  if (!did) {
+    Logger.error("Undefined did.");
+    return { valid: false, detail: "Undefined did." };
+  }
+  const didComponents = did.split(":");
+
+  if (didComponents.length < 4 || didComponents[0] !== "did") {
+    Logger.error(`Invalid DID syntax. Given did = ${did} should be unsalted.`);
+    return { valid: false };
+  }
+  Logger.info("Valid did.");
+  return {
+    valid: true,
+    companyName: didComponents[2],
+    fileNameOrPublicKey: didComponents[3],
+  };
+};
+
+/**
  * Function used to get address from hex encoded address
  * @param {String} hexAddress - hex encoded address
  * @returns {String} - bech32 address
@@ -216,4 +240,5 @@ export {
   generateQRCode,
   generateRandomString,
   splitCamelCase,
+  validateDID,
 };

@@ -191,3 +191,129 @@ export const verifyContract = {
     },
   },
 };
+
+export const checkBlockStatus = {
+  post: {
+    tags: ["Commonlands Contract"],
+    summary: "Check status of block contract",
+    description: "",
+    operationId: "checkBlockStatus",
+    requestBody: {
+      require: true,
+      content: {
+        "application/json": {
+          schema: {
+            type: "object",
+            properties: {
+              did: {
+                type: "string",
+                example: "did:fuixlabs:COMMONLANDS_2:Contract-sample_id_11",
+              },
+            },
+          },
+        },
+      },
+    },
+    responses: {
+      200: {
+        description: "Return a object include status of block contract",
+        content: {
+          "application/json": {
+            examples: {
+              "Contract is blocked": {
+                value: {
+                  isBlocked: true,
+                },
+              },
+              "Contract is not blocked": {
+                value: {
+                  isBlocked: false,
+                },
+              },
+              "Missing parameters": {
+                value: {
+                  error_code: 400,
+                  message: "Missing parameters",
+                  detail: "Not found: did",
+                },
+              },
+              "Invalid DID": {
+                value: {
+                  error_code: 400,
+                  message: "Invalid DID",
+                },
+              },
+              "Cannot get document information": {
+                value: {
+                  error_code: 400,
+                  message: "Cannot get document information",
+                },
+              },
+            },
+          },
+        },
+      },
+    },
+  },
+};
+
+export const blockContract = {
+  post: {
+    tags: ["Commonlands Contract"],
+    summary: "Block a contract",
+    description: "",
+    operationId: "blockContract",
+    requestBody: {
+      require: true,
+      content: {
+        "application/json": {
+          schema: {
+            type: "object",
+            properties: {
+              did: {
+                type: "string",
+                example: "did:fuixlabs:COMMONLANDS_2:Contract-sample_id_11",
+              },
+            },
+          },
+        },
+      },
+    },
+    responses: {
+      200: {
+        description: "Return a object include status of block contract",
+        content: {
+          "application/json": {
+            examples: {
+              "Block contract success": {
+                value: {
+                  message:
+                    "Block contract did:fuixlabs:COMMONLANDS_2:Contract-sample_id_11 successfully",
+                },
+              },
+              "Missing parameters": {
+                value: {
+                  error_code: 400,
+                  message: "Missing parameters",
+                  detail: "Not found: did",
+                },
+              },
+              "Invalid DID": {
+                value: {
+                  error_code: 400,
+                  message: "Invalid DID",
+                },
+              },
+              "Cannot get document information": {
+                value: {
+                  error_code: 400,
+                  message: "Cannot get document information",
+                },
+              },
+            },
+          },
+        },
+      },
+    },
+  },
+};

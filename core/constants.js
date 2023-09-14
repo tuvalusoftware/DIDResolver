@@ -172,5 +172,13 @@ export const ERRORS = {
   CREDENTIAL_FAILED: {
     error_code: 400,
     error_message: "Credential failed!",
-  }
+  },
+  INVALID_DID: {
+    error_code: 400,
+    error_message: "Invalid DID!",
+  },
+  CANNOT_UPDATE_DOCUMENT_INFORMATION: {
+    error_code: 400,
+    error_message: "Cannot update document information!",
+  },
 };
