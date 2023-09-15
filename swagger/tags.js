@@ -1,20 +1,40 @@
-module.exports.tags = {
+export const tags = {
   tags: [
     {
+      name: "Commonlands PDF",
+      description: "Endpoints for commonlands pdf",
+    },
+    {
+      name: "Commonlands Document",
+      description: "Endpoints for commonlands document",
+    },
+    {
+      name: "Commonlands Credential",
+      description: "Endpoints for commonlands credential",
+    },
+    {
       name: "DID document",
-      description: "API for DID document",
+      description: "Endpoints for DID document",
     },
     {
       name: "Wrapped document",
-      description: "API for wrapped document",
+      description: "Endpoints for wrapped document",
+    },
+    {
+      name: "Commonlands Contract",
+      description: "Endpoints for contract",
     },
     {
       name: "Credential",
-      description: "API for credential",
+      description: "Endpoints for credential",
+    },
+    {
+      name: "Commonlands User",
+      description: "Endpoints for user",
     },
     {
       name: "Others",
-      description: "API for :)",
+      description: "Endpoints for others",
     },
     {
       name: "Access token",

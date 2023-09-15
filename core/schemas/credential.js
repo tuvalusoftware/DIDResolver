@@ -1,6 +1,6 @@
-const mintingNFTConfig = require("./config");
+import { defaultConfig } from "./config.js";
 
-module.exports = {
+export default {
   type: "object",
   required: ["issuer", "credentialSubject", "signature"],
   properties: {
@@ -62,7 +62,7 @@ module.exports = {
       //   asset: { type: "string" },
       //   policy: { type: "object" },
       // },
-      ...(({ example, ...props }) => props)(mintingNFTConfig),
+      ...(({ example, ...props }) => props)(defaultConfig),
     },
   },
   example: {
@@ -103,25 +103,6 @@ module.exports = {
     },
     timestamp: 1659330236137,
     status: "pending",
-    mintingNFTConfig: {
-      ...mintingNFTConfig.example,
-    },
-    // issuer: "did:method:Kukulu:zaq12wsxcde34rfvbgt56yhnmju78iko9olp0",
-    // credentialSubject: {
-    //   object: "did:method:Kukulu:file_name",
-    //   newHolder: "did:method:Kukulu:0po9olki87ujmnhy65tgbvfr43edcxsw21qaz",
-    //   action: {
-    //     code: 2,
-    //     value: "changeHoldership",
-    //   },
-    // },
-    // signature: "12345678986543234567qwertytwq231234567876543sdfghgfds",
-    // metadata: {
-    //   dateCreated: "22-06-2022",
-    //   status: "",
-    // },
-    // mintingNFTConfig: {
-    //   ...mintingNFTConfig.example,
-    // },
+    mintingNFTConfig: {},
   },
 };

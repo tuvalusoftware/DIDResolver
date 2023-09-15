@@ -1,49 +1,53 @@
-const { ERRORS } = require("../core/constants");
+import { ERRORS } from "../core/constants.js";
 
-exports.errorMissingParameters = {
+export const errorMissingParameters = {
   value: {
     ...ERRORS.MISSING_PARAMETERS,
-    detail: "Not found: did"
-  }
-}
-exports.errorInvalidInput = {
+    detail: "Not found: did",
+  },
+};
+export const errorInvalidInput = {
   value: {
     ...ERRORS.INVALID_INPUT,
-    detail: ""
-  }
-}
-exports.errorUnauthorized = {
+    detail: "",
+  },
+};
+export const errorUnauthorized = {
   value: {
-    ...ERRORS.UNAUTHORIZED
-  }
-}
-exports.errorPermissionDenied = {
+    ...ERRORS.UNAUTHORIZED,
+  },
+};
+export const errorPermissionDenied = {
   value: {
-    ...ERRORS.PERMISSION_DENIED
-  }
-}
-exports.errorUnverifiedSignature = {
+    ...ERRORS.PERMISSION_DENIED,
+  },
+};
+export const errorUnverifiedSignature = {
   value: {
-    ...ERRORS.UNVERIFIED_SIGNATURE
-  }
-}
-exports.errorNotFound = {
+    ...ERRORS.UNVERIFIED_SIGNATURE,
+  },
+};
+export const errorNotFound = {
   value: {
-    ...ERRORS.NOT_FOUND
-  }
-}
-exports.errorAlreadyExisted = {
+    ...ERRORS.NOT_FOUND,
+  },
+};
+export const errorAlreadyExisted = {
   value: {
-    ...ERRORS.ALREADY_EXSISTED
-  }
-}
-exports.errorMintNFT = {
+    ...ERRORS.ALREADY_EXSISTED,
+  },
+};
+export const errorMintNFT = {
   value: {
-    ...ERRORS.CANNOT_MINT_NFT
-  }
-}
-exports.errorFetchNFT = {
+    ...ERRORS.CANNOT_MINT_NFT,
+  },
+};
+export const errorFetchNFT = {
   value: {
-    ...ERRORS.CANNOT_FETCH_NFT
-  }
+    ...ERRORS.CANNOT_FETCH_NFT,
+  },
+};
+
+export default {
+  
 }

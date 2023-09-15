@@ -1,4 +1,4 @@
-module.exports.setCookie = {
+export const setCookie = {
   post: {
     tags: ["Access token"],
     summary: "Set access_token",
@@ -27,7 +27,7 @@ module.exports.setCookie = {
   },
 };
 
-module.exports.clearCookie = {
+export const clearCookie = {
   delete: {
     tags: ["Access token"],
     summary: "Clear access_token",

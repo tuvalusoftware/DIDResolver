@@ -1,38 +1,20 @@
-const authRoutes = require("./authRoutes");
-const didRoutes = require("./didRoutes");
-const credentialRoutes = require("./credentialRoutes");
-const wrappedDocRoutes = require("./wrappedDocRoutes");
-const accessTokenRoutes = require("./accessTokenRoutes");
+import authRoutes from "./authRoutes.js";
+import wrappedDocRoutes from "./wrappedDocRoutes.js";
+import pdfRoutes from "./pdfRoute.js";
+import documentRoutes from "./documentRoutes.js";
+import contractRoutes from "./contractRoutes.js";
+import cmlCredentialRoutes from "./cmlCredentialRoutes.js";
+import userRoutes from "./userRoutes.js";
 
-const authController = require("../controllers/authController");
-const cardanoController = require("../controllers/cardanoController");
-
-module.exports = (app) => {
-    app.use("/resolver/auth", authRoutes);
-
-    // DID controller services
-    app.use("/resolver/did", didRoutes);
-    app.use("/resolver/credential", credentialRoutes);
-    app.use("/resolver/wrapped-document", wrappedDocRoutes);
-
-    // Cardano Routes
-    // app.use("/resolver", cardanoRoutes);
-    app.get(
-        "/resolver/nfts",
-        authController.ensureAuthenticated,
-        cardanoController.getNFTs
-    );
-    app.get(
-        "/resolver/hash/verify",
-        authController.ensureAuthenticated,
-        cardanoController.verifyHash
-    );
-    app.get(
-        "/resolver/signature/verify",
-        authController.ensureAuthenticated,
-        cardanoController.verifySignature
-    );
-
-    // Set token routes
-    app.use("/resolver", accessTokenRoutes);
+export default (app) => {
+  app.use("/resolver/commonlands/document", documentRoutes);
+  app.use("/resolver/auth", authRoutes);
+  app.use("/resolver/wrapped-document", wrappedDocRoutes);
+  app.use("/resolver/credential", cmlCredentialRoutes);
+  app.use("/resolver/pdf", pdfRoutes);
+  app.use("/resolver/contract", contractRoutes);
+  app.use("/resolver/user", userRoutes);
+  app.get("*", (req, res) => {
+    res.status(404).send("Not found");
+  });
 };

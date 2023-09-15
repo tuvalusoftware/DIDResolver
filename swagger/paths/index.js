@@ -1,69 +1,82 @@
-const { setCookie, clearCookie } = require("./accessToken");
-const { getPublicKeyFromAddress } = require("./auth");
-const { createCredential } = require("./credential");
-const { getNFTs, verifyHash, verifySignature } = require("./others");
-const {
-    checkWrappedDocumentExistence,
-    getWrappedDocument,
-    createWrappedDocument,
-    getAllWrappedDocumentsOfUser,
-    validateWrappedDocument,
-    searchWrappedDocument,
-    transferWrappedDocument,
-    revokeWrappedDocument,
-} = require("./wrappedDocument");
-const { retrieveSpecificDid, retrieveAllDids } = require("./did");
+import { setCookie, clearCookie } from "./accessToken.js";
+import {
+  commonlandsDocument,
+  commonlandsPdf,
+  verifyCommonlandsPdf,
+  revokeCommonlandsDocument,
+  multipleCommonlandsDocumentSigning,
+  hashDocumentContent,
+  verifyUploadedCommonlandsPdf,
+  commonlandsCredential,
+  blockDocument,
+  checkDocumentBlockStatus,
+} from "./commonlands.js";
+import {
+  contract,
+  verifyContract,
+  checkBlockStatus,
+  blockContract,
+} from "./contract.js";
+import { getAllCredentialsOfContract, getCredential } from "./credential.js";
+import { user } from "./user.js";
 
-module.exports.paths = {
-    "/": {
-        ...setCookie,
-        ...clearCookie,
-    },
-    "/did/": {
-        ...retrieveSpecificDid,
-    },
-    "/did/all/": {
-        ...retrieveAllDids,
-    },
-    "/auth/public-key/": {
-        ...getPublicKeyFromAddress,
-    },
-
-    "/wrapped-document/": {
-        ...getWrappedDocument,
-        ...createWrappedDocument,
-        // ...updateWrappedDocument
-    },
-    "/wrapped-document/exist/": {
-        ...checkWrappedDocumentExistence,
-    },
-    "/wrapped-document/valid/": {
-        ...validateWrappedDocument,
-    },
-    "/wrapped-document/user": {
-        ...getAllWrappedDocumentsOfUser,
-    },
-    "/wrapped-document/transfer": {
-        ...transferWrappedDocument,
-    },
-    "/wrapped-document/search": {
-        ...searchWrappedDocument,
-    },
-    "/wrapped-document/revoke": {
-        ...revokeWrappedDocument,
-    },
-
-    "/credential/": {
-        ...createCredential,
-    },
-
-    "/nfts/": {
-        ...getNFTs,
-    },
-    "/hash/verify/": {
-        ...verifyHash,
-    },
-    "/signature/verify/": {
-        ...verifySignature,
-    },
+export const paths = {
+  "/commonlands/document": {
+    ...commonlandsDocument,
+  },
+  "/commonlands/document/testing": {
+    ...commonlandsDocument,
+  },
+  "/commonlands/document/revoke": {
+    ...revokeCommonlandsDocument,
+  },
+  "/commonlands/document/multiple": {
+    ...multipleCommonlandsDocumentSigning,
+  },
+  "/commonlands/document/hash": {
+    ...hashDocumentContent,
+  },
+  "/commonlands/document/block": {
+    ...blockDocument,
+  },
+  "/commonlands/document/check-block": {
+    ...checkDocumentBlockStatus,
+  },
+  "/credential": {
+    ...commonlandsCredential,
+  },
+  "/credential/{credentialHash}": {
+    ...getCredential,
+  },
+  "/credential/all/{contractId}": {
+    ...getAllCredentialsOfContract,
+  },
+  "/pdf": {
+    ...commonlandsPdf,
+  },
+  "/pdf/verify": {
+    ...verifyCommonlandsPdf,
+  },
+  "/pdf/upload-verify": {
+    ...verifyUploadedCommonlandsPdf,
+  },
+  "/contract": {
+    ...contract,
+  },
+  "/contract/verify": {
+    ...verifyContract,
+  },
+  "/contract/block": {
+    ...blockContract,
+  },
+  "/contract/check-block": {
+    ...checkBlockStatus,
+  },
+  "/user": {
+    ...user,
+  },
+  "/": {
+    ...setCookie,
+    ...clearCookie,
+  },
 };

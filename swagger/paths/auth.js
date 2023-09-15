@@ -1,4 +1,4 @@
-module.exports.getPublicKeyFromAddress = {
+export const getPublicKeyFromAddress = {
   get: {
     tags: ["Others"],
     summary: "Get pulic key from address of user",

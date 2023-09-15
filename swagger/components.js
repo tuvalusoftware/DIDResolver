@@ -1,15 +1,17 @@
-const schemas = require("./schemas");
-const examples = require("./examples");
+import schemas from "./schemas/index.js";
+import examples from "./examples.js";
 
-module.exports.schemas = {
+const _schemas = {
   ...schemas,
 };
+export { _schemas as schemas };
 
-module.exports.examples = {
+const _examples = {
   ...examples,
 };
+export { _examples as examples };
 
-module.exports.responses = {
+export const responses = {
   BadRequest: {
     content: {
       "application/json": {
@@ -66,3 +68,4 @@ module.exports.responses = {
     },
   },
 };
+

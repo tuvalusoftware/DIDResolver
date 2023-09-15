@@ -1,28 +1,21 @@
-const tags = require("./tags");
-const components = require("./components");
-const paths = require("./paths");
+import { tags } from "./tags.js";
+import { responses as components } from "./components.js";
+import { paths } from "./paths/index.js";
 
-module.exports = {
-  openapi: "3.0.9",
+export const swaggerDocument = {
+  openapi: "3.1.0",
   info: {
-    version: "1.0.0",
-    title: "DID Resolver",
-    description: "DID resolver for Cardano project | Fuixlabs",
+    version: "v1.0",
+    title: "Commonlands Resolver",
+    description: "Resolver service for Commonlands Project",
   },
   servers: [
     {
       url: "/resolver",
       description: "Local server",
     },
-    {
-      url: "https://enigmatic-sands-00024.herokuapp.com/18.139.84.180:8000/resolver",
-      description: "Remote server",
-    },
   ],
-  schemes: ["http", "https"],
-  ...tags,
-  components: {
-    ...components,
-  },
-  ...paths,
+  tags: tags,
+  components: components,
+  paths: paths,
 };

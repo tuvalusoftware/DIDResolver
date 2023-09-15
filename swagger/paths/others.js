@@ -1,4 +1,4 @@
-module.exports.getNFTs = {
+export const getNFTs = {
   get: {
     tags: ["Others"],
     summary: "",
@@ -46,7 +46,7 @@ module.exports.getNFTs = {
   },
 };
 
-module.exports.verifyHash = {
+export const verifyHash = {
   get: {
     tags: ["Others"],
     summary: "",
@@ -106,7 +106,7 @@ module.exports.verifyHash = {
   },
 };
 
-module.exports.verifySignature = {
+export const verifySignature = {
   get: {
     tags: ["Others"],
     summary: "",

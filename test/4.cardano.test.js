@@ -12,6 +12,7 @@ const {
     DOC_DATA,
     DID_CONTROLLER_OPERATION_STATUS,
     OTHER_DATA,
+    ALGORAND_DATA
 } = require("./mockData");
 
 let should = chai.should();
