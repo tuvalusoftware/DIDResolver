@@ -382,56 +382,57 @@ export const commonlandsCredential = {
     requestBody: {
       require: true,
       content: {
-        'application/json': {
+        "application/json": {
           schema: {
-            type: 'object',
+            type: "object",
             properties: {
               metadata: {
-                type: 'object',
+                type: "object",
                 example: {
-                  name: 'Land Certificate',
-                  description: 'Land Certificate for the Commonlands Project',
-                }
+                  name: "Land Certificate",
+                  description: "Land Certificate for the Commonlands Project",
+                },
               },
               config: {
-                type: 'object',
+                type: "object",
                 example: {
-                  contractAddress: '0x1a2b3c4d5e6f7g8h9i0j1k2l3m4n5o6p7q8r9s0t',
-                  contractName: 'Commonlands',
-                  contractType: 'ERC721',
-                  contractSymbol: 'CLNDS',
-                }
+                  contractAddress: "0x1a2b3c4d5e6f7g8h9i0j1k2l3m4n5o6p7q8r9s0t",
+                  contractName: "Commonlands",
+                  contractType: "ERC721",
+                  contractSymbol: "CLNDS",
+                },
               },
               did: {
-                type: 'string',
-                example: 'did:cardano:addr_test1qzj2pgqct6jwpvw7mjtjtess4nlmu385hzarszh9jxcv9eudvd5vt62wt4n97tqqcr43qs7d0v2eex2rkn763zzkys2swwrcxw'
+                type: "string",
+                example:
+                  "did:cardano:addr_test1qzj2pgqct6jwpvw7mjtjtess4nlmu385hzarszh9jxcv9eudvd5vt62wt4n97tqqcr43qs7d0v2eex2rkn763zzkys2swwrcxw",
               },
               subject: {
-                type: 'object',
+                type: "object",
                 example: {
-                  address: '0x1a2b3c4d5e6f7g8h9i0j1k2l3m4n5o6p7q8r9s0t',
+                  address: "0x1a2b3c4d5e6f7g8h9i0j1k2l3m4n5o6p7q8r9s0t",
                   subject: {
-                    object: '0x1a2b3c4d5e6f7g8h9i0j1k2l3m4n5o6p7q8r9s0t',
+                    object: "0x1a2b3c4d5e6f7g8h9i0j1k2l3m4n5o6p7q8r9s0t",
                     action: {
-                      code: 1
-                    }
-                  }
-                }
+                      code: 1,
+                    },
+                  },
+                },
               },
               signData: {
-                type: 'object',
+                type: "object",
                 example: {
-                  key: '0x1a2b3c4d5e6f7g8h9i0j1k2l3m4n5o6p7q8r9s0t',
-                  signature: '0x1a2b3c4d5e6f7g8h9i0j1k2l3m4n5o6p7q8r9s0t'
-                }
+                  key: "0x1a2b3c4d5e6f7g8h9i0j1k2l3m4n5o6p7q8r9s0t",
+                  signature: "0x1a2b3c4d5e6f7g8h9i0j1k2l3m4n5o6p7q8r9s0t",
+                },
               },
               issuerKey: {
-                type: 'string',
-                example: '0x1a2b3c4d5e6f7g8h9i0j1k2l3m4n5o6p7q8r9s0t'
+                type: "string",
+                example: "0x1a2b3c4d5e6f7g8h9i0j1k2l3m4n5o6p7q8r9s0t",
               },
-            }
-          }
-        }
+            },
+          },
+        },
       },
     },
     responses: {
@@ -610,6 +611,132 @@ export const verifyUploadedCommonlandsPdf = {
                 value: {
                   error_code: 400,
                   error_message: "Missing file.",
+                },
+              },
+            },
+          },
+        },
+      },
+    },
+  },
+};
+
+export const blockDocument = {
+  post: {
+    tags: ["Commonlands Document"],
+    summary: "Block a Commonlands Document",
+    description: "",
+    operationId: "blockDocument",
+    requestBody: {
+      require: true,
+      content: {
+        "application/json": {
+          schema: {
+            type: "object",
+            properties: {
+              did: {
+                type: "string",
+                example: "did:fuixlabs:COMMONLANDS_2:Contract-sample_id_11",
+              },
+            },
+          },
+        },
+      },
+    },
+    responses: {
+      200: {
+        description: "Return a object include status of block contract",
+        content: {
+          "application/json": {
+            examples: {
+              "Block document success": {
+                value: {
+                  message:
+                    "Block document did:fuixlabs:COMMONLANDS_2:Contract-sample_id_11 successfully",
+                },
+              },
+              "Missing parameters": {
+                value: {
+                  error_code: 400,
+                  message: "Missing parameters",
+                  detail: "Not found: did",
+                },
+              },
+              "Invalid DID": {
+                value: {
+                  error_code: 400,
+                  message: "Invalid DID",
+                },
+              },
+              "Cannot get document information": {
+                value: {
+                  error_code: 400,
+                  message: "Cannot get document information",
+                },
+              },
+            },
+          },
+        },
+      },
+    },
+  },
+};
+
+export const checkDocumentBlockStatus = {
+  post: {
+    tags: ["Commonlands Document"],
+    summary: "Check status of block document",
+    description: "",
+    operationId: "checkBlockStatus",
+    requestBody: {
+      require: true,
+      content: {
+        "application/json": {
+          schema: {
+            type: "object",
+            properties: {
+              did: {
+                type: "string",
+                example: "did:fuixlabs:COMMONLANDS_2:Contract-sample_id_11",
+              },
+            },
+          },
+        },
+      },
+    },
+    responses: {
+      200: {
+        description: "Return a object include status of block document",
+        content: {
+          "application/json": {
+            examples: {
+              "Document is blocked": {
+                value: {
+                  isBlocked: true,
+                },
+              },
+              "Document is not blocked": {
+                value: {
+                  isBlocked: false,
+                },
+              },
+              "Missing parameters": {
+                value: {
+                  error_code: 400,
+                  message: "Missing parameters",
+                  detail: "Not found: did",
+                },
+              },
+              "Invalid DID": {
+                value: {
+                  error_code: 400,
+                  message: "Invalid DID",
+                },
+              },
+              "Cannot get document information": {
+                value: {
+                  error_code: 400,
+                  message: "Cannot get document information",
                 },
               },
             },

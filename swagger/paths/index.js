@@ -8,6 +8,8 @@ import {
   hashDocumentContent,
   verifyUploadedCommonlandsPdf,
   commonlandsCredential,
+  blockDocument,
+  checkDocumentBlockStatus,
 } from "./commonlands.js";
 import {
   contract,
@@ -32,6 +34,12 @@ export const paths = {
   },
   "/commonlands/document/hash": {
     ...hashDocumentContent,
+  },
+  "/commonlands/document/block": {
+    ...blockDocument,
+  },
+  "/commonlands/document/check-block": {
+    ...checkDocumentBlockStatus,
   },
   "/credential": {
     ...commonlandsCredential,
