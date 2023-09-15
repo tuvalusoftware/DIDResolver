@@ -17,6 +17,7 @@ import {
   checkBlockStatus,
   blockContract,
 } from "./contract.js";
+import { getAllCredentialsOfContract } from "./credential.js";
 import { user } from "./user.js";
 
 export const paths = {
@@ -43,6 +44,9 @@ export const paths = {
   },
   "/credential": {
     ...commonlandsCredential,
+  },
+  "/credential/all/{contractId}": {
+    ...getAllCredentialsOfContract,
   },
   "/pdf": {
     ...commonlandsPdf,

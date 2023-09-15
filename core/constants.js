@@ -175,10 +175,14 @@ export const ERRORS = {
   },
   INVALID_DID: {
     error_code: 400,
-    error_message: "Invalid DID!",
+    error_message: "Invalid DID syntax!",
   },
   CANNOT_UPDATE_DOCUMENT_INFORMATION: {
     error_code: 400,
     error_message: "Cannot update document information!",
+  },
+  NO_CREDENTIALS_FOUND: {
+    error_code: 400,
+    error_message: "There are no credentials rely on this contract!",
   },
 };

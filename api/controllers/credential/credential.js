@@ -4,16 +4,13 @@ import { ERRORS, SERVERS } from "../../../core/constants.js";
 // * Utilities
 import axios from "axios";
 import "dotenv/config";
-import {
-  checkUndefinedVar,
-  getPublicKeyFromAddress,
-} from "../../../core/index.js";
+import { checkUndefinedVar, validateDID } from "../../../core/index.js";
 import { createVerifiableCredential } from "../../../core/utils/credential.js";
-import { getAccountBySeedPhrase } from "../../../core/utils/lucid.js";
 import {
   getDocumentContentByDid,
   getDidDocumentByDid,
   updateDocumentDid,
+  getCredential,
 } from "../../../core/utils/controller.js";
 import { authenticationProgress } from "../../../core/utils/auth.js";
 import logger from "../../../logger.js";
@@ -174,6 +171,84 @@ export default {
         `Successfully saved: ${JSON.stringify(storeCredentialStatus.data)}`
       );
       return res.status(200).send(storeCredentialStatus.data);
+    } catch (error) {
+      error?.error_code
+        ? res.status(200).json(error)
+        : res.status(200).json({
+            error_code: 400,
+            error_message: error?.error_message || "Something went wrong!",
+          });
+    }
+  },
+  getCredentialsOfContract: async (req, res) => {
+    try {
+      logger.apiInfo(req, res, `Get all credentials of contract`);
+      const { contractId } = req.params;
+      console.log(contractId);
+      const undefinedVar = checkUndefinedVar({ contractId });
+      if (undefinedVar?.undefined) {
+        logger.apiError(
+          req,
+          res,
+          `Error: ${JSON.stringify(undefinedVar?.detail)}`
+        );
+        return res.status(200).json({
+          ...ERRORS.MISSING_PARAMETERS,
+          detail: undefinedVar?.detail,
+        });
+      }
+      const { valid } = await validateDID(contractId);
+      if (!valid) {
+        return res.status(200).json(ERRORS.INVALID_DID);
+      }
+      const accessToken = await authenticationProgress();
+      const didDocumentResponse = await getDidDocumentByDid({
+        accessToken: accessToken,
+        did: contractId,
+      });
+      if (didDocumentResponse?.error_code) {
+        logger.apiError(
+          req,
+          res,
+          `Error: ${JSON.stringify(
+            didDocumentResponse || ERRORS.CANNOT_GET_DOCUMENT_INFORMATION
+          )}`
+        );
+        return res
+          .status(200)
+          .json(didDocumentResponse || ERRORS.CANNOT_GET_DOCUMENT_INFORMATION);
+      }
+      const credentials = didDocumentResponse?.didDoc?.credentials;
+      if (!credentials || credentials.length === 0) {
+        logger.apiError(
+          req,
+          res,
+          `Error: ${JSON.stringify(ERRORS.NO_CREDENTIALS_FOUND)}`
+        );
+      }
+      const promise = credentials.map(async (credential) => {
+        const credentialResponse = await getCredential({
+          accessToken: accessToken,
+          hash: credential,
+        });
+        return {
+          ...credentialResponse?.data,
+          hash: credential,
+        };
+      });
+      await Promise.all(promise)
+        .then((results) => {
+          logger.apiInfo(
+            req,
+            res,
+            `Successfully get all credentials of contract ${contractId}`
+          );
+          return res.status(200).json(results);
+        })
+        .catch((error) => {
+          logger.apiError(req, res, `Error: ${JSON.stringify(error)}`);
+          return res.status(200).json(ERRORS.NO_CREDENTIALS_FOUND);
+        });
     } catch (error) {
       error?.error_code
         ? res.status(200).json(error)
