@@ -19,19 +19,11 @@ import { sha256 } from "js-sha256";
 axios.defaults.withCredentials = true;
 
 export default {
-  createCredential: async (req, res) => {
+  createCredential: async (req, res, next) => {
     try {
       const { metadata, did, subject, signData, issuerKey } = req.body;
       if (!did) {
-        logger.apiError(
-          req,
-          res,
-          `Error: ${JSON.stringify({
-            ...ERRORS.MISSING_PARAMETERS,
-            detail: "Missing config, did or url",
-          })}`
-        );
-        return res.status(200).json({
+        next({
           error_code: 400,
           error_message:
             "We need config or url to mint NFT! Make sure you have at least one of them!",
@@ -44,12 +36,7 @@ export default {
         issuerKey,
       });
       if (undefinedVar?.undefined) {
-        logger.apiError(
-          req,
-          res,
-          `Error: ${JSON.stringify(undefinedVar?.detail)}`
-        );
-        return res.status(200).json({
+        next({
           ...ERRORS.MISSING_PARAMETERS,
           detail: undefinedVar?.detail,
         });
@@ -62,7 +49,7 @@ export default {
           accessToken: accessToken,
         });
         if (!wrappedDoc?.mintingNFTConfig) {
-          return res.status(200).json({
+          next({
             error_code: 400,
             error_message: "This document is not minted yet!",
           });
@@ -97,7 +84,7 @@ export default {
         }
       );
       if (credentialResponse?.data?.code !== 0) {
-        return res.status(200).json({
+        next({
           ...ERRORS.CREDENTIAL_FAILED,
           detail: credentialResponse?.data,
         });
@@ -122,15 +109,14 @@ export default {
         }
       );
       if (storeCredentialStatus?.data?.error_code) {
-        return res.status(200).json(storeCredentialStatus?.data);
+        next(storeCredentialStatus?.data);
       }
       const didResponse = await getDidDocumentByDid({
         accessToken: accessToken,
         did: did,
       });
       if (didResponse?.error_code) {
-        logger.apiError(req, res, `Error: ${JSON.stringify(didResponse)}`);
-        return res.status(200).json(didResponse);
+        next(didResponse);
       }
       const didUpdateResponse = await updateDocumentDid({
         did: did,
@@ -158,12 +144,7 @@ export default {
         },
       });
       if (didUpdateResponse?.error_code) {
-        logger.apiError(
-          req,
-          res,
-          `Error: ${JSON.stringify(didUpdateResponse?.data)}`
-        );
-        return res.status(200).json(didUpdateResponse);
+        next(didUpdateResponse);
       }
       logger.apiInfo(
         req,
@@ -180,7 +161,7 @@ export default {
           });
     }
   },
-  getCredential: async (req, res) => {
+  getCredential: async (req, res, next) => {
     try {
       logger.apiInfo(req, res, `Get credential`);
       const { credentialHash } = req.params;
@@ -191,7 +172,7 @@ export default {
           res,
           `Error: ${JSON.stringify(undefinedVar?.detail)}`
         );
-        return res.status(200).json({
+        next({
           ...ERRORS.MISSING_PARAMETERS,
           detail: undefinedVar?.detail,
         });
@@ -211,14 +192,14 @@ export default {
       return res.status(200).json(credentialResponse);
     } catch (error) {
       error?.error_code
-        ? res.status(200).json(error)
-        : res.status(200).json({
+        ? next(error)
+        : next({
             error_code: 400,
             error_message: error?.error_message || "Something went wrong!",
           });
     }
   },
-  getCredentialsOfContract: async (req, res) => {
+  getCredentialsOfContract: async (req, res, next) => {
     try {
       logger.apiInfo(req, res, `Get all credentials of contract`);
       const { contractId } = req.params;
@@ -229,14 +210,14 @@ export default {
           res,
           `Error: ${JSON.stringify(undefinedVar?.detail)}`
         );
-        return res.status(200).json({
+        next({
           ...ERRORS.MISSING_PARAMETERS,
           detail: undefinedVar?.detail,
         });
       }
       const { valid } = await validateDID(contractId);
       if (!valid) {
-        return res.status(200).json(ERRORS.INVALID_DID);
+        next(ERRORS.INVALID_DID);
       }
       const accessToken = await authenticationProgress();
       const didDocumentResponse = await getDidDocumentByDid({
@@ -251,17 +232,11 @@ export default {
             didDocumentResponse || ERRORS.CANNOT_GET_DOCUMENT_INFORMATION
           )}`
         );
-        return res
-          .status(200)
-          .json(didDocumentResponse || ERRORS.CANNOT_GET_DOCUMENT_INFORMATION);
+        next(didDocumentResponse || ERRORS.CANNOT_GET_DOCUMENT_INFORMATION);
       }
       const credentials = didDocumentResponse?.didDoc?.credentials;
       if (!credentials || credentials.length === 0) {
-        logger.apiError(
-          req,
-          res,
-          `Error: ${JSON.stringify(ERRORS.NO_CREDENTIALS_FOUND)}`
-        );
+        next(ERRORS.NO_CREDENTIALS_FOUND);
       }
       const promise = credentials.map(async (credential) => {
         const credentialResponse = await getCredential({
@@ -269,7 +244,7 @@ export default {
           hash: credential,
         });
         return {
-          ...credentialResponse?.data,
+          ...credentialResponse,
           hash: credential,
         };
       });
@@ -283,8 +258,7 @@ export default {
           return res.status(200).json(results);
         })
         .catch((error) => {
-          logger.apiError(req, res, `Error: ${JSON.stringify(error)}`);
-          return res.status(200).json(ERRORS.NO_CREDENTIALS_FOUND);
+          next(ERRORS.NO_CREDENTIALS_FOUND);
         });
     } catch (error) {
       error?.error_code

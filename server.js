@@ -4,6 +4,7 @@ import cors from "cors";
 import compression from "compression";
 import cookieParser from "cookie-parser";
 import methodOverride from "method-override";
+import logger from "./logger.js";
 const app = express();
 
 // // App configurations
@@ -47,20 +48,14 @@ app.use(
 const server = http.createServer(app);
 server.timeout = 300000;
 import routes from "./api/routes/index.js";
-import logger from "./logger.js";
 routes(app);
 
-// GLOBAL ERROR HANDLER
-app.use((err, req, res, _next) => {
-  res.json({
-    error_message: "Body should be a JSON",
-  });
-});
-app.use((err, res) => {
-  res.json({
-    error_code: err.error_code || err.message,
-    error_message: err.message,
-    error_data: err.error_data,
+app.use((err, req, res, _) => {
+  logger.apiError(req, res, `Error: ${JSON.stringify(err)}`);
+  return res.status(200).json({
+    error_code: err.error_code,
+    error_message: err.error_message || err?.message || "Something went wrong!",
+    detail: err.detail,
   });
 });
 

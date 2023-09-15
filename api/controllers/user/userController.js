@@ -7,20 +7,15 @@ import "dotenv/config";
 import { ERRORS } from "../../../core/constants.js";
 
 export default {
-  getUserDid: async (req, res) => {
+  getUserDid: async (req, res, next) => {
     try {
       logger.apiInfo(req, res, "Get user did");
       const { key } = req.query;
       const undefinedVar = checkUndefinedVar({
         key,
       });
-      if (undefinedVar.undefined) {
-        logger.apiError(
-          req,
-          res,
-          `Error: ${JSON.stringify(undefinedVar?.detail)}`
-        );
-        return res.status(200).json({
+      if (undefinedVar?.undefined) {
+        return next({
           ...ERRORS.MISSING_PARAMETERS,
           detail: undefinedVar?.detail,
         });
@@ -33,8 +28,8 @@ export default {
       });
     } catch (error) {
       error?.error_code
-        ? res.status(200).json(error)
-        : res.status(200).json({
+        ? next(error)
+        : next({
             error_code: 400,
             message: error?.message || "Something went wrong!",
           });

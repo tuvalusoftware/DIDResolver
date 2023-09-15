@@ -10,7 +10,7 @@ import logger from "../../../logger.js";
 import { ERRORS } from "../../../core/constants.js";
 
 export default {
-  savePdfFile: async (req, res) => {
+  savePdfFile: async (req, res, next) => {
     try {
       const { pdfName, targetHash, did } = req.body;
       const undefinedVar = checkUndefinedVar({
@@ -19,12 +19,7 @@ export default {
         did,
       });
       if (undefinedVar.undefined) {
-        logger.apiError(
-          req,
-          res,
-          `Error: ${JSON.stringify(undefinedVar?.detail)}`
-        );
-        return res.status(200).json({
+        next({
           ...ERRORS.MISSING_PARAMETERS,
           detail: undefinedVar?.detail,
         });
@@ -55,26 +50,21 @@ export default {
       });
     } catch (error) {
       error?.error_code
-        ? res.status(200).json(error)
-        : res.status(200).json({
+        ? next(error)
+        : next({
             error_code: 400,
             message: error?.message || "Something went wrong!",
           });
     }
   },
-  readPdfFile: async (req, res) => {
+  readPdfFile: async (req, res, next) => {
     try {
       const { fileName } = req.query;
       const undefinedVar = checkUndefinedVar({
         fileName,
       });
       if (undefinedVar.undefined) {
-        logger.apiError(
-          req,
-          res,
-          `Error: ${JSON.stringify(undefinedVar?.detail)}`
-        );
-        return res.status(200).json({
+        next({
           ...ERRORS.MISSING_PARAMETERS,
           detail: undefinedVar?.detail,
         });
@@ -87,26 +77,21 @@ export default {
       });
     } catch (error) {
       error?.error_code
-        ? res.status(200).json(error)
-        : res.status(200).json({
+        ? next(error)
+        : next({
             error_code: 400,
             message: error?.message || "Something went wrong!",
           });
     }
   },
-  verifyPdfFile: async (req, res) => {
+  verifyPdfFile: async (req, res, next) => {
     try {
       const { url } = req.body;
       const undefinedVar = checkUndefinedVar({
         url,
       });
       if (undefinedVar.undefined) {
-        logger.apiError(
-          req,
-          res,
-          `Error: ${JSON.stringify(undefinedVar?.detail)}`
-        );
-        return res.status(200).json({
+        next({
           ...ERRORS.MISSING_PARAMETERS,
           detail: undefinedVar?.detail,
         });
@@ -119,24 +104,24 @@ export default {
           isValid: true,
         });
       }
-      return res.status(200).json({
+      next({
         error_code: 400,
         error_message: "This PDF file is not valid!",
       });
     } catch (error) {
       error?.error_code
-        ? res.status(200).json(error)
-        : res.status(200).json({
+        ? next(error)
+        : next({
             error_code: 400,
             message: error?.message || "Something went wrong!",
           });
     }
   },
-  verifyUploadedPdf: async (req, res) => {
+  verifyUploadedPdf: async (req, res, next) => {
     try {
       const uploadedFile = req.file;
       if (!uploadedFile) {
-        return res.status(200).json({
+        next({
           error_code: 400,
           error_message: "Missing file!",
         });
@@ -149,14 +134,14 @@ export default {
           isValid: true,
         });
       }
-      return res.status(200).json({
+      next({
         error_code: 400,
         error_message: "This PDF file is not valid!",
       });
     } catch (error) {
       error?.error_code
-        ? res.status(200).json(error)
-        : res.status(200).json({
+        ? next(error)
+        : next({
             error_code: 400,
             message: error?.message || "Something went wrong!",
           });
