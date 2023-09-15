@@ -15,9 +15,9 @@ import {
   checkBlockStatus,
   blockContract,
 } from "./contract.js";
+import { user } from "./user.js";
 
 export const paths = {
-  // * Commonlands
   "/commonlands/document": {
     ...commonlandsDocument,
   },
@@ -51,11 +51,14 @@ export const paths = {
   "/contract/verify": {
     ...verifyContract,
   },
-  "contract/block": {
+  "/contract/block": {
     ...blockContract,
   },
-  "contract/check-block": {
+  "/contract/check-block": {
     ...checkBlockStatus,
+  },
+  "/user": {
+    ...user,
   },
   "/": {
     ...setCookie,

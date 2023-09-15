@@ -162,10 +162,36 @@ const getCredential = async ({ hash, accessToken }) => {
   }
 };
 
+/**
+ * Function used for getting user DID from DID Controller
+ * @param {String} companyName - company name
+ * @param {String} publicKey - public key of the user
+ * @param {String} accessToken - access token for authentication
+ * @returns {Promise<Object>} - user DID
+ */
+const getUserDid = async ({ companyName, publicKey, accessToken }) => {
+  try {
+    const didResponse = await axios.get(SERVERS.DID_CONTROLLER + "/api/did", {
+      withCredentials: true,
+      headers: {
+        Cookie: `access_token=${accessToken};`,
+      },
+      params: {
+        companyName,
+        publicKey,
+      },
+    });
+    return didResponse?.data;
+  } catch (e) {
+    throw e;
+  }
+};
+
 export {
   getDocumentContentByDid,
   getDidDocumentByDid,
   updateDocumentDid,
   retrieveDocumentDid,
   getCredential,
+  getUserDid,
 };
