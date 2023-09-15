@@ -180,11 +180,48 @@ export default {
           });
     }
   },
+  getCredential: async (req, res) => {
+    try {
+      logger.apiInfo(req, res, `Get credential`);
+      const { credentialHash } = req.params;
+      const undefinedVar = checkUndefinedVar({ credentialHash });
+      if (undefinedVar?.undefined) {
+        logger.apiError(
+          req,
+          res,
+          `Error: ${JSON.stringify(undefinedVar?.detail)}`
+        );
+        return res.status(200).json({
+          ...ERRORS.MISSING_PARAMETERS,
+          detail: undefinedVar?.detail,
+        });
+      }
+      const accessToken = await authenticationProgress();
+      const credentialResponse = await getCredential({
+        accessToken: accessToken,
+        hash: credentialHash,
+      });
+      logger.apiInfo(
+        req,
+        res,
+        `Successfully get credential. detail ${JSON.stringify(
+          credentialResponse
+        )}`
+      );
+      return res.status(200).json(credentialResponse);
+    } catch (error) {
+      error?.error_code
+        ? res.status(200).json(error)
+        : res.status(200).json({
+            error_code: 400,
+            error_message: error?.error_message || "Something went wrong!",
+          });
+    }
+  },
   getCredentialsOfContract: async (req, res) => {
     try {
       logger.apiInfo(req, res, `Get all credentials of contract`);
       const { contractId } = req.params;
-      console.log(contractId);
       const undefinedVar = checkUndefinedVar({ contractId });
       if (undefinedVar?.undefined) {
         logger.apiError(

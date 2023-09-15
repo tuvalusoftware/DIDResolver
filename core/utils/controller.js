@@ -154,9 +154,9 @@ const getCredential = async ({ hash, accessToken }) => {
       }
     );
     if (credentialResponse?.data?.error_code) {
-      throw credentialResponse;
+      throw credentialResponse?.data;
     }
-    return credentialResponse;
+    return credentialResponse?.data;
   } catch (e) {
     throw e;
   }
