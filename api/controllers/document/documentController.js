@@ -44,7 +44,7 @@ import { getAndVerifyCredential } from "../../../core/utils/credential.js";
 axios.defaults.withCredentials = true;
 
 export default {
-  createDocument: async (req, res) => {
+  createDocument: async (req, res, next) => {
     try {
       logger.apiInfo(
         req,
@@ -59,12 +59,7 @@ export default {
         owner,
       });
       if (undefinedVar.undefined) {
-        logger.apiError(
-          req,
-          res,
-          `Error: ${JSON.stringify(undefinedVar?.detail)}`
-        );
-        return res.status(200).json({
+        next({
           ...ERRORS.MISSING_PARAMETERS,
           detail: undefinedVar?.detail,
         });
@@ -106,8 +101,7 @@ export default {
           `Response from service: ${JSON.stringify(existedDidDoc?.data)}`
         );
         if (existedDidDoc?.data?.error_code) {
-          logger.apiError(req, res, `Error while getting DID document`);
-          return res.status(200).json(ERRORS?.CANNOT_FOUND_DID_DOCUMENT);
+          next(ERRORS?.CANNOT_FOUND_DID_DOCUMENT);
         }
         logger.apiInfo(
           req,
@@ -184,7 +178,7 @@ export default {
         unsalt(wrappedDocument?.data?.fileName)
       );
       if (!documentDid) {
-        return res.status(200).json(ERRORS.CANNOT_GET_DOCUMENT_INFORMATION);
+        next(ERRORS.CANNOT_GET_DOCUMENT_INFORMATION);
       }
       const documentHash = wrappedDocument?.signature?.targetHash;
       logger.apiInfo(
@@ -196,8 +190,7 @@ export default {
         fileName: pdfFileName,
         data: plotDetailForm,
       }).catch((error) => {
-        logger.apiError(req, res, `Error while creating PDF`);
-        return res.status(200).json({
+        next({
           error_code: 400,
           error_message: error?.message || error || "Error while creating PDF",
         });
@@ -226,8 +219,7 @@ export default {
         `Response from service: ${JSON.stringify(uploadResponse?.data)}`
       );
       if (uploadResponse?.data?.error_code) {
-        logger.apiError(req, res, `Error while uploading PDF`);
-        return res.status(200).json(uploadResponse);
+        next(uploadResponse?.data);
       }
       await deleteFile(`./assets/pdf/${pdfFileName}.pdf`);
       const didResponse = await getDidDocumentByDid({
@@ -235,8 +227,7 @@ export default {
         accessToken: accessToken,
       });
       if (!didResponse?.didDoc) {
-        logger.apiError(req, res, `Error while getting DID document`);
-        return res.status(200).json({
+        next({
           error_code: 400,
           error_message: "Error while getting DID document",
         });
@@ -251,8 +242,7 @@ export default {
         didDoc: updateDidDoc,
       });
       if (updateDidDocResponse?.error_code) {
-        logger.apiError(req, res, `Error while push url to DID document`);
-        return res.status(200).json({
+        next({
           error_code: 400,
           error_message: "Error while push url to DID document",
         });
@@ -265,18 +255,18 @@ export default {
       return res.status(200).json(uploadResponse?.data);
     } catch (error) {
       error?.error_code
-        ? res.status(200).json(error)
-        : res.status(200).json({
+        ? next(error)
+        : next({
             error_code: 400,
-            error_message: error?.message || "Something went wrong!",
+            message: error?.message || "Something went wrong!",
           });
     }
   },
-  revokeDocument: async (req, res) => {
+  revokeDocument: async (req, res, next) => {
     try {
       const { url, config } = req.body;
       if (!url && !config) {
-        return res.status(200).json(ERRORS?.MISSING_PARAMETERS);
+        next(ERRORS?.MISSING_PARAMETERS);
       }
       let mintingConfig = config;
       const accessToken = await authenticationProgress();
@@ -315,12 +305,7 @@ export default {
         `Response from service: ${JSON.stringify(revokeResponse?.data)}`
       );
       if (revokeResponse?.data?.code !== 0) {
-        logger.apiError(
-          req,
-          res,
-          `Error: ${JSON.stringify(revokeResponse?.data)}`
-        );
-        return res.status(200).json(ERRORS?.REVOKE_DOCUMENT_FAILED);
+        next(ERRORS?.REVOKE_DOCUMENT_FAILED);
       }
       logger.apiInfo(req, res, `Revoke document successfully!`);
       return res.status(200).json({
@@ -328,14 +313,14 @@ export default {
       });
     } catch (error) {
       error?.error_code
-        ? res.status(200).json(error)
-        : res.status(200).json({
+        ? next(error)
+        : next({
             error_code: 400,
-            error_message: error?.message || "Something went wrong!",
+            message: error?.message || "Something went wrong!",
           });
     }
   },
-  hashDocument: async (req, res) => {
+  hashDocument: async (req, res, next) => {
     try {
       const { plot, claimant } = req.body;
       const undefinedVar = checkUndefinedVar({
@@ -343,12 +328,7 @@ export default {
         claimant,
       });
       if (undefinedVar.undefined) {
-        logger.apiError(
-          req,
-          res,
-          `Error: ${JSON.stringify(undefinedVar?.detail)}`
-        );
-        return res.status(200).json({
+        next({
           ...ERRORS.MISSING_PARAMETERS,
           detail: undefinedVar?.detail,
         });
@@ -400,14 +380,14 @@ export default {
       });
     } catch (error) {
       error?.error_code
-        ? res.status(200).json(error)
-        : res.status(200).json({
+        ? next(error)
+        : next({
             error_code: 400,
-            error_message: error?.message || "Something went wrong!",
+            message: error?.message || "Something went wrong!",
           });
     }
   },
-  createContract: async (req, res) => {
+  createContract: async (req, res, next) => {
     try {
       logger.apiInfo(req, res, `API Request: Create Commonlands Contract`);
       const { content, companyName: _companyName, id } = req.body;
@@ -416,12 +396,7 @@ export default {
         id,
       });
       if (undefinedVar.undefined) {
-        logger.apiError(
-          req,
-          res,
-          `Error: ${JSON.stringify(undefinedVar?.detail)}`
-        );
-        return res.status(200).json({
+        next({
           ...ERRORS.MISSING_PARAMETERS,
           detail: undefinedVar?.detail,
         });
@@ -433,7 +408,7 @@ export default {
         content
       );
       if (!valid.valid)
-        return res.status(200).json({
+        next({
           ...ERRORS.INVALID_INPUT,
           detail: valid.detail,
         });
@@ -452,8 +427,7 @@ export default {
         }
       );
       if (isExistedResponse?.data?.isExisted) {
-        logger.apiError(res, req, `Contract existed: ${contractFileName}`);
-        return res.status(200).json(ERRORS?.DOCUMENT_IS_EXISTED);
+        next(ERRORS?.DOCUMENT_IS_EXISTED);
       }
       const contractContent = {
         ...content,
@@ -477,7 +451,7 @@ export default {
         unsalt(wrappedDocument?.data?.fileName)
       );
       if (!documentDid) {
-        return res.status(200).json(ERRORS.CANNOT_GET_DOCUMENT_INFORMATION);
+        next(ERRORS.CANNOT_GET_DOCUMENT_INFORMATION);
       }
       const documentHash = wrappedDocument?.signature?.targetHash;
       logger.apiInfo(
@@ -489,8 +463,7 @@ export default {
         fileName: contractFileName,
         data: contractContent,
       }).catch((error) => {
-        logger.apiError(req, res, `Error while creating PDF`);
-        return res.status(200).json({
+        next({
           error_code: 400,
           error_message: error?.message || error || "Error while creating PDF",
         });
@@ -518,8 +491,7 @@ export default {
         formData
       );
       if (uploadResponse?.data?.error_code) {
-        logger.apiError(req, res, `Error while uploading PDF`);
-        return res.status(200).json(uploadResponse);
+        next(uploadResponse?.data);
       }
       await deleteFile(`./assets/pdf/${contractFileName}.pdf`);
       const didResponse = await getDidDocumentByDid({
@@ -527,8 +499,7 @@ export default {
         accessToken: accessToken,
       });
       if (!didResponse?.didDoc) {
-        logger.apiError(req, res, `Error while getting DID document`);
-        return res.status(200).json({
+        next({
           error_code: 400,
           error_message: "Error while getting DID document",
         });
@@ -543,8 +514,7 @@ export default {
         didDoc: updateDidDoc,
       });
       if (updateDidDocResponse?.error_code) {
-        logger.apiError(req, res, `Error while push url to DID document`);
-        return res.status(200).json({
+        next({
           error_code: 400,
           error_message: "Error while push url to DID document",
         });
@@ -559,25 +529,20 @@ export default {
         .json({ ...uploadResponse?.data, did: documentDid });
     } catch (error) {
       error?.error_code
-        ? res.status(200).json(error)
-        : res.status(200).json({
+        ? next(error)
+        : next({
             error_code: 400,
-            error_message: error?.message || "Something went wrong!",
+            message: error?.message || "Something went wrong!",
           });
     }
   },
-  verifyContract: async (req, res) => {
+  verifyContract: async (req, res, next) => {
     try {
       logger.apiInfo(req, res, `API Request: Verify Commonlands Contract`);
       const uploadedFile = req.file;
       const { url } = req.body;
       if (!url && !uploadedFile) {
-        logger.apiError(
-          req,
-          res,
-          "Error: Missing the way to get content of contract"
-        );
-        return res.status(200).json(ERRORS.MISSING_PARAMETERS);
+        next(ERRORS.MISSING_PARAMETERS);
       }
       // * Step 1: Verify the contract
       const contractBuffer = uploadedFile
@@ -587,8 +552,7 @@ export default {
         buffer: contractBuffer,
       });
       if (!valid) {
-        logger.apiError(req, res, "Error: Contract is not valid!");
-        return res.status(200).json(ERRORS.COMMONLANDS_CONTRACT_IS_NOT_VALID);
+        next(ERRORS.COMMONLANDS_CONTRACT_IS_NOT_VALID);
       }
       // * Step 2: Verify each claimant's credential
       const { did } = await readContentOfPdf({
@@ -600,15 +564,7 @@ export default {
         accessToken: accessToken,
       });
       if (!didDocResponse?.didDoc?.credentials) {
-        logger.apiError(
-          req,
-          res,
-          "There are no credentials related to this contract!"
-        );
-        return res.status(200).json({
-          error_code: 400,
-          error_message: "There are no credentials related to this contract!",
-        });
+        next(ERRORS.NO_CREDENTIALS_FOUND);
       }
       const credentials = didDocResponse?.didDoc?.credentials;
       const promises = credentials.map((item) =>
@@ -625,27 +581,25 @@ export default {
           });
         })
         .catch(() => {
-          logger.apiError(req, res, `Error while verifying contract`);
-          return res.status(200).json(ERRORS.CONTRACT_IS_NOT_VALID);
+          next(ERRORS.CONTRACT_IS_NOT_VALID);
         });
     } catch (error) {
       error?.error_code
-        ? res.status(200).json(error)
-        : res.status(200).json({
+        ? next(error)
+        : next({
             error_code: 400,
-            error_message: error?.message || "Something went wrong!",
+            message: error?.message || "Something went wrong!",
           });
     }
   },
-  getContract: async (req, res) => {
+  getContract: async (req, res, next) => {
     try {
       const { did } = req.query;
       const undefinedVar = checkUndefinedVar({
         did,
       });
       if (undefinedVar.undefined) {
-        logger.apiError(req, res, `Error: ${JSON.stringify(undefinedVar)}`);
-        return res.status(200).json({
+        next({
           ...ERRORS.MISSING_PARAMETERS,
           detail: undefinedVar?.detail,
         });
@@ -657,8 +611,7 @@ export default {
         accessToken: accessToken,
       });
       if (docContentResponse?.error_code) {
-        logger.apiError(req, res, `Error while getting DID document`);
-        return res.status(200).json(ERRORS?.CANNOT_GET_DOCUMENT_INFORMATION);
+        next(ERRORS?.CANNOT_GET_DOCUMENT_INFORMATION);
       }
       logger.apiInfo(
         req,
@@ -672,14 +625,14 @@ export default {
         .json(deepUnsalt(docContentResponse?.wrappedDoc?.data));
     } catch (error) {
       error?.error_code
-        ? res.status(200).json(error)
-        : res.status(200).json({
+        ? next(error)
+        : next({
             error_code: 400,
-            error_message: error?.message || "Something went wrong!",
+            message: error?.message || "Something went wrong!",
           });
     }
   },
-  blockContract: async (req, res) => {
+  blockContract: async (req, res, next) => {
     try {
       logger.apiInfo(req, res, `API Request: Block Commonlands Contract`);
       const { did } = req.body;
@@ -687,16 +640,14 @@ export default {
         did,
       });
       if (undefinedVar.undefined) {
-        logger.apiError(req, res, `Error: ${JSON.stringify(undefinedVar)}`);
-        return res.status(200).json({
+        next({
           ...ERRORS.MISSING_PARAMETERS,
           detail: undefinedVar?.detail,
         });
       }
       const { valid } = validateDID(did);
       if (!valid) {
-        logger.apiError(req, res, `Error: ${JSON.stringify(undefinedVar)}`);
-        return res.status(200).json(ERRORS.INVALID_DID);
+        next(ERRORS.INVALID_DID);
       }
       const accessToken = await authenticationProgress();
       const didDocResponse = await getDidDocumentByDid({
@@ -704,16 +655,7 @@ export default {
         accessToken: accessToken,
       });
       if (didDocResponse?.error_code) {
-        logger.apiError(
-          req,
-          res,
-          `Error while getting DID document, detail ${JSON.stringify(
-            didDocResponse
-          )}`
-        );
-        return res
-          .status(200)
-          .json(didDocResponse || ERRORS?.CANNOT_GET_DOCUMENT_INFORMATION);
+        next(didDocResponse || ERRORS?.CANNOT_GET_DOCUMENT_INFORMATION);
       }
       const didDoc = didDocResponse?.didDoc;
       const updateDidDoc = {
@@ -726,32 +668,23 @@ export default {
         didDoc: updateDidDoc,
       });
       if (updatedDidDocResponse?.error_code) {
-        logger.apiError(
-          req,
-          res,
-          `Error while updating DID document, detail ${JSON.stringify(
-            updatedDidDocResponse
-          )}`
+        next(
+          updatedDidDocResponse || ERRORS?.CANNOT_UPDATE_DOCUMENT_INFORMATION
         );
-        return res
-          .status(200)
-          .json(
-            updatedDidDocResponse || ERRORS?.CANNOT_UPDATE_DOCUMENT_INFORMATION
-          );
       }
       return res.status(200).json({
         message: `Blocked contract ${did} successfully!`,
       });
     } catch (error) {
       error?.error_code
-        ? res.status(200).json(error)
-        : res.status(200).json({
+        ? next(error)
+        : next({
             error_code: 400,
-            error_message: error?.message || "Something went wrong!",
+            message: error?.message || "Something went wrong!",
           });
     }
   },
-  checkBlockContractStatus: async (req, res) => {
+  checkBlockContractStatus: async (req, res, next) => {
     try {
       logger.apiInfo(req, res, `API Request: Check Block Commonlands Contract`);
       const { did } = req.body;
@@ -759,16 +692,14 @@ export default {
         did,
       });
       if (undefinedVar.undefined) {
-        logger.apiError(req, res, `Error: ${JSON.stringify(undefinedVar)}`);
-        return res.status(200).json({
+        next({
           ...ERRORS.MISSING_PARAMETERS,
           detail: undefinedVar?.detail,
         });
       }
       const { valid } = validateDID(did);
       if (!valid) {
-        logger.apiError(req, res, `Error: ${JSON.stringify(undefinedVar)}`);
-        return res.status(200).json(ERRORS.INVALID_DID);
+        next(ERRORS.INVALID_DID);
       }
       const accessToken = await authenticationProgress();
       const didDocResponse = await getDidDocumentByDid({
@@ -776,16 +707,7 @@ export default {
         accessToken: accessToken,
       });
       if (didDocResponse?.error_code) {
-        logger.apiError(
-          req,
-          res,
-          `Error while getting DID document, detail ${JSON.stringify(
-            didDocResponse
-          )}`
-        );
-        return res
-          .status(200)
-          .json(didDocResponse || ERRORS?.CANNOT_GET_DOCUMENT_INFORMATION);
+        next(didDocResponse || ERRORS?.CANNOT_GET_DOCUMENT_INFORMATION);
       }
       if (didDocResponse?.didDoc?.isBlocked) {
         return res.status(200).json({
@@ -797,10 +719,10 @@ export default {
       });
     } catch (error) {
       error?.error_code
-        ? res.status(200).json(error)
-        : res.status(200).json({
+        ? next(error)
+        : next({
             error_code: 400,
-            error_message: error?.message || "Something went wrong!",
+            message: error?.message || "Something went wrong!",
           });
     }
   },
