@@ -5,17 +5,11 @@ import compression from "compression";
 import cookieParser from "cookie-parser";
 import methodOverride from "method-override";
 import logger from "./logger.js";
-const app = express();
+import swaggerUi from "swagger-ui-express";
+import { swaggerDocument } from "./src/config/swagger/index.js";
+import routes from "./src/api/routes/index.js";
 
-// // App configurations
-// const corsOptions = {
-//   origin: [
-//     "http://18.139.84.180:11000",
-//     "https://paperless-fuixlabs.ap.ngrok.io",
-//     "http://localhost:4000",
-//   ],
-//   credentials: true,
-// };
+const app = express();
 app.use(cors());
 app.use(cookieParser());
 app.use(compression());
@@ -30,26 +24,19 @@ app.use(methodOverride());
 
 /* c8 ignore start */
 // SET UP SWAGGER API DOCUMENT
-import swaggerUi from "swagger-ui-express";
-import { swaggerDocument } from "./swagger/index.js";
 const swaggerOptions = {
   customCss: ".swagger-ui .topbar { display: none }",
   customSiteTitle: "DID Resolver API",
 };
-
 app.use(
   "/api-docs",
   swaggerUi.serve,
   swaggerUi.setup(swaggerDocument, swaggerOptions)
 );
-/* c8 ignore stop */
 
-// ROUTES
 const server = http.createServer(app);
 server.timeout = 300000;
-import routes from "./api/routes/index.js";
 routes(app);
-
 app.use((err, req, res, _) => {
   logger.apiError(req, res, `Error: ${JSON.stringify(err)}`);
   return res.status(200).json({
