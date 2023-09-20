@@ -3,10 +3,13 @@ import crypto from "node:crypto";
 import { PDFDocument } from "pdf-lib";
 import fs from "fs";
 import { readPdf, verifyPdf } from "../../utils/pdf.js";
-import { checkUndefinedVar } from "../../utils/index.js";
+import { checkUndefinedVar, validateDID } from "../../utils/index.js";
 
 // * Constants
 import { ERRORS } from "../../../config/constants.js";
+import { getDidDocumentByDid } from "../../utils/controller.js";
+import { authenticationProgress } from "../../utils/auth.js";
+import logger from "../../../../logger.js";
 
 export default {
   savePdfFile: async (req, res, next) => {
@@ -143,6 +146,59 @@ export default {
         : next({
             error_code: 400,
             message: error?.message || "Something went wrong!",
+          });
+    }
+  },
+  verifyPdfFileV2: async (req, res, next) => {
+    try {
+      return res.status(200).json({
+        success: true,
+        success_message: "Coming soon...",
+      });
+    } catch (error) {
+      error?.error_code
+        ? next(error)
+        : next({
+            error_code: 400,
+            error_message: error?.error_message || "Something went wrong!",
+          });
+    }
+  },
+  getPdf: async (req, res, next) => {
+    try {
+      logger.apiInfo(req, res, "API: Get PDF");
+      const { did } = req.params;
+      const undefinedVar = checkUndefinedVar({
+        did,
+      });
+      if (undefinedVar.undefined) {
+        next({
+          ...ERRORS.MISSING_PARAMETERS,
+          detail: undefinedVar?.detail,
+        });
+      }
+      const { valid } = validateDID(did);
+      if (!valid) {
+        next(ERRORS.INVALID_DID);
+      }
+      const accessToken = await authenticationProgress();
+      const docContentResponse = await getDidDocumentByDid({
+        did,
+        accessToken,
+      });
+      if (docContentResponse?.error_code) {
+        next(docContentResponse || ERRORS.CANNOT_GET_DOCUMENT_INFORMATION);
+      }
+      logger.apiInfo(req, res, "Get document content", docContentResponse);
+      return res.status(200).json({
+        url: docContentResponse?.didDoc?.pdfUrl,
+      });
+    } catch (error) {
+      error?.error_code
+        ? next(error)
+        : next({
+            error_code: 400,
+            error_message: error?.error_message || "Something went wrong!",
           });
     }
   },

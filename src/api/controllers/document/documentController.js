@@ -27,7 +27,7 @@ import {
   getDidDocumentByDid,
 } from "../../utils/controller.js";
 import {
-  createPdf,
+  createOwnerCertificate,
   encryptPdf,
   getPdfBufferFromUrl,
   bufferToPDFDocument,
@@ -186,7 +186,7 @@ export default {
         res,
         `Wrapped document ${JSON.stringify(wrappedDocument)}`
       );
-      await createPdf({
+      await createOwnerCertificate({
         fileName: pdfFileName,
         data: plotDetailForm,
       }).catch((error) => {
@@ -252,13 +252,30 @@ export default {
         res,
         `Response from service: ${JSON.stringify(uploadResponse?.data)}`
       );
-      return res.status(200).json(uploadResponse?.data);
+      return res
+        .status(200)
+        .json({ ...uploadResponse?.data, did: documentDid });
     } catch (error) {
       error?.error_code
         ? next(error)
         : next({
             error_code: 400,
             message: error?.message || "Something went wrong!",
+          });
+    }
+  },
+  createDocumentV2: async (req, res, next) => {
+    try {
+      return res.status(200).json({
+        success: true,
+        success_message: "Coming soon...",
+      });
+    } catch (error) {
+      error?.error_code
+        ? next(error)
+        : next({
+            error_code: 400,
+            error_message: error?.error_message || "Something went wrong!",
           });
     }
   },

@@ -136,6 +136,17 @@ export const commonlandsDocument = {
   },
 };
 
+export const commonlandsDocumentV2 = {
+  post: {
+    tags: ["Commonlands Document"],
+    summary:
+      "Generate a Land Certificate V2 for the Commonlands Project. This function serves as a wrapper for the DID Document",
+    requestBody: {
+      require: true,
+    },
+  },
+};
+
 export const hashDocumentContent = {
   post: {
     tags: ["Commonlands Document"],
@@ -516,6 +527,58 @@ export const commonlandsPdf = {
       },
     },
   },
+  get: {
+    tags: ["Commonlands PDF"],
+    summary: "Get a PDF file from a hash",
+    description: "",
+    operationId: "getPdf",
+    parameters: [
+      {
+        name: "did",
+        in: "path",
+        description: "did of the pdf file",
+        required: true,
+        schema: {
+          type: "string",
+        },
+      },
+    ],
+    responses: {
+      200: {
+        description: "Return a PDF file if success",
+        content: {
+          "application/json": {
+            examples: {
+              "Get PDF file successfully": {
+                value: {
+                  url: "https://raw.githubusercontent.com/dev-fuixlabs/Commonlands_DOC/IMAGE/1695204643781_TESTING_COMMONLANDS-LandCertificate-14088960050-64db86559e77a4ffc2395ada_103.pdf",
+                },
+              },
+              "Missing parameters": {
+                value: {
+                  error_code: 400,
+                  error_message: "Bad request. Missing parameters.",
+                  detail: "Not found: did",
+                },
+              },
+              "Invalid DID": {
+                value: {
+                  error_code: 400,
+                  error_message: "Invalid DID",
+                },
+              },
+              "Cannot get document information": {
+                value: {
+                  error_code: 400,
+                  error_message: "Cannot get document information",
+                },
+              },
+            },
+          },
+        },
+      },
+    },
+  },
 };
 
 export const verifyCommonlandsPdf = {
@@ -568,6 +631,14 @@ export const verifyCommonlandsPdf = {
         },
       },
     },
+  },
+};
+
+export const verifyCommonlandsPdfV2 = {
+  post: {
+    tags: ["Commonlands PDF"],
+    summary:
+      "Verify the existence of the provided URL and subsequently validate the PDF obtained from that URL version 2.",
   },
 };
 

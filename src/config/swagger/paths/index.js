@@ -4,12 +4,13 @@ import {
   commonlandsPdf,
   verifyCommonlandsPdf,
   revokeCommonlandsDocument,
-  multipleCommonlandsDocumentSigning,
   hashDocumentContent,
   verifyUploadedCommonlandsPdf,
   commonlandsCredential,
   blockDocument,
   checkDocumentBlockStatus,
+  commonlandsDocumentV2,
+  verifyCommonlandsPdfV2,
 } from "./commonlands.js";
 import {
   contract,
@@ -24,14 +25,14 @@ export const paths = {
   "/commonlands/document": {
     ...commonlandsDocument,
   },
+  "/commonlands/document/v2": {
+    ...commonlandsDocumentV2,
+  },
   "/commonlands/document/testing": {
     ...commonlandsDocument,
   },
   "/commonlands/document/revoke": {
     ...revokeCommonlandsDocument,
-  },
-  "/commonlands/document/multiple": {
-    ...multipleCommonlandsDocumentSigning,
   },
   "/commonlands/document/hash": {
     ...hashDocumentContent,
@@ -56,6 +57,9 @@ export const paths = {
   },
   "/pdf/verify": {
     ...verifyCommonlandsPdf,
+  },
+  "/pdf/verify/v2": {
+    ...verifyCommonlandsPdfV2,
   },
   "/pdf/upload-verify": {
     ...verifyUploadedCommonlandsPdf,
