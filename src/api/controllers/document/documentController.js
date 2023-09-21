@@ -4,6 +4,7 @@ import { COMMONLANDS } from "../../../config/schemas/index.js";
 
 // * Utilities
 import axios from "axios";
+import { sha256 } from "js-sha256";
 import "dotenv/config";
 import {
   checkUndefinedVar,
@@ -26,6 +27,7 @@ import {
   updateDocumentDid,
   getDidDocumentByDid,
 } from "../../utils/controller.js";
+import { createVerifiableCredential } from "../../utils/credential.js";
 import {
   createOwnerCertificate,
   encryptPdf,
@@ -264,18 +266,200 @@ export default {
           });
     }
   },
-  createDocumentV2: async (req, res, next) => {
+  createPlotCertification: async (req, res, next) => {
     try {
-      return res.status(200).json({
-        success: true,
-        success_message: "Coming soon...",
+      logger.apiInfo(req, res, `API Request: Create Plot Certification`);
+      const { plot } = req.body;
+      const undefinedVar = checkUndefinedVar({
+        plot,
       });
+      if (undefinedVar.undefined) {
+        next({
+          ...ERRORS.MISSING_PARAMETERS,
+          detail: undefinedVar?.detail,
+        });
+      }
+      const plotCertificationFileName = `PlotCertification-${plot?._id}`;
+      const companyName = process.env.COMPANY_NAME;
+      logger.apiInfo(req, res, `Pdf file name: ${plotCertificationFileName}`);
+      const accessToken = await authenticationProgress();
+      const isExistedResponse = await axios.get(
+        SERVERS.DID_CONTROLLER + "/api/doc/exists",
+        {
+          withCredentials: true,
+          headers: {
+            Cookie: `access_token=${accessToken}`,
+          },
+          params: {
+            companyName: companyName,
+            fileName: plotCertificationFileName,
+          },
+        }
+      );
+      if (isExistedResponse?.data?.isExisted) {
+        logger.apiInfo(
+          req,
+          res,
+          `Document ${plotCertificationFileName} existed`
+        );
+        const existedDidDoc = await getDidDocumentByDid({
+          accessToken: accessToken,
+          did: generateDid(companyName, plotCertificationFileName),
+        });
+        if (existedDidDoc?.data?.error_code) {
+          return next(ERRORS?.CANNOT_FOUND_DID_DOCUMENT);
+        }
+        logger.apiInfo(
+          req,
+          res,
+          `Pdf url of existed document: ${existedDidDoc?.didDoc?.pdfUrl}`
+        );
+        return res.status(200).json({
+          url: existedDidDoc?.didDoc?.pdfUrl,
+          isExisted: true,
+        });
+      }
+      let plotDetailForm = {
+        profileImage: "sampleProfileImage",
+        fileName: plotCertificationFileName,
+        name: `Land Certificate`,
+        title: `Land-Certificate-${plot?.name}`,
+        No: generateRandomString(plot._id, 7),
+        dateIssue: getCurrentDateTime(),
+        plotInformation: {
+          plotName: plot?.name,
+          plotId: plot?.id,
+          plot_Id: plot?._id,
+          plotStatus: "Free & Clear",
+          plotPeople: "Verified by 3 claimants, 6 Neighbors",
+          plotLocation: plot?.placeName,
+          plotCoordinates: plot?.centroid?.join(","),
+          plotNeighbors: plot?.neighbors?.length,
+          plotClaimants: plot?.claimants?.length,
+          plotDisputes: plot?.disputes?.length,
+          plotStatus: plot?.status,
+        },
+        certificateByCommonlands: {
+          publicSignature: "commonlandsSignatureImage",
+          name: "Commonlands System LLC",
+          commissionNumber: "139668234",
+          commissionExpiries: "09/12/2030",
+        },
+        certificateByCEO: {
+          publicSignature: "ceoSignature",
+          name: "Darius Golkar",
+          commissionNumber: "179668234",
+          commissionExpiries: "09/12/2030",
+        },
+      };
+      const { currentWallet, lucidClient } = await getAccountBySeedPhrase({
+        seedPhrase: process.env.ADMIN_SEED_PHRASE,
+      });
+      const { wrappedDocument } = await createDocumentForCommonlands({
+        seedPhrase: process.env.ADMIN_SEED_PHRASE,
+        documents: [plotDetailForm],
+        address: getPublicKeyFromAddress(currentWallet?.paymentAddr),
+        access_token: accessToken,
+        client: lucidClient,
+        currentWallet: currentWallet,
+        companyName: companyName,
+      });
+      const documentDid = generateDid(
+        companyName,
+        unsalt(wrappedDocument?.data?.fileName)
+      );
+      if (!documentDid) {
+        return next(ERRORS.CANNOT_GET_DOCUMENT_INFORMATION);
+      }
+      const mintingConfig = wrappedDocument?.mintingNFTConfig;
+      const documentHash = wrappedDocument?.signature?.targetHash;
+      logger.apiInfo(
+        req,
+        res,
+        `Wrapped document ${JSON.stringify(wrappedDocument)}`
+      );
+      const claimants = plot?.claimants;
+      const promises = claimants.map(async (claimant) => {
+        const { credential } = await createVerifiableCredential({
+          metadata: claimant,
+          did: documentDid,
+          subject: {
+            object: documentDid,
+            action: {
+              code: 1,
+            },
+          },
+          signData: {
+            key: "0x1a2b3c4d5e6f7g8h9i0j1k2l3m4n5o6p7q8r9s0t",
+            signature: "0x1a2b3c4d5e6f7g8h9i0j1k2l3m4n5o6p7q8r9s0t",
+          },
+          issuerKey: documentDid,
+        });
+        const verifiedCredential = {
+          ...credential,
+          timestamp: Date.now(),
+        };
+        const credentialHash = sha256(
+          Buffer.from(JSON.stringify(verifiedCredential), "utf8").toString(
+            "hex"
+          )
+        );
+        const credentialResponse = await axios.post(
+          SERVERS.CARDANO_SERVICE + "/api/v2/credential",
+          {
+            config: mintingConfig,
+            credential: credentialHash,
+          },
+          {
+            withCredentials: true,
+            headers: {
+              Cookie: `access_token=${accessToken};`,
+            },
+          }
+        );
+        if (credentialResponse?.data?.code !== 0) {
+          return next({
+            ...ERRORS.CREDENTIAL_FAILED,
+            detail: credentialResponse?.data,
+          });
+        }
+        const storeCredentialStatus = await axios.post(
+          SERVERS.DID_CONTROLLER + "/api/credential",
+          {
+            hash: credentialHash,
+            content: {
+              ...verifiedCredential,
+              mintingNFTConfig: credentialResponse?.data?.data,
+            },
+          },
+          {
+            headers: {
+              Cookie: `access_token=${accessToken};`,
+            },
+          }
+        );
+        if (storeCredentialStatus?.data?.error_code) {
+          return next(storeCredentialStatus?.data);
+        }
+        return credentialHash;
+      });
+      Promise.all(promises)
+        .then((data) => {
+          return res.status(200).json({
+            credentials: data,
+            certificateDid: documentDid,
+          });
+        })
+        .catch(() => {
+          return next(ERRORS.CANNOT_CREATE_CREDENTIAL_FOR_CLAIMANT);
+        });
     } catch (error) {
       error?.error_code
         ? next(error)
         : next({
             error_code: 400,
-            error_message: error?.error_message || "Something went wrong!",
+            error_message:
+              error?.error_message || error?.message || "Something went wrong!",
           });
     }
   },

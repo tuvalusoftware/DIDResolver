@@ -36,6 +36,13 @@ const createVerifiableCredential = async ({
   }
 };
 
+/**
+ * Function used to verify credential
+ * @param {String} hash - Hash of the credential
+ * @param {String} policyId - Policy ID of the credential
+ * @param {String} accessToken - Access token of the user
+ * @returns {Promise<Boolean>} - Return true if credential is verified, false otherwise
+ */
 const verifyCredential = async ({ hash, policyId, accessToken }) => {
   try {
     let query = { policyId: policyId },

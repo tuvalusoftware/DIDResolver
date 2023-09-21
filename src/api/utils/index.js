@@ -224,6 +224,11 @@ function generateRandomString(seed, length) {
   return result;
 }
 
+/**
+ * Function used for spiting camel case string
+ * @param {String} input - string to be split
+ * @returns {String} - string after split
+ */
 function splitCamelCase(input) {
   return _.startCase(input).replace(/([a-z])([A-Z])/g, "$1 $2");
 }

@@ -4,7 +4,8 @@ import { SIGNATURE_TYPE } from "../constants/type.js";
 import { deepMap } from "./salt.js";
 
 function isUUID(str) {
-  const uuidPattern = /^[0-9a-fA-F]{8}-[0-9a-fA-F]{4}-[0-9a-fA-F]{4}-[0-9a-fA-F]{4}-[0-9a-fA-F]{12}$/;
+  const uuidPattern =
+    /^[0-9a-fA-F]{8}-[0-9a-fA-F]{4}-[0-9a-fA-F]{4}-[0-9a-fA-F]{4}-[0-9a-fA-F]{12}$/;
   return uuidPattern.test(str);
 }
 
@@ -202,7 +203,7 @@ export const checkRequirementOfInput = (value) => {
     };
   } else if (typeof value === "object") {
     for (const index in value) {
-      if (value[index].length < 1) {
+      if (value[index]?.length < 1) {
         return {
           _key: index,
           valid: false,

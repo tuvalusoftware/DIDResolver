@@ -1,3 +1,5 @@
+import { ERRORS } from "../../constants.js";
+
 export const commonlandsDocument = {
   post: {
     tags: ["Commonlands Document"],
@@ -136,13 +138,123 @@ export const commonlandsDocument = {
   },
 };
 
-export const commonlandsDocumentV2 = {
+export const commonlandsPlotCertificate = {
   post: {
     tags: ["Commonlands Document"],
     summary:
-      "Generate a Land Certificate V2 for the Commonlands Project. This function serves as a wrapper for the DID Document",
+      "Generate a Plot Certificate for the Commonlands Project. This function serves as a wrapper for the DID Document",
     requestBody: {
       require: true,
+      content: {
+        "application/json": {
+          schema: {
+            type: "object",
+            properties: {
+              plot: {
+                type: "object",
+                example: {
+                  geojson: {
+                    geometry: {
+                      type: "Polygon",
+                      coordinates: [
+                        [
+                          [31.98189641838985, 1.46410111221806],
+                          [31.982118613007515, 1.4639804317163083],
+                          [31.982179847744703, 1.463763556594884],
+                          [31.982376575336104, 1.4635196171409035],
+                          [31.982473607268105, 1.4637163726349343],
+                          [31.981983957396352, 1.4641969951430553],
+                          [31.98189641838985, 1.46410111221806],
+                        ],
+                      ],
+                    },
+                    type: "Feature",
+                  },
+                  centroid: [31.98217150319044, 1.4638796809080243],
+                  _id: "64db86559e77a4ffc2395ada",
+                  area: 1216.42,
+                  placeName: "Nakasongola, Uganda",
+                  createdAt: 1692108373160,
+                  name: "VNZ-739",
+                  id: "Plot:64db86559e77a4ffc2395adc",
+                  isDisputed: true,
+                  isBoundaryDispute: false,
+                  isOwnershipDispute: true,
+                  disputes: [
+                    {
+                      plot: {
+                        geojson: {
+                          geometry: {
+                            type: "Polygon",
+                            coordinates: [
+                              [
+                                [31.98234437709405, 1.4634632209726135],
+                                [31.982375037267257, 1.463521524324699],
+                                [31.982179847744703, 1.463763556594884],
+                                [31.9821169752085, 1.4639828740821343],
+                                [31.981902153285628, 1.464097997425691],
+                                [31.98181110302778, 1.4640200251540705],
+                                [31.982170078860577, 1.463646562551176],
+                                [31.98234437709405, 1.4634632209726135],
+                              ],
+                            ],
+                          },
+                          type: "Feature",
+                        },
+                        centroid: [31.982128510355498, 1.463785108729324],
+                        _id: "64df16564b6bdbcb6559ebac",
+                        area: 1106.31,
+                        placeName: "Nakasongola, Uganda",
+                        createdAt: 1692341846551,
+                        name: "XTE-464",
+                        id: "Plot:64df16564b6bdbcb6559ebae",
+                        isBoundaryDispute: false,
+                        isOwnershipDispute: true,
+                      },
+                      type: "ownership",
+                    },
+                  ],
+                  claimchainSize: 1,
+                },
+              },
+            },
+          },
+        },
+      },
+    },
+    responses: {
+      200: {
+        description: "Return an array include credential'hashes if success",
+        content: {
+          "application/json": {
+            examples: {
+              "Create plot certificate successfully": {
+                value: {
+                  hashes: [
+                    "0x1a2b3c4d5e6f7g8h9i0j1k2l3m4n5o6p7q8r9s0t1u2v3w4x5y6z",
+                  ],
+                },
+              },
+              "Missing parameters": {
+                value: {
+                  error_code: 400,
+                  error_message: "Bad request. Missing parameters.",
+                  detail: "Not found: owner",
+                },
+              },
+              "Document already exists": {
+                value: {
+                  url: "https://raw.githubusercontent.com/dev-fuixlabs/Commonlands_DOC/IMAGE/1692991473198_COMMONLANDS_2-LandCertificate-14088960050-64db86559e77a4ffc2395ada-30.pdf",
+                  isExisted: true,
+                },
+              },
+              "Cannot mint nft for credential": {
+                value: ERRORS.CANNOT_CREATE_CREDENTIAL_FOR_CLAIMANT,
+              },
+            },
+          },
+        },
+      },
     },
   },
 };

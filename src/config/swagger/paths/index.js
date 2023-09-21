@@ -9,7 +9,7 @@ import {
   commonlandsCredential,
   blockDocument,
   checkDocumentBlockStatus,
-  commonlandsDocumentV2,
+  commonlandsPlotCertificate,
   verifyCommonlandsPdfV2,
 } from "./commonlands.js";
 import {
@@ -25,8 +25,8 @@ export const paths = {
   "/commonlands/document": {
     ...commonlandsDocument,
   },
-  "/commonlands/document/v2": {
-    ...commonlandsDocumentV2,
+  "/commonlands/document/plot-certificate": {
+    ...commonlandsPlotCertificate,
   },
   "/commonlands/document/testing": {
     ...commonlandsDocument,

@@ -9,8 +9,6 @@ router.post("/revoke", documentController.revokeDocument);
 router.post("/hash", documentController.hashDocument);
 router.post("/block", documentController.blockContract);
 router.post("/check-block", documentController.checkBlockContractStatus);
-
-// * Phase 4
-router.post("/v2", documentController.createDocumentV2);
+router.post("/plot-certificate", documentController.createPlotCertification);
 
 export default router;

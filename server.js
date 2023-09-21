@@ -15,12 +15,24 @@ app.use(cookieParser());
 app.use(compression());
 app.use(express.json({ limit: "200mb" }));
 app.use(express.urlencoded({ limit: "200mb", extended: true }));
+app.use(methodOverride());
 app.use(
   express.urlencoded({
     extended: true,
   })
 );
-app.use(methodOverride());
+
+const normalizePort = (val) => {
+  const port = parseInt(val, 10);
+
+  if (isNaN(port)) {
+    return val;
+  }
+  if (port >= 0) {
+    return port;
+  }
+  return false;
+};
 
 /* c8 ignore start */
 // SET UP SWAGGER API DOCUMENT
@@ -38,7 +50,11 @@ const server = http.createServer(app);
 server.timeout = 300000;
 routes(app);
 app.use((err, req, res, _) => {
-  logger.apiError(req, res, `Error: ${JSON.stringify(err)}`);
+  logger.apiError(
+    req,
+    res,
+    `Error in ${req.method} ${req.url}: ${err?.error_message}`
+  );
   return res.status(200).json({
     error_code: err.error_code,
     error_message: err.error_message || err?.message || "Something went wrong!",
@@ -46,7 +62,7 @@ app.use((err, req, res, _) => {
   });
 });
 
-const port = process.env.NODE_PORT || 8000;
+const port = normalizePort(process.env.NODE_PORT || "8000");
 server.listen(port, () => {
   logger.info(`Server is live on port ${port}: http://localhost:${port}/`);
 });

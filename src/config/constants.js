@@ -171,7 +171,7 @@ export const ERRORS = {
   },
   CREDENTIAL_FAILED: {
     error_code: 4023,
-    error_message: "Credential failed!",
+    error_message: "Error when create credential!",
   },
   INVALID_DID: {
     error_code: 4024,
@@ -184,5 +184,17 @@ export const ERRORS = {
   NO_CREDENTIALS_FOUND: {
     error_code: 4026,
     error_message: "There are no credentials rely on this contract!",
+  },
+  CANNOT_GET_DID_DOCUMENT: {
+    error_code: 4027,
+    error_message: "Error while getting DID document",
+  },
+  ERROR_PUSH_URL_TO_DID_DOCUMENT: {
+    error_code: 4028,
+    error_message: "Error while pushing url to DID document",
+  },
+  CANNOT_CREATE_CREDENTIAL_FOR_CLAIMANT: {
+    error_code: 4029,
+    error_message: "Error while creating credential for claimant",
   },
 };
