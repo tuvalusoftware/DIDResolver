@@ -58,7 +58,7 @@ app.use((err, req, res, _) => {
   return res.status(200).json({
     error_code: err.error_code,
     error_message: err.error_message || err?.message || "Something went wrong!",
-    detail: err.detail,
+    error_detail: err.detail || err.error_detail,
   });
 });
 
