@@ -12,6 +12,7 @@ import {
   commonlandsPlotCertificate,
   verifyCommonlandsPdfV2,
   getEndorsementChainOfCertificate,
+  checkLastestVersion,
 } from "./commonlands.js";
 import {
   contract,
@@ -28,6 +29,9 @@ export const paths = {
   },
   "/commonlands/document/plot-certificate": {
     ...commonlandsPlotCertificate,
+  },
+  "/commonlands/document/lastest-version": {
+    ...checkLastestVersion,
   },
   "/commonlands/document/revoke": {
     ...revokeCommonlandsDocument,

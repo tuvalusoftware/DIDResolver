@@ -12,13 +12,13 @@ import {
   getPublicKeyFromAddress,
   generateRandomString,
   validateDID,
-  getDidByComponents,
 } from "../../utils/index.js";
 import {
   createDocumentForCommonlands,
   hashDocumentContent,
+  isLastestCertificate,
+  fetchEndorsementChain,
 } from "../../utils/document.js";
-import { getNftContract } from "../../utils/cardano.js";
 import FormData from "form-data";
 import { getAccountBySeedPhrase } from "../../utils/lucid.js";
 import { authenticationProgress } from "../../utils/auth.js";
@@ -827,48 +827,11 @@ export default {
         return next(ERRORS.INVALID_DID);
       }
       const accessToken = await authenticationProgress();
-      const documentContentResponse = await getDocumentContentByDid({
-        accessToken: accessToken,
+      const endorsementChain = await fetchEndorsementChain({
         did: did,
+        accessToken: accessToken,
       });
-      if (documentContentResponse?.error_code) {
-        return next(
-          documentContentResponse || ERRORS.CANNOT_GET_DOCUMENT_INFORMATION
-        );
-      }
-      if (!documentContentResponse?.wrappedDoc?.mintingNFTConfig) {
-        return next({
-          ...ERRORS.CANNOT_UPDATE_DOCUMENT_INFORMATION,
-          detail: "Cannot get minting config from document",
-        });
-      }
-      const policyId =
-        documentContentResponse?.wrappedDoc?.mintingNFTConfig?.policy?.id;
-      logger.apiInfo(req, res, `Policy id: ${policyId}`);
-      const getNftResponse = await getNftContract({
-        accessToken,
-        policyId,
-      });
-      logger.apiInfo(req, res, `Response from service: ${getNftResponse}`);
-      if (getNftResponse?.code !== 0) {
-        return next(ERRORS.CANNOT_FETCH_NFT);
-      }
-      const nftContracts = getNftResponse?.data;
-      const retrieveCertificatePromises = nftContracts.map(async (nft) => {
-        const certificateDid = getDidByComponents(nft?.onchainMetadata?.did);
-        const certificateResponse = await getDocumentContentByDid({
-          did: certificateDid,
-          accessToken: accessToken,
-        });
-        return certificateResponse?.wrappedDoc?.data;
-      });
-      Promise.all(retrieveCertificatePromises)
-        .then((data) => {
-          return res.status(200).json(data);
-        })
-        .catch((error) => {
-          return next(error || ERRORS.CANNOT_CREATE_CREDENTIAL_FOR_CLAIMANT);
-        });
+      return res.status(200).json(endorsementChain);
     } catch (error) {
       error?.error_code
         ? next(error)
@@ -897,6 +860,18 @@ export default {
       if (!valid) {
         return next(ERRORS.INVALID_DID);
       }
+      const accessToken = await authenticationProgress();
+      const endorsementChain = await fetchEndorsementChain({
+        did: did,
+        accessToken: accessToken,
+      });
+      const isLastest = await isLastestCertificate({
+        currentHash: hash,
+        endorsementChain: endorsementChain,
+      });
+      return res.status(200).json({
+        isLastest,
+      });
     } catch (error) {
       error?.error_code
         ? next(error)

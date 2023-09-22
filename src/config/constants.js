@@ -197,4 +197,8 @@ export const ERRORS = {
     error_code: 4029,
     error_message: "Error while creating credential for claimant",
   },
+  MISSING_REQUIRED_PARAMETERS: {
+    error_code: 4030,
+    error_message: "Missing required parameters in object",
+  },
 };

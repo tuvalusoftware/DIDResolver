@@ -12,11 +12,15 @@ import {
   wrapDocument,
   createWrappedDocument,
 } from "../../fuixlabs-documentor/utils/document.js";
+import { getDocumentContentByDid } from "../utils/controller.js";
+import { getNftContract } from "../utils/cardano.js";
 import { deepMap } from "../../fuixlabs-documentor/utils/salt.js";
 import {
   validateDIDSyntax,
   checkUndefinedVar,
   getPublicKeyFromAddress,
+  getDidByComponents,
+  requireFieldInArray,
 } from "./index.js";
 import axios from "axios";
 import "dotenv/config";
@@ -326,5 +330,88 @@ export const createDocumentForCommonlands = async ({
     }
   } catch (e) {
     throw e;
+  }
+};
+
+/**
+ * Function employed for retrieving the endorsement chain from the DID Controller.
+ * @param {String} did - did of document which is used for getting endorsement chain
+ * @param {String} accessToken - access token of current user
+ * @returns {Promise<Array>} - Promise object includes array of endorsement chain
+ */
+export const fetchEndorsementChain = async ({ did, accessToken }) => {
+  try {
+    const documentContentResponse = await getDocumentContentByDid({
+      accessToken: accessToken,
+      did: did,
+    });
+    if (documentContentResponse?.error_code) {
+      throw documentContentResponse || ERRORS.CANNOT_GET_DOCUMENT_INFORMATION;
+    }
+    if (!documentContentResponse?.wrappedDoc?.mintingNFTConfig) {
+      throw {
+        ...ERRORS.CANNOT_UPDATE_DOCUMENT_INFORMATION,
+        detail: "Cannot get minting config from document",
+      };
+    }
+    const policyId =
+      documentContentResponse?.wrappedDoc?.mintingNFTConfig?.policy?.id;
+    const getNftResponse = await getNftContract({
+      accessToken,
+      policyId,
+    });
+    if (getNftResponse?.code !== 0) {
+      throw ERRORS.CANNOT_FETCH_NFT;
+    }
+    const nftContracts = getNftResponse?.data;
+    const retrieveCertificatePromises = nftContracts.map(async (nft) => {
+      const certificateDid = getDidByComponents(nft?.onchainMetadata?.did);
+      const certificateResponse = await getDocumentContentByDid({
+        did: certificateDid,
+        accessToken: accessToken,
+      });
+      return {
+        data: { ...certificateResponse?.wrappedDoc?.data },
+        signature: { ...certificateResponse?.wrappedDoc?.signature },
+        timestamp: nft?.onchainMetadata?.timestamp,
+      };
+    });
+    const data = await Promise.all(retrieveCertificatePromises);
+    return data;
+  } catch (error) {
+    throw error;
+  }
+};
+
+/**
+ * Function used for indicate that it checks if the input object is the latest version
+ * @param {String} currentHash - current hash of document
+ * @param {Array} endorsementChain - array of endorsement chain
+ * @returns {Promise<Boolean>} - Promise object includes boolean value
+ */
+export const isLastestCertificate = async ({
+  currentHash,
+  endorsementChain,
+}) => {
+  try {
+    const requireField = "timestamp";
+    const validRequirement = requireFieldInArray(endorsementChain, "timestamp");
+    if (!validRequirement) {
+      throw {
+        ...MISSING_REQUIRED_PARAMETERS,
+        detail: `Missing ${requireField} in endorsement chain`,
+      };
+    }
+    const sortedEndorsementChain = endorsementChain.sort(
+      (a, b) => b.timestamp - a.timestamp
+    );
+    const lastestCertificate = sortedEndorsementChain[0];
+    const lastestCertificateHash = lastestCertificate?.signature?.targetHash;
+    if (lastestCertificateHash !== currentHash) {
+      return false;
+    }
+    return true;
+  } catch (error) {
+    throw error;
   }
 };

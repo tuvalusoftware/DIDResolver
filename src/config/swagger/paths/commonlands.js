@@ -1160,3 +1160,64 @@ export const checkDocumentBlockStatus = {
     },
   },
 };
+
+export const checkLastestVersion = {
+  post: {
+    tags: ["Commonlands Document"],
+    summary: "Check lastest version of document",
+    requestBody: {
+      require: true,
+      content: {
+        "application/json": {
+          schema: {
+            type: "object",
+            properties: {
+              did: {
+                type: "string",
+                example: "did:fuixlabs:COMMONLANDS_2:Contract-sample_id_11",
+              },
+              hash: {
+                type: "string",
+                example:
+                  "0x1a2b3c4d5e6f7g8h9i0j1k2l3m4n5o6p7q8r9s0t1u2v3w4x5y6z",
+              },
+            },
+          },
+        },
+      },
+    },
+    responses: {
+      200: {
+        description: "Return a object include status of block document",
+        content: {
+          "application/json": {
+            examples: {
+              "Document is lastest version": {
+                value: {
+                  isLastest: true,
+                },
+              },
+              "Document is not lastest version": {
+                value: {
+                  isLastest: false,
+                },
+              },
+              "Missing parameters": {
+                value: {
+                  ...ERRORS.MISSING_PARAMETERS,
+                  detail: "Not found: did",
+                },
+              },
+              "Invalid DID": {
+                value: ERRORS.INVALID_DID,
+              },
+              "Cannot get document information": {
+                value: ERRORS.CANNOT_FOUND_DID_DOCUMENT,
+              },
+            },
+          },
+        },
+      },
+    },
+  },
+};

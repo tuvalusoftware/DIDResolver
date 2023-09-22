@@ -242,6 +242,21 @@ function getDidByComponents(didComponents) {
   return `did:${process.env.DEV_COMPANY_NAME}:${didComponents}`;
 }
 
+/**
+ * Function used to determine whether a particular field exists in all objects of the input array or not, making it a valuable tool for checking data consistency within an array of objects.
+ * @param {Array} array - array of objects
+ * @param {String} field - field to be checked
+ * @returns {Boolean} - true if the field is present in all objects, false otherwise
+ */
+function requireFieldInArray(array, field) {
+  for (const obj of array) {
+    if (!obj.hasOwnProperty(field)) {
+      return false; // If the field is missing in any object, return false
+    }
+  }
+  return true; // If the field is present in all objects, return true
+}
+
 export {
   validateDIDSyntax,
   getAddressFromHexEncoded,
@@ -256,4 +271,5 @@ export {
   splitCamelCase,
   validateDID,
   getDidByComponents,
+  requireFieldInArray,
 };
