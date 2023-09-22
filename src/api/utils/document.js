@@ -43,6 +43,7 @@ export const generateWrappedDocument = async ({
   encryptedIssuerAddress,
   mintingNFTConfig,
   access_token,
+  ddidDocument,
 }) => {
   try {
     const undefinedVar = checkUndefinedVar({
@@ -83,15 +84,17 @@ export const generateWrappedDocument = async ({
     if (existence?.data?.isExisted) {
       throw ERRORS.ALREADY_EXSISTED;
     }
+    const didComponents = ddidDocument.split(":");
     let mintBody = {
         hash: targetHash,
+        did: didComponents[2] + ":" + didComponents[3],
       },
       mintingNFT;
-
     if (mintingNFTConfig) {
       mintBody = {
         newHash: targetHash,
         config: { ...mintingNFTConfig, burn: false },
+        did: didComponents[2] + ":" + didComponents[3],
       };
       mintingNFT = await axios.put(
         SERVERS.CARDANO_SERVICE + "/api/v2/hash/",
@@ -150,6 +153,12 @@ export const generateWrappedDocument = async ({
   }
 };
 
+/**
+ * Function used for hashing document content
+ * @param {Object} document - document object
+ * @param {String} address - address of issuer
+ * @returns {Promise<String>} - Promise object includes target hash
+ */
 export const hashDocumentContent = async ({ document, address }) => {
   try {
     document = deepMap(document, unsalt);
@@ -222,6 +231,7 @@ export const createDocumentForCommonlands = async ({
   client,
   currentWallet,
   companyName,
+  mintingConfig,
 }) => {
   try {
     for (let index = 0; index < documents.length; index++) {
@@ -289,18 +299,18 @@ export const createDocumentForCommonlands = async ({
             ).toString("hex")
           )
           .sign();
-        const response = wrapDocument({
+        const wrappedDocument = wrapDocument({
           document: _document,
           walletAddress: address,
           signedData: signMessage,
           targetHash: targetHash,
         });
-        const wrappedDocument = response;
-        let requestBody = {
+        const requestBody = {
           wrappedDocument: wrappedDocument,
           encryptedIssuerAddress: address,
-          did: ddidDocument,
+          ddidDocument: ddidDocument,
           access_token: access_token,
+          mintingNFTConfig: mintingConfig,
         };
         const wrappedResult = await generateWrappedDocument(requestBody);
         return {
@@ -313,102 +323,6 @@ export const createDocumentForCommonlands = async ({
           "Something went wrong! Please try again later."
         );
       }
-    }
-  } catch (e) {
-    throw e;
-  }
-};
-
-export const createDocumentWithMultipleSign = async ({
-  document,
-  access_token,
-  claimants,
-}) => {
-  try {
-    document = deepMap(document, unsalt);
-    try {
-      let createdDocument = {};
-      for (const key in document) {
-        let currentField = document[key];
-        if (key === "fileName") {
-          let specialVar = checkForSpecialChar({ currentField });
-          let lengthVar = checkLengthOfInput(currentField);
-          if (!lengthVar?.valid) {
-            throw VERIFIER_ERROR_CODE.FILENAME_IS_TOO_SHORT;
-          }
-          if (!specialVar?.valid) {
-            throw VERIFIER_ERROR_CODE.STRING_INCLUDE_SPECIAL_CHARATERS;
-          }
-          let endWithSpecialCharacters =
-            checkForStringEndWithSpecialCharacters(currentField);
-          if (!endWithSpecialCharacters?.valid) {
-            throw VERIFIER_ERROR_CODE.END_WITH_SPECIAL_CHARACTER;
-          }
-          if (!nonIsoValidator(currentField)) {
-            throw VERIFIER_ERROR_CODE.STRING_INCLUDE_SPECIAL_CHARATERS;
-          }
-        } else {
-          let lengthVar = checkRequirementOfInput(currentField);
-          if (!lengthVar?.valid) {
-            throw {
-              error_code: 400,
-              error_message: `${
-                lengthVar?._key || key
-              } is required! Please check your input again!`,
-            };
-          }
-        }
-        if (key !== "did")
-          createdDocument = Object.assign(createdDocument, {
-            [key]: document[key],
-          });
-      }
-      createdDocument = Object.assign(createdDocument, {
-        companyName: process.env.COMPANY_NAME,
-        intention: VALID_DOCUMENT_NAME_TYPE.find(
-          (prop) => prop.name === createdDocument.name
-        ).type,
-      });
-      const did = generateDid(process.env.COMPANY_NAME, address);
-      let res = await createWrappedDocument(
-        createdDocument,
-        SAMPLE_SERVICE,
-        address,
-        did
-      );
-      const { _document, targetHash, ddidDocument } = res;
-      const signMessage = await client
-        ?.newMessage(
-          getPublicKeyFromAddress(currentWallet?.paymentAddr),
-          Buffer.from(
-            JSON.stringify({
-              address: getPublicKeyFromAddress(currentWallet?.paymentAddr),
-              targetHash: targetHash,
-            })
-          ).toString("hex")
-        )
-        .sign();
-      const response = wrapDocument({
-        document: _document,
-        walletAddress: address,
-        signedData: signMessage,
-        targetHash: targetHash,
-      });
-      const wrappedDocument = response;
-      let requestBody = {
-        wrappedDocument: wrappedDocument,
-        encryptedIssuerAddress: address,
-        did: ddidDocument,
-        access_token: access_token,
-      };
-      const wrappedResult = await generateWrappedDocument(requestBody);
-      return {
-        wrappedDocument: wrappedResult,
-      };
-    } catch (e) {
-      throw (
-        e || e?.error_message || "Something went wrong! Please try again later."
-      );
     }
   } catch (e) {
     throw e;

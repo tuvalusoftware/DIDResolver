@@ -59,17 +59,6 @@ export const createWrappedDocument = async (
     throw newLocal;
   }
   try {
-    // Send GET request to controller to check whether the DID_Document exist
-    // const response = await checkExistsDidoWrappedDoc(
-    //   CLIENT_PATH.CHECK_DID_OF_WRAPPED_DOCUMENT,
-    //   {
-    //     companyName,
-    //     fileName: fileName,
-    //   }
-    // );
-    // const isExisted = response.data;
-    //Get the existed condition of DID_Document
-    // const isExisted = response?.data?.isExisted;
     if (true) {
       if (service === SERVICE.CARDANO) {
         // If service is cardano service, the identityProofType will be DID and create new field is did
@@ -109,7 +98,6 @@ export const createWrappedDocument = async (
       };
       return res;
     }
-    throw VERIFIER_ERROR_CODE.EXIST_FILE_NAME;
   } catch (e) {
     throw e;
   }
