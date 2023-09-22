@@ -1,10 +1,10 @@
 // * Utilities
-import logger from "../../../../logger.js";
-import { checkUndefinedVar } from "../../utils/index.js";
+import logger from "../../../logger.js";
+import { checkUndefinedVar } from "../utils/index.js";
 import "dotenv/config";
 
 // * Constants
-import { ERRORS } from "../../../config/constants.js";
+import { ERRORS } from "../../config/constants.js";
 
 export default {
   getUserDid: async (req, res, next) => {

@@ -1,19 +1,19 @@
 // * Constants
-import { ERRORS, SERVERS } from "../../../config/constants.js";
+import { ERRORS, SERVERS } from "../../config/constants.js";
 
 // * Utilities
 import axios from "axios";
 import "dotenv/config";
-import { checkUndefinedVar, validateDID } from "../../utils/index.js";
-import { createVerifiableCredential } from "../../utils/credential.js";
+import { checkUndefinedVar, validateDID } from "../utils/index.js";
+import { createVerifiableCredential } from "../utils/credential.js";
 import {
   getDocumentContentByDid,
   getDidDocumentByDid,
   updateDocumentDid,
   getCredential,
-} from "../../utils/controller.js";
-import { authenticationProgress } from "../../utils/auth.js";
-import logger from "../../../../logger.js";
+} from "../utils/controller.js";
+import { authenticationProgress } from "../utils/auth.js";
+import logger from "../../../logger.js";
 import { sha256 } from "js-sha256";
 
 axios.defaults.withCredentials = true;

@@ -10,7 +10,6 @@ import {
   blockDocument,
   checkDocumentBlockStatus,
   commonlandsPlotCertificate,
-  verifyCommonlandsPdfV2,
   getEndorsementChainOfCertificate,
   checkLastestVersion,
 } from "./commonlands.js";
@@ -62,9 +61,6 @@ export const paths = {
   },
   "/pdf/verify": {
     ...verifyCommonlandsPdf,
-  },
-  "/pdf/verify/v2": {
-    ...verifyCommonlandsPdfV2,
   },
   "/pdf/upload-verify": {
     ...verifyUploadedCommonlandsPdf,

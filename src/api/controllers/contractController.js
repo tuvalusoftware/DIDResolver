@@ -1,6 +1,6 @@
 // * Constants
-import { ERRORS, SERVERS } from "../../../config/constants.js";
-import { COMMONLANDS } from "../../../config/schemas/index.js";
+import { ERRORS, SERVERS } from "../../config/constants.js";
+import { COMMONLANDS } from "../../config/schemas/index.js";
 
 // * Utilities
 import axios from "axios";
@@ -10,17 +10,17 @@ import {
   getPublicKeyFromAddress,
   validateJSONSchema,
   validateDID,
-} from "../../utils/index.js";
-import { createDocumentForCommonlands } from "../../utils/document.js";
+} from "../utils/index.js";
+import { createDocumentForCommonlands } from "../utils/document.js";
 import fs from "fs";
 import FormData from "form-data";
-import { getAccountBySeedPhrase } from "../../utils/lucid.js";
-import { authenticationProgress } from "../../utils/auth.js";
+import { getAccountBySeedPhrase } from "../utils/lucid.js";
+import { authenticationProgress } from "../utils/auth.js";
 import {
   getDocumentContentByDid,
   updateDocumentDid,
   getDidDocumentByDid,
-} from "../../utils/controller.js";
+} from "../utils/controller.js";
 import {
   encryptPdf,
   getPdfBufferFromUrl,
@@ -28,11 +28,11 @@ import {
   createCommonlandsContract,
   verifyPdf,
   readContentOfPdf,
-} from "../../utils/pdf.js";
-import { unsalt, deepUnsalt } from "../../../fuixlabs-documentor/utils/data.js";
-import { generateDid } from "../../../fuixlabs-documentor/utils/did.js";
-import logger from "../../../../logger.js";
-import { getAndVerifyCredential } from "../../utils/credential.js";
+} from "../utils/pdf.js";
+import { unsalt, deepUnsalt } from "../../fuixlabs-documentor/utils/data.js";
+import { generateDid } from "../../fuixlabs-documentor/utils/did.js";
+import logger from "../../../logger.js";
+import { getAndVerifyCredential } from "../utils/credential.js";
 
 axios.defaults.withCredentials = true;
 

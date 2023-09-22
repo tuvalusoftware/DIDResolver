@@ -2,14 +2,14 @@
 import crypto from "node:crypto";
 import { PDFDocument } from "pdf-lib";
 import fs from "fs";
-import { readPdf, verifyPdf } from "../../utils/pdf.js";
-import { checkUndefinedVar, validateDID } from "../../utils/index.js";
+import { readPdf, verifyPdf } from "../utils/pdf.js";
+import { checkUndefinedVar, validateDID } from "../utils/index.js";
 
 // * Constants
-import { ERRORS } from "../../../config/constants.js";
-import { getDidDocumentByDid } from "../../utils/controller.js";
-import { authenticationProgress } from "../../utils/auth.js";
-import logger from "../../../../logger.js";
+import { ERRORS } from "../../config/constants.js";
+import { getDidDocumentByDid } from "../utils/controller.js";
+import { authenticationProgress } from "../utils/auth.js";
+import logger from "../../../logger.js";
 
 export default {
   savePdfFile: async (req, res, next) => {

@@ -1,6 +1,6 @@
 import express from "express";
 import multer from "multer";
-import pdfController from "../controllers/pdf/pdfController.js";
+import pdfController from "../controllers/pdfController.js";
 
 const storage = multer.memoryStorage();
 const upload = multer({ storage: storage });

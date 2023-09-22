@@ -977,14 +977,6 @@ export const verifyCommonlandsPdf = {
   },
 };
 
-export const verifyCommonlandsPdfV2 = {
-  post: {
-    tags: ["Commonlands PDF"],
-    summary:
-      "Verify the existence of the provided URL and subsequently validate the PDF obtained from that URL version 2.",
-  },
-};
-
 export const verifyUploadedCommonlandsPdf = {
   post: {
     tags: ["Commonlands PDF"],
