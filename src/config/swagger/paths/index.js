@@ -11,6 +11,7 @@ import {
   checkDocumentBlockStatus,
   commonlandsPlotCertificate,
   verifyCommonlandsPdfV2,
+  getEndorsementChainOfCertificate,
 } from "./commonlands.js";
 import {
   contract,
@@ -28,9 +29,6 @@ export const paths = {
   "/commonlands/document/plot-certificate": {
     ...commonlandsPlotCertificate,
   },
-  "/commonlands/document/testing": {
-    ...commonlandsDocument,
-  },
   "/commonlands/document/revoke": {
     ...revokeCommonlandsDocument,
   },
@@ -42,6 +40,9 @@ export const paths = {
   },
   "/commonlands/document/check-block": {
     ...checkDocumentBlockStatus,
+  },
+  "/commonlands/document/endorsement/{did}": {
+    ...getEndorsementChainOfCertificate,
   },
   "/credential": {
     ...commonlandsCredential,

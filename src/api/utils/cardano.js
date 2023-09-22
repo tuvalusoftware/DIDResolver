@@ -67,4 +67,29 @@ const verifyCardanoSignature = async ({
   }
 };
 
-export { verifyCardanoNft, verifyCardanoSignature };
+/**
+ * Function used to get the NFT contract from Cardano service
+ * @param {String} policyId - Policy ID of the NFT
+ * @return
+ */
+const getNftContract = async ({ policyId, accessToken }) => {
+  try {
+    const getNftResponse = await axios.post(
+      `${SERVERS.CARDANO_SERVICE}/api/v2/fetch/nft`,
+      {
+        policyId: policyId,
+      },
+      {
+        withCredentials: true,
+        headers: {
+          Cookie: `access_token=${accessToken};`,
+        },
+      }
+    );
+    return getNftResponse?.data;
+  } catch (error) {
+    throw error;
+  }
+};
+
+export { verifyCardanoNft, verifyCardanoSignature, getNftContract };

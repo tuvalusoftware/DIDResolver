@@ -1,9 +1,9 @@
 // * Constants
 import { ERRORS, SERVERS } from "../../../config/constants.js";
-import { COMMONLANDS } from "../../../config/schemas/index.js";
 
 // * Utilities
 import axios from "axios";
+import fs from "fs";
 import { sha256 } from "js-sha256";
 import "dotenv/config";
 import {
@@ -11,14 +11,14 @@ import {
   getCurrentDateTime,
   getPublicKeyFromAddress,
   generateRandomString,
-  validateJSONSchema,
   validateDID,
+  getDidByComponents,
 } from "../../utils/index.js";
 import {
   createDocumentForCommonlands,
   hashDocumentContent,
 } from "../../utils/document.js";
-import fs from "fs";
+import { getNftContract } from "../../utils/cardano.js";
 import FormData from "form-data";
 import { getAccountBySeedPhrase } from "../../utils/lucid.js";
 import { authenticationProgress } from "../../utils/auth.js";
@@ -34,14 +34,10 @@ import {
   getPdfBufferFromUrl,
   bufferToPDFDocument,
   deleteFile,
-  createCommonlandsContract,
-  verifyPdf,
-  readContentOfPdf,
 } from "../../utils/pdf.js";
-import { unsalt, deepUnsalt } from "../../../fuixlabs-documentor/utils/data.js";
+import { unsalt } from "../../../fuixlabs-documentor/utils/data.js";
 import { generateDid } from "../../../fuixlabs-documentor/utils/did.js";
 import logger from "../../../../logger.js";
-import { getAndVerifyCredential } from "../../utils/credential.js";
 
 axios.defaults.withCredentials = true;
 
@@ -274,7 +270,7 @@ export default {
         plot,
       });
       if (undefinedVar.undefined) {
-        next({
+        return next({
           ...ERRORS.MISSING_PARAMETERS,
           detail: undefinedVar?.detail,
         });
@@ -387,6 +383,7 @@ export default {
             object: documentDid,
             action: {
               code: 1,
+              proofHash: documentHash,
             },
           },
           signData: {
@@ -452,6 +449,239 @@ export default {
         })
         .catch(() => {
           return next(ERRORS.CANNOT_CREATE_CREDENTIAL_FOR_CLAIMANT);
+        });
+    } catch (error) {
+      error?.error_code
+        ? next(error)
+        : next({
+            error_code: 400,
+            error_message:
+              error?.error_message || error?.message || "Something went wrong!",
+          });
+    }
+  },
+  updatePlotCertification: async (req, res, next) => {
+    try {
+      logger.apiInfo(req, res, `API Request: Update Plot Certification`);
+      const { originalDid, plot } = req.body;
+      const undefinedVar = checkUndefinedVar({
+        originalDid,
+        plot,
+      });
+      if (undefinedVar.undefined) {
+        return next({
+          ...ERRORS.MISSING_PARAMETERS,
+          detail: undefinedVar?.detail,
+        });
+      }
+      const { valid } = validateDID(originalDid);
+      if (!valid) {
+        return next(ERRORS.INVALID_DID);
+      }
+      const accessToken = await authenticationProgress();
+      const didContentResponse = await getDocumentContentByDid({
+        accessToken: accessToken,
+        did: originalDid,
+      });
+      if (didContentResponse?.error_code) {
+        return next(
+          didContentResponse || ERRORS.CANNOT_GET_DOCUMENT_INFORMATION
+        );
+      }
+      if (!didContentResponse?.wrappedDoc?.mintingNFTConfig) {
+        return next({
+          ...ERRORS.CANNOT_UPDATE_DOCUMENT_INFORMATION,
+          detail: "Cannot get minting config from document",
+        });
+      }
+      const mintingConfig = {
+        ...didContentResponse?.wrappedDoc?.mintingNFTConfig,
+      };
+      mintingConfig.policy = {
+        ...mintingConfig.policy,
+        reuse: true,
+      };
+      logger.apiInfo(
+        req,
+        res,
+        `Minting config: ${JSON.stringify(mintingConfig)}`
+      );
+      const plotCertificationFileName = `PlotCertification-${plot?._id}`;
+      const companyName = process.env.COMPANY_NAME;
+      logger.apiInfo(req, res, `Pdf file name: ${plotCertificationFileName}`);
+      const isExistedResponse = await axios.get(
+        SERVERS.DID_CONTROLLER + "/api/doc/exists",
+        {
+          withCredentials: true,
+          headers: {
+            Cookie: `access_token=${accessToken}`,
+          },
+          params: {
+            companyName: companyName,
+            fileName: plotCertificationFileName,
+          },
+        }
+      );
+      if (isExistedResponse?.data?.isExisted) {
+        logger.apiInfo(
+          req,
+          res,
+          `Document ${plotCertificationFileName} existed`
+        );
+        const existedDidDoc = await getDidDocumentByDid({
+          accessToken: accessToken,
+          did: generateDid(companyName, plotCertificationFileName),
+        });
+        if (existedDidDoc?.data?.error_code) {
+          return next(ERRORS?.CANNOT_FOUND_DID_DOCUMENT);
+        }
+        logger.apiInfo(
+          req,
+          res,
+          `Pdf url of existed document: ${existedDidDoc?.didDoc?.pdfUrl}`
+        );
+        return res.status(200).json({
+          url: existedDidDoc?.didDoc?.pdfUrl,
+          isExisted: true,
+        });
+      }
+      let plotDetailForm = {
+        profileImage: "sampleProfileImage",
+        fileName: plotCertificationFileName,
+        name: `Land Certificate`,
+        title: `Land-Certificate-${plot?.name}`,
+        No: generateRandomString(plot._id, 7),
+        dateIssue: getCurrentDateTime(),
+        plotInformation: {
+          plotName: plot?.name,
+          plotId: plot?.id,
+          plot_Id: plot?._id,
+          plotStatus: "Free & Clear",
+          plotPeople: "Verified by 3 claimants, 6 Neighbors",
+          plotLocation: plot?.placeName,
+          plotCoordinates: plot?.centroid?.join(","),
+          plotNeighbors: plot?.neighbors?.length,
+          plotClaimants: plot?.claimants?.length,
+          plotDisputes: plot?.disputes?.length,
+          plotStatus: plot?.status,
+        },
+        certificateByCommonlands: {
+          publicSignature: "commonlandsSignatureImage",
+          name: "Commonlands System LLC",
+          commissionNumber: "139668234",
+          commissionExpiries: "09/12/2030",
+        },
+        certificateByCEO: {
+          publicSignature: "ceoSignature",
+          name: "Darius Golkar",
+          commissionNumber: "179668234",
+          commissionExpiries: "09/12/2030",
+        },
+      };
+      const { currentWallet, lucidClient } = await getAccountBySeedPhrase({
+        seedPhrase: process.env.ADMIN_SEED_PHRASE,
+      });
+      const { wrappedDocument } = await createDocumentForCommonlands({
+        seedPhrase: process.env.ADMIN_SEED_PHRASE,
+        documents: [plotDetailForm],
+        address: getPublicKeyFromAddress(currentWallet?.paymentAddr),
+        access_token: accessToken,
+        client: lucidClient,
+        currentWallet: currentWallet,
+        companyName: companyName,
+        mintingConfig: mintingConfig,
+      });
+      const documentDid = generateDid(
+        companyName,
+        unsalt(wrappedDocument?.data?.fileName)
+      );
+      if (!documentDid) {
+        return next(ERRORS.CANNOT_GET_DOCUMENT_INFORMATION);
+      }
+      const updateMintingConfig = wrappedDocument?.mintingNFTConfig;
+      logger.apiInfo(
+        req,
+        res,
+        `Wrapped document ${JSON.stringify(wrappedDocument)}`
+      );
+      const claimants = plot?.claimants;
+      const promises = claimants.map(async (claimant) => {
+        const { credential } = await createVerifiableCredential({
+          metadata: claimant,
+          did: documentDid,
+          subject: {
+            object: documentDid,
+            action: {
+              code: 1,
+              proofHash: documentHash,
+            },
+          },
+          signData: {
+            key: "0x1a2b3c4d5e6f7g8h9i0j1k2l3m4n5o6p7q8r9s0t",
+            signature: "0x1a2b3c4d5e6f7g8h9i0j1k2l3m4n5o6p7q8r9s0t",
+          },
+          issuerKey: documentDid,
+        });
+        const verifiedCredential = {
+          ...credential,
+          timestamp: Date.now(),
+        };
+        const credentialHash = sha256(
+          Buffer.from(JSON.stringify(verifiedCredential), "utf8").toString(
+            "hex"
+          )
+        );
+        const credentialResponse = await axios.post(
+          SERVERS.CARDANO_SERVICE + "/api/v2/credential",
+          {
+            config: updateMintingConfig,
+            credential: credentialHash,
+          },
+          {
+            withCredentials: true,
+            headers: {
+              Cookie: `access_token=${accessToken};`,
+            },
+          }
+        );
+        if (credentialResponse?.data?.code !== 0) {
+          return next({
+            ...ERRORS.CREDENTIAL_FAILED,
+            detail: credentialResponse?.data,
+          });
+        }
+        const storeCredentialStatus = await axios.post(
+          SERVERS.DID_CONTROLLER + "/api/credential",
+          {
+            hash: credentialHash,
+            content: {
+              ...verifiedCredential,
+              mintingNFTConfig: credentialResponse?.data?.data,
+            },
+          },
+          {
+            headers: {
+              Cookie: `access_token=${accessToken};`,
+            },
+          }
+        );
+        if (storeCredentialStatus?.data?.error_code) {
+          return next(storeCredentialStatus?.data);
+        }
+        return credentialHash;
+      });
+      Promise.all(promises)
+        .then((data) => {
+          return res.status(200).json({
+            credentials: data,
+            certificateDid: documentDid,
+          });
+        })
+        .catch((error) => {
+          return next({
+            ...error,
+            detail: "Cannot get certificate from claimant!",
+          });
         });
     } catch (error) {
       error?.error_code
@@ -588,308 +818,73 @@ export default {
           });
     }
   },
-  createContract: async (req, res, next) => {
+  getEndorsementChainOfCertificate: async (req, res, next) => {
     try {
-      logger.apiInfo(req, res, `API Request: Create Commonlands Contract`);
-      const { content, companyName: _companyName, id } = req.body;
-      const undefinedVar = checkUndefinedVar({
-        content,
-        id,
-      });
-      if (undefinedVar.undefined) {
-        next({
-          ...ERRORS.MISSING_PARAMETERS,
-          detail: undefinedVar?.detail,
-        });
-      }
-      const accessToken = await authenticationProgress();
-      const companyName = _companyName || process.env.COMPANY_NAME;
-      const valid = validateJSONSchema(
-        COMMONLANDS?.COMMONLANDS_CONTRACT,
-        content
-      );
-      if (!valid.valid)
-        next({
-          ...ERRORS.INVALID_INPUT,
-          detail: valid.detail,
-        });
-      const contractFileName = `Contract-${id}`;
-      const isExistedResponse = await axios.get(
-        SERVERS.DID_CONTROLLER + "/api/doc/exists",
-        {
-          withCredentials: true,
-          headers: {
-            Cookie: `access_token=${accessToken}`,
-          },
-          params: {
-            companyName: companyName,
-            fileName: contractFileName,
-          },
-        }
-      );
-      if (isExistedResponse?.data?.isExisted) {
-        next(ERRORS?.DOCUMENT_IS_EXISTED);
-      }
-      const contractContent = {
-        ...content,
-        fileName: contractFileName,
-        name: `Commonlands Contract`,
-      };
-      const { currentWallet, lucidClient } = await getAccountBySeedPhrase({
-        seedPhrase: process.env.ADMIN_SEED_PHRASE,
-      });
-      const { wrappedDocument } = await createDocumentForCommonlands({
-        seedPhrase: process.env.ADMIN_SEED_PHRASE,
-        documents: [contractContent],
-        address: getPublicKeyFromAddress(currentWallet?.paymentAddr),
-        access_token: accessToken,
-        client: lucidClient,
-        currentWallet: currentWallet,
-        companyName: companyName,
-      });
-      const documentDid = generateDid(
-        companyName,
-        unsalt(wrappedDocument?.data?.fileName)
-      );
-      if (!documentDid) {
-        next(ERRORS.CANNOT_GET_DOCUMENT_INFORMATION);
-      }
-      const documentHash = wrappedDocument?.signature?.targetHash;
-      logger.apiInfo(
-        req,
-        res,
-        `Wrapped document ${JSON.stringify(wrappedDocument)}`
-      );
-      await createCommonlandsContract({
-        fileName: contractFileName,
-        data: contractContent,
-      }).catch((error) => {
-        next({
-          error_code: 400,
-          error_message: error?.message || error || "Error while creating PDF",
-        });
-      });
-      logger.apiInfo(
-        req,
-        res,
-        `Created PDF file ${contractFileName} successfully!`
-      );
-      await encryptPdf({
-        fileName: contractFileName,
-        did: documentDid,
-        targetHash: documentHash,
-      });
-      const formData = new FormData();
-      formData.append(
-        "uploadedFile",
-        fs.readFileSync(`./assets/pdf/${contractFileName}.pdf`),
-        {
-          filename: `${companyName}-${contractFileName}.pdf`,
-        }
-      );
-      const uploadResponse = await axios.post(
-        `${SERVERS?.COMMONLANDS_GITHUB_SERVICE}/api/git/upload/file`,
-        formData
-      );
-      if (uploadResponse?.data?.error_code) {
-        next(uploadResponse?.data);
-      }
-      await deleteFile(`./assets/pdf/${contractFileName}.pdf`);
-      const didResponse = await getDidDocumentByDid({
-        did: documentDid,
-        accessToken: accessToken,
-      });
-      if (!didResponse?.didDoc) {
-        next({
-          error_code: 400,
-          error_message: "Error while getting DID document",
-        });
-      }
-      const updateDidDoc = {
-        ...didResponse?.didDoc,
-        pdfUrl: uploadResponse?.data?.url,
-      };
-      const updateDidDocResponse = await updateDocumentDid({
-        did: documentDid,
-        accessToken: accessToken,
-        didDoc: updateDidDoc,
-      });
-      if (updateDidDocResponse?.error_code) {
-        next({
-          error_code: 400,
-          error_message: "Error while push url to DID document",
-        });
-      }
-      logger.apiInfo(
-        req,
-        res,
-        `Response from service: ${JSON.stringify(uploadResponse?.data)}`
-      );
-      return res
-        .status(200)
-        .json({ ...uploadResponse?.data, did: documentDid });
-    } catch (error) {
-      error?.error_code
-        ? next(error)
-        : next({
-            error_code: 400,
-            message: error?.message || "Something went wrong!",
-          });
-    }
-  },
-  verifyContract: async (req, res, next) => {
-    try {
-      logger.apiInfo(req, res, `API Request: Verify Commonlands Contract`);
-      const uploadedFile = req.file;
-      const { url } = req.body;
-      if (!url && !uploadedFile) {
-        next(ERRORS.MISSING_PARAMETERS);
-      }
-      // * Step 1: Verify the contract
-      const contractBuffer = uploadedFile
-        ? uploadedFile?.buffer
-        : await getPdfBufferFromUrl(url);
-      const { valid } = await verifyPdf({
-        buffer: contractBuffer,
-      });
-      if (!valid) {
-        next(ERRORS.COMMONLANDS_CONTRACT_IS_NOT_VALID);
-      }
-      // * Step 2: Verify each claimant's credential
-      const { did } = await readContentOfPdf({
-        buffer: contractBuffer,
-      });
-      const accessToken = await authenticationProgress();
-      const didDocResponse = await getDidDocumentByDid({
-        did: did,
-        accessToken: accessToken,
-      });
-      if (!didDocResponse?.didDoc?.credentials) {
-        next(ERRORS.NO_CREDENTIALS_FOUND);
-      }
-      const credentials = didDocResponse?.didDoc?.credentials;
-      const promises = credentials.map((item) =>
-        getAndVerifyCredential({
-          credential: item,
-          accessToken: accessToken,
-        })
-      );
-      Promise.all(promises)
-        .then(() => {
-          logger.apiInfo(req, res, `Contract is verified!`);
-          return res.status(200).json({
-            isValid: true,
-          });
-        })
-        .catch(() => {
-          next(ERRORS.CONTRACT_IS_NOT_VALID);
-        });
-    } catch (error) {
-      error?.error_code
-        ? next(error)
-        : next({
-            error_code: 400,
-            message: error?.message || "Something went wrong!",
-          });
-    }
-  },
-  getContract: async (req, res, next) => {
-    try {
-      const { did } = req.query;
-      const undefinedVar = checkUndefinedVar({
-        did,
-      });
-      if (undefinedVar.undefined) {
-        next({
-          ...ERRORS.MISSING_PARAMETERS,
-          detail: undefinedVar?.detail,
-        });
-      }
-      logger.apiInfo(req, res, `API Request: Get Commonlands Contract: ${did}`);
-      const accessToken = await authenticationProgress();
-      const docContentResponse = await getDocumentContentByDid({
-        did: did,
-        accessToken: accessToken,
-      });
-      if (docContentResponse?.error_code) {
-        next(ERRORS?.CANNOT_GET_DOCUMENT_INFORMATION);
-      }
-      logger.apiInfo(
-        req,
-        res,
-        `Response from service: ${JSON.stringify(
-          docContentResponse?.wrappedDoc
-        )}`
-      );
-      return res
-        .status(200)
-        .json(deepUnsalt(docContentResponse?.wrappedDoc?.data));
-    } catch (error) {
-      error?.error_code
-        ? next(error)
-        : next({
-            error_code: 400,
-            message: error?.message || "Something went wrong!",
-          });
-    }
-  },
-  blockContract: async (req, res, next) => {
-    try {
-      logger.apiInfo(req, res, `API Request: Block Commonlands Contract`);
-      const { did } = req.body;
-      const undefinedVar = checkUndefinedVar({
-        did,
-      });
-      if (undefinedVar.undefined) {
-        next({
-          ...ERRORS.MISSING_PARAMETERS,
-          detail: undefinedVar?.detail,
-        });
-      }
+      logger.apiInfo(req, res, `API Request: Get Endorsement Chain`);
+      const { did } = req.params;
       const { valid } = validateDID(did);
       if (!valid) {
-        next(ERRORS.INVALID_DID);
+        return next(ERRORS.INVALID_DID);
       }
       const accessToken = await authenticationProgress();
-      const didDocResponse = await getDidDocumentByDid({
-        did: did,
+      const documentContentResponse = await getDocumentContentByDid({
         accessToken: accessToken,
-      });
-      if (didDocResponse?.error_code) {
-        next(didDocResponse || ERRORS?.CANNOT_GET_DOCUMENT_INFORMATION);
-      }
-      const didDoc = didDocResponse?.didDoc;
-      const updateDidDoc = {
-        ...didDoc,
-        isBlocked: true,
-      };
-      const updatedDidDocResponse = await updateDocumentDid({
         did: did,
-        accessToken: accessToken,
-        didDoc: updateDidDoc,
       });
-      if (updatedDidDocResponse?.error_code) {
-        next(
-          updatedDidDocResponse || ERRORS?.CANNOT_UPDATE_DOCUMENT_INFORMATION
+      if (documentContentResponse?.error_code) {
+        return next(
+          documentContentResponse || ERRORS.CANNOT_GET_DOCUMENT_INFORMATION
         );
       }
-      return res.status(200).json({
-        message: `Blocked contract ${did} successfully!`,
+      if (!documentContentResponse?.wrappedDoc?.mintingNFTConfig) {
+        return next({
+          ...ERRORS.CANNOT_UPDATE_DOCUMENT_INFORMATION,
+          detail: "Cannot get minting config from document",
+        });
+      }
+      const policyId =
+        documentContentResponse?.wrappedDoc?.mintingNFTConfig?.policy?.id;
+      logger.apiInfo(req, res, `Policy id: ${policyId}`);
+      const getNftResponse = await getNftContract({
+        accessToken,
+        policyId,
       });
+      logger.apiInfo(req, res, `Response from service: ${getNftResponse}`);
+      if (getNftResponse?.code !== 0) {
+        return next(ERRORS.CANNOT_FETCH_NFT);
+      }
+      const nftContracts = getNftResponse?.data;
+      const retrieveCertificatePromises = nftContracts.map(async (nft) => {
+        const certificateDid = getDidByComponents(nft?.onchainMetadata?.did);
+        const certificateResponse = await getDocumentContentByDid({
+          did: certificateDid,
+          accessToken: accessToken,
+        });
+        return certificateResponse?.wrappedDoc?.data;
+      });
+      Promise.all(retrieveCertificatePromises)
+        .then((data) => {
+          return res.status(200).json(data);
+        })
+        .catch((error) => {
+          return next(error || ERRORS.CANNOT_CREATE_CREDENTIAL_FOR_CLAIMANT);
+        });
     } catch (error) {
       error?.error_code
         ? next(error)
         : next({
             error_code: 400,
-            message: error?.message || "Something went wrong!",
+            error_message:
+              error?.error_message || error?.message || "Something went wrong!",
           });
     }
   },
-  checkBlockContractStatus: async (req, res, next) => {
+  checkLastestVersion: async (req, res, next) => {
     try {
-      logger.apiInfo(req, res, `API Request: Check Block Commonlands Contract`);
-      const { did } = req.body;
+      logger.apiInfo(req, res, `API Request: Check Lastest Version`);
+      const { did, hash } = req.body;
       const undefinedVar = checkUndefinedVar({
+        hash,
         did,
       });
       if (undefinedVar.undefined) {
@@ -900,30 +895,15 @@ export default {
       }
       const { valid } = validateDID(did);
       if (!valid) {
-        next(ERRORS.INVALID_DID);
+        return next(ERRORS.INVALID_DID);
       }
-      const accessToken = await authenticationProgress();
-      const didDocResponse = await getDidDocumentByDid({
-        did: did,
-        accessToken: accessToken,
-      });
-      if (didDocResponse?.error_code) {
-        next(didDocResponse || ERRORS?.CANNOT_GET_DOCUMENT_INFORMATION);
-      }
-      if (didDocResponse?.didDoc?.isBlocked) {
-        return res.status(200).json({
-          isBlocked: true,
-        });
-      }
-      return res.status(200).json({
-        isBlocked: false,
-      });
     } catch (error) {
       error?.error_code
         ? next(error)
         : next({
             error_code: 400,
-            message: error?.message || "Something went wrong!",
+            error_message:
+              error?.error_message || error?.message || "Something went wrong!",
           });
     }
   },

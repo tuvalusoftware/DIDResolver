@@ -7,8 +7,11 @@ router.post("", documentController.createDocument);
 router.post("/testing", documentController.createDocument);
 router.post("/revoke", documentController.revokeDocument);
 router.post("/hash", documentController.hashDocument);
-router.post("/block", documentController.blockContract);
-router.post("/check-block", documentController.checkBlockContractStatus);
 router.post("/plot-certificate", documentController.createPlotCertification);
+router.put('/plot-certificate', documentController.updatePlotCertification);
+router.get(
+  "/endorsement/:did",
+  documentController.getEndorsementChainOfCertificate
+);
 
 export default router;

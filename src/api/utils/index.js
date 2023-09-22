@@ -233,6 +233,15 @@ function splitCamelCase(input) {
   return _.startCase(input).replace(/([a-z])([A-Z])/g, "$1 $2");
 }
 
+/**
+ * Function used for getting DID by components
+ * @param {String} didComponents - DID components
+ * @returns {String} - DID {did}:{process.env.DEV_COMPANY_NAME}:{companyName}:{fileNameOrPublicKey
+ */
+function getDidByComponents(didComponents) {
+  return `did:${process.env.DEV_COMPANY_NAME}:${didComponents}`;
+}
+
 export {
   validateDIDSyntax,
   getAddressFromHexEncoded,
@@ -246,4 +255,5 @@ export {
   generateRandomString,
   splitCamelCase,
   validateDID,
+  getDidByComponents,
 };
