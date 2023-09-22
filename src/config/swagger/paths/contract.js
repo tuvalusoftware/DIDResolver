@@ -14,7 +14,7 @@ export const contract = {
               content: {
                 type: "object",
                 example: {
-                  description: "This is a contract",
+                  url: "https://raw.githubusercontent.com/dev-fuixlabs/Commonlands_DOC/IMAGE/1692991473198_COMMONLANDS_2-LandCertificate-14088960050-64db86559e77a4ffc2395ada-30.pdf",
                 },
               },
               id: {

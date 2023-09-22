@@ -367,7 +367,7 @@ const createCommonlandsContract = async ({ fileName, data }) => {
       background-position: center center;
       background-repeat: no-repeat;
     ">
-      <span>${data?.description}</span>
+      <span>${data?.url}</span>
     </div>`;
     return await htmlPDF.create(content, options);
   } catch (error) {

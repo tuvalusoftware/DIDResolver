@@ -46,7 +46,7 @@ export default {
         id,
       });
       if (undefinedVar.undefined) {
-        next({
+        return next({
           ...ERRORS.MISSING_PARAMETERS,
           detail: undefinedVar?.detail,
         });
@@ -57,11 +57,7 @@ export default {
         COMMONLANDS?.COMMONLANDS_CONTRACT,
         content
       );
-      if (!valid.valid)
-        next({
-          ...ERRORS.INVALID_INPUT,
-          detail: valid.detail,
-        });
+      if (!valid.valid) return next(ERRORS.INVALID_INPUT);
       const contractFileName = `Contract-${id}`;
       const isExistedResponse = await axios.get(
         SERVERS.DID_CONTROLLER + "/api/doc/exists",
@@ -77,7 +73,7 @@ export default {
         }
       );
       if (isExistedResponse?.data?.isExisted) {
-        next(ERRORS?.DOCUMENT_IS_EXISTED);
+        return next(ERRORS?.DOCUMENT_IS_EXISTED);
       }
       const contractContent = {
         ...content,
@@ -101,7 +97,7 @@ export default {
         unsalt(wrappedDocument?.data?.fileName)
       );
       if (!documentDid) {
-        next(ERRORS.CANNOT_GET_DOCUMENT_INFORMATION);
+        return next(ERRORS.CANNOT_GET_DOCUMENT_INFORMATION);
       }
       const documentHash = wrappedDocument?.signature?.targetHash;
       logger.apiInfo(
@@ -113,7 +109,7 @@ export default {
         fileName: contractFileName,
         data: contractContent,
       }).catch((error) => {
-        next({
+        return next({
           error_code: 400,
           error_message: error?.message || error || "Error while creating PDF",
         });
@@ -141,7 +137,7 @@ export default {
         formData
       );
       if (uploadResponse?.data?.error_code) {
-        next(uploadResponse?.data);
+        return next(uploadResponse?.data);
       }
       await deleteFile(`./assets/pdf/${contractFileName}.pdf`);
       const didResponse = await getDidDocumentByDid({
@@ -149,10 +145,7 @@ export default {
         accessToken: accessToken,
       });
       if (!didResponse?.didDoc) {
-        next({
-          error_code: 400,
-          error_message: "Error while getting DID document",
-        });
+        return next(ERRORS.CANNOT_GET_DID_DOCUMENT);
       }
       const updateDidDoc = {
         ...didResponse?.didDoc,
@@ -164,10 +157,7 @@ export default {
         didDoc: updateDidDoc,
       });
       if (updateDidDocResponse?.error_code) {
-        next({
-          error_code: 400,
-          error_message: "Error while push url to DID document",
-        });
+        return next(ERRORS.ERROR_PUSH_URL_TO_DID_DOCUMENT);
       }
       logger.apiInfo(
         req,
