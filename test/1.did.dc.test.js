@@ -1,7 +1,7 @@
 import chai from "chai";
 import chaiHttp from "chai-http";
 import nock from "nock";
-import 'dotenv/config'
+import "dotenv/config";
 
 import server from "../server.js";
 import { ERRORS, SERVERS } from "../core/constants.js";
@@ -25,7 +25,6 @@ describe("DID Controller - DID", function () {
           res.body.should.be.a("object");
 
           expect(isSameError(res.body, ERRORS.MISSING_PARAMETERS)).equal(true);
-
           done();
         });
     });

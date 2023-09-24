@@ -1120,6 +1120,12 @@ export const AUTH_DATA = {
     error_code: 10001,
     error_message: "Unauthorized",
   },
+  GET_ACCESS_TOKEN: {
+    data: {
+      access_token: "mock-access-token",
+      network: "Cardano",
+    },
+  },
 };
 
 export const CARDANO_DATA = {
