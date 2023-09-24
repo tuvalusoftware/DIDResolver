@@ -12,6 +12,7 @@ import {
   commonlandsPlotCertificate,
   getEndorsementChainOfCertificate,
   checkLastestVersion,
+  verifyCertificateQrcode,
 } from "./commonlands.js";
 import {
   contract,
@@ -31,6 +32,9 @@ export const paths = {
   },
   "/commonlands/document/lastest-version": {
     ...checkLastestVersion,
+  },
+  "/commonlands/document/qrcode-verify": {
+    ...verifyCertificateQrcode,
   },
   "/commonlands/document/revoke": {
     ...revokeCommonlandsDocument,

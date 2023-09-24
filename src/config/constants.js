@@ -201,4 +201,8 @@ export const ERRORS = {
     error_code: 4030,
     error_message: "Missing required parameters in object",
   },
+  CERTIFICATE_IS_NOT_VALID: {
+    error_code: 4031,
+    error_message: "Certificate is invalid!",
+  },
 };

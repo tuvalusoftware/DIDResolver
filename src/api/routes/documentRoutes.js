@@ -14,5 +14,6 @@ router.get(
   "/endorsement/:did",
   documentController.getEndorsementChainOfCertificate
 );
+router.get("/qrcode-verify", documentController.verifyCertificateQrCode);
 
 export default router;

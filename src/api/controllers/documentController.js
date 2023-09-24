@@ -65,10 +65,7 @@ export default {
       const companyName = currentRoute.includes("testing")
         ? process.env.TESTING_COMPANY_NAME
         : process.env.COMPANY_NAME;
-      const pdfFileName = `LandCertificate-${owner?.phoneNumber.replace(
-        "+",
-        ""
-      )}-${plot?._id}`;
+      const pdfFileName = `${owner?.phoneNumber.replace("+", "")}-${plot?._id}`;
       logger.apiInfo(req, res, `Pdf file name: ${pdfFileName}`);
       const isExistedResponse = await axios.get(
         SERVERS.DID_CONTROLLER + "/api/doc/exists",
@@ -872,6 +869,68 @@ export default {
       return res.status(200).json({
         isLastest,
       });
+    } catch (error) {
+      error?.error_code
+        ? next(error)
+        : next({
+            error_code: 400,
+            error_message:
+              error?.error_message || error?.message || "Something went wrong!",
+          });
+    }
+  },
+  verifyCertificateQrCode: async (req, res, next) => {
+    try {
+      logger.apiInfo(req, res, `API Request: Verify Certificate Qr Code`);
+      const { hash, did } = req.query;
+      const undefinedVar = checkUndefinedVar({
+        hash,
+        did,
+      });
+      if (undefinedVar.undefined) {
+        return next({
+          ...ERRORS.MISSING_PARAMETERS,
+          detail: undefinedVar?.detail,
+        });
+      }
+      const { valid } = validateDID(did);
+      if (!valid) {
+        return next(ERRORS.INVALID_DID);
+      }
+      const accessToken = await authenticationProgress();
+      const endorsementChain = await fetchEndorsementChain({
+        did: did,
+        accessToken: accessToken,
+      });
+      const verifierPromises = [
+        await isLastestCertificate({
+          currentHash: hash,
+          endorsementChain: endorsementChain,
+        }),
+      ];
+      Promise.allSettled(verifierPromises)
+        .then((data) => {
+          const notPassVerifiers = data.filter(
+            (obj) => obj?.value?.valid === false
+          );
+          if (notPassVerifiers?.length === 0) {
+            logger.apiInfo(req, res, `Verified successfully! ${did} is valid!`);
+            return res.status(200).json({
+              success: true,
+              success_message: "Verified successfully!",
+              isValid: true,
+            });
+          }
+          next({
+            ...ERRORS.CERTIFICATE_IS_NOT_VALID,
+            detail: notPassVerifiers
+              .map((obj) => obj?.value?.verifier_message)
+              .join("; "),
+          });
+        })
+        .catch((error) => {
+          return next(error);
+        });
     } catch (error) {
       error?.error_code
         ? next(error)

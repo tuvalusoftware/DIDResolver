@@ -42,7 +42,6 @@ const getAuthenticationToken = async ({
         },
       }
     );
-    console.log(loginResponse?.data)
     if (loginResponse?.data?.error_code) {
       throw loginResponse?.data;
     }
@@ -58,12 +57,9 @@ const getAuthenticationToken = async ({
  */
 const getRandomNumberEncryption = async () => {
   try {
-    console.log(1)
     const randomNumberResponse = await axios.get(
       `${SERVERS.AUTHENTICATION_SERVICE}/api/auth/getRandomNumber`
     );
-    console.log(2)
-    console.log(randomNumberResponse?.data)
     if (!randomNumberResponse?.data)
       throw new Error("Error while getting random number from server");
     return randomNumberResponse?.data?.data;
@@ -78,9 +74,7 @@ const getRandomNumberEncryption = async () => {
  */
 const authenticationProgress = async () => {
   try {
-    console.log('CAC1')
     const randomNumberEncryption = await getRandomNumberEncryption();
-    console.log('CAC2')
     const decodedData = jwt_decode(randomNumberEncryption?.access_token);
     const { randomNumber, timestamp } = decodedData?.data;
     const { currentWallet } = await getAccountBySeedPhrase({

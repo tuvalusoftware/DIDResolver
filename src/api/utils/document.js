@@ -408,9 +408,15 @@ export const isLastestCertificate = async ({
     const lastestCertificate = sortedEndorsementChain[0];
     const lastestCertificateHash = lastestCertificate?.signature?.targetHash;
     if (lastestCertificateHash !== currentHash) {
-      return false;
+      return {
+        valid: false,
+        verifier_message: "This is not the latest version of the document",
+      };
     }
-    return true;
+    return {
+      valid: true,
+      verifier_message: "This is the latest version of the document",
+    };
   } catch (error) {
     throw error;
   }

@@ -1186,12 +1186,16 @@ export const checkLastestVersion = {
             examples: {
               "Document is lastest version": {
                 value: {
-                  isLastest: true,
+                  valid: true,
+                  verifier_message:
+                    "This is the latest version of the document",
                 },
               },
               "Document is not lastest version": {
                 value: {
-                  isLastest: false,
+                  valid: false,
+                  verifier_message:
+                    "This is the latest version of the document",
                 },
               },
               "Missing parameters": {
@@ -1205,6 +1209,68 @@ export const checkLastestVersion = {
               },
               "Cannot get document information": {
                 value: ERRORS.CANNOT_FOUND_DID_DOCUMENT,
+              },
+            },
+          },
+        },
+      },
+    },
+  },
+};
+
+export const verifyCertificateQrcode = {
+  get: {
+    tags: ["Commonlands Document"],
+    summary: "Verify a certificate by QR code",
+    description: "",
+    operationId: "verifyCertificateQrcode",
+    parameters: [
+      {
+        name: "did",
+        in: "query",
+        description: "did of the certificate",
+        required: true,
+        schema: {
+          type: "string",
+        },
+      },
+      {
+        name: "hash",
+        in: "query",
+        description: "hash of the certificate",
+        required: true,
+        schema: {
+          type: "string",
+        },
+      },
+    ],
+    responses: {
+      200: {
+        description: "Return a object include status of block document",
+        content: {
+          "application/json": {
+            examples: {
+              "Certificate is valid": {
+                value: {
+                  success: true,
+                  success_message: "Document is valid",
+                  isValid: true,
+                },
+              },
+              "Certificate is invalid": {
+                value: {
+                  ...ERRORS.CERTIFICATE_IS_NOT_VALID,
+                  detail: "This is not the latest version of the document;",
+                },
+              },
+              "Missing parameters": {
+                value: {
+                  ...ERRORS.MISSING_PARAMETERS,
+                  detail: "Not found: did",
+                },
+              },
+              "Invalid DID": {
+                value: ERRORS.INVALID_DID,
               },
             },
           },
