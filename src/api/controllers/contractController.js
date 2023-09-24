@@ -203,10 +203,7 @@ export default {
         did: did,
         accessToken: accessToken,
       });
-      if (!didDocResponse?.didDoc?.credentials) {
-        next(ERRORS.NO_CREDENTIALS_FOUND);
-      }
-      const credentials = didDocResponse?.didDoc?.credentials;
+      const credentials = didDocResponse?.didDoc?.credentials || [];
       const promises = credentials.map((item) =>
         getAndVerifyCredential({
           credential: item,
