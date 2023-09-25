@@ -1,11 +1,11 @@
 export default {
   COMMONLANDS_CONTRACT: {
     type: "object",
-    required: ["url"],
+    required: ["hash"],
     properties: {
-      description: {
+      hash: {
         type: "string",
-        description: "url of the contract",
+        description: "hash of the contract",
       },
     },
     additionalProperties: true,
