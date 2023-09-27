@@ -3,7 +3,7 @@ import WRAPPED_DOCUMENT from "./wrappedDocument.js";
 import DID_DOCUMENT_OF_WRAPPED_DOCUMENT from "./didDocumentOfWrappedDocument.js";
 import CREDENTIAL from "./credential.js";
 import NOTIFICATION from "./notification.js";
-import COMMONLANDS from "./commonlands.js";
+import COMMONLANDS_SCHEMAS from "./commonlands.js";
 
 export {
   NEW_WRAPPED_DOCUMENT,
@@ -11,5 +11,5 @@ export {
   DID_DOCUMENT_OF_WRAPPED_DOCUMENT,
   CREDENTIAL,
   NOTIFICATION,
-  COMMONLANDS,
+  COMMONLANDS_SCHEMAS,
 };

@@ -8,6 +8,7 @@ import logger from "./logger.js";
 import swaggerUi from "swagger-ui-express";
 import { swaggerDocument } from "./src/config/swagger/index.js";
 import routes from "./src/api/routes/index.js";
+import { ERRORS } from "./src/config/errors/error.constants.js";
 
 const app = express();
 app.use(cors());
@@ -50,16 +51,27 @@ const server = http.createServer(app);
 server.timeout = 300000;
 routes(app);
 app.use((err, req, res, _) => {
-  logger.apiError(
-    req,
-    res,
-    `Error in ${req.method} ${req.url}: ${err?.error_message}`
-  );
-  return res.status(200).json({
-    error_code: err.error_code,
-    error_message: err.error_message || err?.message || "Something went wrong!",
-    error_detail: err.detail || err.error_detail,
-  });
+  try {
+    if (err.code === "ECONNABORTED") {
+      throw ERRORS.CONNECTION_TIMEOUT;
+    }
+    if (err.code === "ECONNREFUSED") {
+      throw ERRORS.CONNECTION_REFUSED;
+    }
+    throw err;
+  } catch (error) {
+    logger.apiError(
+      req,
+      res,
+      `Error in ${req.method} ${req.url}: ${err?.error_message}`
+    );
+    return res.status(200).json({
+      error_code: err.error_code,
+      error_message:
+        err.error_message || err?.message || "Something went wrong!",
+      error_detail: err.detail || err.error_detail,
+    });
+  }
 });
 
 const port = normalizePort(process.env.NODE_PORT || "8000");
