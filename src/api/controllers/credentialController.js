@@ -1,5 +1,6 @@
 // * Constants
-import { ERRORS, SERVERS } from "../../config/constants.js";
+import { SERVERS } from "../../config/constants.js";
+import { ERRORS } from "../../config/errors/error.constants.js";
 
 // * Utilities
 import axios from "axios";
@@ -12,15 +13,16 @@ import {
   updateDocumentDid,
   getCredential,
 } from "../utils/controller.js";
-import { authenticationProgress } from "../utils/auth.js";
 import logger from "../../../logger.js";
 import { sha256 } from "js-sha256";
+import { AuthHelper } from "../helpers/auth.js";
 
 axios.defaults.withCredentials = true;
 
 export default {
   createCredential: async (req, res, next) => {
     try {
+      logger.apiInfo(req, res, `API Request: Create credential`);
       const { metadata, did, subject, signData, issuerKey } = req.body;
       if (!did) {
         next({
@@ -41,7 +43,7 @@ export default {
           detail: undefinedVar?.detail,
         });
       }
-      const accessToken = await authenticationProgress();
+      const accessToken = await AuthHelper.authenticationProgress();
       let mintingConfig;
       if (did) {
         const { wrappedDoc } = await getDocumentContentByDid({
@@ -163,7 +165,7 @@ export default {
   },
   getCredential: async (req, res, next) => {
     try {
-      logger.apiInfo(req, res, `Get credential`);
+      logger.apiInfo(req, res, `API Request: Get credential`);
       const { credentialHash } = req.params;
       const undefinedVar = checkUndefinedVar({ credentialHash });
       if (undefinedVar?.undefined) {
@@ -177,7 +179,7 @@ export default {
           detail: undefinedVar?.detail,
         });
       }
-      const accessToken = await authenticationProgress();
+      const accessToken = await AuthHelper.authenticationProgress();
       const credentialResponse = await getCredential({
         accessToken: accessToken,
         hash: credentialHash,
@@ -201,7 +203,7 @@ export default {
   },
   getCredentialsOfContract: async (req, res, next) => {
     try {
-      logger.apiInfo(req, res, `Get all credentials of contract`);
+      logger.apiInfo(req, res, `API Request: Get all credentials of contract`);
       const { contractId } = req.params;
       const undefinedVar = checkUndefinedVar({ contractId });
       if (undefinedVar?.undefined) {
@@ -219,7 +221,7 @@ export default {
       if (!valid) {
         next(ERRORS.INVALID_DID);
       }
-      const accessToken = await authenticationProgress();
+      const accessToken = await AuthHelper.authenticationProgress();
       const didDocumentResponse = await getDidDocumentByDid({
         accessToken: accessToken,
         did: contractId,

@@ -1,4 +1,3 @@
-import { setCookie, clearCookie } from "./accessToken.js";
 import {
   commonlandsDocument,
   commonlandsPdf,
@@ -7,8 +6,6 @@ import {
   hashDocumentContent,
   verifyUploadedCommonlandsPdf,
   commonlandsCredential,
-  blockDocument,
-  checkDocumentBlockStatus,
   commonlandsPlotCertificate,
   getEndorsementChainOfCertificate,
   checkLastestVersion,
@@ -17,8 +14,8 @@ import {
 import {
   contract,
   verifyContract,
-  checkBlockStatus,
-  blockContract,
+  assignCredentialToContract,
+  checkLockedStatus,
 } from "./contract.js";
 import { getAllCredentialsOfContract, getCredential } from "./credential.js";
 import { user } from "./user.js";
@@ -42,24 +39,18 @@ export const paths = {
   "/commonlands/document/hash": {
     ...hashDocumentContent,
   },
-  "/commonlands/document/block": {
-    ...blockDocument,
-  },
-  "/commonlands/document/check-block": {
-    ...checkDocumentBlockStatus,
-  },
   "/commonlands/document/endorsement/{did}": {
     ...getEndorsementChainOfCertificate,
   },
-  "/credential": {
-    ...commonlandsCredential,
-  },
-  "/credential/{credentialHash}": {
-    ...getCredential,
-  },
-  "/credential/all/{contractId}": {
-    ...getAllCredentialsOfContract,
-  },
+  // "/credential": {
+  //   ...commonlandsCredential,
+  // },
+  // "/credential/{credentialHash}": {
+  //   ...getCredential,
+  // },
+  // "/credential/all/{contractId}": {
+  //   ...getAllCredentialsOfContract,
+  // },
   "/pdf": {
     ...commonlandsPdf,
   },
@@ -72,20 +63,16 @@ export const paths = {
   "/contract": {
     ...contract,
   },
-  "/contract/verify": {
-    ...verifyContract,
+  "/contract/lock-contract": {
+    ...assignCredentialToContract,
   },
-  "/contract/block": {
-    ...blockContract,
+  "/contract/isLocked": {
+    ...checkLockedStatus,
   },
-  "/contract/check-block": {
-    ...checkBlockStatus,
-  },
+  // "/contract/verify": {
+  //   ...verifyContract,
+  // },
   "/user": {
     ...user,
-  },
-  "/": {
-    ...setCookie,
-    ...clearCookie,
   },
 };

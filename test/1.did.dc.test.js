@@ -4,7 +4,8 @@ import nock from "nock";
 import "dotenv/config";
 
 import server from "../server.js";
-import { ERRORS, SERVERS } from "../core/constants.js";
+import { SERVERS } from "../core/constants.js";
+import { ERRORS } from "../src/config/errors/error.constants.js";
 import { isSameError } from "../core/index.js";
 import { DID_DATA, DID_CONTROLLER_OPERATION_STATUS } from "./mockData.js";
 

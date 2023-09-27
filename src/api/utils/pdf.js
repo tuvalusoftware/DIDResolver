@@ -7,7 +7,7 @@ import crypto from "node:crypto";
 import fs from "fs";
 import axios from "axios";
 import { getDocumentContentByDid } from "./controller.js";
-import { authenticationProgress } from "./auth.js";
+import { AuthHelper } from "../helpers/auth.js";
 import { verifyWrappedDocument } from "../../fuixlabs-documentor/verifyDocument.js";
 import QRCode from "qrcode";
 import Jimp from "jimp";
@@ -524,7 +524,7 @@ const verifyPdf = async ({ url, buffer }) => {
       `hash:${hashHex}`,
       `fileName:${fileName}`,
     ]);
-    const accessToken = await authenticationProgress();
+    const accessToken = await AuthHelper.authenticationProgress();
     const { wrappedDoc } = await getDocumentContentByDid({
       did: did,
       accessToken: accessToken,

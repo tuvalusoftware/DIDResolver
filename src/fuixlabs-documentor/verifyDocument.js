@@ -5,8 +5,6 @@ import { VERIFIER_ERROR_CODE } from "./constants/error.js";
 // * Rest libraries
 import { CLIENT_PATH } from "./rest/client.path.js";
 import {
-  requestVerifyCNFT,
-  getDidDocumentByDid,
   requestVerifySignature,
   requestRetrieveSpecificDid,
 } from "./rest/client.rest.js";
@@ -17,8 +15,7 @@ import { checkProof } from "./utils/merkle.js";
 import pkg from "lodash";
 import { Buffer } from "buffer";
 import { unsalt } from "./utils/data.js";
-import CryptoJS from "crypto-js";
-import { authenticationProgress } from '../api/utils/auth.js';
+import { AuthHelper } from "../api/helpers/auth.js";
 import {
   verifyCardanoNft,
   verifyCardanoSignature,
@@ -47,7 +44,7 @@ export const verifyWrappedDocument = async (
     // * Coming soon
   } else {
     try {
-      const accessToken = await authenticationProgress();
+      const accessToken = await AuthHelper.authenticationProgress();
       const res = await verifyCardanoDocument({
         document: document,
         accessToken: accessToken,

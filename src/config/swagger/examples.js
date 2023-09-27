@@ -1,4 +1,4 @@
-import { ERRORS } from "../constants.js";
+import { ERRORS } from "../errors/error.constants.js";
 
 export const errorMissingParameters = {
   value: {

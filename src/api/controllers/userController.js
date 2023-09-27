@@ -4,12 +4,12 @@ import { checkUndefinedVar } from "../utils/index.js";
 import "dotenv/config";
 
 // * Constants
-import { ERRORS } from "../../config/constants.js";
+import { ERRORS } from "../../config/errors/error.constants.js";
 
 export default {
   getUserDid: async (req, res, next) => {
     try {
-      logger.apiInfo(req, res, "Get user did");
+      logger.apiInfo(req, res, "API Request: Get user did");
       const { key } = req.query;
       const undefinedVar = checkUndefinedVar({
         key,

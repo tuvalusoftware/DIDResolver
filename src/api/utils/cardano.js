@@ -2,7 +2,8 @@
 import axios from "axios";
 
 // * Constants
-import { SERVERS, ERRORS } from "../../config/constants.js";
+import { SERVERS } from "../../config/constants.js";
+import { ERRORS } from "../../config/errors/error.constants.js";
 
 /**
  * Function used for verifying dose the given document exist on the blockchain

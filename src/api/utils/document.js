@@ -32,7 +32,8 @@ import {
   SAMPLE_SERVICE,
   _DOCUMENT_TYPE,
 } from "../../fuixlabs-documentor/constants/type.js";
-import { ERRORS, SERVERS } from "../../config/constants.js";
+import { SERVERS } from "../../config/constants.js";
+import { ERRORS } from "../../config/errors/error.constants.js";
 
 /**
  * Function used for generating wrapped document

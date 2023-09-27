@@ -4,16 +4,17 @@ import { PDFDocument } from "pdf-lib";
 import fs from "fs";
 import { readPdf, verifyPdf } from "../utils/pdf.js";
 import { checkUndefinedVar, validateDID } from "../utils/index.js";
+import { AuthHelper } from "../helpers/auth.js";
 
 // * Constants
-import { ERRORS } from "../../config/constants.js";
+import { ERRORS } from "../../config/errors/error.constants.js";
 import { getDidDocumentByDid } from "../utils/controller.js";
-import { authenticationProgress } from "../utils/auth.js";
 import logger from "../../../logger.js";
 
 export default {
   savePdfFile: async (req, res, next) => {
     try {
+      logger.apiInfo(req, res, "API: Save PDF file");
       const { pdfName, targetHash, did } = req.body;
       const undefinedVar = checkUndefinedVar({
         pdfName,
@@ -61,6 +62,7 @@ export default {
   },
   readPdfFile: async (req, res, next) => {
     try {
+      logger.apiInfo(req, res, "API: Read PDF file");
       const { fileName } = req.query;
       const undefinedVar = checkUndefinedVar({
         fileName,
@@ -88,6 +90,7 @@ export default {
   },
   verifyPdfFile: async (req, res, next) => {
     try {
+      logger.apiInfo(req, res, "API: Verify PDF file");
       const { url } = req.body;
       const undefinedVar = checkUndefinedVar({
         url,
@@ -121,6 +124,7 @@ export default {
   },
   verifyUploadedPdf: async (req, res, next) => {
     try {
+      logger.apiInfo(req, res, "API: Verify uploaded PDF file");
       const uploadedFile = req.file;
       if (!uploadedFile) {
         next({
@@ -181,7 +185,7 @@ export default {
       if (!valid) {
         next(ERRORS.INVALID_DID);
       }
-      const accessToken = await authenticationProgress();
+      const accessToken = await AuthHelper.authenticationProgress();
       const docContentResponse = await getDidDocumentByDid({
         did,
         accessToken,

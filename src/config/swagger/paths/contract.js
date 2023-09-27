@@ -1,3 +1,5 @@
+import { ERRORS } from "../../errors/error.constants.js";
+
 export const contract = {
   post: {
     tags: ["Commonlands Contract"],
@@ -14,7 +16,7 @@ export const contract = {
               content: {
                 type: "object",
                 example: {
-                  url: "https://raw.githubusercontent.com/dev-fuixlabs/Commonlands_DOC/IMAGE/1692991473198_COMMONLANDS_2-LandCertificate-14088960050-64db86559e77a4ffc2395ada-30.pdf",
+                  hash: "0x1b2c3d4e5f6a7b8c9d0e1f2a3b4c5d6e7f8a9b0c1d2e3f4a5b6c7d8e9f0a1b2c",
                 },
               },
               id: {
@@ -257,12 +259,12 @@ export const checkBlockStatus = {
   },
 };
 
-export const blockContract = {
+export const assignCredentialToContract = {
   post: {
     tags: ["Commonlands Contract"],
-    summary: "Block a contract",
+    summary: "Lock certificate to a loan contract",
     description: "",
-    operationId: "blockContract",
+    operationId: "assignCredentialToContract",
     requestBody: {
       require: true,
       content: {
@@ -270,9 +272,28 @@ export const blockContract = {
           schema: {
             type: "object",
             properties: {
-              did: {
+              contractDid: {
                 type: "string",
                 example: "did:fuixlabs:COMMONLANDS_2:Contract-sample_id_11",
+              },
+              signData: {
+                type: "object",
+                example: {
+                  signature:
+                    "0x1b2c3d4e5f6a7b8c9d0e1f2a3b4c5d6e7f8a9b0c1d2e3f4a5b6c7d8e9f0a1b2c3d4e5f6a7b8c9d0e1f2a3b4c5d6e7f8a9b0c1d2e3f4a5b6c7d8e9f0a1b2c3d4e5f",
+                  key: "0x1b2c3d4e5f6a7b8c9d0e1f2a3b4c5d6e7f8a9b0c1d2e3f4a5b6c7d8e9f0a1b2c",
+                },
+              },
+              issuerKey: {
+                type: "string",
+                example:
+                  "0x1b2c3d4e5f6a7b8c9d0e1f2a3b4c5d6e7f8a9b0c1d2e3f4a5b6c7d8e9f0a1b2c",
+              },
+              metadata: {
+                type: "object",
+                example: {
+                  content: "Metadata of contract",
+                },
               },
             },
           },
@@ -285,30 +306,137 @@ export const blockContract = {
         content: {
           "application/json": {
             examples: {
-              "Block contract success": {
+              "Assign credential to contract success": {
                 value: {
-                  message:
-                    "Block contract did:fuixlabs:COMMONLANDS_2:Contract-sample_id_11 successfully",
+                  success: true,
+                  success_message: "Credential is created successfully!",
+                  credentialHash:
+                    "0x1b2c3d4e5f6a7b8c9d0e1f2a3b4c5d6e7f8a9b0c1d2e3f4a5b6c7d8e9f0a1b2c",
+                },
+              },
+              "Missing parameters": {
+                value: { ...ERRORS.MISSING_PARAMETERS, detail: "signData" },
+              },
+              "Metadata of Request body is not valid": {
+                value: {
+                  ...ERRORS.INVALID_INPUT,
+                  detail:
+                    "Metadata field is invalid! Make sure you have all required fields!",
+                },
+              },
+              "Certificate was assigned to antoher contract": {
+                value: ERRORS.CERTIFICATE_DID_IS_LOCKED_WITH_CONTRACT,
+              },
+              "Invalid DID": {
+                value: ERRORS.INVALID_DID,
+              },
+              "Cannot get document information": {
+                value: ERRORS.CANNOT_GET_DOCUMENT_INFORMATION,
+              },
+            },
+          },
+        },
+      },
+    },
+  },
+  delete: {
+    tags: ["Commonlands Contract"],
+    summary: "Unlock credential from a loan contract",
+    description: "",
+    operationId: "unlockCredentialFromContract",
+    requestBody: {
+      require: true,
+      content: {
+        "application/json": {
+          schema: {
+            type: "object",
+            properties: {
+              certificateDid: {
+                type: "string",
+                example: "did:fuixlabs:COMMONLANDS_2:Certificate-sample_id_11",
+              },
+            },
+          },
+        },
+      },
+    },
+    responses: {
+      200: {
+        description: "Return a object include status of block contract",
+        content: {
+          "application/json": {
+            examples: {
+              "Unlock credential from contract success": {
+                value: {
+                  success: true,
+                  success_message: "Credential is unlocked successfully!",
+                },
+              },
+              "Missing parameters": {
+                value: { ...ERRORS.MISSING_PARAMETERS, detail: "signData" },
+              },
+              "Invalid DID": {
+                value: ERRORS.INVALID_DID,
+              },
+              "Cannot get document information": {
+                value: ERRORS.CANNOT_GET_DOCUMENT_INFORMATION,
+              },
+            },
+          },
+        },
+      },
+    },
+  },
+};
+
+export const checkLockedStatus = {
+  get: {
+    tags: ["Commonlands Contract"],
+    summary: "Get locked status of a certificate",
+    description: "",
+    operationId: "getLockedStatus",
+    parameters: [
+      {
+        name: "certificateDid",
+        in: "query",
+        description: "DID of certificate",
+        required: true,
+        schema: {
+          type: "string",
+        },
+      },
+    ],
+    responses: {
+      200: {
+        description: "Return a object include status of block contract",
+        content: {
+          "application/json": {
+            examples: {
+              "Certificate is locked": {
+                value: {
+                  success: true,
+                  isLocked: true,
+                  lockedWithContract:
+                    "did:fuixlabs:COMMONLANDS_2:Contract-sample_id_11",
+                },
+              },
+              "Certificate is not locked": {
+                value: {
+                  success: true,
+                  isLocked: false,
                 },
               },
               "Missing parameters": {
                 value: {
-                  error_code: 400,
-                  message: "Missing parameters",
+                  ...ERRORS.MISSING_PARAMETERS,
                   detail: "Not found: did",
                 },
               },
               "Invalid DID": {
-                value: {
-                  error_code: 400,
-                  message: "Invalid DID",
-                },
+                value: ERRORS.INVALID_DID,
               },
               "Cannot get document information": {
-                value: {
-                  error_code: 400,
-                  message: "Cannot get document information",
-                },
+                value: ERRORS.CANNOT_GET_DOCUMENT_INFORMATION,
               },
             },
           },

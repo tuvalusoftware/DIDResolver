@@ -1,5 +1,6 @@
 // * Constants
-import { ERRORS, SERVERS } from "../../config/constants.js";
+import { SERVERS } from "../../config/constants.js";
+import { ERRORS } from "../../config/errors/error.constants.js";
 
 // * Utilities
 import axios from "axios";
@@ -21,7 +22,6 @@ import {
 } from "../utils/document.js";
 import FormData from "form-data";
 import { getAccountBySeedPhrase } from "../utils/lucid.js";
-import { authenticationProgress } from "../utils/auth.js";
 import {
   getDocumentContentByDid,
   updateDocumentDid,
@@ -38,6 +38,7 @@ import {
 import { unsalt } from "../../fuixlabs-documentor/utils/data.js";
 import { generateDid } from "../../fuixlabs-documentor/utils/did.js";
 import logger from "../../../logger.js";
+import { AuthHelper, CardanoHelper } from "../helpers/index.js";
 
 axios.defaults.withCredentials = true;
 
@@ -51,13 +52,13 @@ export default {
       );
       const { plot, owner, companyName: _companyName } = req.body;
       const currentRoute = req.path;
-      const accessToken = await authenticationProgress();
+      const accessToken = await AuthHelper.authenticationProgress();
       const undefinedVar = checkUndefinedVar({
         plot,
         owner,
       });
       if (undefinedVar.undefined) {
-        next({
+        return next({
           ...ERRORS.MISSING_PARAMETERS,
           detail: undefinedVar?.detail,
         });
@@ -96,7 +97,7 @@ export default {
           `Response from service: ${JSON.stringify(existedDidDoc?.data)}`
         );
         if (existedDidDoc?.data?.error_code) {
-          next(ERRORS?.CANNOT_FOUND_DID_DOCUMENT);
+          return next(ERRORS?.CANNOT_FOUND_DID_DOCUMENT);
         }
         logger.apiInfo(
           req,
@@ -173,7 +174,7 @@ export default {
         unsalt(wrappedDocument?.data?.fileName)
       );
       if (!documentDid) {
-        next(ERRORS.CANNOT_GET_DOCUMENT_INFORMATION);
+        return next(ERRORS.CANNOT_GET_DOCUMENT_INFORMATION);
       }
       const documentHash = wrappedDocument?.signature?.targetHash;
       logger.apiInfo(
@@ -185,7 +186,7 @@ export default {
         fileName: pdfFileName,
         data: plotDetailForm,
       }).catch((error) => {
-        next({
+        return next({
           error_code: 400,
           error_message: error?.message || error || "Error while creating PDF",
         });
@@ -214,7 +215,7 @@ export default {
         `Response from service: ${JSON.stringify(uploadResponse?.data)}`
       );
       if (uploadResponse?.data?.error_code) {
-        next(uploadResponse?.data);
+        return next(uploadResponse?.data);
       }
       await deleteFile(`./assets/pdf/${pdfFileName}.pdf`);
       const didResponse = await getDidDocumentByDid({
@@ -222,7 +223,7 @@ export default {
         accessToken: accessToken,
       });
       if (!didResponse?.didDoc) {
-        next({
+        return next({
           error_code: 400,
           error_message: "Error while getting DID document",
         });
@@ -237,7 +238,7 @@ export default {
         didDoc: updateDidDoc,
       });
       if (updateDidDocResponse?.error_code) {
-        next({
+        return next({
           error_code: 400,
           error_message: "Error while push url to DID document",
         });
@@ -275,7 +276,7 @@ export default {
       const plotCertificationFileName = `PlotCertification-${plot?._id}`;
       const companyName = process.env.COMPANY_NAME;
       logger.apiInfo(req, res, `Pdf file name: ${plotCertificationFileName}`);
-      const accessToken = await authenticationProgress();
+      const accessToken = await AuthHelper.authenticationProgress();
       const isExistedResponse = await axios.get(
         SERVERS.DID_CONTROLLER + "/api/doc/exists",
         {
@@ -475,7 +476,7 @@ export default {
       if (!valid) {
         return next(ERRORS.INVALID_DID);
       }
-      const accessToken = await authenticationProgress();
+      const accessToken = await AuthHelper.authenticationProgress();
       const didContentResponse = await getDocumentContentByDid({
         accessToken: accessToken,
         did: originalDid,
@@ -694,10 +695,10 @@ export default {
     try {
       const { url, config } = req.body;
       if (!url && !config) {
-        next(ERRORS?.MISSING_PARAMETERS);
+        return next(ERRORS?.MISSING_PARAMETERS);
       }
       let mintingConfig = config;
-      const accessToken = await authenticationProgress();
+      const accessToken = await AuthHelper.authenticationProgress();
       if (url) {
         const pdfBuffer = await getPdfBufferFromUrl(url);
         const document = await bufferToPDFDocument(pdfBuffer);
@@ -733,7 +734,7 @@ export default {
         `Response from service: ${JSON.stringify(revokeResponse?.data)}`
       );
       if (revokeResponse?.data?.code !== 0) {
-        next(ERRORS?.REVOKE_DOCUMENT_FAILED);
+        return next(ERRORS?.REVOKE_DOCUMENT_FAILED);
       }
       logger.apiInfo(req, res, `Revoke document successfully!`);
       return res.status(200).json({
@@ -756,7 +757,7 @@ export default {
         claimant,
       });
       if (undefinedVar.undefined) {
-        next({
+        return next({
           ...ERRORS.MISSING_PARAMETERS,
           detail: undefinedVar?.detail,
         });
@@ -823,7 +824,7 @@ export default {
       if (!valid) {
         return next(ERRORS.INVALID_DID);
       }
-      const accessToken = await authenticationProgress();
+      const accessToken = await AuthHelper.authenticationProgress();
       const endorsementChain = await fetchEndorsementChain({
         did: did,
         accessToken: accessToken,
@@ -848,7 +849,7 @@ export default {
         did,
       });
       if (undefinedVar.undefined) {
-        next({
+        return next({
           ...ERRORS.MISSING_PARAMETERS,
           detail: undefinedVar?.detail,
         });
@@ -857,7 +858,7 @@ export default {
       if (!valid) {
         return next(ERRORS.INVALID_DID);
       }
-      const accessToken = await authenticationProgress();
+      const accessToken = await AuthHelper.authenticationProgress();
       const endorsementChain = await fetchEndorsementChain({
         did: did,
         accessToken: accessToken,
@@ -897,7 +898,7 @@ export default {
       if (!valid) {
         return next(ERRORS.INVALID_DID);
       }
-      const accessToken = await authenticationProgress();
+      const accessToken = await AuthHelper.authenticationProgress();
       const endorsementChain = await fetchEndorsementChain({
         did: did,
         accessToken: accessToken,
@@ -921,7 +922,7 @@ export default {
               isValid: true,
             });
           }
-          next({
+          return next({
             ...ERRORS.CERTIFICATE_IS_NOT_VALID,
             detail: notPassVerifiers
               .map((obj) => obj?.value?.verifier_message)

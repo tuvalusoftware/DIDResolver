@@ -3,17 +3,18 @@ import documentController from "../controllers/documentController.js";
 
 const router = express.Router();
 
-router.post("", documentController.createDocument);
-router.post("/testing", documentController.createDocument);
-router.post("/revoke", documentController.revokeDocument);
-router.post("/hash", documentController.hashDocument);
-router.post("/lastest-version", documentController.checkLastestVersion);
-router.post("/plot-certificate", documentController.createPlotCertification);
-router.put("/plot-certificate", documentController.updatePlotCertification);
-router.get(
-  "/endorsement/:did",
-  documentController.getEndorsementChainOfCertificate
-);
-router.get("/qrcode-verify", documentController.verifyCertificateQrCode);
+router.route("").post(documentController.createDocument);
+router.route("/testing").post(documentController.createDocument);
+router.route("/revoke").post(documentController.revokeDocument);
+router.route("/hash").post(documentController.hashDocument);
+router.route("/lastest-version").post(documentController.checkLastestVersion);
+router
+  .route("/plot-certificate")
+  .post(documentController.createPlotCertification)
+  .put(documentController.updatePlotCertification);
+router
+  .route("/endorsement/:did")
+  .get(documentController.getEndorsementChainOfCertificate);
+router.route("/qrcode-verify").get(documentController.verifyCertificateQrCode);
 
 export default router;

@@ -4,7 +4,8 @@ import Logger from "../../../logger.js";
 import axios from "axios";
 
 // * Constants
-import { SERVERS, ERRORS } from "../../config/constants.js";
+import { SERVERS } from "../../config/constants.js";
+import { ERRORS } from "../../config/errors/error.constants.js";
 
 /**
  * Function used for getting document content from DID Controller
