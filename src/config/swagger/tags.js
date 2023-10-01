@@ -41,5 +41,9 @@ export const tags = {
       description:
         "Endpoints for authenticate. Run this endpoint before test the other.",
     },
+    {
+      name: "Utility",
+      description: "Endpoints for utility",
+    },
   ],
 };

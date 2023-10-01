@@ -9,6 +9,8 @@ import _ from "lodash";
 
 dotenv.config();
 
+const secretKey = process.env.COMMONLANDS_SECRET_KEY;
+
 /**
  * Function used for validating DID syntax
  * @param {String} did - DID to be validated
@@ -257,6 +259,46 @@ function requireFieldInArray(array, field) {
   return true; // If the field is present in all objects, return true
 }
 
+function stringToBytes32(input) {
+  // Ensure the input is not longer than 32 bytes
+  if (input.length > 32) {
+    throw new Error('Input string is too long for bytes32');
+  }
+
+  // Convert the string to UTF-8 bytes
+  const utf8Bytes = Buffer.from(input, 'utf-8');
+
+  // Create a new Buffer (32 bytes long) filled with zeros
+  const bytes32 = Buffer.alloc(32);
+
+  // Copy the UTF-8 bytes to the Buffer
+  utf8Bytes.copy(bytes32);
+
+  return '0x' + bytes32.toString('hex');
+}
+
+function encrypt(message) {
+  const securityCode = process.env.COMMONLANDS_SECRET_KEY;
+  const initVector = crypto.randomBytes(16);
+  const cipher = crypto.createCipheriv("aes-256-cbc", stringToBytes32(securityCode), initVector);
+  let encryptedData = cipher.update(message, "utf-8", "hex");
+  encryptedData += cipher.final("hex");
+  return encryptedData;
+}
+
+function decrypt(encryptedText) {
+  const iv = Buffer.from(encryptedText.slice(0, 32), "hex");
+  const encryptedData = encryptedText.slice(32);
+  const decipher = crypto.createDecipheriv(
+    "aes-256-cbc",
+    Buffer.from(secretKey),
+    iv
+  );
+  let decrypted = decipher.update(encryptedData, "hex", "utf8");
+  decrypted += decipher.final("utf8");
+  return decrypted;
+}
+
 export {
   validateDIDSyntax,
   getAddressFromHexEncoded,
@@ -272,4 +314,6 @@ export {
   validateDID,
   getDidByComponents,
   requireFieldInArray,
+  encrypt,
+  decrypt,
 };
