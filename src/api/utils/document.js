@@ -12,7 +12,10 @@ import {
   wrapDocument,
   createWrappedDocument,
 } from "../../fuixlabs-documentor/utils/document.js";
-import { getDocumentContentByDid } from "../utils/controller.js";
+import {
+  getDidDocumentByDid,
+  getDocumentContentByDid,
+} from "../utils/controller.js";
 import { getNftContract } from "../utils/cardano.js";
 import { deepMap } from "../../fuixlabs-documentor/utils/salt.js";
 import {
@@ -71,8 +74,7 @@ export const generateWrappedDocument = async ({
         ...ERRORS.INVALID_INPUT,
         detail: "Invalid DID syntax. Check did element.",
       };
-    const issuerAddress = encryptedIssuerAddress,
-      targetHash = wrappedDocument?.signature?.targetHash;
+    const targetHash = wrappedDocument?.signature?.targetHash;
     const existence = await axios.get(
       SERVERS.DID_CONTROLLER + "/api/doc/exists",
       {
@@ -334,6 +336,101 @@ export const createDocumentForCommonlands = async ({
   }
 };
 
+export const createDocumentTaskQueue = async ({
+  documents,
+  address,
+  client,
+  currentWallet,
+  companyName,
+}) => {
+  try {
+    for (let index = 0; index < documents.length; index++) {
+      let document = documents[index];
+      document = deepMap(document, unsalt);
+      try {
+        let createdDocument = {};
+        for (const key in document) {
+          let currentField = document[key];
+          if (key === "fileName") {
+            let specialVar = checkForSpecialChar({ currentField });
+            let lengthVar = checkLengthOfInput(currentField);
+            if (!lengthVar?.valid) {
+              throw VERIFIER_ERROR_CODE.FILENAME_IS_TOO_SHORT;
+            }
+            if (!specialVar?.valid) {
+              throw VERIFIER_ERROR_CODE.STRING_INCLUDE_SPECIAL_CHARATERS;
+            }
+            let endWithSpecialCharacters =
+              checkForStringEndWithSpecialCharacters(currentField);
+            if (!endWithSpecialCharacters?.valid) {
+              throw VERIFIER_ERROR_CODE.END_WITH_SPECIAL_CHARACTER;
+            }
+            if (!nonIsoValidator(currentField)) {
+              throw VERIFIER_ERROR_CODE.STRING_INCLUDE_SPECIAL_CHARATERS;
+            }
+          } else {
+            let lengthVar = checkRequirementOfInput(currentField);
+            if (!lengthVar?.valid) {
+              throw {
+                error_code: 400,
+                error_message: `${
+                  lengthVar?._key || key
+                } is required! Please check your input again!`,
+              };
+            }
+          }
+          if (key !== "did")
+            createdDocument = Object.assign(createdDocument, {
+              [key]: document[key],
+            });
+        }
+        createdDocument = Object.assign(createdDocument, {
+          companyName: companyName,
+          intention: VALID_DOCUMENT_NAME_TYPE.find(
+            (prop) => prop.name === createdDocument.name
+          ).type,
+        });
+        const did = generateDid(companyName, address);
+        let res = await createWrappedDocument(
+          createdDocument,
+          SAMPLE_SERVICE,
+          address,
+          did
+        );
+        const { _document, targetHash } = res;
+        const signMessage = await client
+          ?.newMessage(
+            getPublicKeyFromAddress(currentWallet?.paymentAddr),
+            Buffer.from(
+              JSON.stringify({
+                address: getPublicKeyFromAddress(currentWallet?.paymentAddr),
+                targetHash: targetHash,
+              })
+            ).toString("hex")
+          )
+          .sign();
+        const wrappedDocument = wrapDocument({
+          document: _document,
+          walletAddress: address,
+          signedData: signMessage,
+          targetHash: targetHash,
+        });
+        return {
+          wrappedDocument,
+        };
+      } catch (e) {
+        throw (
+          e ||
+          e?.error_message ||
+          "Something went wrong! Please try again later."
+        );
+      }
+    }
+  } catch(error) {
+    throw error;
+  }
+}
+
 /**
  * Function employed for retrieving the endorsement chain from the DID Controller.
  * @param {String} did - did of document which is used for getting endorsement chain
@@ -371,10 +468,15 @@ export const fetchEndorsementChain = async ({ did, accessToken }) => {
         did: certificateDid,
         accessToken: accessToken,
       });
+      const didDocumentResponse = await getDidDocumentByDid({
+        did: certificateDid,
+        accessToken: accessToken,
+      });
       return {
         data: { ...certificateResponse?.wrappedDoc?.data },
         signature: { ...certificateResponse?.wrappedDoc?.signature },
         timestamp: nft?.onchainMetadata?.timestamp,
+        url: didDocumentResponse?.didDoc.pdfUrl,
       };
     });
     const data = await Promise.all(retrieveCertificatePromises);

@@ -1,5 +1,5 @@
 // * Constants
-import { SERVERS } from "../../config/constants.js";
+import { SERVERS, REQUEST_TYPE } from "../../config/constants.js";
 import { ERRORS } from "../../config/errors/error.constants.js";
 
 // * Utilities
@@ -19,6 +19,7 @@ import {
   hashDocumentContent,
   isLastestCertificate,
   fetchEndorsementChain,
+  createDocumentTaskQueue,
 } from "../utils/document.js";
 import FormData from "form-data";
 import { getAccountBySeedPhrase } from "../utils/lucid.js";
@@ -35,10 +36,15 @@ import {
   bufferToPDFDocument,
   deleteFile,
 } from "../utils/pdf.js";
-import { unsalt } from "../../fuixlabs-documentor/utils/data.js";
+import { deepUnsalt, unsalt } from "../../fuixlabs-documentor/utils/data.js";
 import { generateDid } from "../../fuixlabs-documentor/utils/did.js";
 import logger from "../../../logger.js";
-import { AuthHelper, CardanoHelper } from "../helpers/index.js";
+import {
+  AuthHelper,
+  CardanoHelper,
+  ControllerHelper,
+  TaskQueueHelper,
+} from "../../helpers/index.js";
 
 axios.defaults.withCredentials = true;
 
@@ -67,6 +73,7 @@ export default {
         ? process.env.TESTING_COMPANY_NAME
         : process.env.COMPANY_NAME;
       const pdfFileName = `${owner?.phoneNumber.replace("+", "")}-${plot?._id}`;
+      const documentDid = generateDid(companyName, pdfFileName);
       logger.apiInfo(req, res, `Pdf file name: ${pdfFileName}`);
       const isExistedResponse = await axios.get(
         SERVERS.DID_CONTROLLER + "/api/doc/exists",
@@ -160,6 +167,235 @@ export default {
       const { currentWallet, lucidClient } = await getAccountBySeedPhrase({
         seedPhrase: process.env.ADMIN_SEED_PHRASE,
       });
+      const documentHash = await hashDocumentContent({
+        document: plotDetailForm,
+        address: getPublicKeyFromAddress(currentWallet?.paymentAddr),
+      });
+      logger.apiInfo(req, res, `Document hash: ${documentHash}`);
+      await createOwnerCertificate({
+        fileName: pdfFileName,
+        data: plotDetailForm,
+        did: documentDid,
+      }).catch((error) => {
+        return next({
+          error_code: 400,
+          error_message: error?.message || error || "Error while creating PDF",
+        });
+      });
+      logger.apiInfo(req, res, `Created PDF file ${pdfFileName} successfully!`);
+      await encryptPdf({
+        fileName: pdfFileName,
+        did: documentDid,
+        targetHash: documentHash,
+      });
+      const formData = new FormData();
+      formData.append(
+        "uploadedFile",
+        fs.readFileSync(`./assets/pdf/${pdfFileName}.pdf`),
+        {
+          filename: `${companyName}-${pdfFileName}.pdf`,
+        }
+      );
+      const uploadResponse = await axios.post(
+        `${SERVERS?.COMMONLANDS_GITHUB_SERVICE}/api/git/upload/file`,
+        formData
+      );
+      logger.apiInfo(
+        req,
+        res,
+        `Response from service: ${JSON.stringify(uploadResponse?.data)}`
+      );
+      if (uploadResponse?.data?.error_code) {
+        return next(uploadResponse?.data);
+      }
+      await deleteFile(`./assets/pdf/${pdfFileName}.pdf`);
+      const pdfUrl = uploadResponse?.data?.url;
+      logger.apiInfo(req, res, `Pdf url: ${pdfUrl}`);
+      const { wrappedDocument } = await createDocumentTaskQueue({
+        seedPhrase: process.env.ADMIN_SEED_PHRASE,
+        documents: [plotDetailForm],
+        address: getPublicKeyFromAddress(currentWallet?.paymentAddr),
+        access_token: accessToken,
+        client: lucidClient,
+        currentWallet: currentWallet,
+        companyName: companyName,
+      });
+      const taskQueueResponse = await TaskQueueHelper.sendMintingRequest({
+        data: {
+          wrappedDocument,
+          companyName,
+          url: pdfUrl,
+          did: documentDid,
+        },
+        type: REQUEST_TYPE.MINT,
+        did: documentDid,
+      });
+      return res.status(200).json(taskQueueResponse?.data);
+    } catch (error) {
+      error?.error_code
+        ? next(error)
+        : next({
+            error_code: 400,
+            error_message:
+              error?.error_message || error?.message || "Something went wrong!",
+          });
+    }
+  },
+  getDocument: async (req, res, next) => {
+    try {
+      const { did } = req.params;
+      const undefinedVar = checkUndefinedVar({
+        did,
+      });
+      if (undefinedVar.undefined) {
+        return next({
+          ...ERRORS.MISSING_PARAMETERS,
+          detail: undefinedVar?.detail,
+        });
+      }
+      const { valid } = validateDID(did);
+      if (!valid) {
+        return next(ERRORS.INVALID_DID);
+      }
+      const accessToken = await AuthHelper.authenticationProgress();
+      const didDocumentResponse = await getDidDocumentByDid({
+        did: did,
+        accessToken: accessToken,
+      });
+      if (didDocumentResponse?.error_code) {
+        return next(didDocumentResponse || ERRORS.CANNOT_GET_DID_DOCUMENT);
+      }
+      const url = didDocumentResponse?.didDoc?.pdfUrl;
+      if (!url) {
+        return next(ERRORS.CANNOT_GET_CONTRACT_URL);
+      }
+      const docContentResponse = await getDocumentContentByDid({
+        did: did,
+        accessToken: accessToken,
+      });
+      if (docContentResponse?.error_code) {
+        return next(
+          docContentResponse || ERRORS.CANNOT_GET_DOCUMENT_INFORMATION
+        );
+      }
+      const hash = docContentResponse?.wrappedDoc?.signature?.targetHash;
+      return res.status(200).json({
+        success: true,
+        url: url,
+        hash: hash,
+        did: did,
+      });
+    } catch (error) {
+      error?.error_code
+        ? next(error)
+        : next({
+            error_code: 400,
+            error_message:
+              error?.error_message || error?.message || "Something went wrong!",
+          });
+    }
+  },
+  updateDocument: async (req, res, next) => {
+    try {
+      logger.apiInfo(req, res, `API Request: Update Document`);
+      const { originalDid, plot, owner } = req.body;
+      const undefinedVar = checkUndefinedVar({
+        originalDid,
+        plot,
+        owner,
+      });
+      if (undefinedVar.undefined) {
+        return next({
+          ...ERRORS.MISSING_PARAMETERS,
+          detail: undefinedVar?.detail,
+        });
+      }
+      const { valid } = validateDID(originalDid);
+      if (!valid) {
+        return next(ERRORS.INVALID_DID);
+      }
+      const accessToken = await AuthHelper.authenticationProgress();
+      const didContentResponse = await getDocumentContentByDid({
+        accessToken: accessToken,
+        did: originalDid,
+      });
+      if (didContentResponse?.error_code) {
+        return next(
+          didContentResponse || ERRORS.CANNOT_GET_DOCUMENT_INFORMATION
+        );
+      }
+      if (!didContentResponse?.wrappedDoc?.mintingNFTConfig) {
+        return next({
+          ...ERRORS.CANNOT_UPDATE_DOCUMENT_INFORMATION,
+          detail: "Cannot get minting config from document",
+        });
+      }
+      const mintingConfig = {
+        ...didContentResponse?.wrappedDoc?.mintingNFTConfig,
+      };
+      mintingConfig.policy = {
+        ...mintingConfig.policy,
+        reuse: true,
+      };
+      logger.apiInfo(
+        req,
+        res,
+        `Minting config: ${JSON.stringify(mintingConfig)}`
+      );
+      const pdfFileName = `${owner?.phoneNumber.replace("+", "")}-${plot?._id}`;
+      logger.apiInfo(req, res, `Pdf file name: ${pdfFileName}`);
+      const companyName = process.env.COMPANY_NAME;
+      let plotDetailForm = {
+        profileImage: "sampleProfileImage",
+        fileName: pdfFileName,
+        name: `Land Certificate`,
+        title: `Land-Certificate-${plot?.name}`,
+        No: generateRandomString(plot._id, 7),
+        dateIssue: getCurrentDateTime(),
+        avatar: owner?.avatar,
+        personalInformation: {
+          claimant: owner?.fullName,
+          right: owner?.role,
+          phoneNumber: owner?.phoneNumber,
+          claimrank: "okay",
+          description:
+            "Okay is the starting point. This level may have some boundaries unverified and may include one boundary dispute. If there is an ownership dispute of a plot but and one of the owners is part of a claimchain and the other’s has not completed a claimchain, the completed claimchain person will be listed as Okay. ",
+        },
+        plotInformation: {
+          plotName: plot?.name,
+          plotId: plot?.id,
+          plot_Id: plot?._id,
+          plotStatus: "Free & Clear",
+          plotPeople: "Verified by 3 claimants, 6 Neighbors",
+          plotLocation: plot?.placeName,
+          plotCoordinates: plot?.centroid?.join(","),
+          plotNeighbors: plot?.neighbors?.length,
+          plotClaimants: plot?.claimants?.length,
+          plotDisputes: plot?.disputes?.length,
+          plotStatus: plot?.status,
+        },
+        certificateByCommonlands: {
+          publicSignature: "commonlandsSignatureImage",
+          name: "Commonlands System LLC",
+          commissionNumber: "139668234",
+          commissionExpiries: "09/12/2030",
+        },
+        certificateByCEO: {
+          publicSignature: "ceoSignature",
+          name: "Darius Golkar",
+          commissionNumber: "179668234",
+          commissionExpiries: "09/12/2030",
+        },
+      };
+      if (owner?.oldNumbers?.length > 0) {
+        plotDetailForm = {
+          ...plotDetailForm,
+          oldNumbers: owner?.oldNumbers[owner?.oldNumbers?.length - 1],
+        };
+      }
+      const { currentWallet, lucidClient } = await getAccountBySeedPhrase({
+        seedPhrase: process.env.ADMIN_SEED_PHRASE,
+      });
       const { wrappedDocument } = await createDocumentForCommonlands({
         seedPhrase: process.env.ADMIN_SEED_PHRASE,
         documents: [plotDetailForm],
@@ -168,6 +404,7 @@ export default {
         client: lucidClient,
         currentWallet: currentWallet,
         companyName: companyName,
+        mintingConfig: mintingConfig,
       });
       const documentDid = generateDid(
         companyName,
@@ -185,6 +422,7 @@ export default {
       await createOwnerCertificate({
         fileName: pdfFileName,
         data: plotDetailForm,
+        did: documentDid,
       }).catch((error) => {
         return next({
           error_code: 400,
@@ -256,7 +494,8 @@ export default {
         ? next(error)
         : next({
             error_code: 400,
-            message: error?.message || "Something went wrong!",
+            error_message:
+              error?.error_message || error?.message || "Something went wrong!",
           });
     }
   },
@@ -691,6 +930,48 @@ export default {
           });
     }
   },
+  getPlotCertification: async (req, res, next) => {
+    try {
+      const { did } = req.params;
+      const undefinedVar = checkUndefinedVar({
+        did,
+      });
+      if (undefinedVar.undefined) {
+        return next({
+          ...ERRORS.MISSING_PARAMETERS,
+          detail: undefinedVar?.detail,
+        });
+      }
+      const { valid } = validateDID(did);
+      if (!valid) {
+        return next(ERRORS.INVALID_DID);
+      }
+      const accessToken = await AuthHelper.authenticationProgress();
+      const didDocumentResponse = await getDidDocumentByDid({
+        did: did,
+        accessToken: accessToken,
+      });
+      if (didDocumentResponse?.error_code) {
+        return next(didDocumentResponse || ERRORS.CANNOT_GET_DID_DOCUMENT);
+      }
+      const url = didDocumentResponse?.didDoc?.pdfUrl;
+      if (!url) {
+        return next(ERRORS.CANNOT_GET_CONTRACT_URL);
+      }
+      return res.status(200).json({
+        success: true,
+        url: url,
+      });
+    } catch (error) {
+      error?.error_code
+        ? next(error)
+        : next({
+            error_code: 400,
+            error_message:
+              error?.error_message || error?.message || "Something went wrong!",
+          });
+    }
+  },
   revokeDocument: async (req, res, next) => {
     try {
       const { url, config } = req.body;
@@ -698,13 +979,15 @@ export default {
         return next(ERRORS?.MISSING_PARAMETERS);
       }
       let mintingConfig = config;
+      let documentResponse;
+      let did = "";
       const accessToken = await AuthHelper.authenticationProgress();
       if (url) {
         const pdfBuffer = await getPdfBufferFromUrl(url);
         const document = await bufferToPDFDocument(pdfBuffer);
         const keywords = document.getKeywords();
         const didParameters = keywords.split(" ")[1].split(":");
-        const did =
+        const _did =
           didParameters[1] +
           ":" +
           didParameters[2] +
@@ -712,40 +995,36 @@ export default {
           didParameters[3] +
           ":" +
           didParameters[4];
-        const { wrappedDoc } = await getDocumentContentByDid({
-          did: did,
+        documentResponse = await getDocumentContentByDid({
+          did: _did,
           accessToken: accessToken,
         });
-        mintingConfig = wrappedDoc?.mintingNFTConfig;
+        did = _did;
+        mintingConfig = documentResponse?.wrappedDoc?.mintingNFTConfig;
       }
-      const revokeResponse = await axios.delete(
-        SERVERS.CARDANO_SERVICE + "/api/v2/hash",
-        {
-          withCredentials: true,
-          headers: {
-            Cookie: `access_token=${accessToken};`,
-          },
-          data: { config: mintingConfig },
-        }
-      );
-      logger.apiError(
+      await CardanoHelper.verifyCardanoNft({
+        policyid: mintingConfig?.policy?.id,
+        hashofdocument: documentResponse?.signature?.targetHash,
+        accessToken: accessToken,
+      });
+      const taskQueueResponse = await TaskQueueHelper.sendMintingRequest({
+        data: mintingConfig,
+        type: REQUEST_TYPE.BURN,
+        did: did,
+      });
+      logger.apiInfo(
         req,
         res,
-        `Response from service: ${JSON.stringify(revokeResponse?.data)}`
+        `Response from service: ${taskQueueResponse?.data}`
       );
-      if (revokeResponse?.data?.code !== 0) {
-        return next(ERRORS?.REVOKE_DOCUMENT_FAILED);
-      }
-      logger.apiInfo(req, res, `Revoke document successfully!`);
-      return res.status(200).json({
-        revoked: true,
-      });
+      return res.status(200).json(taskQueueResponse?.data);
     } catch (error) {
       error?.error_code
         ? next(error)
         : next({
             error_code: 400,
-            message: error?.message || "Something went wrong!",
+            error_message:
+              error?.error_message || error?.message || "Something went wrong!",
           });
     }
   },
@@ -812,7 +1091,8 @@ export default {
         ? next(error)
         : next({
             error_code: 400,
-            message: error?.message || "Something went wrong!",
+            error_message:
+              error?.error_message || error?.message || "Something went wrong!",
           });
     }
   },
@@ -867,9 +1147,7 @@ export default {
         currentHash: hash,
         endorsementChain: endorsementChain,
       });
-      return res.status(200).json({
-        isLastest,
-      });
+      return res.status(200).json(isLastest);
     } catch (error) {
       error?.error_code
         ? next(error)
@@ -878,6 +1156,39 @@ export default {
             error_message:
               error?.error_message || error?.message || "Something went wrong!",
           });
+    }
+  },
+  getLastestVersion: async (req, res, next) => {
+    try {
+      logger.apiInfo(req, res, `API Request: Get lastest version`);
+      const { did } = req.query;
+      const undefinedVar = checkUndefinedVar({
+        did,
+      });
+      if (undefinedVar.undefined) {
+        return next({
+          ...ERRORS.MISSING_PARAMETERS,
+          detail: undefinedVar?.detail,
+        });
+      }
+      const { valid } = validateDID(did);
+      if (!valid) {
+        return next(ERRORS.INVALID_DID);
+      }
+      const accessToken = await AuthHelper.authenticationProgress();
+      const endorsementChain = await fetchEndorsementChain({
+        did: did,
+        accessToken: accessToken,
+      });
+      return res
+        .status(200)
+        .json(deepUnsalt(endorsementChain[endorsementChain.length - 1]));
+    } catch (error) {
+      return next({
+        error_code: 400,
+        error_message:
+          error?.error_message || error?.message || "Something went wrong!",
+      });
     }
   },
   verifyCertificateQrCode: async (req, res, next) => {
@@ -932,6 +1243,45 @@ export default {
         .catch((error) => {
           return next(error);
         });
+    } catch (error) {
+      error?.error_code
+        ? next(error)
+        : next({
+            error_code: 400,
+            error_message:
+              error?.error_message || error?.message || "Something went wrong!",
+          });
+    }
+  },
+  storeDocument: async (req, res, next) => {
+    try {
+      logger.apiInfo(req, res, `API Request: Store Document`);
+      const { content, mintingConfig } = req.body;
+      const undefinedVar = checkUndefinedVar({
+        content,
+        mintingConfig,
+      });
+      if (undefinedVar.undefined) {
+        return next({
+          ...ERRORS.MISSING_PARAMETERS,
+          detail: undefinedVar?.detail,
+        });
+      }
+      const fileName = "";
+      const companyName = process.env.COMPANY_NAME;
+      const accessToken = await AuthHelper.authenticationProgress();
+      const storeDocumentResponse = await ControllerHelper.storeDocument({
+        accessToken: accessToken,
+        wrappedDocument: content,
+        companyName: companyName,
+        fileName: fileName,
+      });
+      if (storeDocumentResponse?.data?.error_code) {
+        return next(
+          storeDocumentResponse?.data || ERRORS.CANNOT_STORE_DOCUMENT
+        );
+      }
+      return;
     } catch (error) {
       error?.error_code
         ? next(error)
