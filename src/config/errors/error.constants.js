@@ -143,5 +143,17 @@ export const ERRORS = {
   CERTIFICATE_DID_IS_NOT_LOCKED_WITH_CONTRACT: {
     error_code: 4035,
     error_message: "Certificate DID is not locked with any loan contract!",
-  }
+  },
+  CANNOT_GET_CONTRACT_URL: {
+    error_code: 4036,
+    error_message: "Cannot get url from DID Document!",
+  },
+  CANNOT_STORE_DOCUMENT: {
+    error_code: 4037,
+    error_message: "Cannot store document!",
+  },
+  PUSH_TO_TASK_QUEUE_FAILED: {
+    error_code: 4038,
+    error_message: "Push to task queue failed!",
+  },
 };

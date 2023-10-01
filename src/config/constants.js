@@ -66,6 +66,8 @@ export const SERVERS = {
   COMMONLANDS_GITHUB_SERVICE:
     process.env.COMMONLANDS_GITHUB_SERVICE ||
     "https://commonlands-gitdb.ap.ngrok.io",
+  TASK_QUEUE_SERVICE:
+    process.env.TASK_QUEUE_SERVICE || "http://localhost:18000",
 };
 
 export const NETWORK_ID = {
@@ -73,4 +75,10 @@ export const NETWORK_ID = {
   testnet: "testnet",
   preview: "preview",
   preprod: "preprod",
+};
+
+export const REQUEST_TYPE = {
+  MINT: "mint",
+  BURN: "burn",
+  UPDATE: "update",
 };

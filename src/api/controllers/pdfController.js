@@ -4,7 +4,7 @@ import { PDFDocument } from "pdf-lib";
 import fs from "fs";
 import { readPdf, verifyPdf } from "../utils/pdf.js";
 import { checkUndefinedVar, validateDID } from "../utils/index.js";
-import { AuthHelper } from "../helpers/auth.js";
+import { AuthHelper } from "../../helpers/index.js";
 
 // * Constants
 import { ERRORS } from "../../config/errors/error.constants.js";

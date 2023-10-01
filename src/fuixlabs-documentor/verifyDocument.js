@@ -15,7 +15,7 @@ import { checkProof } from "./utils/merkle.js";
 import pkg from "lodash";
 import { Buffer } from "buffer";
 import { unsalt } from "./utils/data.js";
-import { AuthHelper } from "../api/helpers/auth.js";
+import { AuthHelper } from "../helpers/index.js";
 import {
   verifyCardanoNft,
   verifyCardanoSignature,

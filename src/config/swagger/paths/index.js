@@ -10,6 +10,7 @@ import {
   getEndorsementChainOfCertificate,
   checkLastestVersion,
   verifyCertificateQrcode,
+  getDocumentInformation,
 } from "./commonlands.js";
 import {
   contract,
@@ -19,14 +20,18 @@ import {
 } from "./contract.js";
 import { getAllCredentialsOfContract, getCredential } from "./credential.js";
 import { user } from "./user.js";
+import { unsalt } from "./utility.js";
 
 export const paths = {
   "/commonlands/document": {
     ...commonlandsDocument,
   },
-  "/commonlands/document/plot-certificate": {
-    ...commonlandsPlotCertificate,
+  "/commonlands/document/{did}": {
+    ...getDocumentInformation,
   },
+  // "/commonlands/document/plot-certificate": {
+  //   ...commonlandsPlotCertificate,
+  // },
   "/commonlands/document/lastest-version": {
     ...checkLastestVersion,
   },
@@ -74,5 +79,8 @@ export const paths = {
   // },
   "/user": {
     ...user,
+  },
+  "/utility/unsalt": {
+    ...unsalt,
   },
 };

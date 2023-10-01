@@ -31,7 +31,8 @@ export default {
         ? next(error)
         : next({
             error_code: 400,
-            message: error?.message || "Something went wrong!",
+            error_message:
+              error?.error_message || error?.message || "Something went wrong!",
           });
     }
   },

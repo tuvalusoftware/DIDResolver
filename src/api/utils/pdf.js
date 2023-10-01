@@ -7,7 +7,7 @@ import crypto from "node:crypto";
 import fs from "fs";
 import axios from "axios";
 import { getDocumentContentByDid } from "./controller.js";
-import { AuthHelper } from "../helpers/auth.js";
+import { AuthHelper } from "../../helpers/index.js";
 import { verifyWrappedDocument } from "../../fuixlabs-documentor/verifyDocument.js";
 import QRCode from "qrcode";
 import Jimp from "jimp";
@@ -31,7 +31,7 @@ import { PLOT_STATUSES } from "../../config/constants.js";
  * @param {Object} data - data to be used in pdf
  * @returns {Promise} - Promise of pdf file
  */
-const createOwnerCertificate = async ({ fileName, data }) => {
+const createOwnerCertificate = async ({ fileName, data, did }) => {
   const options = {
     width: "180mm" /* A4 width in millimeters */,
     height: "260mm" /* A4 height in millimeters */,
@@ -40,7 +40,7 @@ const createOwnerCertificate = async ({ fileName, data }) => {
   };
 
   const currentStatus = PLOT_STATUSES[data?.plotInformation?.plotStatus];
-  const qrCodeData = `https://commonlands-user.ap.ngrok.io/public/?id=${data?.plotInformation?.plot_Id}`;
+  const qrCodeData = `${did}`;
   const dataUrl = await QRCode.toDataURL(qrCodeData);
   const qrCodeImage = await Jimp.read(
     Buffer.from(dataUrl.split(",")[1], "base64")

@@ -15,7 +15,7 @@ import {
 } from "../utils/controller.js";
 import logger from "../../../logger.js";
 import { sha256 } from "js-sha256";
-import { AuthHelper } from "../helpers/auth.js";
+import { AuthHelper } from "../../helpers/index.js";
 
 axios.defaults.withCredentials = true;
 
@@ -159,7 +159,8 @@ export default {
         ? res.status(200).json(error)
         : res.status(200).json({
             error_code: 400,
-            error_message: error?.error_message || "Something went wrong!",
+            error_message:
+              error?.error_message || error?.message || "Something went wrong!",
           });
     }
   },
@@ -197,7 +198,8 @@ export default {
         ? next(error)
         : next({
             error_code: 400,
-            error_message: error?.error_message || "Something went wrong!",
+            error_message:
+              error?.error_message || error?.message || "Something went wrong!",
           });
     }
   },
@@ -267,7 +269,8 @@ export default {
         ? res.status(200).json(error)
         : res.status(200).json({
             error_code: 400,
-            error_message: error?.error_message || "Something went wrong!",
+            error_message:
+              error?.error_message || error?.message || "Something went wrong!",
           });
     }
   },

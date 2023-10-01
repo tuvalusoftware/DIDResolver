@@ -43,7 +43,7 @@ import {
   AuthHelper,
   CardanoHelper,
   ControllerHelper,
-} from "../helpers/index.js";
+} from "../../helpers/index.js";
 
 axios.defaults.withCredentials = true;
 
@@ -408,7 +408,8 @@ export default {
         ? next(error)
         : next({
             error_code: 400,
-            message: error?.message || "Something went wrong!",
+            error_message:
+              error?.error_message || error?.message || "Something went wrong!",
           });
     }
   },
@@ -439,7 +440,8 @@ export default {
         ? next(error)
         : next({
             error_code: 400,
-            message: error?.message || "Something went wrong!",
+            error_message:
+              error?.error_message || error?.message || "Something went wrong!",
           });
     }
   },
@@ -465,6 +467,17 @@ export default {
       if (docContentResponse?.error_code) {
         return next(ERRORS?.CANNOT_GET_DOCUMENT_INFORMATION);
       }
+      const didDocResponse = await getDidDocumentByDid({
+        did: did,
+        accessToken: accessToken,
+      });
+      if (didDocResponse?.error_code) {
+        return next(didDocResponse || ERRORS.CANNOT_GET_DID_DOCUMENT);
+      }
+      const pdfUrl = didDocResponse?.didDoc?.pdfUrl;
+      if (!pdfUrl) {
+        return next(ERRORS.CANNOT_GET_CONTRACT_URL);
+      }
       logger.apiInfo(
         req,
         res,
@@ -472,15 +485,17 @@ export default {
           docContentResponse?.wrappedDoc
         )}`
       );
-      return res
-        .status(200)
-        .json(deepUnsalt(docContentResponse?.wrappedDoc?.data));
+      return res.status(200).json({
+        ...deepUnsalt(docContentResponse?.wrappedDoc?.data),
+        url: pdfUrl,
+      });
     } catch (error) {
       error?.error_code
         ? next(error)
         : next({
             error_code: 400,
-            message: error?.message || "Something went wrong!",
+            error_message:
+              error?.error_message || error?.message || "Something went wrong!",
           });
     }
   },
