@@ -90,11 +90,13 @@ export default {
         };
       }
       const mintingConfig = mintingResponse?.data?.data;
+      logger.apiInfo(req, res, `Minting config: ${JSON.stringify(mintingConfig)}`);
       const willWrappedDocument = {
         ...wrappedDocument,
         mintingConfig,
       };
       const fileName = unsalt(willWrappedDocument?.data?.fileName);
+      logger.apiInfo(req, res, `File name: ${fileName}`);
       const storeWrappedDocumentStatus = await axios.post(
         SERVERS.DID_CONTROLLER + "/api/doc",
         {
