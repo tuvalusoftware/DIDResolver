@@ -21,14 +21,22 @@ const createVerifiableCredential = async ({
   signData,
   issuerKey,
   subject,
-  metadata,
+  credentialDid,
 }) => {
   try {
     const credential = {
+      "@context": [
+        "https://www.w3.org/ns/credentials/v2",
+        "https://www.w3.org/ns/credentials/examples/v2",
+      ],
+      id: credentialDid,
+      type: ["VerifiableCredential"],
       issuer: generateDid(process.env.COMPANY_NAME, issuerKey),
-      credentialSubject: subject,
-      signature: signData,
-      metadata,
+      validFrom: new Date().toISOString(),
+      credentialSubject: [subject],
+      proof: {
+        signData,
+      },
     };
     return { credential };
   } catch (e) {

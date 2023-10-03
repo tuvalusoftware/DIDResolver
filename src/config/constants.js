@@ -2,7 +2,6 @@ import "dotenv/config";
 
 import {
   NOTIFICATION,
-  CREDENTIAL,
   NEW_WRAPPED_DOCUMENT,
   WRAPPED_DOCUMENT,
   DID_DOCUMENT_OF_WRAPPED_DOCUMENT,
@@ -12,7 +11,6 @@ export const SCHEMAS = {
   NEW_WRAPPED_DOCUMENT,
   WRAPPED_DOCUMENT,
   DID_DOCUMENT_OF_WRAPPED_DOCUMENT,
-  CREDENTIAL,
   NOTIFICATION,
 };
 
@@ -81,4 +79,6 @@ export const REQUEST_TYPE = {
   MINT: "mint",
   BURN: "burn",
   UPDATE: "update",
+  PLOT_MINT: "plot_mint",
+  MINT_CREDENTIAL: "mint_credential",
 };

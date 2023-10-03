@@ -57,7 +57,6 @@ export default {
         `API Request: Create Document using Seed Phrase`
       );
       const { plot, owner, companyName: _companyName } = req.body;
-      const currentRoute = req.path;
       const accessToken = await AuthHelper.authenticationProgress();
       const undefinedVar = checkUndefinedVar({
         plot,
@@ -69,9 +68,7 @@ export default {
           detail: undefinedVar?.detail,
         });
       }
-      const companyName = currentRoute.includes("testing")
-        ? process.env.TESTING_COMPANY_NAME
-        : process.env.COMPANY_NAME;
+      const companyName = process.env.COMPANY_NAME;
       const pdfFileName = `${owner?.phoneNumber.replace("+", "")}-${plot?._id}`;
       const documentDid = generateDid(companyName, pdfFileName);
       logger.apiInfo(req, res, `Pdf file name: ${pdfFileName}`);
@@ -516,19 +513,11 @@ export default {
       const companyName = process.env.COMPANY_NAME;
       logger.apiInfo(req, res, `Pdf file name: ${plotCertificationFileName}`);
       const accessToken = await AuthHelper.authenticationProgress();
-      const isExistedResponse = await axios.get(
-        SERVERS.DID_CONTROLLER + "/api/doc/exists",
-        {
-          withCredentials: true,
-          headers: {
-            Cookie: `access_token=${accessToken}`,
-          },
-          params: {
-            companyName: companyName,
-            fileName: plotCertificationFileName,
-          },
-        }
-      );
+      const isExistedResponse = await ControllerHelper.isExisted({
+        accessToken: accessToken,
+        companyName: companyName,
+        fileName: plotCertificationFileName,
+      });
       if (isExistedResponse?.data?.isExisted) {
         logger.apiInfo(
           req,
@@ -542,13 +531,7 @@ export default {
         if (existedDidDoc?.data?.error_code) {
           return next(ERRORS?.CANNOT_FOUND_DID_DOCUMENT);
         }
-        logger.apiInfo(
-          req,
-          res,
-          `Pdf url of existed document: ${existedDidDoc?.didDoc?.pdfUrl}`
-        );
         return res.status(200).json({
-          url: existedDidDoc?.didDoc?.pdfUrl,
           isExisted: true,
         });
       }
@@ -588,7 +571,7 @@ export default {
       const { currentWallet, lucidClient } = await getAccountBySeedPhrase({
         seedPhrase: process.env.ADMIN_SEED_PHRASE,
       });
-      const { wrappedDocument } = await createDocumentForCommonlands({
+      const { wrappedDocument } = await createDocumentTaskQueue({
         seedPhrase: process.env.ADMIN_SEED_PHRASE,
         documents: [plotDetailForm],
         address: getPublicKeyFromAddress(currentWallet?.paymentAddr),
@@ -604,89 +587,17 @@ export default {
       if (!documentDid) {
         return next(ERRORS.CANNOT_GET_DOCUMENT_INFORMATION);
       }
-      const mintingConfig = wrappedDocument?.mintingNFTConfig;
-      const documentHash = wrappedDocument?.signature?.targetHash;
-      logger.apiInfo(
-        req,
-        res,
-        `Wrapped document ${JSON.stringify(wrappedDocument)}`
-      );
-      const claimants = plot?.claimants;
-      const promises = claimants.map(async (claimant) => {
-        const { credential } = await createVerifiableCredential({
-          metadata: claimant,
+      const taskQueueResponse = await TaskQueueHelper.sendMintingRequest({
+        data: {
+          wrappedDocument,
+          companyName,
           did: documentDid,
-          subject: {
-            object: documentDid,
-            action: {
-              code: 1,
-              proofHash: documentHash,
-            },
-          },
-          signData: {
-            key: "0x1a2b3c4d5e6f7g8h9i0j1k2l3m4n5o6p7q8r9s0t",
-            signature: "0x1a2b3c4d5e6f7g8h9i0j1k2l3m4n5o6p7q8r9s0t",
-          },
-          issuerKey: documentDid,
-        });
-        const verifiedCredential = {
-          ...credential,
-          timestamp: Date.now(),
-        };
-        const credentialHash = sha256(
-          Buffer.from(JSON.stringify(verifiedCredential), "utf8").toString(
-            "hex"
-          )
-        );
-        const credentialResponse = await axios.post(
-          SERVERS.CARDANO_SERVICE + "/api/v2/credential",
-          {
-            config: mintingConfig,
-            credential: credentialHash,
-          },
-          {
-            withCredentials: true,
-            headers: {
-              Cookie: `access_token=${accessToken};`,
-            },
-          }
-        );
-        if (credentialResponse?.data?.code !== 0) {
-          return next({
-            ...ERRORS.CREDENTIAL_FAILED,
-            detail: credentialResponse?.data,
-          });
-        }
-        const storeCredentialStatus = await axios.post(
-          SERVERS.DID_CONTROLLER + "/api/credential",
-          {
-            hash: credentialHash,
-            content: {
-              ...verifiedCredential,
-              mintingNFTConfig: credentialResponse?.data?.data,
-            },
-          },
-          {
-            headers: {
-              Cookie: `access_token=${accessToken};`,
-            },
-          }
-        );
-        if (storeCredentialStatus?.data?.error_code) {
-          return next(storeCredentialStatus?.data);
-        }
-        return credentialHash;
+          plot,
+        },
+        type: REQUEST_TYPE.PLOT_MINT,
+        did: documentDid,
       });
-      Promise.all(promises)
-        .then((data) => {
-          return res.status(200).json({
-            credentials: data,
-            certificateDid: documentDid,
-          });
-        })
-        .catch(() => {
-          return next(ERRORS.CANNOT_CREATE_CREDENTIAL_FOR_CLAIMANT);
-        });
+      return res.status(200).json(taskQueueResponse?.data);
     } catch (error) {
       error?.error_code
         ? next(error)

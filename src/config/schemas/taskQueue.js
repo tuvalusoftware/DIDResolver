@@ -1,7 +1,7 @@
 export default {
   MINT_DATA: {
     type: "object",
-    required: ["wrappedDocument", "companyName", "url", "did"],
+    required: ["wrappedDocument", "companyName", "did"],
     properties: {
       wrappedDocument: {
         type: "object",
@@ -39,6 +39,9 @@ export default {
       },
       did: {
         type: "string",
+      },
+      plot: {
+        type: "object",
       },
     },
     additionalProperties: false,
@@ -92,5 +95,21 @@ export default {
       },
     },
     additionalProperties: true,
+  },
+  CREATE_CREDENTIAL_DATA: {
+    type: "object",
+    required: ["mintingConfig", "credential", "verifiedCredential"],
+    properties: {
+      mintingConfig: {
+        type: "object",
+      },
+      credential: {
+        type: "string",
+      },
+      verifiedCredential: {
+        type: "object",
+      },
+    },
+    additionalProperties: false,
   },
 };

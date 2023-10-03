@@ -23,30 +23,30 @@ import { user } from "./user.js";
 import { unsalt } from "./utility.js";
 
 export const paths = {
-  "/commonlands/document": {
-    ...commonlandsDocument,
-  },
+  // "/commonlands/document": {
+  //   ...commonlandsDocument,
+  // },
   "/commonlands/document/{did}": {
     ...getDocumentInformation,
   },
-  // "/commonlands/document/plot-certificate": {
-  //   ...commonlandsPlotCertificate,
-  // },
+  "/commonlands/document/plot-certificate": {
+    ...commonlandsPlotCertificate,
+  },
   "/commonlands/document/lastest-version": {
     ...checkLastestVersion,
   },
   "/commonlands/document/qrcode-verify": {
     ...verifyCertificateQrcode,
   },
-  "/commonlands/document/revoke": {
-    ...revokeCommonlandsDocument,
-  },
+  // "/commonlands/document/revoke": {
+  //   ...revokeCommonlandsDocument,
+  // },
   "/commonlands/document/hash": {
     ...hashDocumentContent,
   },
-  "/commonlands/document/endorsement/{did}": {
-    ...getEndorsementChainOfCertificate,
-  },
+  // "/commonlands/document/endorsement/{did}": {
+  //   ...getEndorsementChainOfCertificate,
+  // },
   // "/credential": {
   //   ...commonlandsCredential,
   // },
@@ -56,31 +56,31 @@ export const paths = {
   // "/credential/all/{contractId}": {
   //   ...getAllCredentialsOfContract,
   // },
-  "/pdf": {
-    ...commonlandsPdf,
-  },
-  "/pdf/verify": {
-    ...verifyCommonlandsPdf,
-  },
-  "/pdf/upload-verify": {
-    ...verifyUploadedCommonlandsPdf,
-  },
-  "/contract": {
-    ...contract,
-  },
-  "/contract/lock-contract": {
-    ...assignCredentialToContract,
-  },
-  "/contract/isLocked": {
-    ...checkLockedStatus,
-  },
+  // "/pdf": {
+  //   ...commonlandsPdf,
+  // },
+  // "/pdf/verify": {
+  //   ...verifyCommonlandsPdf,
+  // },
+  // "/pdf/upload-verify": {
+  //   ...verifyUploadedCommonlandsPdf,
+  // },
+  // "/contract": {
+  //   ...contract,
+  // },
+  // "/contract/lock-contract": {
+  //   ...assignCredentialToContract,
+  // },
+  // "/contract/isLocked": {
+  //   ...checkLockedStatus,
+  // },
   // "/contract/verify": {
   //   ...verifyContract,
   // },
-  "/user": {
-    ...user,
-  },
-  "/utility/unsalt": {
-    ...unsalt,
-  },
+  // "/user": {
+  //   ...user,
+  // },
+  // "/utility/unsalt": {
+  //   ...unsalt,
+  // },
 };

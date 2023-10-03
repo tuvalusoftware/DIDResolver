@@ -489,20 +489,6 @@ export const commonlandsPlotCertificate = {
                 type: "object",
                 example: {
                   geojson: {
-                    geometry: {
-                      type: "Polygon",
-                      coordinates: [
-                        [
-                          [31.98189641838985, 1.46410111221806],
-                          [31.982118613007515, 1.4639804317163083],
-                          [31.982179847744703, 1.463763556594884],
-                          [31.982376575336104, 1.4635196171409035],
-                          [31.982473607268105, 1.4637163726349343],
-                          [31.981983957396352, 1.4641969951430553],
-                          [31.98189641838985, 1.46410111221806],
-                        ],
-                      ],
-                    },
                     type: "Feature",
                   },
                   centroid: [31.98217150319044, 1.4638796809080243],
@@ -515,41 +501,13 @@ export const commonlandsPlotCertificate = {
                   isDisputed: true,
                   isBoundaryDispute: false,
                   isOwnershipDispute: true,
-                  disputes: [
+                  disputes: [{}],
+                  claimchainSize: 1,
+                  claimants: [
                     {
-                      plot: {
-                        geojson: {
-                          geometry: {
-                            type: "Polygon",
-                            coordinates: [
-                              [
-                                [31.98234437709405, 1.4634632209726135],
-                                [31.982375037267257, 1.463521524324699],
-                                [31.982179847744703, 1.463763556594884],
-                                [31.9821169752085, 1.4639828740821343],
-                                [31.981902153285628, 1.464097997425691],
-                                [31.98181110302778, 1.4640200251540705],
-                                [31.982170078860577, 1.463646562551176],
-                                [31.98234437709405, 1.4634632209726135],
-                              ],
-                            ],
-                          },
-                          type: "Feature",
-                        },
-                        centroid: [31.982128510355498, 1.463785108729324],
-                        _id: "64df16564b6bdbcb6559ebac",
-                        area: 1106.31,
-                        placeName: "Nakasongola, Uganda",
-                        createdAt: 1692341846551,
-                        name: "XTE-464",
-                        id: "Plot:64df16564b6bdbcb6559ebae",
-                        isBoundaryDispute: false,
-                        isOwnershipDispute: true,
-                      },
-                      type: "ownership",
+                      id: 1,
                     },
                   ],
-                  claimchainSize: 1,
                 },
               },
             },

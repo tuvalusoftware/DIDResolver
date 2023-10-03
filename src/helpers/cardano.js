@@ -61,4 +61,23 @@ export const CardanoHelper = {
       throw ERRORS.CANNOT_FETCH_NFT;
     }
   },
+  storeToken: async ({ hash, accessToken }) => {
+    try {
+      const tokenResponse = await axios.post(
+        SERVERS.CARDANO_SERVICE + "/api/v2/hash",
+        {
+          hash,
+        },
+        {
+          withCredentials: true,
+          headers: {
+            Cookie: `access_token=${accessToken};`,
+          },
+        }
+      );
+      return tokenResponse;
+    } catch (error) {
+      throw error;
+    }
+  },
 };

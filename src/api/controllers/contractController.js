@@ -182,12 +182,12 @@ export default {
   assignCredentialToContract: async (req, res, next) => {
     try {
       logger.apiInfo(req, res, `API Request: Assign Credential To Contract`);
-      const { contractDid, signData, issuerKey, metadata } = req.body;
+      const { contractDid, signData, issuerKey, certificateDid } = req.body;
       const undefinedVar = checkUndefinedVar({
         contractDid,
         signData,
         issuerKey,
-        metadata,
+        certificateDid,
       });
       if (undefinedVar.undefined) {
         return next({
@@ -199,20 +199,9 @@ export default {
       if (!valid) {
         return next(ERRORS.INVALID_DID);
       }
-      const validMetadata = validateJSONSchema(
-        COMMONLANDS_SCHEMAS?.ASSIGN_CREDENTIAL_METADATA,
-        metadata
-      );
-      if (!validMetadata.valid) {
-        return next({
-          ...ERRORS.INVALID_INPUT,
-          detail:
-            "Metadata field is invalid! Make sure you have all required fields!",
-        });
-      }
       const accessToken = await AuthHelper.authenticationProgress();
       const certificateDidResponse = await getDidDocumentByDid({
-        did: metadata?.certificateDid,
+        did: certificateDid,
         accessToken: accessToken,
       });
       if (certificateDidResponse?.error_code) {
@@ -233,18 +222,15 @@ export default {
       const { wrappedDoc } = documentContent;
       const documentHash = wrappedDoc?.signature?.targetHash;
       const mintingConfig = wrappedDoc?.mintingNFTConfig;
+      const companyName = unsalt(wrappedDoc?.data?.companyName);
+      const credentialDid = `did:fuixlabs:${companyName}:Credential-${documentHash}`;
       const { credential } = await createVerifiableCredential({
-        metadata: metadata,
-        did: contractDid,
         subject: {
-          object: contractDid,
-          action: {
-            code: 1,
-            proofHash: documentHash,
-          },
-          signData: signData,
-          issuerKey: issuerKey,
+          id: certificateDid,
         },
+        issuer: issuerKey,
+        signData: signData,
+        credentialDid: credentialDid,
       });
       const verifiedCredential = {
         ...credential,
@@ -276,7 +262,7 @@ export default {
         return next(storeCredentialStatus?.data);
       }
       const updatedDidDocResponse = await updateDocumentDid({
-        did: metadata?.certificateDid,
+        did: certificateDid,
         accessToken: accessToken,
         didDoc: {
           ...certificateDidResponse?.didDoc,

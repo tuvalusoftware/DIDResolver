@@ -6,7 +6,7 @@ const storage = multer.memoryStorage();
 const upload = multer({ storage: storage });
 
 const router = express.Router();
-router.route("").post(pdfController.savePdfFile);
+router.route("/").post(pdfController.savePdfFile);
 router.route("/:did").get(pdfController.getPdf);
 router.route("/verify").post(pdfController.verifyPdfFile);
 router

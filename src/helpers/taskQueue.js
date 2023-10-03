@@ -24,6 +24,14 @@ export const TaskQueueHelper = {
           requestType = REQUEST_TYPE.UPDATE;
           verifierSchema = QUEUE_SCHEMA.UPDATE_DATA;
           break;
+        case REQUEST_TYPE.MINT_CREDENTIAL:
+          requestType = REQUEST_TYPE.MINT_CREDENTIAL;
+          verifierSchema = QUEUE_SCHEMA.CREATE_CREDENTIAL_DATA;
+          break;
+        case REQUEST_TYPE.PLOT_MINT:
+          requestType = REQUEST_TYPE.PLOT_MINT;
+          verifierSchema = QUEUE_SCHEMA.MINT_DATA;
+          break;
         default:
           throw new Error("Invalid minting type.");
       }

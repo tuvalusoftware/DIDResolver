@@ -7,7 +7,7 @@ const upload = multer({ storage: storage });
 
 const router = express.Router();
 router
-  .route("")
+  .route("/")
   .get(contractController.getContract)
   .post(contractController.createContract);
 router.route("/isLocked").get(contractController.getLockedStatus);

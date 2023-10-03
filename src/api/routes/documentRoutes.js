@@ -4,7 +4,7 @@ import documentController from "../controllers/documentController.js";
 const router = express.Router();
 
 router
-  .route("")
+  .route("/")
   .post(documentController.createDocument)
   .put(documentController.updateDocument);
 router.route("/testing").post(documentController.createDocument);
@@ -15,10 +15,9 @@ router
   .post(documentController.checkLastestVersion)
   .get(documentController.getLastestVersion);
 router
-  .route("/plot-certificate/:did")
+  .route("/plot-certificate")
   .post(documentController.createPlotCertification)
-  .put(documentController.updatePlotCertification)
-  .get(documentController.getPlotCertification);
+  .put(documentController.updatePlotCertification);
 router.get(
   "/endorsement/:did",
   documentController.getEndorsementChainOfCertificate
