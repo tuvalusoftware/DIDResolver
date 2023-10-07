@@ -15,7 +15,7 @@ export default (app) => {
   app.use("/resolver/utility", utilityRoutes);
   app.use("/resolver/task-queue", taskQueueRoutes)
 
-  app.get("*", (req, res) => {
-    res.status(404).send("Not found");
-  });
+  // app.get("*", (req, res) => {
+  //   res.status(404).send("Not found");
+  // });
 };
