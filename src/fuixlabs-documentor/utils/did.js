@@ -1,11 +1,12 @@
 // * Constant libraries
 import { DID_ERROR } from "../constants/error.js";
+import { DEV_COMPANY_NAME } from "../../config/constants.js";
 
 // * Rest libraries
 import {
-  requestCreateUserDid,
-  requestPublicKey,
-  requestUpdateDid,
+    requestCreateUserDid,
+    requestPublicKey,
+    requestUpdateDid,
 } from "../rest/client.rest.js";
 import { CLIENT_PATH } from "../rest/client.path.js";
 
@@ -20,8 +21,8 @@ import "dotenv/config";
  * @return {String} - Did
  */
 export const generateDid = (fileName, prop) => {
-  const did = `did:fuixlabs:${fileName}:${prop}`;
-  return did;
+    const did = `did:${DEV_COMPANY_NAME}:${fileName}:${prop}`;
+    return did;
 };
 
 /**
@@ -33,68 +34,74 @@ export const generateDid = (fileName, prop) => {
  * @return {Promise}
  */
 export const addNewIssuer = async (
-  usersDid,
-  companyName,
-  publicKey,
-  data,
-  encoded = false,
-  signedData = null,
-  isIssuer = false
+    usersDid,
+    companyName,
+    publicKey,
+    data,
+    encoded = false,
+    signedData = null,
+    isIssuer = false
 ) => {
-  try {
-    if (!companyName || !publicKey || !data) throw DID_ERROR.MISSING_PARAMETERS;
-    let createNewUserDidRes;
-    let encodedPublicKey = publicKey;
-    if (!encoded) {
-      const publicKeyRes = await requestPublicKey(CLIENT_PATH.GET_PUBLIC_KEY, {
-        address: publicKey,
-        user: "owner",
-        confirmNominate: false,
-      });
-      encodedPublicKey = publicKeyRes?.data?.publicKey;
-    }
-    let didContent = { ...data, address: encodedPublicKey };
-    if (
-      usersDid.filter((_did) => _did.name === encodedPublicKey).length === 0
-    ) {
-      createNewUserDidRes = await requestCreateUserDid(
-        CLIENT_PATH.RETRIEVE_SPECIFIC_DID,
-        {
-          companyName: companyName,
-          publicKey: encodedPublicKey,
-          data: didContent,
-          did: generateDidOfWrappedDocument(
-            process.env.COMPANY_NAME,
-            encodedPublicKey
-          ),
+    try {
+        if (!companyName || !publicKey || !data)
+            throw DID_ERROR.MISSING_PARAMETERS;
+        let createNewUserDidRes;
+        let encodedPublicKey = publicKey;
+        if (!encoded) {
+            const publicKeyRes = await requestPublicKey(
+                CLIENT_PATH.GET_PUBLIC_KEY,
+                {
+                    address: publicKey,
+                    user: "owner",
+                    confirmNominate: false,
+                }
+            );
+            encodedPublicKey = publicKeyRes?.data?.publicKey;
         }
-      );
-      if (createNewUserDidRes?.data?.error_code)
-        throw createNewUserDidRes?.data;
-    } else {
-      const currentUserDid = usersDid.filter(
-        (_did) => _did.name === encodedPublicKey
-      )[0];
-      let userDidData = Object.assign({}, currentUserDid?.content?.data);
-      userDidData = Object.assign(userDidData, {
-        issuer: isIssuer,
-        signedData,
-      });
-      const updateUserDidRes = await requestUpdateDid(
-        CLIENT_PATH.RETRIEVE_SPECIFIC_DID,
-        {
-          companyName: companyName,
-          publicKey: encodedPublicKey,
-          data: userDidData,
-          did: generateDidOfWrappedDocument(
-            process.env.COMPANY_NAME,
-            encodedPublicKey
-          ),
+        let didContent = { ...data, address: encodedPublicKey };
+        if (
+            usersDid.filter((_did) => _did.name === encodedPublicKey).length ===
+            0
+        ) {
+            createNewUserDidRes = await requestCreateUserDid(
+                CLIENT_PATH.RETRIEVE_SPECIFIC_DID,
+                {
+                    companyName: companyName,
+                    publicKey: encodedPublicKey,
+                    data: didContent,
+                    did: generateDidOfWrappedDocument(
+                        process.env.COMPANY_NAME,
+                        encodedPublicKey
+                    ),
+                }
+            );
+            if (createNewUserDidRes?.data?.error_code)
+                throw createNewUserDidRes?.data;
+        } else {
+            const currentUserDid = usersDid.filter(
+                (_did) => _did.name === encodedPublicKey
+            )[0];
+            let userDidData = Object.assign({}, currentUserDid?.content?.data);
+            userDidData = Object.assign(userDidData, {
+                issuer: isIssuer,
+                signedData,
+            });
+            const updateUserDidRes = await requestUpdateDid(
+                CLIENT_PATH.RETRIEVE_SPECIFIC_DID,
+                {
+                    companyName: companyName,
+                    publicKey: encodedPublicKey,
+                    data: userDidData,
+                    did: generateDidOfWrappedDocument(
+                        process.env.COMPANY_NAME,
+                        encodedPublicKey
+                    ),
+                }
+            );
+            if (updateUserDidRes?.data?.error_code)
+                throw updateUserDidRes?.data;
         }
-      );
-      if (updateUserDidRes?.data?.error_code) throw updateUserDidRes?.data;
+    } catch (e) {
+        throw e;
     }
-  } catch (e) {
-    throw e;
-  }
 };

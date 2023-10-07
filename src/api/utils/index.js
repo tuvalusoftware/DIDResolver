@@ -10,6 +10,8 @@ import _ from "lodash";
 dotenv.config();
 
 const secretKey = process.env.COMMONLANDS_SECRET_KEY;
+const companyName = process.env.COMPANY_NAME;
+const devCompanyName = process.env.DEV_COMPANY_NAME;
 
 /**
  * Function used for validating DID syntax
@@ -18,31 +20,31 @@ const secretKey = process.env.COMMONLANDS_SECRET_KEY;
  * @returns {Object} - { valid: Boolean, detail: String }
  */
 const validateDIDSyntax = (did, isSalted) => {
-  if (!did) {
-    Logger.error("Undefined did.");
-    return { valid: false, detail: "Undefined did." };
-  }
-  const maxLength = isSalted ? 6 : 4;
-  const didPosition = isSalted ? 2 : 0;
-  const didComponents = did.split(":");
+    if (!did) {
+        Logger.error("Undefined did.");
+        return { valid: false, detail: "Undefined did." };
+    }
+    const maxLength = isSalted ? 6 : 4;
+    const didPosition = isSalted ? 2 : 0;
+    const didComponents = did.split(":");
 
-  if (
-    didComponents.length < maxLength ||
-    didComponents[didPosition] !== "did"
-  ) {
-    Logger.error(
-      `Invalid DID syntax. Given did = ${did} should be ${
-        isSalted ? "salted" : "unsalted"
-      }.`
-    );
-    return { valid: false };
-  }
-  Logger.info("Valid did.");
-  return {
-    valid: true,
-    companyName: didComponents[didPosition + 2],
-    fileNameOrPublicKey: didComponents[didPosition + 3],
-  };
+    if (
+        didComponents.length < maxLength ||
+        didComponents[didPosition] !== "did"
+    ) {
+        Logger.error(
+            `Invalid DID syntax. Given did = ${did} should be ${
+                isSalted ? "salted" : "unsalted"
+            }.`
+        );
+        return { valid: false };
+    }
+    Logger.info("Valid did.");
+    return {
+        valid: true,
+        companyName: didComponents[didPosition + 2],
+        fileNameOrPublicKey: didComponents[didPosition + 3],
+    };
 };
 
 /**
@@ -51,22 +53,24 @@ const validateDIDSyntax = (did, isSalted) => {
  * @returns {Object} - { valid: Boolean, detail: String }
  */
 const validateDID = (did) => {
-  if (!did) {
-    Logger.error("Undefined did.");
-    return { valid: false, detail: "Undefined did." };
-  }
-  const didComponents = did.split(":");
+    if (!did) {
+        Logger.error("Undefined did.");
+        return { valid: false, detail: "Undefined did." };
+    }
+    const didComponents = did.split(":");
 
-  if (didComponents.length < 4 || didComponents[0] !== "did") {
-    Logger.error(`Invalid DID syntax. Given did = ${did} should be unsalted.`);
-    return { valid: false };
-  }
-  Logger.info("Valid did.");
-  return {
-    valid: true,
-    companyName: didComponents[2],
-    fileNameOrPublicKey: didComponents[3],
-  };
+    if (didComponents.length < 4 || didComponents[0] !== "did") {
+        Logger.error(
+            `Invalid DID syntax. Given did = ${did} should be unsalted.`
+        );
+        return { valid: false };
+    }
+    Logger.info("Valid did.");
+    return {
+        valid: true,
+        companyName: didComponents[2],
+        fileNameOrPublicKey: didComponents[3],
+    };
 };
 
 /**
@@ -75,12 +79,12 @@ const validateDID = (did) => {
  * @returns {String} - bech32 address
  */
 const getAddressFromHexEncoded = (hexAddress) => {
-  const address = cardanoSerialization.Address.from_bytes(
-    Buffer.from(hexAddress, "hex")
-  ).to_bech32();
+    const address = cardanoSerialization.Address.from_bytes(
+        Buffer.from(hexAddress, "hex")
+    ).to_bech32();
 
-  Logger.info(`Address from hex (${hexAddress}) = ${address}`);
-  return address;
+    Logger.info(`Address from hex (${hexAddress}) = ${address}`);
+    return address;
 };
 
 /**
@@ -89,10 +93,10 @@ const getAddressFromHexEncoded = (hexAddress) => {
  * @returns {String} - public key
  */
 const getPublicKeyFromAddress = (bech32Address) => {
-  const address = cardanoSerialization.Address.from_bech32(bech32Address);
-  const publicKey = Buffer.from(address.to_bytes(), "hex").toString("hex");
-  Logger.info(`Publickey from address ${bech32Address} is ${publicKey}`);
-  return publicKey;
+    const address = cardanoSerialization.Address.from_bech32(bech32Address);
+    const publicKey = Buffer.from(address.to_bytes(), "hex").toString("hex");
+    Logger.info(`Publickey from address ${bech32Address} is ${publicKey}`);
+    return publicKey;
 };
 
 /**
@@ -102,13 +106,13 @@ const getPublicKeyFromAddress = (bech32Address) => {
  * @returns {Object} - { valid: Boolean, detail: String }
  */
 const validateJSONSchema = (rawSchema, object) => {
-  const schema = (({ example, ...props }) => props)(rawSchema);
-  const ajv = new Ajv();
-  const validate = ajv.compile(schema);
-  const valid = validate(object);
-  if (!valid)
-    Logger.error(`Invalid object.\n${JSON.stringify(validate.errors)}`);
-  return valid ? { valid } : { valid, detail: validate.errors };
+    const schema = (({ example, ...props }) => props)(rawSchema);
+    const ajv = new Ajv();
+    const validate = ajv.compile(schema);
+    const valid = validate(object);
+    if (!valid)
+        Logger.error(`Invalid object.\n${JSON.stringify(validate.errors)}`);
+    return valid ? { valid } : { valid, detail: validate.errors };
 };
 
 /**
@@ -117,17 +121,17 @@ const validateJSONSchema = (rawSchema, object) => {
  * @returns {Object} - { undefined: Boolean, detail: String }
  */
 const checkUndefinedVar = (object) => {
-  let detail = "Not found:",
-    flag = false;
-  for (const [key, value] of Object.entries(object)) {
-    if (value === undefined) {
-      detail += " " + key;
-      flag = true;
+    let detail = "Not found:",
+        flag = false;
+    for (const [key, value] of Object.entries(object)) {
+        if (value === undefined) {
+            detail += " " + key;
+            flag = true;
+        }
     }
-  }
-  if (flag) Logger.error(`${detail}`);
-  else Logger.info(`Valid JSON object.`);
-  return flag ? { undefined: true, detail } : { undefined: false };
+    if (flag) Logger.error(`${detail}`);
+    else Logger.info(`Valid JSON object.`);
+    return flag ? { undefined: true, detail } : { undefined: false };
 };
 
 /**
@@ -136,24 +140,24 @@ const checkUndefinedVar = (object) => {
  * @returns {Object} - { valid: Boolean, string: String }
  */
 const checkForSpecialChar = (strings) => {
-  const specialChars = `\`!@#$%^&*()+\-=\[\]{};':"\\|,.<>\/?~`;
-  for (const index in strings) {
-    let result = specialChars.split("").some((specialChar) => {
-      if (strings[index].includes(specialChar)) {
-        return true;
-      }
-      return false;
-    });
-    if (result) {
-      return {
-        valid: false,
-        string: index,
-      };
+    const specialChars = `\`!@#$%^&*()+\-=\[\]{};':"\\|,.<>\/?~`;
+    for (const index in strings) {
+        let result = specialChars.split("").some((specialChar) => {
+            if (strings[index].includes(specialChar)) {
+                return true;
+            }
+            return false;
+        });
+        if (result) {
+            return {
+                valid: false,
+                string: index,
+            };
+        }
     }
-  }
-  return {
-    valid: true,
-  };
+    return {
+        valid: true,
+    };
 };
 
 /**
@@ -163,27 +167,27 @@ const checkForSpecialChar = (strings) => {
  * @returns {Boolean} - true if two error objects are the same, false otherwise
  */
 const isSameError = (obj, errorObj) => {
-  return obj.error_code === errorObj.error_code &&
-    obj.error_message === errorObj.error_message
-    ? true
-    : false;
+    return obj.error_code === errorObj.error_code &&
+        obj.error_message === errorObj.error_message
+        ? true
+        : false;
 };
 
 /**
  * Function used for getting current date time
  * @returns {String} - current date time
  */
-function getCurrentDateTime() {
-  const now = new Date();
-  const year = now.getFullYear();
-  const month = (now.getMonth() + 1).toString().padStart(2, "0");
-  const day = now.getDate().toString().padStart(2, "0");
-  const hours = now.getHours().toString().padStart(2, "0");
-  const minutes = now.getMinutes().toString().padStart(2, "0");
-  const seconds = now.getSeconds().toString().padStart(2, "0");
-  const formattedDateTime = `${year}-${month}-${day} ${hours}:${minutes}:${seconds}`;
-  return formattedDateTime;
-}
+const getCurrentDateTime = () => {
+    const now = new Date();
+    const year = now.getFullYear();
+    const month = (now.getMonth() + 1).toString().padStart(2, "0");
+    const day = now.getDate().toString().padStart(2, "0");
+    const hours = now.getHours().toString().padStart(2, "0");
+    const minutes = now.getMinutes().toString().padStart(2, "0");
+    const seconds = now.getSeconds().toString().padStart(2, "0");
+    const formattedDateTime = `${year}-${month}-${day} ${hours}:${minutes}:${seconds}`;
+    return formattedDateTime;
+};
 
 /**
  * Function used for generating QR code
@@ -193,20 +197,20 @@ function getCurrentDateTime() {
  * @param {Number} size
  * @returns {Buffer} - QR code
  */
-async function generateQRCode(text, backgroundColor, color, size) {
-  const qrCodeData = await QRCode.toDataURL(text, {
-    width: size,
-    color: {
-      dark: color,
-      light: backgroundColor,
-    },
-  });
-  const canvas = createCanvas(size, size);
-  const ctx = canvas.getContext("2d");
-  const img = await loadImage(qrCodeData);
-  ctx.drawImage(img, 0, 0);
-  return canvas.toBuffer("image/png");
-}
+const generateQRCode = async (text, backgroundColor, color, size) => {
+    const qrCodeData = await QRCode.toDataURL(text, {
+        width: size,
+        color: {
+            dark: color,
+            light: backgroundColor,
+        },
+    });
+    const canvas = createCanvas(size, size);
+    const ctx = canvas.getContext("2d");
+    const img = await loadImage(qrCodeData);
+    ctx.drawImage(img, 0, 0);
+    return canvas.toBuffer("image/png");
+};
 
 /**
  * Function used for generating random string with given seed and length
@@ -214,35 +218,35 @@ async function generateQRCode(text, backgroundColor, color, size) {
  * @param {Number} length - length of random string
  * @returns {String} - random string
  */
-function generateRandomString(seed, length) {
-  const hash = crypto.createHash("sha256");
-  hash.update(seed);
-  const seedHash = hash.digest("hex");
-  let result = "";
-  for (let i = 0; i < length; i++) {
-    const randomIndex = Math.floor(Math.random() * seedHash.length);
-    result += seedHash.charAt(randomIndex);
-  }
-  return result;
-}
+const generateRandomString = (seed, length) => {
+    const hash = crypto.createHash("sha256");
+    hash.update(seed);
+    const seedHash = hash.digest("hex");
+    let result = "";
+    for (let i = 0; i < length; i++) {
+        const randomIndex = Math.floor(Math.random() * seedHash.length);
+        result += seedHash.charAt(randomIndex);
+    }
+    return result;
+};
 
 /**
  * Function used for spiting camel case string
  * @param {String} input - string to be split
  * @returns {String} - string after split
  */
-function splitCamelCase(input) {
-  return _.startCase(input).replace(/([a-z])([A-Z])/g, "$1 $2");
-}
+const splitCamelCase = (input) => {
+    return _.startCase(input).replace(/([a-z])([A-Z])/g, "$1 $2");
+};
 
 /**
  * Function used for getting DID by components
  * @param {String} didComponents - DID components
  * @returns {String} - DID {did}:{process.env.DEV_COMPANY_NAME}:{companyName}:{fileNameOrPublicKey
  */
-function getDidByComponents(didComponents) {
-  return `did:${process.env.DEV_COMPANY_NAME}:${didComponents}`;
-}
+const getDidByComponents = (didComponents) => {
+    return `did:${process.env.DEV_COMPANY_NAME}:${didComponents}`;
+};
 
 /**
  * Function used to determine whether a particular field exists in all objects of the input array or not, making it a valuable tool for checking data consistency within an array of objects.
@@ -250,70 +254,130 @@ function getDidByComponents(didComponents) {
  * @param {String} field - field to be checked
  * @returns {Boolean} - true if the field is present in all objects, false otherwise
  */
-function requireFieldInArray(array, field) {
-  for (const obj of array) {
-    if (!obj.hasOwnProperty(field)) {
-      return false; // If the field is missing in any object, return false
+const requireFieldInArray = (array, field) => {
+    for (const obj of array) {
+        if (!obj.hasOwnProperty(field)) {
+            return false; // If the field is missing in any object, return false
+        }
     }
-  }
-  return true; // If the field is present in all objects, return true
-}
+    return true; // If the field is present in all objects, return true
+};
 
-function stringToBytes32(input) {
-  // Ensure the input is not longer than 32 bytes
-  if (input.length > 32) {
-    throw new Error('Input string is too long for bytes32');
-  }
+/**
+ * Converts a string to a bytes32 representation.
+ * @param {string} input - The input string to be converted.
+ * @returns {string} The bytes32 representation of the input string.
+ * @throws {Error} If the input string is longer than 32 bytes.
+ */
+const stringToBytes32 = (input) => {
+    // Ensure the input is not longer than 32 bytes
+    if (input.length > 32) {
+        throw new Error("Input string is too long for bytes32");
+    }
 
-  // Convert the string to UTF-8 bytes
-  const utf8Bytes = Buffer.from(input, 'utf-8');
+    // Convert the string to UTF-8 bytes
+    const utf8Bytes = Buffer.from(input, "utf-8");
 
-  // Create a new Buffer (32 bytes long) filled with zeros
-  const bytes32 = Buffer.alloc(32);
+    // Create a new Buffer (32 bytes long) filled with zeros
+    const bytes32 = Buffer.alloc(32);
 
-  // Copy the UTF-8 bytes to the Buffer
-  utf8Bytes.copy(bytes32);
+    // Copy the UTF-8 bytes to the Buffer
+    utf8Bytes.copy(bytes32);
 
-  return '0x' + bytes32.toString('hex');
-}
+    return "0x" + bytes32.toString("hex");
+};
 
-function encrypt(message) {
-  const securityCode = process.env.COMMONLANDS_SECRET_KEY;
-  const initVector = crypto.randomBytes(16);
-  const cipher = crypto.createCipheriv("aes-256-cbc", stringToBytes32(securityCode), initVector);
-  let encryptedData = cipher.update(message, "utf-8", "hex");
-  encryptedData += cipher.final("hex");
-  return encryptedData;
-}
+/**
+ * Encrypts a message using AES-256-CBC encryption algorithm.
+ * @param {string} message - The message to be encrypted.
+ * @returns {string} - The encrypted message in hexadecimal format.
+ */
+const encrypt = (message) => {
+    const securityCode = process.env.COMMONLANDS_SECRET_KEY;
+    const initVector = crypto.randomBytes(16);
+    const cipher = crypto.createCipheriv(
+        "aes-256-cbc",
+        stringToBytes32(securityCode),
+        initVector
+    );
+    let encryptedData = cipher.update(message, "utf-8", "hex");
+    encryptedData += cipher.final("hex");
+    return encryptedData;
+};
 
-function decrypt(encryptedText) {
-  const iv = Buffer.from(encryptedText.slice(0, 32), "hex");
-  const encryptedData = encryptedText.slice(32);
-  const decipher = crypto.createDecipheriv(
-    "aes-256-cbc",
-    Buffer.from(secretKey),
-    iv
-  );
-  let decrypted = decipher.update(encryptedData, "hex", "utf8");
-  decrypted += decipher.final("utf8");
-  return decrypted;
-}
+/**
+ * Decrypts the given encrypted text using AES-256-CBC algorithm and a secret key.
+ * @param {string} encryptedText - The encrypted text to be decrypted.
+ * @returns {string} The decrypted text.
+ */
+const decrypt = (encryptedText) => {
+    const iv = Buffer.from(encryptedText.slice(0, 32), "hex");
+    const encryptedData = encryptedText.slice(32);
+    const decipher = crypto.createDecipheriv(
+        "aes-256-cbc",
+        Buffer.from(secretKey),
+        iv
+    );
+    let decrypted = decipher.update(encryptedData, "hex", "utf8");
+    decrypted += decipher.final("utf8");
+    return decrypted;
+};
+
+/**
+ * Generates a random DID (Decentralized Identifier) using a specific ID and a chosen DID method.
+ * @function
+ * @returns {string} The generated DID.
+ */
+const generateRandomDID = () => {
+    // Generate a random specific ID (for example, using Math.random())
+    const randomSpecificId = Math.random().toString(36).substring(2, 10);
+
+    // Choose a DID method (you can replace this with your desired method)
+    const didMethod = "example";
+
+    // Combine the method and specific ID to create the DID
+    const did = `did:${devCompanyName}:${companyName}${randomSpecificId}`;
+
+    return did;
+};
+
+/**
+ * Replaces an object key with a new key.
+ * @param {Object} obj - The object to modify.
+ * @param {string} oldKey - The key to replace.
+ * @param {string} newKey - The new key to use.
+ * @returns {Object} A new object with the old key removed and the new key added, or the original object if the old key doesn't exist.
+ */
+const replaceKey = (obj, oldKey, newKey) => {
+    if (obj.hasOwnProperty(oldKey)) {
+        // Create a new object with the old key removed and the new key added
+        const newObj = { ...obj, [newKey]: obj[oldKey] };
+        delete newObj[oldKey]; // Remove the old key
+
+        return newObj;
+    } else {
+        // If the old key doesn't exist in the object, return the original object
+        return obj;
+    }
+};
 
 export {
-  validateDIDSyntax,
-  getAddressFromHexEncoded,
-  getPublicKeyFromAddress,
-  validateJSONSchema,
-  checkUndefinedVar,
-  checkForSpecialChar,
-  isSameError,
-  getCurrentDateTime,
-  generateQRCode,
-  generateRandomString,
-  splitCamelCase,
-  validateDID,
-  getDidByComponents,
-  requireFieldInArray,
-  encrypt,
-  decrypt,
+    validateDIDSyntax,
+    getAddressFromHexEncoded,
+    getPublicKeyFromAddress,
+    validateJSONSchema,
+    checkUndefinedVar,
+    checkForSpecialChar,
+    isSameError,
+    getCurrentDateTime,
+    generateQRCode,
+    generateRandomString,
+    splitCamelCase,
+    validateDID,
+    getDidByComponents,
+    requireFieldInArray,
+    encrypt,
+    decrypt,
+    generateRandomDID,
+    replaceKey,
 };
