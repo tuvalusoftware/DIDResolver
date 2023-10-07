@@ -90,11 +90,6 @@ export const generateMultibaseKeyPair = async () => {
     try {
         const { publicKeyMultibase, privateKeyMultibase } =
             await Ed25519VerificationKey2020.generate();
-
-        console.log(`Public Key: ${publicKeyMultibase}`);
-        console.log(`Private Key: ${privateKeyMultibase}`);
-
-        console.log("\nDone!");
     } catch (error) {
         throw error;
     }

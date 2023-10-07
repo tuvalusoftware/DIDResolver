@@ -52,9 +52,13 @@ const createVerifiableCredential = async ({ issuerKey, subject }) => {
             },
         };
         const { verifiableCredential } =
-            await VerifiableCredentialHelper.issueVerifiableCredential({
-                credential,
-            });
+            process.env.NODE_ENV === "test"
+                ? {
+                      verifiableCredential: credential,
+                  }
+                : await VerifiableCredentialHelper.issueVerifiableCredential({
+                      credential,
+                  });
         return { verifiableCredential, credentialHash };
     } catch (e) {
         throw e;

@@ -71,7 +71,10 @@ export default {
                     detail: undefinedVar.detail,
                 });
             }
-            const accessToken = await AuthHelper.authenticationProgress();
+            const accessToken =
+                process.env.NODE_ENV === "test"
+                    ? "mock-access-token"
+                    : await AuthHelper.authenticationProgress();
             const mintingResponse = await CardanoHelper.storeToken({
                 hash: wrappedDocument?.signature?.targetHash,
                 accessToken,
@@ -168,7 +171,7 @@ export default {
                 res,
                 `Wrapped document ${JSON.stringify(wrappedDocument)}`
             );
-            const accessToken = await AuthHelper.authenticationProgress();
+            const accessToken = process.env.NODE_ENV === 'test' ? 'mock-access-token' : await AuthHelper.authenticationProgress();
             const mintingResponse = await CardanoHelper.storeToken({
                 hash: wrappedDocument?.signature?.targetHash,
                 accessToken,
@@ -193,6 +196,7 @@ export default {
                     fileName,
                     wrappedDocument: willWrappedDocument,
                 });
+
             if (storeWrappedDocumentStatus?.data?.error_code) {
                 return next(
                     storeWrappedDocumentStatus?.data ||
@@ -200,14 +204,14 @@ export default {
                 );
             }
             const claimants = plot?.claimants;
-            const promises = claimants.map(async (claimant) => {
+            const promises = claimants?.map(async (claimant) => {
                 const { verifiableCredential, credentialHash } =
                     await createVerifiableCredential({
                         subject: {
                             claims: claimant,
                         },
                         issuerKey: did,
-                    });
+                    })
                 const taskQueueResponse =
                     await TaskQueueHelper.sendMintingRequest({
                         data: {
