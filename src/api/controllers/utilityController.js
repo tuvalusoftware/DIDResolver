@@ -11,7 +11,7 @@ export default {
       const undefinedVar = checkUndefinedVar({ data });
       if (undefinedVar.undefined) {
         return next({
-          ...ERRORS.MISSING_REQUIRED_PARAMETERS,
+          ...ERRORS.MISSING_PARAMETERS,
           detail: undefinedVar.detail,
         });
       }
