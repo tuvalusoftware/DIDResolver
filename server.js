@@ -50,7 +50,7 @@ app.use(
 const server = http.createServer(app);
 server.timeout = 300000;
 routes(app);
-app.use(express.static('public'));
+app.use(express.static('assets'));
 app.use((err, req, res, _) => {
   try {
     if (err.code === "ECONNABORTED") {
