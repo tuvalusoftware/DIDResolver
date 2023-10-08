@@ -26,18 +26,19 @@ export default {
                     detail: undefinedVar.detail,
                 });
             }
-            const accessToken = await AuthHelper.authenticationProgress();
+            const accessToken =
+                process.env.NODE_ENV === "test"
+                    ? "mock-access-token"
+                    : await AuthHelper.authenticationProgress();
             const revokeResponse = await CardanoHelper.burnNft({
                 mintingConfig,
                 accessToken,
             });
-            logger.apiError(
-                req,
-                res,
-                `Response from service: ${JSON.stringify(revokeResponse?.data)}`
-            );
             if (revokeResponse?.data?.code !== 0) {
-                return next(ERRORS?.REVOKE_DOCUMENT_FAILED);
+                return next({
+                    ...ERRORS?.REVOKE_DOCUMENT_FAILED,
+                    detail: revokeResponse?.data,
+                });
             }
             logger.apiInfo(req, res, `Revoke document successfully!`);
             return res.status(200).json({
@@ -171,7 +172,10 @@ export default {
                 res,
                 `Wrapped document ${JSON.stringify(wrappedDocument)}`
             );
-            const accessToken = process.env.NODE_ENV === 'test' ? 'mock-access-token' : await AuthHelper.authenticationProgress();
+            const accessToken =
+                process.env.NODE_ENV === "test"
+                    ? "mock-access-token"
+                    : await AuthHelper.authenticationProgress();
             const mintingResponse = await CardanoHelper.storeToken({
                 hash: wrappedDocument?.signature?.targetHash,
                 accessToken,
@@ -204,31 +208,34 @@ export default {
                 );
             }
             const claimants = plot?.claimants;
-            const promises = claimants?.map(async (claimant) => {
-                const { verifiableCredential, credentialHash } =
-                    await createVerifiableCredential({
-                        subject: {
-                            claims: claimant,
-                        },
-                        issuerKey: did,
-                    })
-                const taskQueueResponse =
-                    await TaskQueueHelper.sendMintingRequest({
-                        data: {
-                            mintingConfig,
-                            credential: credentialHash,
-                            verifiedCredential: verifiableCredential,
-                        },
-                        type: REQUEST_TYPE.MINT_CREDENTIAL,
-                        did: generateDid(companyName, credentialHash),
-                    });
-                return taskQueueResponse?.data?.data?.did;
-            });
-            const data = await Promise.all(promises).catch((error) => {
-                return next(ERRORS.CANNOT_CREATE_CREDENTIAL_FOR_CLAIMANT);
-            });
+            let claimantData = [];
+            if (claimants) {
+                const promises = claimants?.map(async (claimant) => {
+                    const { verifiableCredential, credentialHash } =
+                        await createVerifiableCredential({
+                            subject: {
+                                claims: claimant,
+                            },
+                            issuerKey: did,
+                        });
+                    const taskQueueResponse =
+                        await TaskQueueHelper.sendMintingRequest({
+                            data: {
+                                mintingConfig,
+                                credential: credentialHash,
+                                verifiedCredential: verifiableCredential,
+                            },
+                            type: REQUEST_TYPE.MINT_CREDENTIAL,
+                            did: generateDid(companyName, credentialHash),
+                        });
+                    return taskQueueResponse?.data?.data?.did;
+                });
+                claimantData = await Promise.all(promises).catch((error) => {
+                    return next(ERRORS.CANNOT_CREATE_CREDENTIAL_FOR_CLAIMANT);
+                });
+            }
             return res.status(200).json({
-                claimants: data,
+                claimants: claimantData,
                 plot: did,
             });
         } catch (error) {
@@ -268,7 +275,10 @@ export default {
                     detail: undefinedVar.detail,
                 });
             }
-            const accessToken = await AuthHelper.authenticationProgress();
+            const accessToken =
+                process.env.NODE_ENV === "test"
+                    ? "mock-access-token"
+                    : await AuthHelper.authenticationProgress();
             const credentialResponse = await CardanoHelper.storeCredentials({
                 mintingConfig,
                 credentialHash: credentialHash,

@@ -3,13 +3,8 @@ import documentController from "../controllers/documentController.js";
 
 const router = express.Router();
 
-router.route("/").put(documentController.updateDocument);
-router.route("/revoke").post(documentController.revokeDocument);
 router.route("/hash").post(documentController.hashDocument);
-router
-    .route("/lastest-version")
-    .post(documentController.checkLastestVersion)
-    .get(documentController.getLastestVersion);
+router.route("/lastest-version").post(documentController.checkLastestVersion);
 router
     .route("/certificate")
     .post(documentController.createPlotCertification)
