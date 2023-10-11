@@ -9,7 +9,11 @@ import {
 } from "../../helpers/index.js";
 import "dotenv/config";
 import { unsalt } from "../../fuixlabs-documentor/utils/data.js";
-import { getDidDocumentByDid, updateDocumentDid } from "../utils/controller.js";
+import {
+    getDidDocumentByDid,
+    getDocumentContentByDid,
+    updateDocumentDid,
+} from "../utils/controller.js";
 import { createVerifiableCredential } from "../utils/credential.js";
 import { generateDid } from "../../fuixlabs-documentor/utils/did.js";
 import { CardanoHelper } from "../../helpers/index.js";
@@ -214,7 +218,10 @@ export default {
                     const { verifiableCredential, credentialHash } =
                         await createVerifiableCredential({
                             subject: {
-                                claims: claimant,
+                                claims: {
+                                    plot: plot?._id,
+                                    ...claimant,
+                                },
                             },
                             issuerKey: did,
                         });
@@ -310,6 +317,159 @@ export default {
                 verifiedCredential: {
                     ...verifiedCredential,
                     id: generateDid(companyName, credentialHash),
+                },
+            });
+        } catch (error) {
+            error?.error_code
+                ? next(error)
+                : next({
+                      error_code: 400,
+                      error_message:
+                          error?.error_message ||
+                          error?.message ||
+                          "Something went wrong!",
+                  });
+        }
+    },
+    createClaimantCredentialWithPolicyId: async (req, res, next) => {
+        try {
+            logger.apiInfo(
+                req,
+                res,
+                "Request API: Request create claimant credential with the same policy-id!"
+            );
+            const { credentials, mintingConfig } = req.body;
+            const undefinedVar = checkUndefinedVar({
+                credentials,
+                mintingConfig,
+            });
+            if (undefinedVar.undefined) {
+                return next({
+                    ...ERRORS.MISSING_PARAMETERS,
+                    detail: undefinedVar.detail,
+                });
+            }
+            const accessToken =
+                process.env.NODE_ENV === "test"
+                    ? "mock-access-token"
+                    : await AuthHelper.authenticationProgress();
+            const credentialResponse =
+                await CardanoHelper.storeCredentialsWithPolicyId({
+                    credentials,
+                    mintingConfig,
+                    accessToken,
+                });
+            if (credentialResponse?.data?.code !== 0) {
+                return next({
+                    ...ERRORS.CREDENTIAL_FAILED,
+                    detail: credentialResponse?.data,
+                });
+            }
+            const storeCredentialsPromises = credentials?.map(
+                async (credential) => {
+                    const storeCredentialStatus =
+                        await ControllerHelper.storeCredentials({
+                            payload: credential,
+                            accessToken,
+                        });
+                    if (storeCredentialStatus?.data?.error_code) {
+                        return next(storeCredentialStatus?.data);
+                    }
+                }
+            );
+            return res.status(200).json(credentialResponse?.data);
+        } catch (error) {
+            error?.error_code
+                ? next(error)
+                : next({
+                      error_code: 400,
+                      error_message:
+                          error?.error_message ||
+                          error?.message ||
+                          "Something went wrong!",
+                  });
+        }
+    },
+    addClaimant: async (req, res, next) => {
+        try {
+            logger.apiInfo(req, res, "Request API: Request add claimant!");
+            const { credential, verifiedCredential } = req.body;
+            const undefinedVar = checkUndefinedVar({
+                credential,
+                verifiedCredential,
+            });
+            if (undefinedVar.undefined) {
+                return next({
+                    ...ERRORS.MISSING_PARAMETERS,
+                    detail: undefinedVar.detail,
+                });
+            }
+            const plotDid =
+                verifiedCredential?.credentialSubject?.claims?.plotCertificate;
+            const companyName = plotDid?.split(":")[2];
+            const plotCertificationFileName = plotDid?.split(":")[3];
+            const accessToken =
+                process.env.NODE_ENV === "test"
+                    ? "mock-access-token"
+                    : await AuthHelper.authenticationProgress();
+            const isExistedResponse = await ControllerHelper.isExisted({
+                accessToken: accessToken,
+                companyName: companyName,
+                fileName: plotCertificationFileName,
+            });
+            if (!isExistedResponse?.data?.isExisted) {
+                return res.status(200).json({
+                    isExisted: false,
+                    plotDid: plotDid,
+                });
+            }
+            const documentContentResponse = await getDocumentContentByDid({
+                accessToken: accessToken,
+                did: plotDid,
+            });
+            if (documentContentResponse?.error_code) {
+                return next(ERRORS?.CANNOT_FOUND_DID_DOCUMENT);
+            }
+            if (!documentContentResponse?.wrappedDoc?.mintingConfig) {
+                return next({
+                    ...ERRORS.CANNOT_GET_DOCUMENT_INFORMATION,
+                    detail: "Missing minting config!",
+                });
+            }
+            const mintingConfig =
+                documentContentResponse?.wrappedDoc?.mintingConfig;
+            const credentialResponse = await CardanoHelper.storeCredentials({
+                mintingConfig,
+                credentialHash: credential,
+                accessToken,
+            });
+            if (credentialResponse?.data?.code !== 0) {
+                return next({
+                    ...ERRORS.CREDENTIAL_FAILED,
+                    detail: credentialResponse?.data,
+                });
+            }
+            verifiedCredential.credentialSubject = {
+                claims: { ...verifiedCredential.credentialSubject.claims },
+                id: generateDid(companyName, credential),
+            };
+            const storeCredentialStatus =
+                await ControllerHelper.storeCredentials({
+                    payload: {
+                        ...verifiedCredential,
+                        id: generateDid(companyName, credential),
+                    },
+                    accessToken,
+                });
+            if (storeCredentialStatus?.data?.error_code) {
+                return next(storeCredentialStatus?.data);
+            }
+            logger.apiInfo(req, res, "Add claimant successfully!");
+            return res.status(200).json({
+                credentialHash: credential,
+                verifiedCredential: {
+                    ...verifiedCredential,
+                    id: generateDid(companyName, credential),
                 },
             });
         } catch (error) {

@@ -44,7 +44,7 @@ export default {
                 type: "object",
             },
         },
-        additionalProperties: false,
+        additionalProperties: true,
     },
     BURN_DATA: {
         type: "object",
@@ -98,7 +98,7 @@ export default {
     },
     CREATE_CREDENTIAL_DATA: {
         type: "object",
-        required: ["mintingConfig", "credential", "verifiedCredential"],
+        required: ["credential", "verifiedCredential"],
         properties: {
             mintingConfig: {
                 type: "object",

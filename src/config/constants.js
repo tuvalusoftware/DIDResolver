@@ -4,13 +4,11 @@ import {
     NOTIFICATION,
     NEW_WRAPPED_DOCUMENT,
     WRAPPED_DOCUMENT,
-    DID_DOCUMENT_OF_WRAPPED_DOCUMENT,
 } from "./schemas/index.js";
 
 export const SCHEMAS = {
     NEW_WRAPPED_DOCUMENT,
     WRAPPED_DOCUMENT,
-    DID_DOCUMENT_OF_WRAPPED_DOCUMENT,
     NOTIFICATION,
 };
 
@@ -81,6 +79,7 @@ export const REQUEST_TYPE = {
     UPDATE: "update",
     PLOT_MINT: "plot_mint",
     MINT_CREDENTIAL: "mint_credential",
+    ADD_CLAIMANT: "add_claimant",
 };
 
 export const ADMIN_PUBLIC_KEY = process.env.ADMIN_PUBLIC_KEY;

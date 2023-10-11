@@ -192,6 +192,15 @@ export const CONTROLLER_RESPONSE = {
         success: true,
         data: {},
     },
+    SUCCESS_WITHOUT_CONFIG: {
+        wrappedDoc: {
+            data: {},
+            signature: {},
+        },
+    },
+    IS_EXISTED: {
+        isExisted: true,
+    },
 };
 
 export const TASK_QUEUE_RESPONSE = {
@@ -204,6 +213,20 @@ export const TASK_QUEUE_RESPONSE = {
             did: "did:cardano:1234567890abcdef",
         },
     },
+    BAD_REQUEST: {
+        error_code: 4000,
+        error_message: "Bad request.",
+    },
+    ADD_CLAIMANT_DATA_IS_EXISTED: {
+        isExists: true,
+        data: {
+            verifiedCredential: {
+                credentialSubject: {
+                    id: "did:fuixlabs:COMMONLANDS_2:41dc24f184b647d4f204e81f4ec3f8034adbf42956bf30e17ad8f6f51e06159b",
+                },
+            },
+        },
+    },
 };
 
 export const REVOKE_DOCUMENT_REQUEST = {
@@ -213,5 +236,78 @@ export const REVOKE_DOCUMENT_REQUEST = {
         asset: "sampleAsset",
         txHash: "sampleTxHash",
         walletId: 2,
+    },
+};
+
+export const WRAPPED_DOCUMENT_REQUEST = {
+    INVALID_DOCUMENT: {
+        plot: {},
+        claimant: {},
+    },
+    VALID_DOCUMENT: {
+        plot: {
+            geojson: {
+                geometry: {
+                    type: "Polygon",
+                    coordinates: [[]],
+                },
+                type: "Feature",
+            },
+            centroid: [31.98217150319044, 1.4638796809080243],
+            _id: "64db86559e77a4ffc2395ada",
+            area: 1216.42,
+            placeName: "Nakasongola, Uganda",
+            createdAt: 1692108373160,
+            name: "VNZ-739",
+            id: "Plot:64db86559e77a4ffc2395adc",
+            isDisputed: true,
+            isBoundaryDispute: false,
+            isOwnershipDispute: true,
+            disputes: [
+                {
+                    plot: {
+                        geojson: {
+                            geometry: {
+                                type: "Polygon",
+                                coordinates: [[]],
+                            },
+                            type: "Feature",
+                        },
+                        centroid: [31.982128510355498, 1.463785108729324],
+                        _id: "64df16564b6bdbcb6559ebac",
+                        area: 1106.31,
+                        placeName: "Nakasongola, Uganda",
+                        createdAt: 1692341846551,
+                        name: "XTE-464",
+                        id: "Plot:64df16564b6bdbcb6559ebae",
+                        isBoundaryDispute: false,
+                        isOwnershipDispute: true,
+                    },
+                    type: "ownership",
+                },
+            ],
+            claimchainSize: 1,
+        },
+        claimant: {
+            documentation: {
+                nationalID: [],
+                driverLicense: [],
+                passport: [],
+            },
+            _id: "64db85b39e77a4ffc23959da",
+            phoneNumber: "+14088960050",
+            photoOfFace: "1692108209887-Darius%20Golkar.jpg",
+            avatar: "https://commonlands-dev-bucket-aws.s3.us-west-1.amazonaws.com/1692108209887-Darius%2520Golkar.jpg_avatar?X-Amz-Algorithm=AWS4-HMAC-SHA256&X-Amz-Content-Sha256=UNSIGNED-PAYLOAD&X-Amz-Credential=AKIAZBVJQENNESITE3MS%2F20230823%2Fus-west-1%2Fs3%2Faws4_request&X-Amz-Date=20230823T065041Z&X-Amz-Expires=604800&X-Amz-Signature=bc409ae32ddafef898259c211778e1c1750e0d340f6f0794028efcbf3377c472&X-Amz-SignedHeaders=host&x-id=GetObject",
+            publicKey:
+                "addr_test1qzj2pgqct6jwpvw7mjtjtess4nlmu385hzarszh9jxcv9eudvd5vt62wt4n97tqqcr43qs7d0v2eex2rkn763zzkys2swwrcxw",
+            fullName: "Darius Golkar",
+            gender: "male",
+            lastLogin: 1692108211,
+            firstLogin: false,
+            createdAt: 1692108211874,
+            did: "did:user:addr_test1qzj2pgqct6jwpvw7mjtjtess4nlmu385hzarszh9jxcv9eudvd5vt62wt4n97tqqcr43qs7d0v2eex2rkn763zzkys2swwrcxw",
+            oldNumbers: [],
+            role: "owner",
+        },
     },
 };

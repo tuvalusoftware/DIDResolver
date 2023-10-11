@@ -1,11 +1,9 @@
 // * Constants
-import { SERVERS, REQUEST_TYPE } from "../../config/constants.js";
+import { REQUEST_TYPE } from "../../config/constants.js";
 import { ERRORS } from "../../config/errors/error.constants.js";
 
 // * Utilities
 import axios from "axios";
-import fs from "fs";
-import { sha256 } from "js-sha256";
 import "dotenv/config";
 import {
     checkUndefinedVar,
@@ -15,37 +13,27 @@ import {
     validateDID,
 } from "../utils/index.js";
 import {
-    createDocumentForCommonlands,
     hashDocumentContent,
     isLastestCertificate,
     fetchEndorsementChain,
     createDocumentTaskQueue,
 } from "../utils/document.js";
-import FormData from "form-data";
 import { getAccountBySeedPhrase } from "../utils/lucid.js";
 import {
     getDocumentContentByDid,
-    updateDocumentDid,
     getDidDocumentByDid,
 } from "../utils/controller.js";
 import { createVerifiableCredential } from "../utils/credential.js";
-import {
-    createOwnerCertificate,
-    encryptPdf,
-    getPdfBufferFromUrl,
-    bufferToPDFDocument,
-    deleteFile,
-} from "../utils/pdf.js";
-import { deepUnsalt, unsalt } from "../../fuixlabs-documentor/utils/data.js";
+import { unsalt } from "../../fuixlabs-documentor/utils/data.js";
 import { generateDid } from "../../fuixlabs-documentor/utils/did.js";
 import logger from "../../../logger.js";
 import {
     AuthHelper,
-    CardanoHelper,
     ControllerHelper,
     TaskQueueHelper,
     VerifiableCredentialHelper,
 } from "../../helpers/index.js";
+import { validateJSONSchema } from "../utils/index.js";
 
 axios.defaults.withCredentials = true;
 
@@ -53,20 +41,14 @@ export default {
     getDocument: async (req, res, next) => {
         try {
             const { did } = req.params;
-            const undefinedVar = checkUndefinedVar({
-                did,
-            });
-            if (undefinedVar.undefined) {
-                return next({
-                    ...ERRORS.MISSING_PARAMETERS,
-                    detail: undefinedVar?.detail,
-                });
-            }
             const { valid } = validateDID(did);
             if (!valid) {
                 return next(ERRORS.INVALID_DID);
             }
-            const accessToken = await AuthHelper.authenticationProgress();
+            const accessToken =
+                process.env.NODE_ENV === "test"
+                    ? "mock-access-token"
+                    : await AuthHelper.authenticationProgress();
             const didDocumentResponse = await getDidDocumentByDid({
                 did: did,
                 accessToken: accessToken,
@@ -107,7 +89,7 @@ export default {
                           "Something went wrong!",
                   });
         }
-    },
+    }, //
     createPlotCertification: async (req, res, next) => {
         try {
             logger.apiInfo(req, res, `API Request: Create Plot Certification`);
@@ -128,7 +110,18 @@ export default {
                 res,
                 `Pdf file name: ${plotCertificationFileName}`
             );
-            const accessToken = await AuthHelper.authenticationProgress();
+            const accessToken =
+                process.env.NODE_ENV === "test"
+                    ? "mock-access-token"
+                    : await AuthHelper.authenticationProgress();
+            const isCronExists = await TaskQueueHelper.isExisted({
+                did: generateDid(companyName, plotCertificationFileName),
+            });
+            if (isCronExists?.data?.isExists) {
+                return res
+                    .status(200)
+                    .json(isCronExists?.data?.data?.claimants);
+            }
             const isExistedResponse = await ControllerHelper.isExisted({
                 accessToken: accessToken,
                 companyName: companyName,
@@ -144,7 +137,7 @@ export default {
                     accessToken: accessToken,
                     did: generateDid(companyName, plotCertificationFileName),
                 });
-                if (existedDidDoc?.data?.error_code) {
+                if (existedDidDoc?.error_code) {
                     return next(ERRORS?.CANNOT_FOUND_DID_DOCUMENT);
                 }
                 return res.status(200).json({
@@ -205,24 +198,26 @@ export default {
             if (!documentDid) {
                 return next(ERRORS.CANNOT_GET_DOCUMENT_INFORMATION);
             }
-            await TaskQueueHelper.sendMintingRequest({
-                data: {
-                    wrappedDocument,
-                    companyName,
-                    did: documentDid,
-                    plot,
-                },
-                type: REQUEST_TYPE.PLOT_MINT,
-                did: documentDid,
-            });
             const claimantsCredentialDids =
                 await VerifiableCredentialHelper.getCredentialDidsFromClaimants(
                     {
                         claimants: plot?.claimants,
                         did: documentDid,
                         companyName,
+                        plotId: plot?._id,
                     }
                 );
+            await TaskQueueHelper.sendMintingRequest({
+                data: {
+                    wrappedDocument,
+                    companyName,
+                    did: documentDid,
+                    plot,
+                    claimants: claimantsCredentialDids,
+                },
+                type: REQUEST_TYPE.PLOT_MINT,
+                did: documentDid,
+            });
             return res.status(200).json(claimantsCredentialDids);
         } catch (error) {
             error?.error_code
@@ -239,9 +234,8 @@ export default {
     updatePlotCertification: async (req, res, next) => {
         try {
             logger.apiInfo(req, res, `API Request: Update Plot Certification`);
-            const { originalDid, plot } = req.body;
+            const { plot } = req.body;
             const undefinedVar = checkUndefinedVar({
-                originalDid,
                 plot,
             });
             if (undefinedVar.undefined) {
@@ -250,268 +244,23 @@ export default {
                     detail: undefinedVar?.detail,
                 });
             }
-            const { valid } = validateDID(originalDid);
-            if (!valid) {
-                return next(ERRORS.INVALID_DID);
-            }
-            const accessToken = await AuthHelper.authenticationProgress();
-            const didContentResponse = await getDocumentContentByDid({
-                accessToken: accessToken,
-                did: originalDid,
-            });
-            if (didContentResponse?.error_code) {
-                return next(
-                    didContentResponse || ERRORS.CANNOT_GET_DOCUMENT_INFORMATION
-                );
-            }
-            if (!didContentResponse?.wrappedDoc?.mintingNFTConfig) {
-                return next({
-                    ...ERRORS.CANNOT_UPDATE_DOCUMENT_INFORMATION,
-                    detail: "Cannot get minting config from document",
-                });
-            }
-            const mintingConfig = {
-                ...didContentResponse?.wrappedDoc?.mintingNFTConfig,
-            };
-            mintingConfig.policy = {
-                ...mintingConfig.policy,
-                reuse: true,
-            };
-            logger.apiInfo(
-                req,
-                res,
-                `Minting config: ${JSON.stringify(mintingConfig)}`
-            );
-            const plotCertificationFileName = `PlotCertification-${plot?._id}`;
-            const companyName = process.env.COMPANY_NAME;
-            logger.apiInfo(
-                req,
-                res,
-                `Pdf file name: ${plotCertificationFileName}`
-            );
-            const isExistedResponse = await axios.get(
-                SERVERS.DID_CONTROLLER + "/api/doc/exists",
+            const { valid } = validateJSONSchema(
                 {
-                    withCredentials: true,
-                    headers: {
-                        Cookie: `access_token=${accessToken}`,
+                    type: "object",
+                    required: ["did"],
+                    properties: {
+                        did: {
+                            type: "string",
+                            format: "did",
+                        },
                     },
-                    params: {
-                        companyName: companyName,
-                        fileName: plotCertificationFileName,
-                    },
-                }
-            );
-            if (isExistedResponse?.data?.isExisted) {
-                logger.apiInfo(
-                    req,
-                    res,
-                    `Document ${plotCertificationFileName} existed`
-                );
-                const existedDidDoc = await getDidDocumentByDid({
-                    accessToken: accessToken,
-                    did: generateDid(companyName, plotCertificationFileName),
-                });
-                if (existedDidDoc?.data?.error_code) {
-                    return next(ERRORS?.CANNOT_FOUND_DID_DOCUMENT);
-                }
-                logger.apiInfo(
-                    req,
-                    res,
-                    `Pdf url of existed document: ${existedDidDoc?.didDoc?.pdfUrl}`
-                );
-                return res.status(200).json({
-                    url: existedDidDoc?.didDoc?.pdfUrl,
-                    isExisted: true,
-                });
-            }
-            let plotDetailForm = {
-                profileImage: "sampleProfileImage",
-                fileName: plotCertificationFileName,
-                name: `Land Certificate`,
-                title: `Land-Certificate-${plot?.name}`,
-                No: generateRandomString(plot._id, 7),
-                dateIssue: getCurrentDateTime(),
-                plotInformation: {
-                    plotName: plot?.name,
-                    plotId: plot?.id,
-                    plot_Id: plot?._id,
-                    plotStatus: "Free & Clear",
-                    plotPeople: "Verified by 3 claimants, 6 Neighbors",
-                    plotLocation: plot?.placeName,
-                    plotCoordinates: plot?.centroid?.join(","),
-                    plotNeighbors: plot?.neighbors?.length,
-                    plotClaimants: plot?.claimants?.length,
-                    plotDisputes: plot?.disputes?.length,
-                    plotStatus: plot?.status,
+                    additionalProperties: true,
                 },
-                certificateByCommonlands: {
-                    publicSignature: "commonlandsSignatureImage",
-                    name: "Commonlands System LLC",
-                    commissionNumber: "139668234",
-                    commissionExpiries: "09/12/2030",
-                },
-                certificateByCEO: {
-                    publicSignature: "ceoSignature",
-                    name: "Darius Golkar",
-                    commissionNumber: "179668234",
-                    commissionExpiries: "09/12/2030",
-                },
-            };
-            const { currentWallet, lucidClient } = await getAccountBySeedPhrase(
-                {
-                    seedPhrase: process.env.ADMIN_SEED_PHRASE,
-                }
+                plot
             );
-            const { wrappedDocument } = await createDocumentForCommonlands({
-                seedPhrase: process.env.ADMIN_SEED_PHRASE,
-                documents: [plotDetailForm],
-                address: getPublicKeyFromAddress(currentWallet?.paymentAddr),
-                access_token: accessToken,
-                client: lucidClient,
-                currentWallet: currentWallet,
-                companyName: companyName,
-                mintingConfig: mintingConfig,
-            });
-            const documentDid = generateDid(
-                companyName,
-                unsalt(wrappedDocument?.data?.fileName)
-            );
-            if (!documentDid) {
-                return next(ERRORS.CANNOT_GET_DOCUMENT_INFORMATION);
-            }
-            const updateMintingConfig = wrappedDocument?.mintingNFTConfig;
-            logger.apiInfo(
-                req,
-                res,
-                `Wrapped document ${JSON.stringify(wrappedDocument)}`
-            );
-            const claimants = plot?.claimants;
-            const promises = claimants.map(async (claimant) => {
-                const { credential } = await createVerifiableCredential({
-                    metadata: claimant,
-                    did: documentDid,
-                    subject: {
-                        object: documentDid,
-                        action: {
-                            code: 1,
-                            proofHash: documentHash,
-                        },
-                    },
-                    signData: {
-                        key: "0x1a2b3c4d5e6f7g8h9i0j1k2l3m4n5o6p7q8r9s0t",
-                        signature: "0x1a2b3c4d5e6f7g8h9i0j1k2l3m4n5o6p7q8r9s0t",
-                    },
-                    issuerKey: documentDid,
-                });
-                const verifiedCredential = {
-                    ...credential,
-                    timestamp: Date.now(),
-                };
-                const credentialHash = sha256(
-                    Buffer.from(
-                        JSON.stringify(verifiedCredential),
-                        "utf8"
-                    ).toString("hex")
-                );
-                const credentialResponse = await axios.post(
-                    SERVERS.CARDANO_SERVICE + "/api/v2/credential",
-                    {
-                        config: updateMintingConfig,
-                        credential: credentialHash,
-                    },
-                    {
-                        withCredentials: true,
-                        headers: {
-                            Cookie: `access_token=${accessToken};`,
-                        },
-                    }
-                );
-                if (credentialResponse?.data?.code !== 0) {
-                    return next({
-                        ...ERRORS.CREDENTIAL_FAILED,
-                        detail: credentialResponse?.data,
-                    });
-                }
-                const storeCredentialStatus = await axios.post(
-                    SERVERS.DID_CONTROLLER + "/api/credential",
-                    {
-                        hash: credentialHash,
-                        content: {
-                            ...verifiedCredential,
-                            mintingNFTConfig: credentialResponse?.data?.data,
-                        },
-                    },
-                    {
-                        headers: {
-                            Cookie: `access_token=${accessToken};`,
-                        },
-                    }
-                );
-                if (storeCredentialStatus?.data?.error_code) {
-                    return next(storeCredentialStatus?.data);
-                }
-                return credentialHash;
-            });
-            Promise.all(promises)
-                .then((data) => {
-                    return res.status(200).json({
-                        credentials: data,
-                        certificateDid: documentDid,
-                    });
-                })
-                .catch((error) => {
-                    return next({
-                        ...error,
-                        detail: "Cannot get certificate from claimant!",
-                    });
-                });
-        } catch (error) {
-            error?.error_code
-                ? next(error)
-                : next({
-                      error_code: 400,
-                      error_message:
-                          error?.error_message ||
-                          error?.message ||
-                          "Something went wrong!",
-                  });
-        }
-    },
-    getPlotCertification: async (req, res, next) => {
-        try {
-            const { did } = req.params;
-            const undefinedVar = checkUndefinedVar({
-                did,
-            });
-            if (undefinedVar.undefined) {
-                return next({
-                    ...ERRORS.MISSING_PARAMETERS,
-                    detail: undefinedVar?.detail,
-                });
-            }
-            const { valid } = validateDID(did);
             if (!valid) {
-                return next(ERRORS.INVALID_DID);
+                return next(ERRORS.INVALID_INPUT);
             }
-            const accessToken = await AuthHelper.authenticationProgress();
-            const didDocumentResponse = await getDidDocumentByDid({
-                did: did,
-                accessToken: accessToken,
-            });
-            if (didDocumentResponse?.error_code) {
-                return next(
-                    didDocumentResponse || ERRORS.CANNOT_GET_DID_DOCUMENT
-                );
-            }
-            const url = didDocumentResponse?.didDoc?.pdfUrl;
-            if (!url) {
-                return next(ERRORS.CANNOT_GET_CONTRACT_URL);
-            }
-            return res.status(200).json({
-                success: true,
-                url: url,
-            });
         } catch (error) {
             error?.error_code
                 ? next(error)
@@ -593,7 +342,7 @@ export default {
                           "Something went wrong!",
                   });
         }
-    },
+    }, //
     getEndorsementChainOfCertificate: async (req, res, next) => {
         try {
             logger.apiInfo(req, res, `API Request: Get Endorsement Chain`);
@@ -659,7 +408,7 @@ export default {
                           "Something went wrong!",
                   });
         }
-    },
+    }, // ...
     verifyCertificateQrCode: async (req, res, next) => {
         try {
             logger.apiInfo(req, res, `API Request: Verify Certificate Qr Code`);
@@ -728,4 +477,74 @@ export default {
                   });
         }
     },
+    addClaimantToCertificate: async (req, res, next) => {
+        try {
+            const { plotDid, claimant } = req.body;
+            const undefinedVar = checkUndefinedVar({
+                plotDid,
+                claimant,
+            });
+            if (undefinedVar.undefined) {
+                return next({
+                    ...ERRORS.MISSING_PARAMETERS,
+                    detail: undefinedVar?.detail,
+                });
+            }
+            const { valid } = validateDID(plotDid);
+            if (!valid) {
+                return next(ERRORS.INVALID_DID);
+            }
+            if (!plotDid || !claimant.did || !claimant.role) {
+                return next({
+                    ...ERRORS.MISSING_PARAMETERS,
+                    detail: "Invalid credential subject",
+                });
+            }
+            const plotId = plotDid.split(":")[3].split("-")[1];
+            const companyName = process.env.COMPANY_NAME;
+            const { verifiableCredential, credentialHash, did } =
+                await createVerifiableCredential({
+                    subject: {
+                        claims: {
+                            plot: plotId,
+                            ...claimant,
+                        },
+                    },
+                    issuerKey: plotDid,
+                });
+
+            console.log("here");
+            const isCronExists = await TaskQueueHelper.isExisted({
+                did,
+            });
+            if (isCronExists?.data?.isExists) {
+                return res.status(200).json({
+                    did: isCronExists?.data?.data?.verifiedCredential
+                        ?.credentialSubject?.id,
+                });
+            }
+            const taskQueueResponse = await TaskQueueHelper.sendMintingRequest({
+                data: {
+                    credential: credentialHash,
+                    verifiedCredential: verifiableCredential,
+                },
+                type: REQUEST_TYPE.ADD_CLAIMANT,
+                did: generateDid(companyName, credentialHash),
+            });
+
+            return res.status(200).json({
+                did: taskQueueResponse?.data?.data?.did,
+            });
+        } catch (error) {
+            error?.error_code
+                ? next(error)
+                : next({
+                      error_code: 400,
+                      error_message:
+                          error?.error_message ||
+                          error?.message ||
+                          "Something went wrong!",
+                  });
+        }
+    }, //
 };

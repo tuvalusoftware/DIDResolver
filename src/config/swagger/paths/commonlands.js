@@ -253,104 +253,97 @@ export const commonlandsPlotCertificate = {
                                 type: "object",
                                 example: {
                                     geojson: {
+                                        geometry: {
+                                            type: "Polygon",
+                                            coordinates: [
+                                                [
+                                                    [
+                                                        32.89857143565689,
+                                                        2.244113833686839,
+                                                    ],
+                                                    [
+                                                        32.89900324832544,
+                                                        2.2446677211748494,
+                                                    ],
+                                                    [
+                                                        32.89970011569531,
+                                                        2.2443908435462276,
+                                                    ],
+                                                    [
+                                                        32.89933548066452,
+                                                        2.2437632634924256,
+                                                    ],
+                                                    [
+                                                        32.89857143565689,
+                                                        2.244113833686839,
+                                                    ],
+                                                ],
+                                            ],
+                                        },
                                         type: "Feature",
                                     },
                                     centroid: [
-                                        31.98217150319044, 1.4638796809080243,
+                                        32.89915257008554, 2.2442339154750854,
                                     ],
-                                    _id: "64db86559e77a4ffc2395ada",
-                                    area: 1216.42,
-                                    placeName: "Nakasongola, Uganda",
-                                    createdAt: 1692108373160,
-                                    name: "VNZ-739",
-                                    id: "Plot:64db86559e77a4ffc2395adc",
-                                    isDisputed: true,
+                                    _id: "6523a50b6824bd6a3de9a562",
+                                    area: 6890.1,
+                                    placeName: "Bazaar East, Lira, Uganda",
+                                    status: "F&C",
+                                    creatorID: "65239fbf6824bd6a3de9a4da",
+                                    createdAt: 1696834827854,
+                                    name: "CLZ-398",
+                                    id: "Plot:6523a50b6824bd6a3de9a564",
+                                    did: null,
+                                    isDisputed: false,
+                                    isIssued: false,
                                     isBoundaryDispute: false,
-                                    isOwnershipDispute: true,
-                                    disputes: [{}],
-                                    claimchainSize: 1,
+                                    isOwnershipDispute: false,
+                                    disputes: [],
+                                    neighbors: [
+                                        {
+                                            _id: "6523ad82e70425ff378a46a2",
+                                            plotA: "6523a50b6824bd6a3de9a562",
+                                            plotB: "6523ace3e70425ff378a45dd",
+                                            createdAt: 1696836994157,
+                                            __v: 0,
+                                        },
+                                        {
+                                            _id: "6523aecbe70425ff378a48a5",
+                                            plotA: "6523ae5be70425ff378a482d",
+                                            plotB: "6523a50b6824bd6a3de9a562",
+                                            createdAt: 1696837323892,
+                                            __v: 0,
+                                        },
+                                    ],
                                     claimants: [
                                         {
-                                            id: "did:fuixlabs:commonlands:12345678901",
-                                            plot: "65191bba01a8fd1c431262a1",
-                                            user: "65191bba01a8fd1c431262a2",
-                                            type: "owner",
-                                            plotCertificate:
-                                                "did:fuixlabs:commonlands:09876",
-                                        },
-                                        {
-                                            id: "did:fuixlabs:commonlands:12345678902",
-                                            plot: "65191bba01a8fd1c431262a1",
-                                            user: "65191bba01a8fd1c431262a2",
-                                            type: "owner",
-                                            plotCertificate:
-                                                "did:fuixlabs:commonlands:09876",
-                                        },
-                                        {
-                                            id: "did:fuixlabs:commonlands:12345678903",
-                                            plot: "65191bba01a8fd1c431262a1",
-                                            user: "65191bba01a8fd1c431262a2",
-                                            type: "owner",
-                                            plotCertificate:
-                                                "did:fuixlabs:commonlands:09876",
-                                        },
-                                        {
-                                            id: "did:fuixlabs:commonlands:12345678904",
-                                            plot: "65191bba01a8fd1c431262a1",
-                                            user: "65191bba01a8fd1c431262a2",
-                                            type: "owner",
-                                            plotCertificate:
-                                                "did:fuixlabs:commonlands:09876",
-                                        },
-                                        {
-                                            id: "did:fuixlabs:commonlands:12345678905",
-                                            plot: "65191bba01a8fd1c431262a1",
-                                            user: "65191bba01a8fd1c431262a2",
-                                            type: "owner",
-                                            plotCertificate:
-                                                "did:fuixlabs:commonlands:09876",
-                                        },
-                                        {
-                                            id: "did:fuixlabs:commonlands:12345678906",
-                                            plot: "65191bba01a8fd1c431262a1",
-                                            user: "65191bba01a8fd1c431262a2",
-                                            type: "owner",
-                                            plotCertificate:
-                                                "did:fuixlabs:commonlands:09876",
-                                        },
-                                        {
-                                            id: "did:fuixlabs:commonlands:12345678907",
-                                            plot: "65191bba01a8fd1c431262a1",
-                                            user: "65191bba01a8fd1c431262a2",
-                                            type: "owner",
-                                            plotCertificate:
-                                                "did:fuixlabs:commonlands:09876",
-                                        },
-                                        {
-                                            id: "did:fuixlabs:commonlands:12345678908",
-                                            plot: "65191bba01a8fd1c431262a1",
-                                            user: "65191bba01a8fd1c431262a2",
-                                            type: "owner",
-                                            plotCertificate:
-                                                "did:fuixlabs:commonlands:09876",
-                                        },
-                                        {
-                                            id: "did:fuixlabs:commonlands:12345678909",
-                                            plot: "65191bba01a8fd1c431262a1",
-                                            user: "65191bba01a8fd1c431262a2",
-                                            type: "owner",
-                                            plotCertificate:
-                                                "did:fuixlabs:commonlands:09876",
-                                        },
-                                        {
-                                            id: "did:fuixlabs:commonlands:123456789010",
-                                            plot: "65191bba01a8fd1c431262a1",
-                                            user: "65191bba01a8fd1c431262a2",
-                                            type: "owner",
-                                            plotCertificate:
-                                                "did:fuixlabs:commonlands:09876",
+                                            documentation: {
+                                                nationalID: [],
+                                                driverLicense: [],
+                                                passport: [],
+                                            },
+                                            _id: "65239fbf6824bd6a3de9a4da",
+                                            publicKey:
+                                                "addr_test1qzz85cplvzxvx0scjj6gfj0w2rq3km4g2s6ag9yq7ptpxjasmrsqazt6hlxsh6d58xz0w0y05nq7awjpsmzn5dsy5gls7a53ut",
+                                            phoneNumber: "+84311111190",
+                                            fullName: "90",
+                                            did: "did:fuixlabs:commonlands:addr_test1qzz85cplvzxvx0scjj6gfj0w2rq3km4g2s6ag9yq7ptpxjasmrsqazt6hlxsh6d58xz0w0y05nq7awjpsmzn5dsy5gls7a53ut",
+                                            gender: "male",
+                                            lastLogin: 1696841941,
+                                            firstLogin: false,
+                                            oldNumbers: [],
+                                            createdAt: 1696833471144,
+                                            blockedPlots: [],
+                                            avatar: "https://commonlands-dev-bucket-aws.s3.us-west-1.amazonaws.com/1696833471171-avatar_90.jpg?X-Amz-Algorithm=AWS4-HMAC-SHA256&X-Amz-Content-Sha256=UNSIGNED-PAYLOAD&X-Amz-Credential=AKIAZBVJQENNESITE3MS%2F20231009%2Fus-west-1%2Fs3%2Faws4_request&X-Amz-Date=20231009T085839Z&X-Amz-Expires=604800&X-Amz-Signature=0d0ead359bbcb8ce98e0e65a6133158d6f9e155c832cbee5a4356c296d5d2198&X-Amz-SignedHeaders=host&x-id=GetObject",
+                                            photoOfFace: "1696833471170-90.jpg",
+                                            role: "owner",
+                                            landCertificateStatus: "awaiting",
+                                            claimsVC: null,
+                                            claimantID:
+                                                "6523a50b6824bd6a3de9a566",
                                         },
                                     ],
+                                    claimchainSize: 7,
                                 },
                             },
                         },

@@ -6,9 +6,14 @@ const router = express.Router();
 router.post("/revoke", taskQueueController.revokeDocument);
 router.post("/create", taskQueueController.createDocument);
 router.post("/plot-mint", taskQueueController.createPlotDocument);
+router.post("/add-claimant", taskQueueController.addClaimant);
 router.post(
-  "/claimant-credential",
-  taskQueueController.createClaimantCredential
+    "/claimant-credential",
+    taskQueueController.createClaimantCredential
+);
+router.post(
+    "/credential-policy",
+    taskQueueController.createClaimantCredentialWithPolicyId
 );
 
 export default router;

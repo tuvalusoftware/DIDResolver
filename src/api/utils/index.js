@@ -95,7 +95,6 @@ const getAddressFromHexEncoded = (hexAddress) => {
 const getPublicKeyFromAddress = (bech32Address) => {
     const address = cardanoSerialization.Address.from_bech32(bech32Address);
     const publicKey = Buffer.from(address.to_bytes(), "hex").toString("hex");
-    Logger.info(`Publickey from address ${bech32Address} is ${publicKey}`);
     return publicKey;
 };
 
@@ -336,7 +335,7 @@ const generateRandomDID = () => {
     const didMethod = "example";
 
     // Combine the method and specific ID to create the DID
-    const did = `did:${devCompanyName}:${companyName}${randomSpecificId}`;
+    const did = `did:${devCompanyName}:${companyName}:${randomSpecificId}`;
 
     return did;
 };

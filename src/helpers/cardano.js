@@ -134,4 +134,48 @@ export const CardanoHelper = {
             throw error;
         }
     },
+
+    /**
+     * Sends a POST request to the Cardano service to generate a random credential with a policy ID.
+     * @async
+     * @function
+     * @memberof CardanoHelper
+     * @param {Object} options - The options object.
+     * @param {Object} options.credentials - The credentials object.
+     * @param {Object} options.mintingConfig - The configuration object for minting the credential.
+     * @param {string} options.accessToken - The access token for authentication.
+     * @returns {Promise<Object>} - A promise that resolves to the credential response object.
+     */
+    storeCredentialsWithPolicyId: async ({
+        credentials,
+        mintingConfig,
+        accessToken,
+    }) => {
+        try {
+            /**
+             * Sends a POST request to the Cardano service to generate a random credential.
+             *
+             * @param {Object} mintingConfig - The configuration object for minting the credential.
+             * @param {Object} credentials - The credentials object.
+             * @param {string} accessToken - The access token for authentication.
+             * @returns {Promise<Object>} - A promise that resolves to the credential response object.
+             */
+            const credentialResponse = await axios.post(
+                SERVERS.CARDANO_SERVICE + "/api/v2/credentials",
+                {
+                    config: mintingConfig,
+                    credentials: credentials,
+                },
+                {
+                    withCredentials: true,
+                    headers: {
+                        Cookie: `access_token=${accessToken};`,
+                    },
+                }
+            );
+            return credentialResponse;
+        } catch (error) {
+            throw error;
+        }
+    },
 };

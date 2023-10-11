@@ -2,7 +2,10 @@ import express from "express";
 import documentController from "../controllers/documentController.js";
 
 const router = express.Router();
-
+router.post(
+    "/certificate/add-claimant",
+    documentController.addClaimantToCertificate
+);
 router.route("/hash").post(documentController.hashDocument);
 router.route("/lastest-version").post(documentController.checkLastestVersion);
 router
@@ -13,7 +16,7 @@ router.get(
     "/endorsement/:did",
     documentController.getEndorsementChainOfCertificate
 );
-router.get("/qrcode-verify", documentController.verifyCertificateQrCode);
+// router.get("/qrcode-verify", documentController.verifyCertificateQrCode);
 router.get("/:did", documentController.getDocument);
 
 export default router;

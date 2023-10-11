@@ -10,6 +10,7 @@ import {
 } from "../api/utils/verifiableCredential.js";
 import { ADMIN_PRIVATE_KEY, ADMIN_PUBLIC_KEY } from "../config/constants.js";
 import axios from "axios";
+import { createVerifiableCredential } from "../api/utils/credential.js";
 
 const { suite: DOMINIUM_SUITE, issuer: DOMINIUM_ISSUER } = await setUpSuite({
     private_key: ADMIN_PRIVATE_KEY,
@@ -112,36 +113,25 @@ export const VerifiableCredentialHelper = {
             throw e;
         }
     },
-    getCredentialDidsFromClaimants: async ({ claimants, did, companyName }) => {
+    getCredentialDidsFromClaimants: async ({
+        claimants,
+        did,
+        companyName,
+        plotId,
+    }) => {
         try {
             const promises = claimants.map(async (claimant) => {
-                const { credential } =
-                    await VerifiableCredentialHelper.createVerifiableCredential(
-                        {
-                            metadata: claimant,
-                            subject: {
-                                claims: claimant,
-                            },
-                            signData: {
-                                key: "0x1a2b3c4d5e6f7g8h9i0j1k2l3m4n5o6p7q8r9s0t",
-                                signature:
-                                    "0x1a2b3c4d5e6f7g8h9i0j1k2l3m4n5o6p7q8r9s0t",
-                            },
-                            issuerKey: did,
-                        }
-                    );
-                const verifiedCredential = {
-                    ...credential,
-                    timestamp: Date.now(),
-                };
-                const credentialHash = sha256(
-                    Buffer.from(
-                        JSON.stringify(verifiedCredential),
-                        "utf8"
-                    ).toString("hex")
-                );
+                const { credentialHash } = await createVerifiableCredential({
+                    subject: {
+                        claims: {
+                            plot: plotId,
+                            ...claimant,
+                        },
+                    },
+                    issuerKey: did,
+                });
                 return {
-                    userId: claimant?.id,
+                    userId: claimant?._id,
                     did: generateDid(companyName, credentialHash),
                 };
             });

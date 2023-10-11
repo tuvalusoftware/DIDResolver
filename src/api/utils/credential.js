@@ -36,9 +36,7 @@ const createVerifiableCredential = async ({ issuerKey, subject }) => {
             issuer: issuerKey,
         };
         const credentialHash = sha256(
-            Buffer.from(JSON.stringify(hashingCredential), "utf8").toString(
-                "hex"
-            )
+            Buffer.from(`$${subject.did}${issuerKey}`, "utf8").toString("hex")
         );
         const credential = {
             ...hashingCredential,
@@ -47,7 +45,10 @@ const createVerifiableCredential = async ({ issuerKey, subject }) => {
                 type: ["ClaimSubject"],
                 claims: {
                     type: ["Claims"],
-                    ...replaceKey(subject.claims, "type", "role"),
+                    plot: subject?.plot,
+                    user: subject?.did,
+                    role: subject?.role,
+                    plotCertificate: issuerKey,
                 },
             },
         };
@@ -59,7 +60,11 @@ const createVerifiableCredential = async ({ issuerKey, subject }) => {
                 : await VerifiableCredentialHelper.issueVerifiableCredential({
                       credential,
                   });
-        return { verifiableCredential, credentialHash };
+        return {
+            verifiableCredential,
+            credentialHash,
+            did: generateDid(COMPANY_NAME, credentialHash),
+        };
     } catch (e) {
         throw e;
     }

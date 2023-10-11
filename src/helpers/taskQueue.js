@@ -48,6 +48,10 @@ export const TaskQueueHelper = {
                     requestType = REQUEST_TYPE.PLOT_MINT;
                     verifierSchema = QUEUE_SCHEMA.MINT_DATA;
                     break;
+                case REQUEST_TYPE.ADD_CLAIMANT:
+                    requestType = REQUEST_TYPE.ADD_CLAIMANT;
+                    verifierSchema = QUEUE_SCHEMA.CREATE_CREDENTIAL_DATA;
+                    break;
                 default:
                     throw new Error("Invalid minting type.");
             }
@@ -64,6 +68,19 @@ export const TaskQueueHelper = {
                         did: did,
                     },
                 }
+            );
+            if (requestResponse?.data?.error_code) {
+                throw requestResponse.data || ERRORS.PUSH_TO_TASK_QUEUE_FAILED;
+            }
+            return requestResponse;
+        } catch (error) {
+            throw error;
+        }
+    },
+    isExisted: async ({ did }) => {
+        try {
+            const requestResponse = await axios.get(
+                SERVERS.TASK_QUEUE_SERVICE + `/api/db/isExists/${did}`
             );
             if (requestResponse?.data?.error_code) {
                 throw requestResponse.data || ERRORS.PUSH_TO_TASK_QUEUE_FAILED;
