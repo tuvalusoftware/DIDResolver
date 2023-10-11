@@ -83,15 +83,47 @@ export default {
     },
     UPDATE_DATA: {
         type: "object",
-        required: ["address", "amount"],
+        required: ["wrappedDocument", "companyName", "did"],
         properties: {
-            address: {
-                type: "string",
-                description: "address of the recipient",
+            wrappedDocument: {
+                type: "object",
+                required: ["data", "signature"],
+                properties: {
+                    data: {
+                        type: "object",
+                        required: ["fileName", "did", "title"],
+                    },
+                    signature: {
+                        type: "object",
+                        required: ["type", "targetHash", "proof", "merkleRoot"],
+                        properties: {
+                            type: {
+                                type: "string",
+                            },
+                            targetHash: {
+                                type: "string",
+                            },
+                            proof: {
+                                type: "array",
+                            },
+                            merkleRoot: {
+                                type: "string",
+                            },
+                        },
+                    },
+                },
             },
-            amount: {
-                type: "number",
-                description: "amount to update",
+            companyName: {
+                type: "string",
+            },
+            url: {
+                type: "string",
+            },
+            did: {
+                type: "string",
+            },
+            plot: {
+                type: "object",
             },
         },
         additionalProperties: true,

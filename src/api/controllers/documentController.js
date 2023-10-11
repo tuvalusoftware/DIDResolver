@@ -155,26 +155,12 @@ export default {
                     plotName: plot?.name,
                     plotId: plot?.id,
                     plot_Id: plot?._id,
-                    plotStatus: "Free & Clear",
-                    plotPeople: "Verified by 3 claimants, 6 Neighbors",
+                    plotStatus: plot?.status,
                     plotLocation: plot?.placeName,
                     plotCoordinates: plot?.centroid?.join(","),
                     plotNeighbors: plot?.neighbors?.length,
-                    plotClaimants: plot?.claimants?.length,
                     plotDisputes: plot?.disputes?.length,
                     plotStatus: plot?.status,
-                },
-                certificateByCommonlands: {
-                    publicSignature: "commonlandsSignatureImage",
-                    name: "Commonlands System LLC",
-                    commissionNumber: "139668234",
-                    commissionExpiries: "09/12/2030",
-                },
-                certificateByCEO: {
-                    publicSignature: "ceoSignature",
-                    name: "Darius Golkar",
-                    commissionNumber: "179668234",
-                    commissionExpiries: "09/12/2030",
                 },
             };
             const { currentWallet, lucidClient } = await getAccountBySeedPhrase(
@@ -251,7 +237,6 @@ export default {
                     properties: {
                         did: {
                             type: "string",
-                            format: "did",
                         },
                     },
                     additionalProperties: true,
@@ -261,6 +246,113 @@ export default {
             if (!valid) {
                 return next(ERRORS.INVALID_INPUT);
             }
+            const companyName = process.env.COMPANY_NAME;
+            const plotCertificationFileName = `PlotCertification-${
+                plot?._id
+            }-${generateRandomString(plot._id, 4)}`;
+            const documentDid = generateDid(
+                companyName,
+                plotCertificationFileName
+            );
+            const accessToken =
+                process.env.NODE_ENV === "test"
+                    ? "mock-access-token"
+                    : await AuthHelper.authenticationProgress();
+            const requestsResponse =
+                await TaskQueueHelper.findRequestsRelatedToDid({
+                    did: plot?.did,
+                });
+            const relatedRequests = requestsResponse?.data?.requests;
+            if (
+                relatedRequests?.length > 0 &&
+                relatedRequests.find(
+                    (request) =>
+                        request?.type === REQUEST_TYPE.UPDATE ||
+                        request?.did === documentDid
+                )
+            ) {
+                const cronedRequest = relatedRequests.find(
+                    (request) =>
+                        request?.type === REQUEST_TYPE.UPDATE ||
+                        request?.did === documentDid
+                );
+                return res.status(200).json(cronedRequest?.data?.claimants);
+            }
+            const documentContentResponse = await getDocumentContentByDid({
+                did: plot?.did,
+                accessToken: accessToken,
+            });
+            if (!documentContentResponse.wrappedDoc) {
+                return next(ERRORS.DOCUMENT_IS_NOT_EXISTED);
+            }
+            const mintingConfig = {
+                ...documentContentResponse?.wrappedDoc?.mintingNFTConfig,
+            };
+            if (!mintingConfig) {
+                return next({
+                    ...ERRORS.CANNOT_GET_DOCUMENT_INFORMATION,
+                    detail: "Missing minting config",
+                });
+            }
+            mintingConfig.policy = {
+                ...mintingConfig.policy,
+                reuse: true,
+            };
+            let plotDetailForm = {
+                profileImage: "sampleProfileImage",
+                fileName: plotCertificationFileName,
+                name: `Land Certificate`,
+                title: `Land-Certificate-${plot?.name}`,
+                No: generateRandomString(plot._id, 7),
+                dateIssue: getCurrentDateTime(),
+                plotInformation: {
+                    plotName: plot?.name,
+                    plotId: plot?.id,
+                    plot_Id: plot?._id,
+                    plotStatus: plot?.status,
+                    plotLocation: plot?.placeName,
+                    plotCoordinates: plot?.centroid?.join(","),
+                    plotNeighbors: plot?.neighbors?.length,
+                    plotDisputes: plot?.disputes?.length,
+                    plotStatus: plot?.status,
+                },
+            };
+            const { currentWallet, lucidClient } = await getAccountBySeedPhrase(
+                {
+                    seedPhrase: process.env.ADMIN_SEED_PHRASE,
+                }
+            );
+            const { wrappedDocument } = await createDocumentTaskQueue({
+                seedPhrase: process.env.ADMIN_SEED_PHRASE,
+                documents: [plotDetailForm],
+                address: getPublicKeyFromAddress(currentWallet?.paymentAddr),
+                access_token: accessToken,
+                client: lucidClient,
+                currentWallet: currentWallet,
+                companyName: companyName,
+            });
+            const claimantsCredentialDids =
+                await VerifiableCredentialHelper.getCredentialDidsFromClaimants(
+                    {
+                        claimants: plot?.claimants,
+                        did: documentDid,
+                        companyName,
+                        plotId: plot?._id,
+                    }
+                );
+            await TaskQueueHelper.sendMintingRequest({
+                data: {
+                    wrappedDocument,
+                    mintingConfig,
+                    companyName,
+                    did: documentDid,
+                    plot,
+                    claimants: claimantsCredentialDids,
+                },
+                type: REQUEST_TYPE.UPDATE,
+                did: documentDid,
+            });
+            return res.status(200).json(claimantsCredentialDids);
         } catch (error) {
             error?.error_code
                 ? next(error)
@@ -512,8 +604,6 @@ export default {
                     },
                     issuerKey: plotDid,
                 });
-
-            console.log("here");
             const isCronExists = await TaskQueueHelper.isExisted({
                 did,
             });

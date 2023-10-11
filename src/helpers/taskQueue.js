@@ -90,4 +90,18 @@ export const TaskQueueHelper = {
             throw error;
         }
     },
+    findRequestsRelatedToDid: async ({ did }) => {
+        try {
+            const requestsResponse = await axios.get(
+                SERVERS.TASK_QUEUE_SERVICE +
+                    `/api/db/findRequestsRelatedToDid/${did}`
+            );
+            if (requestsResponse?.data?.error_code) {
+                throw requestsResponse.data || ERRORS.PUSH_TO_TASK_QUEUE_FAILED;
+            }
+            return requestsResponse;
+        } catch (error) {
+            throw error;
+        }
+    },
 };
