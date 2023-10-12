@@ -1,17 +1,5 @@
 import "dotenv/config";
 
-import {
-    NOTIFICATION,
-    NEW_WRAPPED_DOCUMENT,
-    WRAPPED_DOCUMENT,
-} from "./schemas/index.js";
-
-export const SCHEMAS = {
-    NEW_WRAPPED_DOCUMENT,
-    WRAPPED_DOCUMENT,
-    NOTIFICATION,
-};
-
 export const PLOT_STATUSES = {
     "F&C": {
         label: "Free & Clear",

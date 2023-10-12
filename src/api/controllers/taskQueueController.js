@@ -18,7 +18,24 @@ import { createVerifiableCredential } from "../utils/credential.js";
 import { generateDid } from "../../fuixlabs-documentor/utils/did.js";
 import { CardanoHelper } from "../../helpers/index.js";
 
+/**
+ * Controller object containing functions for handling task queue requests.
+ */
+/**
+ * Controller object for task queue related functions.
+ * @namespace taskQueueController
+ */
 export default {
+    /**
+     * Revoke a document by burning its NFT.
+     * @async
+     * @function revokeDocument
+     * @memberof taskQueueController
+     * @param {Object} req - The request object.
+     * @param {Object} res - The response object.
+     * @param {Function} next - The next middleware function.
+     * @returns {Object} The response object with a status of 200 and a JSON object containing the "revoked" property set to true.
+     */
     revokeDocument: async (req, res, next) => {
         try {
             logger.apiInfo(req, res, "Request API: Request revoke document!");
@@ -60,6 +77,16 @@ export default {
                   });
         }
     },
+    /**
+     * Create a document by minting its NFT and storing its wrapped document.
+     * @async
+     * @function createDocument
+     * @memberof taskQueueController
+     * @param {Object} req - The request object.
+     * @param {Object} res - The response object.
+     * @param {Function} next - The next middleware function.
+     * @returns {Object} The response object with a status of 200 and a JSON object containing the "url" and "did" properties.
+     */
     createDocument: async (req, res, next) => {
         try {
             logger.apiInfo(req, res, "Request API: Request create document!");
@@ -152,6 +179,15 @@ export default {
                   });
         }
     },
+    /**
+     * Create a plot document by minting its NFT and storing its wrapped document.
+     * @async
+     * @function createPlotDocument
+     * @param {Object} req - The request object.
+     * @param {Object} res - The response object.
+     * @param {Function} next - The next middleware function.
+     * @returns {Object} The response object with a status of 200 and a JSON object containing the "url" and "did" properties.
+     */
     createPlotDocument: async (req, res, next) => {
         try {
             logger.apiInfo(
@@ -184,11 +220,12 @@ export default {
                 hash: wrappedDocument?.signature?.targetHash,
                 accessToken,
             });
+
             if (mintingResponse?.data?.code !== 0) {
-                throw {
+                return next({
                     ...ERRORS.CANNOT_MINT_NFT,
                     detail: mintingResponse?.data,
-                };
+                });
             }
             const mintingConfig = mintingResponse?.data?.data;
             const willWrappedDocument = {
@@ -210,6 +247,101 @@ export default {
                     storeWrappedDocumentStatus?.data ||
                         ERRORS.CANNOT_STORE_DOCUMENT
                 );
+            }
+            const claimants = plot?.claimants;
+            let claimantData = [];
+            if (claimants) {
+                const promises = claimants?.map(async (claimant) => {
+                    const { verifiableCredential, credentialHash } =
+                        await createVerifiableCredential({
+                            subject: {
+                                claims: {
+                                    plot: plot?._id,
+                                    ...claimant,
+                                },
+                            },
+                            issuerKey: did,
+                        });
+                    const taskQueueResponse =
+                        await TaskQueueHelper.sendMintingRequest({
+                            data: {
+                                mintingConfig,
+                                credential: credentialHash,
+                                verifiedCredential: verifiableCredential,
+                            },
+                            type: REQUEST_TYPE.MINT_CREDENTIAL,
+                            did: generateDid(companyName, credentialHash),
+                        });
+                    return taskQueueResponse?.data?.data?.did;
+                });
+                claimantData = await Promise.all(promises).catch((error) => {
+                    return next(ERRORS.CANNOT_CREATE_CREDENTIAL_FOR_CLAIMANT);
+                });
+            }
+            return res.status(200).json({
+                claimants: claimantData,
+                plot: did,
+            });
+        } catch (error) {
+            error?.error_code
+                ? next(error)
+                : next({
+                      error_code: 400,
+                      error_message:
+                          error?.error_message ||
+                          error?.message ||
+                          "Something went wrong!",
+                  });
+        }
+    },
+    updatePlotDocument: async (req, res, next) => {
+        try {
+            logger.apiInfo(req, res, "Request API: Request update plot!");
+            const { wrappedDocument, plot, did, companyName, mintingConfig } =
+                req.body;
+            const undefinedVar = checkUndefinedVar({
+                wrappedDocument,
+                plot,
+                did,
+                mintingConfig,
+                companyName,
+            });
+            if (undefinedVar.undefined) {
+                return next({
+                    ...ERRORS.MISSING_PARAMETERS,
+                    detail: undefinedVar.detail,
+                });
+            }
+            const accessToken =
+                process.env.NODE_ENV === "test"
+                    ? "mock-access-token"
+                    : await AuthHelper.authenticationProgress();
+            const updateResponse = await CardanoHelper.updateToken({
+                hash: wrappedDocument?.signature?.targetHash,
+                mintingConfig,
+                accessToken,
+                did,
+            });
+            if (updateResponse?.data?.code !== 0) {
+                return next({
+                    ...ERRORS.CANNOT_UPDATE_NFT,
+                    detail: updateResponse?.data,
+                });
+            }
+            const updateConfig = updateResponse?.data?.data;
+            let updateWrappedDocument = {
+                ...wrappedDocument,
+                mintingNFTConfig: updateConfig,
+            };
+            const fileName = did.split(":")[3];
+            const storeResponse = await ControllerHelper.storeDocument({
+                accessToken,
+                companyName,
+                fileName,
+                wrappedDocument: updateWrappedDocument,
+            });
+            if (storeResponse?.data?.error_code) {
+                return next(storeResponse?.data);
             }
             const claimants = plot?.claimants;
             let claimantData = [];

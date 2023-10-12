@@ -33,26 +33,6 @@ describe("DOCUMENT", function () {
                     done();
                 });
         });
-
-        // nock(SERVERS.DID_CONTROLLER)
-        //     .get("/api/doc")
-        //     .query({ companyName: "example", fileName: "example", only: "doc" })
-        //     .reply(200, CONTROLLER_RESPONSE.ERROR);
-        // it("It should return 'error response from controller'", (done) => {
-        //     chai.request(server)
-        //         .get("/resolver/commonlands/document/did:example:example:0x123")
-        //         .end((err, res) => {
-        //             res.should.have.status(200);
-        //             res.body.should.be.a("object");
-        //             res.body.should.have.property("error_code");
-        //             res.body.should.have.property("error_message");
-        //             expect(res.body.error_code).to.equal(
-        //                 CONTROLLER_RESPONSE.ERROR.error_code ||
-        //                     ERRORS.CANNOT_GET_DID_DOCUMENT.error_code
-        //             );
-        //             done();
-        //         });
-        // });
     });
 
     describe("POST /resolver/commonlands/document/hash", () => {
@@ -297,6 +277,41 @@ describe("DOCUMENT", function () {
                 .post("/resolver/commonlands/document/certificate")
                 .send(WRAPPED_DOCUMENT_REQUEST.VALID_DOCUMENT)
                 .end((err, res) => {
+                    done();
+                });
+        });
+    });
+
+    describe("/PUT update plot certificate", () => {
+        it("It should return 'Missing parameters error'", (done) => {
+            chai.request(server)
+                .put("/resolver/commonlands/document/certificate")
+                .send({})
+                .end((err, res) => {
+                    res.should.have.status(200);
+                    res.body.should.be.a("object");
+                    res.body.should.have.property("error_code");
+                    res.body.should.have.property("error_message");
+                    res.body.should.have.property("error_detail");
+                    expect(res.body.error_code).equal(
+                        ERRORS.MISSING_PARAMETERS.error_code
+                    );
+                    done();
+                });
+        });
+
+        it("It should return 'Invalid input'", (done) => {
+            chai.request(server)
+                .put("/resolver/commonlands/document/certificate")
+                .send(WRAPPED_DOCUMENT_REQUEST.INVALID_DOCUMENT)
+                .end((err, res) => {
+                    res.should.have.status(200);
+                    res.body.should.be.a("object");
+                    res.body.should.have.property("error_code");
+                    res.body.should.have.property("error_message");
+                    expect(res.body.error_code).equal(
+                        ERRORS.INVALID_INPUT.error_code
+                    );
                     done();
                 });
         });

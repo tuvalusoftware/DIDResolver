@@ -789,157 +789,11 @@ export const revokeCommonlandsDocument = {
     },
 };
 
-export const multipleCommonlandsDocumentSigning = {
+export const addClaimantToDocument = {
     post: {
         tags: ["Commonlands Document"],
-        summary: "Multiple sign a Land Certificate for the Commonlands Project",
-        requestBody: {
-            require: true,
-            content: {
-                "application/json": {
-                    schema: {
-                        type: "object",
-                        properties: {
-                            content: {
-                                type: "object",
-                                example: {},
-                            },
-                            claimants: {
-                                type: "array",
-                                example: [],
-                            },
-                        },
-                    },
-                },
-            },
-        },
-        responses: {
-            200: {
-                description:
-                    "Return an object include url of pdf file if success",
-                content: {
-                    "application/json": {
-                        examples: {
-                            "Multiple sign successfully": {
-                                value: {
-                                    url: "https://raw.githubusercontent.com/dev-fuixlabs/Commonlands_DOC/IMAGE/1692991473198_COMMONLANDS_2-LandCertificate-14088960050-64db86559e77a4ffc2395ada-30.pdf",
-                                    path: "1692991473198_COMMONLANDS_2-LandCertificate-14088960050-64db86559e77a4ffc2395ada-30.pdf",
-                                    message: "Multiple sign successfully",
-                                },
-                            },
-                            "Missing parameters": {
-                                value: {
-                                    error_code: 400,
-                                    error_message:
-                                        "Bad request. Missing parameters.",
-                                    detail: "Not found: owner",
-                                },
-                            },
-                        },
-                    },
-                },
-            },
-        },
-    },
-};
-
-export const commonlandsCredential = {
-    post: {
-        tags: ["Commonlands Credential"],
-        summary: "Create a credential for the Commonlands Project",
-        requestBody: {
-            require: true,
-            content: {
-                "application/json": {
-                    schema: {
-                        type: "object",
-                        properties: {
-                            metadata: {
-                                type: "object",
-                                example: {
-                                    name: "Land Certificate",
-                                    description:
-                                        "Land Certificate for the Commonlands Project",
-                                },
-                            },
-                            config: {
-                                type: "object",
-                                example: {
-                                    contractAddress:
-                                        "0x1a2b3c4d5e6f7g8h9i0j1k2l3m4n5o6p7q8r9s0t",
-                                    contractName: "Commonlands",
-                                    contractType: "ERC721",
-                                    contractSymbol: "CLNDS",
-                                },
-                            },
-                            did: {
-                                type: "string",
-                                example:
-                                    "did:cardano:addr_test1qzj2pgqct6jwpvw7mjtjtess4nlmu385hzarszh9jxcv9eudvd5vt62wt4n97tqqcr43qs7d0v2eex2rkn763zzkys2swwrcxw",
-                            },
-                            subject: {
-                                type: "object",
-                                example: {
-                                    address:
-                                        "0x1a2b3c4d5e6f7g8h9i0j1k2l3m4n5o6p7q8r9s0t",
-                                    subject: {
-                                        object: "0x1a2b3c4d5e6f7g8h9i0j1k2l3m4n5o6p7q8r9s0t",
-                                        action: {
-                                            code: 1,
-                                        },
-                                    },
-                                },
-                            },
-                            signData: {
-                                type: "object",
-                                example: {
-                                    key: "0x1a2b3c4d5e6f7g8h9i0j1k2l3m4n5o6p7q8r9s0t",
-                                    signature:
-                                        "0x1a2b3c4d5e6f7g8h9i0j1k2l3m4n5o6p7q8r9s0t",
-                                },
-                            },
-                            issuerKey: {
-                                type: "string",
-                                example:
-                                    "0x1a2b3c4d5e6f7g8h9i0j1k2l3m4n5o6p7q8r9s0t",
-                            },
-                        },
-                    },
-                },
-            },
-        },
-        responses: {
-            200: {
-                description:
-                    "Return an object include url of pdf file if success",
-                content: {
-                    "application/json": {
-                        examples: {
-                            "Create credential successfully": {
-                                value: {
-                                    message: "Successfully Saved",
-                                },
-                            },
-                            "Missing parameters": {
-                                value: {
-                                    error_code: 400,
-                                    error_message:
-                                        "Bad request. Missing parameters.",
-                                },
-                            },
-                        },
-                    },
-                },
-            },
-        },
-    },
-};
-
-export const commonlandsPdf = {
-    post: {
-        tags: ["Commonlands PDF"],
         summary:
-            "Hash the content of the PDF document along with the provided name, the hash of the wrapped document, and the associated DID document. Afterwards, store this combined data in an S3 bucket.",
+            "Add a claimant to a Land Certificate for the Commonlands Project using either a URL or a minting configuration.",
         requestBody: {
             require: true,
             content: {
@@ -947,596 +801,67 @@ export const commonlandsPdf = {
                     schema: {
                         type: "object",
                         properties: {
-                            pdfName: {
+                            plotDid: {
                                 type: "string",
                                 example:
-                                    "1692991473198_COMMONLANDS_2-LandCertificate-14088960050",
+                                    "did:fuixlabs:COMMONLANDS_2:64db86559e77a4ffc2395ada",
                             },
-                            targetHash: {
-                                type: "string",
-                                example:
-                                    "0x1a2b3c4d5e6f7g8h9i0j1k2l3m4n5o6p7q8r9s0t1u2v3w4x5y6z",
-                            },
-                            did: {
-                                type: "string",
-                                example:
-                                    "did:cardano:addr_test1qzj2pgqct6jwpvw7mjtjtess4nlmu385hzarszh9jxcv9eudvd5vt62wt4n97tqqcr43qs7d0v2eex2rkn763zzkys2swwrcxw",
-                            },
-                        },
-                    },
-                },
-            },
-        },
-        responses: {
-            200: {
-                description:
-                    "Return an object include hash of pdf file if success",
-                content: {
-                    "application/json": {
-                        examples: {
-                            "Save PDF file successfully ": {
-                                value: {
-                                    hash: "0x1a2b3c4d5e6f7g8h9i0j1k2l3m4n5o6p7q8r9s0t1u2v3w4x5y6z",
-                                },
-                            },
-                            "Missing parameters": {
-                                value: {
-                                    error_code: 400,
-                                    error_message:
-                                        "Bad request. Missing parameters.",
-                                    detail: "Not found: owner",
-                                },
-                            },
-                        },
-                    },
-                },
-            },
-        },
-    },
-    get: {
-        tags: ["Commonlands PDF"],
-        summary: "Get a PDF file from a hash",
-        description: "",
-        operationId: "getPdf",
-        parameters: [
-            {
-                name: "did",
-                in: "path",
-                description: "did of the pdf file",
-                required: true,
-                schema: {
-                    type: "string",
-                },
-            },
-        ],
-        responses: {
-            200: {
-                description: "Return a PDF file if success",
-                content: {
-                    "application/json": {
-                        examples: {
-                            "Get PDF file successfully": {
-                                value: {
-                                    url: "https://raw.githubusercontent.com/dev-fuixlabs/Commonlands_DOC/IMAGE/1695204643781_TESTING_COMMONLANDS-LandCertificate-14088960050-64db86559e77a4ffc2395ada_103.pdf",
-                                },
-                            },
-                            "Missing parameters": {
-                                value: {
-                                    error_code: 400,
-                                    error_message:
-                                        "Bad request. Missing parameters.",
-                                    detail: "Not found: did",
-                                },
-                            },
-                            "Invalid DID": {
-                                value: {
-                                    error_code: 400,
-                                    error_message: "Invalid DID",
-                                },
-                            },
-                            "Cannot get document information": {
-                                value: {
-                                    error_code: 400,
-                                    error_message:
-                                        "Cannot get document information",
-                                },
-                            },
-                        },
-                    },
-                },
-            },
-        },
-    },
-};
-
-export const verifyCommonlandsPdf = {
-    post: {
-        tags: ["Commonlands PDF"],
-        summary:
-            "Verify the existence of the provided URL and subsequently validate the PDF obtained from that URL.",
-        requestBody: {
-            require: true,
-            content: {
-                "application/json": {
-                    schema: {
-                        type: "object",
-                        properties: {
-                            url: {
-                                type: "string",
-                                example:
-                                    "https://raw.githubusercontent.com/dev-fuixlabs/Commonlands_DOC/IMAGE/1692991473198_COMMONLANDS_2-LandCertificate-14088960050-64db86559e77a4ffc2395ada-30.pdf",
-                            },
-                        },
-                    },
-                },
-            },
-        },
-        responses: {
-            200: {
-                description:
-                    "Return an object include isValid is true if success",
-                content: {
-                    "application/json": {
-                        examples: {
-                            "Verify PDF file successfully": {
-                                value: {
-                                    isValid: true,
-                                },
-                            },
-                            "Missing parameters": {
-                                value: {
-                                    error_code: 400,
-                                    error_message:
-                                        "Bad request. Missing parameters.",
-                                },
-                            },
-                            "This PDF file is not valid!": {
-                                value: {
-                                    error_code: 400,
-                                    error_message:
-                                        "This PDF file is not valid!",
-                                },
-                            },
-                        },
-                    },
-                },
-            },
-        },
-    },
-};
-
-export const verifyUploadedCommonlandsPdf = {
-    post: {
-        tags: ["Commonlands PDF"],
-        summary: "",
-        requestBody: {
-            content: {
-                "multipart/form-data": {
-                    schema: {
-                        type: "object",
-                        properties: {
-                            file: {
-                                type: "string",
-                                format: "binary",
-                            },
-                        },
-                    },
-                },
-            },
-        },
-        responses: {
-            200: {
-                description:
-                    "Return an object include isValid is true if success",
-                content: {
-                    "application/json": {
-                        examples: {
-                            "Verify PDF file successfully": {
-                                value: {
-                                    isValid: true,
-                                },
-                            },
-                            "This PDF file is not valid!": {
-                                value: {
-                                    error_code: 400,
-                                    error_message:
-                                        "This PDF file is not valid!",
-                                },
-                            },
-                            "Missing parameters": {
-                                value: {
-                                    error_code: 400,
-                                    error_message: "Missing file.",
-                                },
-                            },
-                        },
-                    },
-                },
-            },
-        },
-    },
-};
-
-export const blockDocument = {
-    post: {
-        tags: ["Commonlands Document"],
-        summary: "Block a Commonlands Document",
-        description: "",
-        operationId: "blockDocument",
-        requestBody: {
-            require: true,
-            content: {
-                "application/json": {
-                    schema: {
-                        type: "object",
-                        properties: {
-                            did: {
-                                type: "string",
-                                example:
-                                    "did:fuixlabs:COMMONLANDS_2:Contract-sample_id_11",
-                            },
-                        },
-                    },
-                },
-            },
-        },
-        responses: {
-            200: {
-                description: "Return a object include status of block contract",
-                content: {
-                    "application/json": {
-                        examples: {
-                            "Block document success": {
-                                value: {
-                                    message:
-                                        "Block document did:fuixlabs:COMMONLANDS_2:Contract-sample_id_11 successfully",
-                                },
-                            },
-                            "Missing parameters": {
-                                value: {
-                                    error_code: 400,
-                                    message: "Missing parameters",
-                                    detail: "Not found: did",
-                                },
-                            },
-                            "Invalid DID": {
-                                value: {
-                                    error_code: 400,
-                                    message: "Invalid DID",
-                                },
-                            },
-                            "Cannot get document information": {
-                                value: {
-                                    error_code: 400,
-                                    message: "Cannot get document information",
-                                },
-                            },
-                        },
-                    },
-                },
-            },
-        },
-    },
-};
-
-export const checkDocumentBlockStatus = {
-    post: {
-        tags: ["Commonlands Document"],
-        summary: "Check status of block document",
-        description: "",
-        operationId: "checkBlockStatus",
-        requestBody: {
-            require: true,
-            content: {
-                "application/json": {
-                    schema: {
-                        type: "object",
-                        properties: {
-                            did: {
-                                type: "string",
-                                example:
-                                    "did:fuixlabs:COMMONLANDS_2:Contract-sample_id_11",
-                            },
-                        },
-                    },
-                },
-            },
-        },
-        responses: {
-            200: {
-                description: "Return a object include status of block document",
-                content: {
-                    "application/json": {
-                        examples: {
-                            "Document is blocked": {
-                                value: {
-                                    isBlocked: true,
-                                },
-                            },
-                            "Document is not blocked": {
-                                value: {
-                                    isBlocked: false,
-                                },
-                            },
-                            "Missing parameters": {
-                                value: {
-                                    error_code: 400,
-                                    message: "Missing parameters",
-                                    detail: "Not found: did",
-                                },
-                            },
-                            "Invalid DID": {
-                                value: {
-                                    error_code: 400,
-                                    message: "Invalid DID",
-                                },
-                            },
-                            "Cannot get document information": {
-                                value: {
-                                    error_code: 400,
-                                    message: "Cannot get document information",
-                                },
-                            },
-                        },
-                    },
-                },
-            },
-        },
-    },
-};
-
-export const checkLastestVersion = {
-    post: {
-        tags: ["Commonlands Document"],
-        summary: "Check lastest version of document",
-        requestBody: {
-            require: true,
-            content: {
-                "application/json": {
-                    schema: {
-                        type: "object",
-                        properties: {
-                            did: {
-                                type: "string",
-                                example:
-                                    "did:fuixlabs:COMMONLANDS_2:Contract-sample_id_11",
-                            },
-                            hash: {
-                                type: "string",
-                                example:
-                                    "0x1a2b3c4d5e6f7g8h9i0j1k2l3m4n5o6p7q8r9s0t1u2v3w4x5y6z",
-                            },
-                        },
-                    },
-                },
-            },
-        },
-        responses: {
-            200: {
-                description: "Return a object include status of block document",
-                content: {
-                    "application/json": {
-                        examples: {
-                            "Document is lastest version": {
-                                value: {
-                                    valid: true,
-                                    verifier_message:
-                                        "This is the latest version of the document",
-                                },
-                            },
-                            "Document is not lastest version": {
-                                value: {
-                                    valid: false,
-                                    verifier_message:
-                                        "This is the latest version of the document",
-                                },
-                            },
-                            "Missing parameters": {
-                                value: {
-                                    ...ERRORS.MISSING_PARAMETERS,
-                                    detail: "Not found: did",
-                                },
-                            },
-                            "Invalid DID": {
-                                value: ERRORS.INVALID_DID,
-                            },
-                            "Cannot get document information": {
-                                value: ERRORS.CANNOT_FOUND_DID_DOCUMENT,
-                            },
-                        },
-                    },
-                },
-            },
-        },
-    },
-    get: {
-        tags: ["Commonlands Document"],
-        summary: "Get lastest version of document",
-        description: "",
-        operationId: "getLastestVersion",
-        parameters: [
-            {
-                name: "did",
-                in: "query",
-                description: "did of the certificate",
-                required: true,
-                schema: {
-                    type: "string",
-                },
-            },
-        ],
-        responses: {
-            200: {
-                description: "Return a object include status of block document",
-                content: {
-                    "application/json": {
-                        examples: {
-                            "Get lastest version successfully": {
-                                value: {
-                                    data: {
-                                        profileImage:
-                                            "59ae2729-5eb7-494e-a9ff-28f50725d930:string:sampleProfileImage",
-                                        fileName:
-                                            "052eca0c-5a7b-42dc-8344-c6ba41157efb:string:14088960050-64db86559e77a4f95ada",
-                                        name: "11ba3e36-c3dd-4594-bf12-5a96284a481a:string:Land Certificate",
-                                        title: "a04c26b0-cb31-42c0-9807-ef27c7aa7a5c:string:Land-Certificate-VNZ-739",
-                                        No: "4bb4b5f5-5a9c-4135-9f7d-05fa3adcb216:string:cb00fac",
-                                        dateIssue:
-                                            "c42e68b5-2425-4093-8ec4-5962dd022bf2:string:2023-09-28 16:52:47",
-                                        avatar: "177927d7-181b-443b-b78a-76fa41f42481:string:https://commonlands-dev-bucket-aws.s3.us-west-1.amazonaws.com/1692108209887-Darius%2520Golkar.jpg_avatar?X-Amz-Algorithm=AWS4-HMAC-SHA256&X-Amz-Content-Sha256=UNSIGNED-PAYLOAD&X-Amz-Credential=AKIAZBVJQENNESITE3MS%2F20230823%2Fus-west-1%2Fs3%2Faws4_request&X-Amz-Date=20230823T065041Z&X-Amz-Expires=604800&X-Amz-Signature=bc409ae32ddafef898259c211778e1c1750e0d340f6f0794028efcbf3377c472&X-Amz-SignedHeaders=host&x-id=GetObject",
-                                        personalInformation: {
-                                            claimant:
-                                                "415bb159-fc70-438c-b16e-cec3016496a7:string:Darius Golkar",
-                                            right: "d426487c-deae-4f10-872a-3bea28f2cabe:string:owner",
-                                            phoneNumber:
-                                                "c4d1db9c-7b8f-4852-810d-8c1f00eb167c:string:+14088960050",
-                                            claimrank:
-                                                "14a8dc4c-e1f4-41d6-8d47-9c844186f19e:string:okay",
-                                            description:
-                                                "07741a6e-969b-44b7-9cc0-72cba1598a02:string:Okay is the starting point. This level may have some boundaries unverified and may include one boundary dispute. If there is an ownership dispute of a plot but and one of the owners is part of a claimchain and the other’s has not completed a claimchain, the completed claimchain person will be listed as Okay. ",
-                                        },
-                                        plotInformation: {
-                                            plotName:
-                                                "95547746-4be8-4d11-83a9-e357ce7b00ae:string:VNZ-739",
-                                            plotId: "2e1087d6-2a8e-4baa-a656-4af6f31a0ad1:string:Plot:64db86559e77a4ffc2395adc",
-                                            plot_Id:
-                                                "c80894ca-d733-4fb7-b8a9-4fa0c85cb0fa:string:64db86559e77a4f95ada",
-                                            plotPeople:
-                                                "9115de0a-fd78-4ff6-9474-f5b27d2d9b11:string:Verified by 3 claimants, 6 Neighbors",
-                                            plotLocation:
-                                                "c560a201-b454-49f8-9399-4fed7dc7a40d:string:Nakasongola, Uganda",
-                                            plotCoordinates:
-                                                "3857a7c7-6edb-43f1-a1b1-4b56b618121d:string:31.98217150319044,1.4638796809080243",
-                                            plotDisputes:
-                                                "0cb11431-e695-49a0-aabb-48a225addf3e:number:1",
-                                        },
-                                        certificateByCommonlands: {
-                                            publicSignature:
-                                                "d7b9daa5-e4ea-4b3e-b03a-87e0c3b5b4a7:string:commonlandsSignatureImage",
-                                            name: "bf1353c3-13c8-47bd-aa0d-f991d03da8a2:string:Commonlands System LLC",
-                                            commissionNumber:
-                                                "72c3a3ee-4e03-4f57-872b-5aa6e3fb04de:string:139668234",
-                                            commissionExpiries:
-                                                "dfbb7c42-2b48-4f73-a146-a54266d0da9f:string:09/12/2030",
-                                        },
-                                        certificateByCEO: {
-                                            publicSignature:
-                                                "56b0aabe-3cc7-43ba-9564-8749a299a491:string:ceoSignature",
-                                            name: "fd804d2b-a03f-4d09-94c3-f5b64d032fcb:string:Darius Golkar",
-                                            commissionNumber:
-                                                "58d05aa8-5e74-49c6-ba26-39e91aea0919:string:179668234",
-                                            commissionExpiries:
-                                                "c7a1006c-8de6-4299-976a-7a0070578108:string:09/12/2030",
-                                        },
-                                        companyName:
-                                            "72b0c867-5dad-48b7-95ac-826712239195:string:COMMONLANDS_2",
-                                        intention:
-                                            "87eb29c0-7150-4d80-bc48-65d6a0d3a98d:string:trade",
-                                        did: "fe2eee52-fe16-4c7f-82c0-be7fbf505bb7:string:did:fuixlabs:COMMONLANDS_2:14088960050-64db86559e77a4f95ada",
-                                        issuers: [
-                                            {
-                                                identityProofType: {
-                                                    type: "9a764e38-05bf-4150-b9e3-37cd6ef56296:string:DID",
-                                                    did: "5eea57b1-2055-4c54-8738-4ce9d6f7ec35:string:did:fuixlabs:COMMONLANDS_2:00f6eeddadb8e07074d189629b43df0dd913c3d3087e7f00ccf58f98f149abe31f60b335bae8ca10853ab35cc2ee332c850dee261af01bc287",
-                                                },
-                                                address:
-                                                    "005632d4-4afb-4088-9ff9-24f0592d59d1:string:00f6eeddadb8e07074d189629b43df0dd913c3d3087e7f00ccf58f98f149abe31f60b335bae8ca10853ab35cc2ee332c850dee261af01bc287",
-                                            },
-                                        ],
+                            claimant: {
+                                type: "object",
+                                example: {
+                                    documentation: {
+                                        nationalID: [],
+                                        driverLicense: [],
+                                        passport: [],
                                     },
-                                    signature: {
-                                        type: "SHA3MerkleProof",
-                                        targetHash:
-                                            "205d3654d4c6ab243e278e77b2fb634db6c144d86c6432f0d77a8d077e13cf63",
-                                        proof: [
-                                            {
-                                                signature: {
-                                                    signature:
-                                                        "845846a201276761646472657373583900f6eeddadb8e07074d189629b43df0dd913c3d3087e7f00ccf58f98f149abe31f60b335bae8ca10853ab35cc2ee332c850dee261af01bc287a166686173686564f458d07b2261646472657373223a22303066366565646461646238653037303734643138393632396234336466306464393133633364333038376537663030636366353866393866313439616265333166363062333335626165386361313038353361623335636332656533333263383530646565323631616630316263323837222c2274617267657448617368223a2232303564333635346434633661623234336532373865373762326662363334646236633134346438366336343332663064373761386430373765313363663633227d5840fa9c32099728c260c6a17dd00c377275754023e795f62899f63b1cacdc85f1cea7f26225626981336e144f1a8ba3fe6dbcc2239b6aeac72edd4eccc4b091fd09",
-                                                    key: "a4010103272006215820f56c617d008d43a084591da0591987361d7a2a539fc832d266198077234ff207",
-                                                },
-                                            },
-                                        ],
-                                        merkleRoot:
-                                            "205d3654d4c6ab243e278e77b2fb634db6c144d86c6432f0d77a8d077e13cf63",
-                                    },
-                                    timestamp: 1695894768593,
-                                    url: "https://raw.githubusercontent.com/dev-fuixlabs/Commonlands_DOC/IMAGE/1695894824119_COMMONLANDS_2-14088960050-64db86559e77a4f95ada.pdf",
+                                    _id: "5f45cfdbfbb6cf2f7002a5621_1",
+                                    publicKey:
+                                        "addr_test1qp7abcd1234efgh5678ijkl90mnopqrstuvwx",
+                                    phoneNumber: "+1987654321",
+                                    fullName: "John Doe",
+                                    did: "did:user:addr_test1qp7abcd1234efgh5678ijkl90mnopqrstuvwx",
+                                    gender: "male",
+                                    photoOfFace: "1234567890-John%20Doe.jpg",
+                                    avatar: "https://aws-storage.s3.region-7.amazonaws.com/1234567890-John%20Doe.jpg_avatar",
+                                    lastLogin: 1692263912,
+                                    firstLogin: false,
+                                    createdAt: 1692263912031,
+                                    oldNumbers: [],
+                                    blockedPlots: [],
+                                    role: "renter",
                                 },
-                            },
-                            "Missing parameters": {
-                                value: {
-                                    ...ERRORS.MISSING_PARAMETERS,
-                                    detail: "Not found: did",
-                                },
-                            },
-                            "Invalid DID": {
-                                value: ERRORS.INVALID_DID,
-                            },
-                            "Cannot get document information": {
-                                value: ERRORS.CANNOT_FOUND_DID_DOCUMENT,
                             },
                         },
                     },
                 },
             },
         },
-    },
-};
-
-export const verifyCertificateQrcode = {
-    get: {
-        tags: ["Commonlands Document"],
-        summary: "Verify a certificate by QR code",
-        description: "",
-        operationId: "verifyCertificateQrcode",
-        parameters: [
-            {
-                name: "did",
-                in: "query",
-                description: "did of the certificate",
-                required: true,
-                schema: {
-                    type: "string",
-                },
-            },
-            {
-                name: "hash",
-                in: "query",
-                description: "hash of the certificate",
-                required: true,
-                schema: {
-                    type: "string",
-                },
-            },
-        ],
         responses: {
             200: {
-                description: "Return a object include status of block document",
+                description:
+                    "Return an object include revoked is true if success",
                 content: {
                     "application/json": {
                         examples: {
-                            "Certificate is valid": {
+                            "Add claimant to document successfully": {
                                 value: {
                                     success: true,
-                                    success_message: "Document is valid",
-                                    isValid: true,
-                                },
-                            },
-                            "Certificate is invalid": {
-                                value: {
-                                    ...ERRORS.CERTIFICATE_IS_NOT_VALID,
-                                    detail: "This is not the latest version of the document;",
                                 },
                             },
                             "Missing parameters": {
                                 value: {
-                                    ...ERRORS.MISSING_PARAMETERS,
-                                    detail: "Not found: did",
+                                    error_code: 400,
+                                    error_message:
+                                        "Bad request. Missing parameters.",
+                                    detail: "Not found: owner",
                                 },
                             },
-                            "Invalid DID": {
-                                value: ERRORS.INVALID_DID,
+                            "Add claimant to document failed": {
+                                value: {
+                                    error_code: 400,
+                                    error_message:
+                                        "Bad request. Add claimant to document failed.",
+                                },
                             },
                         },
                     },

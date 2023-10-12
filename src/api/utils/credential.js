@@ -3,14 +3,10 @@ import axios from "axios";
 import { getCredential } from "../utils/controller.js";
 import { sha256 } from "js-sha256";
 import { VerifiableCredentialHelper } from "../../helpers/credential.js";
-import { generateRandomDID, replaceKey } from "./index.js";
+import { generateRandomDID } from "./index.js";
 
 // * Constants
-import {
-    SERVERS,
-    COMPANY_NAME,
-    DEV_COMPANY_NAME,
-} from "../../config/constants.js";
+import { SERVERS, COMPANY_NAME } from "../../config/constants.js";
 import { generateDid } from "../../fuixlabs-documentor/utils/did.js";
 import logger from "../../../logger.js";
 
@@ -26,6 +22,7 @@ import logger from "../../../logger.js";
  */
 const createVerifiableCredential = async ({ issuerKey, subject }) => {
     try {
+        logger.info(JSON.stringify(subject));
         const credentialDid = generateRandomDID();
         let hashingCredential = {
             "@context": [
@@ -37,7 +34,10 @@ const createVerifiableCredential = async ({ issuerKey, subject }) => {
             issuer: issuerKey,
         };
         const credentialHash = sha256(
-            Buffer.from(`$${subject?.claims?.did}${issuerKey}`, "utf8").toString("hex")
+            Buffer.from(
+                `$${subject?.claims?.did}${issuerKey}`,
+                "utf8"
+            ).toString("hex")
         );
         const credential = {
             ...hashingCredential,

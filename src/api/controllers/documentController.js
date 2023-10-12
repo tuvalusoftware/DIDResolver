@@ -114,6 +114,7 @@ export default {
                 process.env.NODE_ENV === "test"
                     ? "mock-access-token"
                     : await AuthHelper.authenticationProgress();
+
             const isCronExists = await TaskQueueHelper.isExisted({
                 did: generateDid(companyName, plotCertificationFileName),
             });
@@ -291,7 +292,7 @@ export default {
                 return next(ERRORS.DOCUMENT_IS_NOT_EXISTED);
             }
             const mintingConfig = {
-                ...documentContentResponse?.wrappedDoc?.mintingNFTConfig,
+                ...documentContentResponse?.wrappedDoc?.mintingConfig,
             };
             if (!mintingConfig) {
                 return next({
@@ -576,6 +577,11 @@ export default {
     },
     addClaimantToCertificate: async (req, res, next) => {
         try {
+            logger.apiInfo(
+                req,
+                res,
+                `API Request: Add Claimant To Certificate`
+            );
             const { plotDid, claimant } = req.body;
             const undefinedVar = checkUndefinedVar({
                 plotDid,
@@ -626,7 +632,6 @@ export default {
                 type: REQUEST_TYPE.ADD_CLAIMANT,
                 did: generateDid(companyName, credentialHash),
             });
-
             return res.status(200).json({
                 did: taskQueueResponse?.data?.data?.did,
             });

@@ -178,4 +178,37 @@ export const CardanoHelper = {
             throw error;
         }
     },
+
+    /**
+     * Update the hash, config, and DID on the Cardano service.
+     * @param {string} hash - The hash to update.
+     * @param {Object} mintingConfig - The minting configuration object.
+     * @param {string} did - The DID to update.
+     * @param {string} accessToken - The access token for authentication.
+     * @returns {Promise<Object>} - The response object from the Cardano service.
+     */
+    updateToken: async ({ hash, accessToken, mintingConfig, did }) => {
+        try {
+            const didComponents = did.split(":");
+            const updateResponse = await axios.put(
+                SERVERS.CARDANO_SERVICE + "/api/v2/hash/",
+                {
+                    newHash: hash,
+                    config: {
+                        ...mintingConfig,
+                        burn: false,
+                    },
+                },
+                {
+                    withCredentials: true,
+                    headers: {
+                        Cookie: `access_token=${accessToken};`,
+                    },
+                }
+            );
+            return updateResponse;
+        } catch (error) {
+            throw error;
+        }
+    },
 };
