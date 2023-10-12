@@ -12,6 +12,7 @@ import {
     DEV_COMPANY_NAME,
 } from "../../config/constants.js";
 import { generateDid } from "../../fuixlabs-documentor/utils/did.js";
+import logger from "../../../logger.js";
 
 /**
  * Create credential to authenticate the exchange of document ownership between the owner and the holders
@@ -36,7 +37,7 @@ const createVerifiableCredential = async ({ issuerKey, subject }) => {
             issuer: issuerKey,
         };
         const credentialHash = sha256(
-            Buffer.from(`$${subject.did}${issuerKey}`, "utf8").toString("hex")
+            Buffer.from(`$${subject?.claims?.did}${issuerKey}`, "utf8").toString("hex")
         );
         const credential = {
             ...hashingCredential,
@@ -45,9 +46,9 @@ const createVerifiableCredential = async ({ issuerKey, subject }) => {
                 type: ["ClaimSubject"],
                 claims: {
                     type: ["Claims"],
-                    plot: subject?.plot,
-                    user: subject?.did,
-                    role: subject?.role,
+                    plot: subject?.claims?.plot,
+                    user: subject?.claims?.did,
+                    role: subject?.claims?.role,
                     plotCertificate: issuerKey,
                 },
             },

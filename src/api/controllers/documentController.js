@@ -117,6 +117,11 @@ export default {
             const isCronExists = await TaskQueueHelper.isExisted({
                 did: generateDid(companyName, plotCertificationFileName),
             });
+            logger.apiInfo(
+                req,
+                res,
+                isCronExists?.data
+            );
             if (isCronExists?.data?.isExists) {
                 return res
                     .status(200)
