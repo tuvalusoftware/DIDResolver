@@ -48,7 +48,7 @@ export default {
     },
     BURN_DATA: {
         type: "object",
-        required: ["type", "policy", "asset", "txHash"],
+        // required: ["type", "policy", "asset", "txHash"],
         properties: {
             type: {
                 type: "string",
@@ -79,7 +79,7 @@ export default {
                 type: "string",
             },
         },
-        additionalProperties: false,
+        additionalProperties: true,
     },
     UPDATE_DATA: {
         type: "object",

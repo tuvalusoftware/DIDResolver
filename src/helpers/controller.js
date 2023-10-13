@@ -1,9 +1,15 @@
 import { SERVERS } from "../config/constants.js";
+import { ERRORS } from "../config/errors/error.constants.js";
+import { validateDIDSyntax } from "../api/utils/index.js";
 import axios from "axios";
 axios.defaults.withCredentials = true;
 
 /**
  * A helper object containing methods for interacting with the DID Controller API.
+ * @namespace ControllerHelper
+ */
+/**
+ * A helper object that contains methods for interacting with the DID Controller API.
  * @namespace ControllerHelper
  */
 export const ControllerHelper = {
@@ -101,6 +107,116 @@ export const ControllerHelper = {
             return storeWrappedDocumentStatus;
         } catch (error) {
             throw error;
+        }
+    },
+    /**
+     * Retrieves the content of a document with the given DID from the DID Controller API.
+     * @async
+     * @memberof ControllerHelper
+     * @method
+     * @param {Object} options - The options object.
+     * @param {string} options.accessToken - The access token for authentication.
+     * @param {string} options.did - The DID of the document to retrieve.
+     * @returns {Promise} A promise that resolves with the response from the API.
+     * @throws {Error} An error occurred while retrieving the document.
+     */
+    getDocumentContent: async ({ accessToken, did }) => {
+        try {
+            const validDid = validateDIDSyntax(did, false),
+                companyName = validDid?.companyName,
+                fileName = validDid?.fileNameOrPublicKey;
+            if (!validDid.valid) {
+                throw ERRORS.INVALID_INPUT;
+            }
+            const documentResponse = await axios.get(
+                SERVERS.DID_CONTROLLER + "/api/doc",
+                {
+                    withCredentials: true,
+                    headers: {
+                        Cookie: `access_token=${accessToken}`,
+                    },
+                    params: { companyName, fileName, only: "doc" },
+                }
+            );
+            if (documentResponse?.data?.error_code) {
+                throw documentResponse?.data;
+            }
+            return documentResponse;
+        } catch (error) {
+            throw error;
+        }
+    },
+    getDocumentDid: async ({ accessToken, did }) => {
+        try {
+            const validDid = validateDIDSyntax(did, false),
+                companyName = validDid.companyName,
+                fileName = validDid.fileNameOrPublicKey;
+            if (!validDid.valid) {
+                throw ERRORS.INVALID_INPUT;
+            }
+            const documentResponse = await axios.get(
+                SERVERS.DID_CONTROLLER + "/api/doc",
+                {
+                    withCredentials: true,
+                    headers: {
+                        Cookie: `access_token=${accessToken}`,
+                    },
+                    params: { companyName, fileName, only: "did" },
+                }
+            );
+            if (documentResponse?.data?.error_code) {
+                throw documentResponse.data;
+            }
+            return documentResponse;
+        } catch (e) {
+            throw e;
+        }
+    },
+    updateDocumentDid: async ({ did, accessToken, didDoc }) => {
+        try {
+            const didComponents = did.split(":");
+            const companyName = didComponents[2];
+            const fileName = didComponents[3];
+            const createUserDidReq = await axios.put(
+                SERVERS.DID_CONTROLLER + "/api/doc",
+                {
+                    companyName,
+                    fileName,
+                    didDoc: didDoc,
+                },
+                {
+                    withCredentials: true,
+                    headers: {
+                        Cookie: `access_token=${accessToken};`,
+                    },
+                }
+            );
+            if (createUserDidReq?.data?.error_code) {
+                throw createUserDidReq.data;
+            }
+            return createUserDidReq;
+        } catch (e) {
+            throw e;
+        }
+    },
+    getCredentialContent: async ({ accessToken, did }) => {
+        try {
+            console.log("did", did);
+            const credentialResponse = await axios.get(
+                SERVERS.DID_CONTROLLER + `/api/credential/${did}`,
+                {
+                    withCredentials: true,
+                    headers: {
+                        Cookie: `access_token=${accessToken};`,
+                    },
+                }
+            );
+            if (credentialResponse?.data?.error_code) {
+                throw credentialResponse?.data;
+            }
+            return credentialResponse;
+        } catch (e) {
+            throw e;
         }
     },
 };

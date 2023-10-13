@@ -545,6 +545,32 @@ export const commonlandsPlotCertificate = {
             },
         },
     },
+    delete: {
+        tags: ["Commonlands Document"],
+        summary:
+            "Delete a Plot Certificate for the Commonlands Project. This function serves as a wrapper for the DID Document",
+        requestBody: {
+            require: true,
+            content: {
+                "application/json": {
+                    schema: {
+                        type: "object",
+                        properties: {
+                            did: {
+                                type: "string",
+                            },
+                        },
+                    },
+                },
+            },
+        },
+        responses: {
+            200: {
+                description:
+                    "Return an array include credential'hashes if success",
+            },
+        },
+    },
 };
 
 export const hashDocumentContent = {

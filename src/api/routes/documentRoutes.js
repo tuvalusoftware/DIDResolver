@@ -11,12 +11,12 @@ router.route("/lastest-version").post(documentController.checkLastestVersion);
 router
     .route("/certificate")
     .post(documentController.createPlotCertification)
-    .put(documentController.updatePlotCertification);
+    .put(documentController.updatePlotCertification)
+    .delete(documentController.revokePlotCertification);
 router.get(
     "/endorsement/:did",
     documentController.getEndorsementChainOfCertificate
 );
-// router.get("/qrcode-verify", documentController.verifyCertificateQrCode);
 router.get("/:did", documentController.getDocument);
 
 export default router;

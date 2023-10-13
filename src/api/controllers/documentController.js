@@ -89,7 +89,7 @@ export default {
                           "Something went wrong!",
                   });
         }
-    }, //
+    },
     createPlotCertification: async (req, res, next) => {
         try {
             logger.apiInfo(req, res, `API Request: Create Plot Certification`);
@@ -118,11 +118,7 @@ export default {
             const isCronExists = await TaskQueueHelper.isExisted({
                 did: generateDid(companyName, plotCertificationFileName),
             });
-            logger.apiInfo(
-                req,
-                res,
-                isCronExists?.data
-            );
+            logger.apiInfo(req, res, isCronExists?.data);
             if (isCronExists?.data?.isExists) {
                 return res
                     .status(200)
@@ -371,6 +367,46 @@ export default {
                   });
         }
     },
+    revokePlotCertification: async (req, res, next) => {
+        try {
+            logger.apiInfo(req, res, `API Request: Revoke Plot Certification`);
+            const { did } = req.body;
+            const undefinedVar = checkUndefinedVar({
+                did,
+            });
+            if (undefinedVar.undefined) {
+                return next({
+                    ...ERRORS.MISSING_PARAMETERS,
+                    detail: undefinedVar?.detail,
+                });
+            }
+            const { valid } = validateDID(did);
+            if (!valid) {
+                return next(ERRORS.INVALID_DID);
+            }
+            const taskQueueResponse = await TaskQueueHelper.sendMintingRequest({
+                data: {
+                    did,
+                },
+                type: REQUEST_TYPE.BURN,
+                did: did,
+            });
+            console.log(taskQueueResponse?.data);
+            return res.status(200).json({
+                success: true,
+            });
+        } catch (error) {
+            error?.error_code
+                ? next(error)
+                : next({
+                      error_code: 400,
+                      error_message:
+                          error?.error_message ||
+                          error?.message ||
+                          "Something went wrong!",
+                  });
+        }
+    },
     hashDocument: async (req, res, next) => {
         try {
             const { plot, claimant } = req.body;
@@ -440,7 +476,7 @@ export default {
                           "Something went wrong!",
                   });
         }
-    }, //
+    },
     getEndorsementChainOfCertificate: async (req, res, next) => {
         try {
             logger.apiInfo(req, res, `API Request: Get Endorsement Chain`);
@@ -506,7 +542,7 @@ export default {
                           "Something went wrong!",
                   });
         }
-    }, // ...
+    },
     verifyCertificateQrCode: async (req, res, next) => {
         try {
             logger.apiInfo(req, res, `API Request: Verify Certificate Qr Code`);
@@ -646,5 +682,5 @@ export default {
                           "Something went wrong!",
                   });
         }
-    }, //
+    },
 };

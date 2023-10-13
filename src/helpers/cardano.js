@@ -100,7 +100,7 @@ export const CardanoHelper = {
                 },
             }
         );
-        if (!data?.data[0]?.asset) {
+        if (data?.code !== 0) {
             throw ERRORS.CANNOT_FETCH_NFT;
         }
     },
