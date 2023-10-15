@@ -18,7 +18,7 @@ let expect = chai.expect;
 describe("DOCUMENT", function () {
     this.timeout(0);
 
-    describe("GET /resolver/commonlands/document", () => {
+    describe("/GET Get document by given did", () => {
         it("It should return 'Invalid did syntax'", (done) => {
             chai.request(server)
                 .get("/resolver/commonlands/document/123")
@@ -33,9 +33,56 @@ describe("DOCUMENT", function () {
                     done();
                 });
         });
+
+        nock(SERVERS.DID_CONTROLLER)
+            .get("/api/doc")
+            .query(
+                (object) => object.companyName && object.fileName && object.only
+            )
+            .reply(200, CONTROLLER_RESPONSE.ERROR);
+        it("It should return 'Error from Controller' when server request to get did of document", (done) => {
+            chai.request(server)
+                .get("/resolver/commonlands/document/did:example:ethr:0x123")
+                .end((err, res) => {
+                    res.should.have.status(200);
+                    res.body.should.be.a("object");
+                    res.body.should.have.property("error_code");
+                    res.body.should.have.property("error_message");
+                    expect(JSON.stringify(res.body)).to.equal(
+                        JSON.stringify(CONTROLLER_RESPONSE.ERROR)
+                    );
+                    done();
+                });
+        });
+
+        nock(SERVERS.DID_CONTROLLER)
+            .get("/api/doc")
+            .query(
+                (object) => object.companyName && object.fileName && object.only
+            )
+            .reply(200, CONTROLLER_RESPONSE.SUCCESS);
+        it("It should return 'Object include hash and did of request document's did'", (done) => {
+            chai.request(server)
+                .get("/resolver/commonlands/document/did:example:ethr:0x123")
+                .end((err, res) => {
+                    res.should.have.status(200);
+                    res.body.should.be.a("object");
+                    res.body.should.not.have.property("error_code");
+                    res.body.should.not.have.property("error_message");
+                    res.body.should.not.have.property("error_detail");
+                    expect(JSON.stringify(res.body)).to.equal(
+                        JSON.stringify({
+                            hash: CONTROLLER_RESPONSE.SUCCESS.wrappedDoc
+                                .signature.targetHash,
+                            did: "did:example:ethr:0x123",
+                        })
+                    );
+                    done();
+                });
+        });
     });
 
-    describe("POST /resolver/commonlands/document/hash", () => {
+    describe("/POST Return hash of given document content", () => {
         it('It should return "Invalid did syntax"', (done) => {
             chai.request(server)
                 .post("/resolver/commonlands/document/hash")
@@ -85,7 +132,7 @@ describe("DOCUMENT", function () {
         });
     });
 
-    describe("/POST /resolver/commonlands/document/latest-version", () => {
+    describe("/POST Check dose the given document'did is the last version of its endorsement chain", () => {
         it("It should return 'Missing parameters error'", (done) => {
             chai.request(server)
                 .post("/resolver/commonlands/document/lastest-version")
@@ -119,7 +166,7 @@ describe("DOCUMENT", function () {
         });
     });
 
-    describe("/POST /resolver/commonlands/document/certificate/add-claimant", () => {
+    describe("/POST Add claimant into created wrapped document", () => {
         it("It should return 'Missing parameters error'", (done) => {
             chai.request(server)
                 .post("/resolver/commonlands/document/certificate/add-claimant")
@@ -250,7 +297,7 @@ describe("DOCUMENT", function () {
         // });
     });
 
-    describe("/POST create plot certificate", () => {
+    describe("/POST Create certificate for plot by given information", () => {
         it("It should return 'Missing parameters error'", (done) => {
             chai.request(server)
                 .post("/resolver/commonlands/document/certificate")
@@ -282,7 +329,7 @@ describe("DOCUMENT", function () {
         });
     });
 
-    describe("/PUT update plot certificate", () => {
+    describe("/PUT Update certificate for plot by given information", () => {
         it("It should return 'Missing parameters error'", (done) => {
             chai.request(server)
                 .put("/resolver/commonlands/document/certificate")
@@ -312,6 +359,39 @@ describe("DOCUMENT", function () {
                     expect(res.body.error_code).equal(
                         ERRORS.INVALID_INPUT.error_code
                     );
+                    done();
+                });
+        });
+    });
+
+    describe("/DELETE Revoke certificate for plot by given information", () => {
+        it("It should return 'Missing parameters error'", (done) => {
+            chai.request(server)
+                .delete("/resolver/commonlands/document/certificate")
+                .send({})
+                .end((err, res) => {
+                    res.should.have.status(200);
+                    res.body.should.be.a("object");
+                    res.body.should.have
+                        .property("error_code")
+                        .equal(ERRORS.MISSING_PARAMETERS.error_code);
+                    res.body.should.have.property("error_message");
+                    res.body.should.have.property("error_detail");
+                    done();
+                });
+        });
+
+        it("It should return 'Invalid DID'", (done) => {
+            chai.request(server)
+                .delete("/resolver/commonlands/document/certificate")
+                .send({ did: "123" })
+                .end((err, res) => {
+                    res.should.have.status(200);
+                    res.body.should.be.a("object");
+                    res.body.should.have
+                        .property("error_code")
+                        .equal(ERRORS.INVALID_DID.error_code);
+                    res.body.should.have.property("error_message");
                     done();
                 });
         });

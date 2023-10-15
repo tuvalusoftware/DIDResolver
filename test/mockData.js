@@ -181,6 +181,271 @@ export const CARDANO_RESPONSES = {
         code: 1,
         error_message: "Error from cardano service",
     },
+    ENDORSEMENT_CHAIN_RESPONSE: {
+        code: 0,
+        data: [
+            {
+                asset: "bb5e38d3da281634c8eade0a289651840e14802a7c04bba894a582c6cb4032a26e998a43c9bcb1e7dbe3e570492b79348e0eb9eb724fadb3930fcfdf",
+                policyId:
+                    "bb5e38d3da281634c8eade0a289651840e14802a7c04bba894a582c6",
+                assetName:
+                    "280406fb598c8a325806bbb93e63ee6e815d958c5e118a5eea471a84addc3271",
+                readableAssetName: "�@2�n��Cɼ�����pI+y4�\x0E��rO���\x0F��",
+                fingerprint: "asset1dqmrfvjr7l98y7qu4p70ea0jkdfu9ulyjk4a78",
+                quantity: 1,
+                initialMintTxHash:
+                    "030e9ccba3b428860aa67018450cae57d0107b0c2b977d78576f312bfde21ae0",
+                mintOrBurnCount: 1,
+                onchainMetadata: {
+                    ttl: 3195103530,
+                    name: "280406fb598c8a325806bbb93e63ee6e815d958c5e118a5eea471a84addc3271",
+                    type: "document",
+                    files: [Object],
+                    image: "ipfs://QmPnRTjGG7h8YKmVa94gyC3Yc1Xz1hf1uq4QZwgpeTq9D2",
+                    attach: "280406fb598c8a325806bbb93e63ee6e815d958c5e118a5eea471a84addc3271",
+                    policy: "bb5e38d3da281634c8eade0a289651840e14802a7c04bba894a582c6",
+                    version: 0,
+                    mediaType: "image/png",
+                    timestamp: 1697186730855,
+                    description: "Fuixlab's wrap document",
+                },
+                originalOnchainMetadata: {
+                    ttl: 3195103530,
+                    name: "280406fb598c8a325806bbb93e63ee6e815d958c5e118a5eea471a84addc3271",
+                    type: "document",
+                    files: [Object],
+                    image: "ipfs://QmPnRTjGG7h8YKmVa94gyC3Yc1Xz1hf1uq4QZwgpeTq9D2",
+                    attach: "280406fb598c8a325806bbb93e63ee6e815d958c5e118a5eea471a84addc3271",
+                    policy: "bb5e38d3da281634c8eade0a289651840e14802a7c04bba894a582c6",
+                    version: 0,
+                    mediaType: "image/png",
+                    timestamp: 1697186730855,
+                    description: "Fuixlab's wrap document",
+                },
+                metadata: {},
+            },
+            {
+                asset: "bb5e38d3da281634c8eade0a289651840e14802a7c04bba894a582c6280406fb598c8a325806bbb93e63ee6e815d958c5e118a5eea471a84addc3271",
+                policyId:
+                    "bb5e38d3da281634c8eade0a289651840e14802a7c04bba894a582c6",
+                assetName:
+                    "280406fb598c8a325806bbb93e63ee6e815d958c5e118a5eea471a84addc3271",
+                readableAssetName:
+                    "(\x04\x06�Y��2X\x06��>c�n�]��^\x11�^�G\x1A���2q",
+                fingerprint: "asset14rlv287jyvdvrf80rpnyhq96yqs25edqmglhx9",
+                quantity: 1,
+                initialMintTxHash:
+                    "72195fcc7eb555bdd200f65978dd3bd8807d4412cf2c84618444f3d35f87eeb9",
+                mintOrBurnCount: 1,
+                onchainMetadata: {
+                    ttl: 3195103530,
+                    name: "280406fb598c8a325806bbb93e63ee6e815d958c5e118a5eea471a84addc3271",
+                    type: "document",
+                    files: [Object],
+                    image: "ipfs://QmPnRTjGG7h8YKmVa94gyC3Yc1Xz1hf1uq4QZwgpeTq9D2",
+                    attach: "280406fb598c8a325806bbb93e63ee6e815d958c5e118a5eea471a84addc3271",
+                    policy: "bb5e38d3da281634c8eade0a289651840e14802a7c04bba894a582c6",
+                    version: 1,
+                    previous:
+                        "cb4032a26e998a43c9bcb1e7dbe3e570492b79348e0eb9eb724fadb3930fcfdf",
+                    mediaType: "image/png",
+                    timestamp: 1697186941637,
+                    description: "Fuixlab's Wrap Document",
+                },
+                originalOnchainMetadata: {
+                    ttl: 3195103530,
+                    name: "280406fb598c8a325806bbb93e63ee6e815d958c5e118a5eea471a84addc3271",
+                    type: "document",
+                    files: [Object],
+                    image: "ipfs://QmPnRTjGG7h8YKmVa94gyC3Yc1Xz1hf1uq4QZwgpeTq9D2",
+                    attach: "280406fb598c8a325806bbb93e63ee6e815d958c5e118a5eea471a84addc3271",
+                    policy: "bb5e38d3da281634c8eade0a289651840e14802a7c04bba894a582c6",
+                    version: 1,
+                    previous:
+                        "cb4032a26e998a43c9bcb1e7dbe3e570492b79348e0eb9eb724fadb3930fcfdf",
+                    mediaType: "image/png",
+                    timestamp: 1697186941637,
+                    description: "Fuixlab's Wrap Document",
+                },
+                metadata: {},
+            },
+            {
+                asset: "bb5e38d3da281634c8eade0a289651840e14802a7c04bba894a582c65f951b5fe386f8158f35d8a11de2520c86c17c2e8a1c61fb45297700ce8bf973",
+                policyId:
+                    "bb5e38d3da281634c8eade0a289651840e14802a7c04bba894a582c6",
+                assetName:
+                    "5f951b5fe386f8158f35d8a11de2520c86c17c2e8a1c61fb45297700ce8bf973",
+                readableAssetName:
+                    "_�\x1B_��\x15�5ء\x1D�R\f��|.�\x1Ca�E)w\x00΋�s",
+                fingerprint: "asset100yepyqlt2ehdv2mvdt292a4q947lg5wv5phlh",
+                quantity: 1,
+                initialMintTxHash:
+                    "4ae9ede13d3de6927e084c28da3109ac46fe46327b40bcf2613369b1003c453c",
+                mintOrBurnCount: 1,
+                onchainMetadata: {
+                    ttl: 3195103530,
+                    name: "5f951b5fe386f8158f35d8a11de2520c86c17c2e8a1c61fb45297700ce8bf973",
+                    type: "credential",
+                    files: [Object],
+                    image: "ipfs://QmPnRTjGG7h8YKmVa94gyC3Yc1Xz1hf1uq4QZwgpeTq9D2",
+                    index: 0,
+                    owner: "cb4032a26e998a43c9bcb1e7dbe3e570492b79348e0eb9eb724fadb3930fcfdf",
+                    attach: "5f951b5fe386f8158f35d8a11de2520c86c17c2e8a1c61fb45297700ce8bf973",
+                    policy: "bb5e38d3da281634c8eade0a289651840e14802a7c04bba894a582c6",
+                    mediaType: "image/png",
+                    timestamp: 1697186972723,
+                    description: "Fuixlab's credential",
+                },
+                originalOnchainMetadata: {
+                    ttl: 3195103530,
+                    name: "5f951b5fe386f8158f35d8a11de2520c86c17c2e8a1c61fb45297700ce8bf973",
+                    type: "credential",
+                    files: [Object],
+                    image: "ipfs://QmPnRTjGG7h8YKmVa94gyC3Yc1Xz1hf1uq4QZwgpeTq9D2",
+                    index: 0,
+                    owner: "cb4032a26e998a43c9bcb1e7dbe3e570492b79348e0eb9eb724fadb3930fcfdf",
+                    attach: "5f951b5fe386f8158f35d8a11de2520c86c17c2e8a1c61fb45297700ce8bf973",
+                    policy: "bb5e38d3da281634c8eade0a289651840e14802a7c04bba894a582c6",
+                    mediaType: "image/png",
+                    timestamp: 1697186972723,
+                    description: "Fuixlab's credential",
+                },
+                metadata: {},
+            },
+        ],
+    },
+    LASTEST_VERSION_RESPONSE: {
+        code: 0,
+        data: [
+            {
+                asset: "bb5e38d3da281634c8eade0a289651840e14802a7c04bba894a582c6cb4032a26e998a43c9bcb1e7dbe3e570492b79348e0eb9eb724fadb3930fcfdf",
+                policyId:
+                    "bb5e38d3da281634c8eade0a289651840e14802a7c04bba894a582c6",
+                assetName: "fwefewfewfewfewfw",
+                readableAssetName: "�@2�n��Cɼ�����pI+y4�\x0E��rO���\x0F��",
+                fingerprint: "asset1dqmrfvjr7l98y7qu4p70ea0jkdfu9ulyjk4a78",
+                quantity: 1,
+                initialMintTxHash:
+                    "030e9ccba3b428860aa67018450cae57d0107b0c2b977d78576f312bfde21ae0",
+                mintOrBurnCount: 1,
+                onchainMetadata: {
+                    ttl: 3195103530,
+                    name: "fwefewfewfewfewfw",
+                    type: "document",
+                    files: [Object],
+                    image: "ipfs://QmPnRTjGG7h8YKmVa94gyC3Yc1Xz1hf1uq4QZwgpeTq9D2",
+                    attach: "cb4032a26e998a43c9bcb1e7dbe3e570492b79348e0eb9eb724fadb3930fcfdf",
+                    policy: "bb5e38d3da281634c8eade0a289651840e14802a7c04bba894a582c6",
+                    version: 0,
+                    mediaType: "image/png",
+                    timestamp: 1697186730855,
+                    description: "Fuixlab's wrap document",
+                },
+                originalOnchainMetadata: {
+                    ttl: 3195103530,
+                    name: "fwefewfewfewfewfw",
+                    type: "document",
+                    files: [Object],
+                    image: "ipfs://QmPnRTjGG7h8YKmVa94gyC3Yc1Xz1hf1uq4QZwgpeTq9D2",
+                    attach: "cb4032a26e998a43c9bcb1e7dbe3e570492b79348e0eb9eb724fadb3930fcfdf",
+                    policy: "bb5e38d3da281634c8eade0a289651840e14802a7c04bba894a582c6",
+                    version: 0,
+                    mediaType: "image/png",
+                    timestamp: 1697186730855,
+                    description: "Fuixlab's wrap document",
+                },
+                metadata: {},
+            },
+            {
+                asset: "bb5e38d3da281634c8eade0a289651840e14802a7c04bba894a582c6280406fb598c8a325806bbb93e63ee6e815d958c5e118a5eea471a84addc3271",
+                policyId:
+                    "bb5e38d3da281634c8eade0a289651840e14802a7c04bba894a582c6",
+                assetName:
+                    "cb4032a26e998a43c9bcb1e7dbe3e570492b79348e0eb9eb724fadb3930fcfdf",
+                readableAssetName:
+                    "(\x04\x06�Y��2X\x06��>c�n�]��^\x11�^�G\x1A���2q",
+                fingerprint: "asset14rlv287jyvdvrf80rpnyhq96yqs25edqmglhx9",
+                quantity: 1,
+                initialMintTxHash:
+                    "72195fcc7eb555bdd200f65978dd3bd8807d4412cf2c84618444f3d35f87eeb9",
+                mintOrBurnCount: 1,
+                onchainMetadata: {
+                    ttl: 3195103530,
+                    name: "280406fb598c8a325806bbb93e63ee6e815d958c5e118a5eea471a84addc3271",
+                    type: "document",
+                    files: [Object],
+                    image: "ipfs://QmPnRTjGG7h8YKmVa94gyC3Yc1Xz1hf1uq4QZwgpeTq9D2",
+                    attach: "280406fb598c8a325806bbb93e63ee6e815d958c5e118a5eea471a84addc3271",
+                    policy: "bb5e38d3da281634c8eade0a289651840e14802a7c04bba894a582c6",
+                    version: 1,
+                    previous:
+                        "cb4032a26e998a43c9bcb1e7dbe3e570492b79348e0eb9eb724fadb3930fcfdf",
+                    mediaType: "image/png",
+                    timestamp: 1697186941637,
+                    description: "Fuixlab's Wrap Document",
+                },
+                originalOnchainMetadata: {
+                    ttl: 3195103530,
+                    name: "280406fb598c8a325806bbb93e63ee6e815d958c5e118a5eea471a84addc3271",
+                    type: "document",
+                    files: [Object],
+                    image: "ipfs://QmPnRTjGG7h8YKmVa94gyC3Yc1Xz1hf1uq4QZwgpeTq9D2",
+                    attach: "280406fb598c8a325806bbb93e63ee6e815d958c5e118a5eea471a84addc3271",
+                    policy: "bb5e38d3da281634c8eade0a289651840e14802a7c04bba894a582c6",
+                    version: 1,
+                    previous:
+                        "cb4032a26e998a43c9bcb1e7dbe3e570492b79348e0eb9eb724fadb3930fcfdf",
+                    mediaType: "image/png",
+                    timestamp: 1697186941637,
+                    description: "Fuixlab's Wrap Document",
+                },
+                metadata: {},
+            },
+            {
+                asset: "bb5e38d3da281634c8eade0a289651840e14802a7c04bba894a582c65f951b5fe386f8158f35d8a11de2520c86c17c2e8a1c61fb45297700ce8bf973",
+                policyId:
+                    "bb5e38d3da281634c8eade0a289651840e14802a7c04bba894a582c6",
+                assetName:
+                    "5f951b5fe386f8158f35d8a11de2520c86c17c2e8a1c61fb45297700ce8bf973",
+                readableAssetName:
+                    "_�\x1B_��\x15�5ء\x1D�R\f��|.�\x1Ca�E)w\x00΋�s",
+                fingerprint: "asset100yepyqlt2ehdv2mvdt292a4q947lg5wv5phlh",
+                quantity: 1,
+                initialMintTxHash:
+                    "4ae9ede13d3de6927e084c28da3109ac46fe46327b40bcf2613369b1003c453c",
+                mintOrBurnCount: 1,
+                onchainMetadata: {
+                    ttl: 3195103530,
+                    name: "5f951b5fe386f8158f35d8a11de2520c86c17c2e8a1c61fb45297700ce8bf973",
+                    type: "credential",
+                    files: [Object],
+                    image: "ipfs://QmPnRTjGG7h8YKmVa94gyC3Yc1Xz1hf1uq4QZwgpeTq9D2",
+                    index: 0,
+                    owner: "cb4032a26e998a43c9bcb1e7dbe3e570492b79348e0eb9eb724fadb3930fcfdf",
+                    attach: "5f951b5fe386f8158f35d8a11de2520c86c17c2e8a1c61fb45297700ce8bf973",
+                    policy: "bb5e38d3da281634c8eade0a289651840e14802a7c04bba894a582c6",
+                    mediaType: "image/png",
+                    timestamp: 1697186972723,
+                    description: "Fuixlab's credential",
+                },
+                originalOnchainMetadata: {
+                    ttl: 3195103530,
+                    name: "5f951b5fe386f8158f35d8a11de2520c86c17c2e8a1c61fb45297700ce8bf973",
+                    type: "credential",
+                    files: [Object],
+                    image: "ipfs://QmPnRTjGG7h8YKmVa94gyC3Yc1Xz1hf1uq4QZwgpeTq9D2",
+                    index: 0,
+                    owner: "cb4032a26e998a43c9bcb1e7dbe3e570492b79348e0eb9eb724fadb3930fcfdf",
+                    attach: "5f951b5fe386f8158f35d8a11de2520c86c17c2e8a1c61fb45297700ce8bf973",
+                    policy: "bb5e38d3da281634c8eade0a289651840e14802a7c04bba894a582c6",
+                    mediaType: "image/png",
+                    timestamp: 1697186972723,
+                    description: "Fuixlab's credential",
+                },
+                metadata: {},
+            },
+        ],
+    },
 };
 
 export const CONTROLLER_RESPONSE = {
@@ -190,7 +455,13 @@ export const CONTROLLER_RESPONSE = {
     },
     SUCCESS: {
         success: true,
-        data: {},
+        wrappedDoc: {
+            data: {},
+            signature: {
+                targetHash:
+                    "cb4032a26e998a43c9bcb1e7dbe3e570492b79348e0eb9eb724fadb3930fcfdf",
+            },
+        },
     },
     SUCCESS_WITHOUT_CONFIG: {
         wrappedDoc: {
@@ -200,6 +471,12 @@ export const CONTROLLER_RESPONSE = {
     },
     IS_EXISTED: {
         isExisted: true,
+    },
+    VERIFIABLE_CREDENTIAL: {
+        valid: true,
+        data: {
+            
+        },
     },
 };
 
