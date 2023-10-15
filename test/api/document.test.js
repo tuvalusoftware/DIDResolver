@@ -239,62 +239,6 @@ describe("DOCUMENT", function () {
                     done();
                 });
         });
-
-        // nock(SERVERS.TASK_QUEUE_SERVICE)
-        //     .post("/api/mint")
-        //     .reply(200, TASK_QUEUE_RESPONSE.BAD_REQUEST);
-        // it("It should return 'error object from task queue server'", (done) => {
-        //     chai.request(server)
-        //         .post("/resolver/commonlands/document/certificate/add-claimant")
-        //         .send({
-        //             plotDid: "did:example:ethr:0x123",
-        //             claimant: {
-        //                 plot: "example",
-        //                 did: "example",
-        //                 role: "example",
-        //             },
-        //         })
-        //         .end((err, res) => {
-        //             res.should.have.status(200);
-        //             res.body.should.be.a("object");
-        //             res.body.should.have.property("error_code");
-        //             res.body.should.have.property("error_message");
-        //             expect(res.body.error_code).equal(
-        //                 TASK_QUEUE_RESPONSE.BAD_REQUEST.error_code ||
-        //                     ERRORS.PUSH_TO_TASK_QUEUE_FAILED
-        //             );
-        //             done();
-        //         });
-        // });
-
-        // nock(SERVERS.TASK_QUEUE_SERVICE)
-        //     .post("/api/mint")
-        //     .reply(200, TASK_QUEUE_RESPONSE.REQUEST_CREDENTIAL);
-        // it("It should return 'success response from task queue'", (done) => {
-        //     chai.request(server)
-        //         .post("/resolver/commonlands/document/certificate/add-claimant")
-        //         .send({
-        //             plotDid: "did:example:ethr:0x123",
-        //             claimant: {
-        //                 plot: "example",
-        //                 did: "example",
-        //                 role: "example",
-        //             },
-        //         })
-        //         .end((err, res) => {
-        //             res.should.have.status(200);
-        //             res.body.should.be.a("object");
-        //             res.body.should.not.have.property("error_code");
-        //             res.body.should.not.have.property("error_message");
-        //             res.body.should.not.have.property("error_detail");
-        //             expect(JSON.stringify(res.body)).to.equal(
-        //                 JSON.stringify(
-        //                     TASK_QUEUE_RESPONSE.REQUEST_CREDENTIAL.data
-        //                 )
-        //             );
-        //             done();
-        //         });
-        // });
     });
 
     describe("/POST Create certificate for plot by given information", () => {
