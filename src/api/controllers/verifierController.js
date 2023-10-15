@@ -45,25 +45,32 @@ export default {
                     did,
                     accessToken,
                 });
-
-            console.log({
-                hashofdocument:
-                    documentContentResponse?.data?.wrappedDoc?.signature
-                        ?.targetHash,
-                accessToken,
-                policyid:
-                    documentContentResponse?.data?.wrappedDoc?.mintingConfig
-                        ?.policy?.id,
-            });
+            const documentHash =
+                documentContentResponse?.data?.wrappedDoc?.signature
+                    ?.targetHash;
+            const policyId =
+                documentContentResponse?.data?.wrappedDoc?.mintingConfig?.policy
+                    ?.id;
             await CardanoHelper.verifyCardanoNft({
-                hashofdocument:
-                    documentContentResponse?.data?.wrappedDoc?.signature
-                        ?.targetHash,
+                hashofdocument: documentHash,
                 accessToken,
-                policyid:
-                    documentContentResponse?.data?.wrappedDoc?.mintingConfig
-                        ?.policy?.id,
+                policyid: policyId,
             });
+            const getEndorsementChainResponse =
+                await CardanoHelper.getEndorsementChain({
+                    accessToken,
+                    policyId,
+                });
+            const documentHistory = getEndorsementChainResponse?.data
+                ?.filter((item) => item?.onchainMetadata?.type === "document")
+                .sort(
+                    (a, b) =>
+                        b?.onchainMetadata?.timestamp -
+                        a?.onchainMetadata?.timestamp
+                );
+            if (documentHash !== documentHistory[0]?.assetName) {
+                return next(ERRORS.DOCUMENT_IS_NOT_LASTEST_VERSION);
+            }
             return res.status(200).json({
                 valid: true,
                 data: documentContentResponse?.data?.wrappedDoc,
@@ -105,7 +112,6 @@ export default {
                 process.env.NODE_ENV === "test"
                     ? "mock-access-token"
                     : await AuthHelper.authenticationProgress();
-            console.log(1, did);
             const credentialContentResponse =
                 await ControllerHelper.getCredentialContent({
                     accessToken,

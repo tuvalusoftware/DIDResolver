@@ -160,4 +160,8 @@ export const ERRORS = {
         error_code: 4039,
         error_message: "Document is not existed!",
     },
+    DOCUMENT_IS_NOT_LASTEST_VERSION: {
+        error_code: 4040,
+        error_message: "Document is not lastest version!",
+    }
 };

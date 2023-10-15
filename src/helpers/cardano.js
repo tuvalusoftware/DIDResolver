@@ -211,4 +211,35 @@ export const CardanoHelper = {
             throw error;
         }
     },
+
+    /**
+     * Fetches the endorsement chain response from the Cardano service API.
+     * @async
+     * @function getEndorsementChainResponse
+     * @param {string} policyId - The policy ID of the NFT.
+     * @param {string} accessToken - The access token for authentication.
+     * @returns {Promise<Object>} The endorsement chain response object.
+     */
+    getEndorsementChain: async ({ policyId, accessToken }) => {
+        try {
+            const getEndorsementChainResponse = await axios.post(
+                `${SERVERS.CARDANO_SERVICE}/api/v2/fetch/nft`,
+                {
+                    policyId: policyId,
+                },
+                {
+                    withCredentials: true,
+                    headers: {
+                        Cookie: `access_token=${accessToken};`,
+                    },
+                }
+            );
+            if (getEndorsementChainResponse?.data?.code !== 0) {
+                throw ERRORS.CANNOT_FETCH_NFT;
+            }
+            return getEndorsementChainResponse?.data;
+        } catch (error) {
+            throw error;
+        }
+    },
 };

@@ -13,10 +13,6 @@ router
     .post(documentController.createPlotCertification)
     .put(documentController.updatePlotCertification)
     .delete(documentController.revokePlotCertification);
-router.get(
-    "/endorsement/:did",
-    documentController.getEndorsementChainOfCertificate
-);
 router.get("/:did", documentController.getDocument);
 
 export default router;

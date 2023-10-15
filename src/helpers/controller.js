@@ -201,7 +201,6 @@ export const ControllerHelper = {
     },
     getCredentialContent: async ({ accessToken, did }) => {
         try {
-            console.log("did", did);
             const credentialResponse = await axios.get(
                 SERVERS.DID_CONTROLLER + `/api/credential/${did}`,
                 {

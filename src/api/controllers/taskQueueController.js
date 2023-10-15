@@ -331,7 +331,7 @@ export default {
             const updateConfig = updateResponse?.data?.data;
             let updateWrappedDocument = {
                 ...wrappedDocument,
-                mintingNFTConfig: updateConfig,
+                mintingConfig: updateConfig,
             };
             const fileName = did.split(":")[3];
             const storeResponse = await ControllerHelper.storeDocument({
@@ -433,7 +433,7 @@ export default {
                 claims: { ...verifiedCredential.credentialSubject.claims },
                 id: generateDid(companyName, credentialHash),
             };
-            logger.apiInfo(req, res, JSON.stringify(verifiedCredential))
+            logger.apiInfo(req, res, JSON.stringify(verifiedCredential));
             const storeCredentialStatus =
                 await ControllerHelper.storeCredentials({
                     payload: {
