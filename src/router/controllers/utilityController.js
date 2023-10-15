@@ -1,7 +1,7 @@
 import logger from "../../../logger.js";
 import { ERRORS } from "../../config/errors/error.constants.js";
 import { unsalt } from "../../fuixlabs-documentor/utils/data.js";
-import { checkUndefinedVar } from "../utils/index.js";
+import { checkUndefinedVar } from "../../utils/index.js";
 
 export default {
   unsaltData: async (req, res, next) => {

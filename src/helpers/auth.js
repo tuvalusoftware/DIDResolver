@@ -2,12 +2,12 @@ import "dotenv/config";
 
 // * Utilities
 import axios from "axios";
-import { getAccountBySeedPhrase, signData } from "../api/utils/lucid.js";
+import { getAccountBySeedPhrase, signData } from "../utils/lucid.js";
 
 // * Constants
 import { SERVERS } from "../config/constants.js";
 import jwt_decode from "jwt-decode";
-import { getPublicKeyFromAddress } from "../api/utils/index.js";
+import { getPublicKeyFromAddress } from "../utils/index.js";
 
 /**
  * Helper functions for authentication.

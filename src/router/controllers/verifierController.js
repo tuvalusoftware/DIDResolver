@@ -1,20 +1,13 @@
-import axios from "axios";
 import "dotenv/config";
 import logger from "../../../logger.js";
-import { validateJSONSchema } from "../utils/index.js";
 import {
     checkUndefinedVar,
-    getCurrentDateTime,
-    getPublicKeyFromAddress,
-    generateRandomString,
     validateDID,
-} from "../utils/index.js";
+} from "../../utils/index.js";
 import {
     AuthHelper,
     CardanoHelper,
     ControllerHelper,
-    TaskQueueHelper,
-    VerifiableCredentialHelper,
 } from "../../helpers/index.js";
 import { ERRORS } from "../../config/errors/error.constants.js";
 

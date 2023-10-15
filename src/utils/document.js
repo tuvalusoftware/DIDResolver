@@ -6,18 +6,13 @@ import {
     nonIsoValidator,
     checkRequirementOfInput,
     unsalt,
-} from "../../fuixlabs-documentor/utils/data.js";
-import { generateDid } from "../../fuixlabs-documentor/utils/did.js";
+} from "../fuixlabs-documentor/utils/data.js";
+import { generateDid } from "../fuixlabs-documentor/utils/did.js";
 import {
     wrapDocument,
     createWrappedDocument,
-} from "../../fuixlabs-documentor/utils/document.js";
-import {
-    getDidDocumentByDid,
-    getDocumentContentByDid,
-} from "../utils/controller.js";
-import { getNftContract } from "../utils/cardano.js";
-import { deepMap } from "../../fuixlabs-documentor/utils/salt.js";
+} from "../fuixlabs-documentor/utils/document.js";
+import { deepMap } from "../fuixlabs-documentor/utils/salt.js";
 import {
     validateDIDSyntax,
     checkUndefinedVar,
@@ -29,14 +24,16 @@ import axios from "axios";
 import "dotenv/config";
 
 // * Constants
-import { VERIFIER_ERROR_CODE } from "../../fuixlabs-documentor/constants/error.js";
+import { VERIFIER_ERROR_CODE } from "../fuixlabs-documentor/constants/error.js";
 import {
     VALID_DOCUMENT_NAME_TYPE,
     SAMPLE_SERVICE,
     _DOCUMENT_TYPE,
-} from "../../fuixlabs-documentor/constants/type.js";
-import { SERVERS } from "../../config/constants.js";
-import { ERRORS } from "../../config/errors/error.constants.js";
+} from "../fuixlabs-documentor/constants/type.js";
+import { SERVERS } from "../config/constants.js";
+import { ERRORS } from "../config/errors/error.constants.js";
+import { ControllerHelper } from "../helpers/controller.js";
+import { CardanoHelper } from "../helpers/cardano.js";
 
 /**
  * Function used for generating wrapped document
@@ -449,49 +446,45 @@ export const createDocumentTaskQueue = async ({
  */
 export const fetchEndorsementChain = async ({ did, accessToken }) => {
     try {
-        const documentContentResponse = await getDocumentContentByDid({
-            accessToken: accessToken,
-            did: did,
-        });
-        if (documentContentResponse?.error_code) {
-            throw (
-                documentContentResponse ||
-                ERRORS.CANNOT_GET_DOCUMENT_INFORMATION
-            );
-        }
-        if (!documentContentResponse?.wrappedDoc?.mintingNFTConfig) {
+        const documentContentResponse =
+            await ControllerHelper.getDocumentContent({
+                accessToken: accessToken,
+                did: did,
+            });
+        if (!documentContentResponse?.data?.wrappedDoc?.mintingNFTConfig) {
             throw {
                 ...ERRORS.CANNOT_UPDATE_DOCUMENT_INFORMATION,
                 detail: "Cannot get minting config from document",
             };
         }
         const policyId =
-            documentContentResponse?.wrappedDoc?.mintingNFTConfig?.policy?.id;
-        const getNftResponse = await getNftContract({
+            documentContentResponse?.data?.wrappedDoc?.mintingNFTConfig?.policy
+                ?.id;
+        const getNftResponse = await CardanoHelper.getToken({
             accessToken,
             policyId,
         });
-        if (getNftResponse?.code !== 0) {
-            throw ERRORS.CANNOT_FETCH_NFT;
-        }
-        const nftContracts = getNftResponse?.data;
+        const nftContracts = getNftResponse?.data?.data;
         const retrieveCertificatePromises = nftContracts.map(async (nft) => {
             const certificateDid = getDidByComponents(
                 nft?.onchainMetadata?.did
             );
-            const certificateResponse = await getDocumentContentByDid({
-                did: certificateDid,
-                accessToken: accessToken,
-            });
-            const didDocumentResponse = await getDidDocumentByDid({
+            const certificateResponse =
+                await ControllerHelper.getDocumentContent({
+                    did: certificateDid,
+                    accessToken: accessToken,
+                });
+            const didDocumentResponse = await ControllerHelper.getDocumentDid({
                 did: certificateDid,
                 accessToken: accessToken,
             });
             return {
-                data: { ...certificateResponse?.wrappedDoc?.data },
-                signature: { ...certificateResponse?.wrappedDoc?.signature },
+                data: { ...certificateResponse?.data?.wrappedDoc?.data },
+                signature: {
+                    ...certificateResponse?.data?.wrappedDoc?.signature,
+                },
                 timestamp: nft?.onchainMetadata?.timestamp,
-                url: didDocumentResponse?.didDoc.pdfUrl,
+                url: didDocumentResponse?.data?.didDoc.pdfUrl,
             };
         });
         const data = await Promise.all(retrieveCertificatePromises);

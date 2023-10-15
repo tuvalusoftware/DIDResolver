@@ -1,7 +1,7 @@
 import { REQUEST_TYPE } from "../../config/constants.js";
 import { ERRORS } from "../../config/errors/error.constants.js";
 import logger from "../../../logger.js";
-import { checkUndefinedVar } from "../utils/index.js";
+import { checkUndefinedVar } from "../../utils/index.js";
 import {
     AuthHelper,
     TaskQueueHelper,
@@ -9,12 +9,7 @@ import {
 } from "../../helpers/index.js";
 import "dotenv/config";
 import { unsalt } from "../../fuixlabs-documentor/utils/data.js";
-import {
-    getDidDocumentByDid,
-    getDocumentContentByDid,
-    updateDocumentDid,
-} from "../utils/controller.js";
-import { createVerifiableCredential } from "../utils/credential.js";
+import { createVerifiableCredential } from "../../utils/credential.js";
 import { generateDid } from "../../fuixlabs-documentor/utils/did.js";
 import { CardanoHelper } from "../../helpers/index.js";
 
@@ -147,25 +142,22 @@ export default {
                 res,
                 `Wrapped document ${JSON.stringify(willWrappedDocument)}`
             );
-            const didResponse = await getDidDocumentByDid({
+            const didResponse = await ControllerHelper.getDocumentDid({
                 did: did,
                 accessToken: accessToken,
             });
-            if (!didResponse?.didDoc) {
+            if (!didResponse?.data?.didDoc) {
                 return next(ERRORS.CANNOT_GET_DID_DOCUMENT);
             }
             const updateDidDoc = {
-                ...didResponse?.didDoc,
+                ...didResponse?.data?.didDoc,
                 pdfUrl: url,
             };
-            const updateDidDocResponse = await updateDocumentDid({
+            const updateDidDocResponse = await ControllerHelper.updateDocumentDid({
                 did: did,
                 accessToken: accessToken,
                 didDoc: updateDidDoc,
             });
-            if (updateDidDocResponse?.error_code) {
-                return next(ERRORS.ERROR_PUSH_URL_TO_DID_DOCUMENT);
-            }
             return res.status(200).json({ url: url, did: did });
         } catch (error) {
             error?.error_code
@@ -556,21 +548,18 @@ export default {
                     plotDid: plotDid,
                 });
             }
-            const documentContentResponse = await getDocumentContentByDid({
+            const documentContentResponse = await ControllerHelper.getDocumentContent({
                 accessToken: accessToken,
                 did: plotDid,
             });
-            if (documentContentResponse?.error_code) {
-                return next(ERRORS?.CANNOT_FOUND_DID_DOCUMENT);
-            }
-            if (!documentContentResponse?.wrappedDoc?.mintingConfig) {
+            if (!documentContentResponse?.data?.wrappedDoc?.mintingConfig) {
                 return next({
                     ...ERRORS.CANNOT_GET_DOCUMENT_INFORMATION,
                     detail: "Missing minting config!",
                 });
             }
             const mintingConfig =
-                documentContentResponse?.wrappedDoc?.mintingConfig;
+                documentContentResponse?.data?.wrappedDoc?.mintingConfig;
             const credentialResponse = await CardanoHelper.storeCredentials({
                 mintingConfig,
                 credentialHash: credential,

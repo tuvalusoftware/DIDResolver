@@ -1,6 +1,6 @@
 import cardanoSerialization from "@emurgo/cardano-serialization-lib-nodejs";
 import Ajv from "ajv";
-import Logger from "../../../logger.js";
+import Logger from "../../logger.js";
 import * as dotenv from "dotenv";
 import { createCanvas, loadImage } from "canvas";
 import crypto from "crypto";

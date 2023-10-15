@@ -11,19 +11,15 @@ import {
     getPublicKeyFromAddress,
     generateRandomString,
     validateDID,
-} from "../utils/index.js";
+} from "../../utils/index.js";
 import {
     hashDocumentContent,
     isLastestCertificate,
     fetchEndorsementChain,
     createDocumentTaskQueue,
-} from "../utils/document.js";
-import { getAccountBySeedPhrase } from "../utils/lucid.js";
-import {
-    getDocumentContentByDid,
-    getDidDocumentByDid,
-} from "../utils/controller.js";
-import { createVerifiableCredential } from "../utils/credential.js";
+} from "../../utils/document.js";
+import { getAccountBySeedPhrase } from "../../utils/lucid.js";
+import { createVerifiableCredential } from "../../utils/credential.js";
 import { unsalt } from "../../fuixlabs-documentor/utils/data.js";
 import { generateDid } from "../../fuixlabs-documentor/utils/did.js";
 import logger from "../../../logger.js";
@@ -33,7 +29,7 @@ import {
     TaskQueueHelper,
     VerifiableCredentialHelper,
 } from "../../helpers/index.js";
-import { validateJSONSchema } from "../utils/index.js";
+import { validateJSONSchema } from "../../utils/index.js";
 
 axios.defaults.withCredentials = true;
 
@@ -49,32 +45,14 @@ export default {
                 process.env.NODE_ENV === "test"
                     ? "mock-access-token"
                     : await AuthHelper.authenticationProgress();
-            const didDocumentResponse = await getDidDocumentByDid({
-                did: did,
-                accessToken: accessToken,
-            });
-            if (didDocumentResponse?.error_code) {
-                return next(
-                    didDocumentResponse || ERRORS.CANNOT_GET_DID_DOCUMENT
-                );
-            }
-            const url = didDocumentResponse?.didDoc?.pdfUrl;
-            if (!url) {
-                return next(ERRORS.CANNOT_GET_CONTRACT_URL);
-            }
-            const docContentResponse = await getDocumentContentByDid({
-                did: did,
-                accessToken: accessToken,
-            });
-            if (docContentResponse?.error_code) {
-                return next(
-                    docContentResponse || ERRORS.CANNOT_GET_DOCUMENT_INFORMATION
-                );
-            }
-            const hash = docContentResponse?.wrappedDoc?.signature?.targetHash;
+            const docContentResponse =
+                await ControllerHelper.getDocumentContent({
+                    did: did,
+                    accessToken: accessToken,
+                });
+            const hash =
+                docContentResponse?.data?.wrappedDoc?.signature?.targetHash;
             return res.status(200).json({
-                success: true,
-                url: url,
                 hash: hash,
                 did: did,
             });
@@ -89,7 +67,7 @@ export default {
                           "Something went wrong!",
                   });
         }
-    },
+    }, //
     createPlotCertification: async (req, res, next) => {
         try {
             logger.apiInfo(req, res, `API Request: Create Plot Certification`);
@@ -135,7 +113,7 @@ export default {
                     res,
                     `Document ${plotCertificationFileName} existed`
                 );
-                const existedDidDoc = await getDidDocumentByDid({
+                const existedDidDoc = await ControllerHelper.getDocumentDid({
                     accessToken: accessToken,
                     did: generateDid(companyName, plotCertificationFileName),
                 });
@@ -151,7 +129,6 @@ export default {
                 fileName: plotCertificationFileName,
                 name: `Land Certificate`,
                 title: `Land-Certificate-${plot?.name}`,
-                No: generateRandomString(plot._id, 7),
                 dateIssue: getCurrentDateTime(),
                 plotInformation: {
                     plotName: plot?.name,
@@ -218,7 +195,7 @@ export default {
                           "Something went wrong!",
                   });
         }
-    },
+    }, //
     updatePlotCertification: async (req, res, next) => {
         try {
             logger.apiInfo(req, res, `API Request: Update Plot Certification`);
@@ -280,15 +257,13 @@ export default {
                 );
                 return res.status(200).json(cronedRequest?.data?.claimants);
             }
-            const documentContentResponse = await getDocumentContentByDid({
-                did: plot?.did,
-                accessToken: accessToken,
-            });
-            if (!documentContentResponse.wrappedDoc) {
-                return next(ERRORS.DOCUMENT_IS_NOT_EXISTED);
-            }
+            const documentContentResponse =
+                await ControllerHelper.getDocumentContent({
+                    did: plot?.did,
+                    accessToken: accessToken,
+                });
             const mintingConfig = {
-                ...documentContentResponse?.wrappedDoc?.mintingConfig,
+                ...documentContentResponse?.data?.wrappedDoc?.mintingConfig,
             };
             if (!mintingConfig) {
                 return next({
@@ -305,7 +280,6 @@ export default {
                 fileName: plotCertificationFileName,
                 name: `Land Certificate`,
                 title: `Land-Certificate-${plot?.name}`,
-                No: generateRandomString(plot._id, 7),
                 dateIssue: getCurrentDateTime(),
                 plotInformation: {
                     plotName: plot?.name,
@@ -366,7 +340,7 @@ export default {
                           "Something went wrong!",
                   });
         }
-    },
+    }, //
     revokePlotCertification: async (req, res, next) => {
         try {
             logger.apiInfo(req, res, `API Request: Revoke Plot Certification`);
@@ -391,7 +365,6 @@ export default {
                 type: REQUEST_TYPE.BURN,
                 did: did,
             });
-            console.log(taskQueueResponse?.data);
             return res.status(200).json({
                 success: true,
             });
@@ -476,33 +449,7 @@ export default {
                           "Something went wrong!",
                   });
         }
-    },
-    getEndorsementChainOfCertificate: async (req, res, next) => {
-        try {
-            logger.apiInfo(req, res, `API Request: Get Endorsement Chain`);
-            const { did } = req.params;
-            const { valid } = validateDID(did);
-            if (!valid) {
-                return next(ERRORS.INVALID_DID);
-            }
-            const accessToken = await AuthHelper.authenticationProgress();
-            const endorsementChain = await fetchEndorsementChain({
-                did: did,
-                accessToken: accessToken,
-            });
-            return res.status(200).json(endorsementChain);
-        } catch (error) {
-            error?.error_code
-                ? next(error)
-                : next({
-                      error_code: 400,
-                      error_message:
-                          error?.error_message ||
-                          error?.message ||
-                          "Something went wrong!",
-                  });
-        }
-    },
+    }, //
     checkLastestVersion: async (req, res, next) => {
         try {
             logger.apiInfo(req, res, `API Request: Check Lastest Version`);
@@ -542,75 +489,7 @@ export default {
                           "Something went wrong!",
                   });
         }
-    },
-    verifyCertificateQrCode: async (req, res, next) => {
-        try {
-            logger.apiInfo(req, res, `API Request: Verify Certificate Qr Code`);
-            const { hash, did } = req.query;
-            const undefinedVar = checkUndefinedVar({
-                hash,
-                did,
-            });
-            if (undefinedVar.undefined) {
-                return next({
-                    ...ERRORS.MISSING_PARAMETERS,
-                    detail: undefinedVar?.detail,
-                });
-            }
-            const { valid } = validateDID(did);
-            if (!valid) {
-                return next(ERRORS.INVALID_DID);
-            }
-            const accessToken = await AuthHelper.authenticationProgress();
-            const endorsementChain = await fetchEndorsementChain({
-                did: did,
-                accessToken: accessToken,
-            });
-            const verifierPromises = [
-                await isLastestCertificate({
-                    currentHash: hash,
-                    endorsementChain: endorsementChain,
-                }),
-            ];
-            Promise.allSettled(verifierPromises)
-                .then((data) => {
-                    const notPassVerifiers = data.filter(
-                        (obj) => obj?.value?.valid === false
-                    );
-                    if (notPassVerifiers?.length === 0) {
-                        logger.apiInfo(
-                            req,
-                            res,
-                            `Verified successfully! ${did} is valid!`
-                        );
-                        return res.status(200).json({
-                            success: true,
-                            success_message: "Verified successfully!",
-                            isValid: true,
-                        });
-                    }
-                    return next({
-                        ...ERRORS.CERTIFICATE_IS_NOT_VALID,
-                        detail: notPassVerifiers
-                            .map((obj) => obj?.value?.verifier_message)
-                            .join("; "),
-                    });
-                })
-                .catch((error) => {
-                    return next(error);
-                });
-        } catch (error) {
-            error?.error_code
-                ? next(error)
-                : next({
-                      error_code: 400,
-                      error_message:
-                          error?.error_message ||
-                          error?.message ||
-                          "Something went wrong!",
-                  });
-        }
-    },
+    }, //
     addClaimantToCertificate: async (req, res, next) => {
         try {
             logger.apiInfo(
@@ -682,5 +561,5 @@ export default {
                           "Something went wrong!",
                   });
         }
-    },
+    }, //
 };

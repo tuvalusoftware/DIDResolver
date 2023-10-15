@@ -1,7 +1,7 @@
 import { REQUEST_TYPE } from "../config/constants.js";
 import { ERRORS } from "../config/errors/error.constants.js";
 import QUEUE_SCHEMA from "../config/schemas/queue.schema.js";
-import { validateJSONSchema } from "../api/utils/index.js";
+import { validateJSONSchema } from "../utils/index.js";
 import { SERVERS } from "../config/constants.js";
 import axios from "axios";
 

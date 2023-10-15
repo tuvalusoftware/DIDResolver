@@ -6,7 +6,6 @@ import { PDFDocument } from "pdf-lib";
 import crypto from "node:crypto";
 import fs from "fs";
 import axios from "axios";
-import { getDocumentContentByDid } from "./controller.js";
 import { AuthHelper } from "../../helpers/index.js";
 import { verifyWrappedDocument } from "../../fuixlabs-documentor/verifyDocument.js";
 import QRCode from "qrcode";
@@ -469,74 +468,6 @@ const deleteFile = async (path) => {
   });
 };
 
-/**
- * Function used for verifying pdf file by given url on AWS S3
- * @param {String} url -
- * @returns {Object} - { valid: true } if valid, throw error otherwise
- */
-const verifyPdf = async ({ url, buffer }) => {
-  try {
-    let pdfDocBuffer = buffer;
-    if (url) {
-      pdfDocBuffer = await getPdfBufferFromUrl(url);
-    }
-    const pdfDoc = await bufferToPDFDocument(pdfDocBuffer);
-    const originalCreationDate = pdfDoc.getCreationDate();
-    const originalModificationDate = pdfDoc.getModificationDate();
-    const keywords = pdfDoc.getKeywords();
-    const targetHash = keywords.split(" ")[0].split(":")[1];
-    const didParameters = keywords.split(" ")[1].split(":");
-    const fileName = keywords.split(" ")[3].split(":")[1];
-    const did =
-      didParameters[1] +
-      ":" +
-      didParameters[2] +
-      ":" +
-      didParameters[3] +
-      ":" +
-      didParameters[4];
-    const pdfHash = keywords.split(" ")[2].split(":")[1];
-    if (!pdfHash || !did || !targetHash) {
-      throw {
-        error_code: 400,
-        error_message: "Error while getting document information!",
-      };
-    }
-    pdfDoc.setKeywords([`targetHash:${targetHash}`, `did:${did}`]);
-    pdfDoc.setCreationDate(new Date(process.env.HASH_DATE));
-    pdfDoc.setModificationDate(new Date(process.env.HASH_DATE));
-    pdfDoc.setProducer(process.env.COMPANY_NAME);
-    const pdfBytes = await pdfDoc.save();
-    const hash = crypto.createHash("sha256");
-    hash.update(pdfBytes);
-    const hashHex = hash.digest("hex");
-    if (hashHex !== pdfHash) {
-      throw {
-        error_code: 400,
-        error_message: "PDF has been modified! Please check your PDF again!",
-      };
-    }
-    pdfDoc.setCreationDate(originalCreationDate);
-    pdfDoc.setModificationDate(originalModificationDate);
-    pdfDoc.setKeywords([
-      `targetHash:${targetHash}`,
-      `did:${did}`,
-      `hash:${hashHex}`,
-      `fileName:${fileName}`,
-    ]);
-    const accessToken = await AuthHelper.authenticationProgress();
-    const { wrappedDoc } = await getDocumentContentByDid({
-      did: did,
-      accessToken: accessToken,
-    });
-    await verifyWrappedDocument(wrappedDoc, " ", "cardano");
-    return {
-      valid: true,
-    };
-  } catch (e) {
-    throw e;
-  }
-};
 
 /**
  * Function used for reading pdf file

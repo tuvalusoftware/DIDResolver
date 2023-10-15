@@ -242,4 +242,34 @@ export const CardanoHelper = {
             throw error;
         }
     },
+
+    /**
+     * Fetches NFT data from the Cardano service API.
+     *
+     * @param {string} policyId - The policy ID of the NFT to fetch.
+     * @param {string} accessToken - The access token for authentication.
+     * @returns {Promise<Object>} - A promise that resolves to the NFT data object.
+     */
+    getToken: async ({ policyId, accessToken }) => {
+        try {
+            const getTokenResponse = await axios.post(
+                `${SERVERS.CARDANO_SERVICE}/api/v2/fetch/nft`,
+                {
+                    policyId: policyId,
+                },
+                {
+                    withCredentials: true,
+                    headers: {
+                        Cookie: `access_token=${accessToken};`,
+                    },
+                }
+            );
+            if(getTokenResponse?.data?.code !== 0) {
+                throw ERRORS.CANNOT_FETCH_NFT;
+            }
+            return getTokenResponse;
+        } catch (error) {
+            throw error;
+        }
+    },
 };

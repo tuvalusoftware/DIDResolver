@@ -7,12 +7,12 @@ const {
 import {
     getDynamicDocumentLoader,
     setUpSuite,
-} from "../api/utils/verifiableCredential.js";
+} from "../utils/verifiableCredential.js";
 import { ADMIN_PRIVATE_KEY, ADMIN_PUBLIC_KEY } from "../config/constants.js";
 import axios from "axios";
-import { createVerifiableCredential } from "../api/utils/credential.js";
+import { createVerifiableCredential } from "../utils/credential.js";
 
-const { suite: DOMINIUM_SUITE, issuer: DOMINIUM_ISSUER } = await setUpSuite({
+const { suite: DOMINIUM_SUITE } = await setUpSuite({
     private_key: ADMIN_PRIVATE_KEY,
     public_key: ADMIN_PUBLIC_KEY,
 });
@@ -27,16 +27,7 @@ export const VerifiableCredentialHelper = {
                             const { data: credentialSchema } = await axios.get(
                                 schema.id
                             );
-                            const { $schema, ...rest } = credentialSchema;
-                            // const { isValid, errors } =
-                            //     SchemaValidator.validate(credential, rest);
-
-                            // if (!isValid) {
-                            //     return {
-                            //         error_code: `Invalid Credential Schema`,
-                            //         error_message: errors,
-                            //     };
-                            // }
+                            const { $schema } = credentialSchema;
                         }
                     }
                     // * credentialSchema props as an object
@@ -45,17 +36,7 @@ export const VerifiableCredentialHelper = {
                         const { data: credentialSchema } = await axios.get(
                             schema.id
                         );
-                        const { $schema, ...rest } = credentialSchema;
-                        // const { isValid, errors } = SchemaValidator.validate(
-                        //     credential,
-                        //     rest
-                        // );
-                        // if (!isValid) {
-                        //     return {
-                        //         error_code: `Invalid Credential Schema`,
-                        //         error_message: errors,
-                        //     };
-                        // }
+                        const { $schema } = credentialSchema;
                     }
                 }
             } catch (error) {

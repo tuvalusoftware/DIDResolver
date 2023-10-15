@@ -7,7 +7,7 @@ import methodOverride from "method-override";
 import logger from "./logger.js";
 import swaggerUi from "swagger-ui-express";
 import { swaggerDocument } from "./src/config/swagger/index.js";
-import routes from "./src/api/routes/index.js";
+import routes from "./src/router/routes/index.js";
 import { ERRORS } from "./src/config/errors/error.constants.js";
 
 const app = express();

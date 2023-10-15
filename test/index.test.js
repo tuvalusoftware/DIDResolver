@@ -16,29 +16,29 @@ import {
     encrypt,
     decrypt,
     generateRandomDID,
-} from "../src/api/utils/index.js";
+} from "../src/utils/index.js";
 import chai from "chai";
 
 let expect = chai.expect;
 let should = chai.should;
 
-// describe("validateDIDSyntax", () => {
-//     it("should return true for a valid DID", () => {
-//         const validDID = "did:example:example:1234";
-//         expect(JSON.stringify(validateDIDSyntax(validDID))).equal(
-//             JSON.stringify({
-//                 valid: true,
-//                 companyName: "example",
-//                 fileNameOrPublicKey: "1234",
-//             })
-//         );
-//     });
+describe("validateDIDSyntax", () => {
+    it("should return true for a valid DID", () => {
+        const validDID = "did:example:example:1234";
+        expect(JSON.stringify(validateDIDSyntax(validDID))).equal(
+            JSON.stringify({
+                valid: true,
+                companyName: "example",
+                fileNameOrPublicKey: "1234",
+            })
+        );
+    });
 
-//     it("should return false for an invalid DID", () => {
-//         const invalidDID = "example:1234";
-//         expect(validateDIDSyntax(invalidDID).valid).equal(false);
-//     });
-// });
+    it("should return false for an invalid DID", () => {
+        const invalidDID = "example:1234";
+        expect(validateDIDSyntax(invalidDID).valid).equal(false);
+    });
+});
 
 // describe("getAddressFromHexEncoded", () => {
 //     it("should return the correct address for a valid hex-encoded string", () => {
