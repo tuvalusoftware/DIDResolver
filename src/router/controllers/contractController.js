@@ -6,6 +6,7 @@ import {
     getCurrentDateTime,
     getPublicKeyFromAddress,
     validateJSONSchema,
+    validateDID,
 } from "../../utils/index.js";
 import { createDocumentTaskQueue } from "../../utils/document.js";
 import {
@@ -24,6 +25,16 @@ import contractSchema from "../../config/schemas/contract.schema.js";
 axios.defaults.withCredentials = true;
 
 export default {
+    /**
+     * Creates a new contract
+     * @memberof contractController
+     * @async
+     * @function createContract
+     * @param {Object} req - The request object
+     * @param {Object} res - The response object
+     * @param {Function} next - The next middleware function
+     * @returns {Object} - The response object containing the DID of the created contract
+     */
     createContract: async (req, res, next) => {
         try {
             logger.apiInfo(req, res, "Request API: Create Contract!");
@@ -111,6 +122,51 @@ export default {
                 });
             return res.status(200).json({
                 did: contractDid,
+            });
+        } catch (error) {
+            error?.error_code
+                ? next(error)
+                : next({
+                      error_code: 400,
+                      error_message:
+                          error?.error_message ||
+                          error?.message ||
+                          "Something went wrong!",
+                  });
+        }
+    },
+    /**
+     * Retrieves a contract by its DID
+     * @memberof contractController
+     * @async
+     * @function getContract
+     * @param {Object} req - The request object
+     * @param {Object} res - The response object
+     * @param {Function} next - The next middleware function
+     * @returns {Object} - The response object containing the hash and DID of the retrieved contract
+     */
+    getContract: async (req, res, next) => {
+        try {
+            logger.apiInfo(req, res, "Request API: Get Contract!");
+            const { did } = req.params;
+            const { valid } = validateDID(did);
+            if (!valid) {
+                return next(ERRORS.INVALID_DID);
+            }
+            const accessToken =
+                process.env.NODE_ENV === "test"
+                    ? "mock-access-token"
+                    : await AuthHelper.authenticationProgress();
+            const docContentResponse =
+                await ControllerHelper.getDocumentContent({
+                    did: did,
+                    accessToken: accessToken,
+                });
+            const hash =
+                docContentResponse?.data?.wrappedDoc?.signature?.targetHash;
+            return res.status(200).json({
+                hash: hash,
+                did: did,
             });
         } catch (error) {
             error?.error_code

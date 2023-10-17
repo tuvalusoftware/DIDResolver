@@ -29,7 +29,7 @@ export const contract = {
                 content: {
                     "application/json": {
                         examples: {
-                            "Create plot certificate successfully": {
+                            "Create plot contract successfully": {
                                 value: {
                                     hashes: [
                                         "0x1a2b3c4d5e6f7g8h9i0j1k2l3m4n5o6p7q8r9s0t1u2v3w4x5y6z",
@@ -52,6 +52,62 @@ export const contract = {
                             },
                             "Cannot mint nft for credential": {
                                 value: ERRORS.CANNOT_CREATE_CREDENTIAL_FOR_CLAIMANT,
+                            },
+                        },
+                    },
+                },
+            },
+        },
+    },
+    get: {
+        tags: ["Commonlands Contract"],
+        summary: "Get Contract information",
+        parameters: [
+            {
+                name: "did",
+                in: "path",
+                schema: {
+                    type: "string",
+                    example:
+                        "did:fuixlabs:COMMONLANDS_2:LandCertification-64db86559e77a4ffc2395ada_119",
+                },
+                required: true,
+                description: "DID of the contract",
+            },
+        ],
+        responses: {
+            200: {
+                description:
+                    "Return an object include document information if success",
+                content: {
+                    "application/json": {
+                        examples: {
+                            "Get PDF file successfully": {
+                                value: {
+                                    success: true,
+                                    url: "https://raw.githubusercontent.com/dev-fuixlabs/Commonlands_DOC/IMAGE/1695204643781_TESTING_COMMONLANDS-LandCertificate-14088960050-64db86559e77a4ffc2395ada_103.pdf",
+                                },
+                            },
+                            "Missing parameters": {
+                                value: {
+                                    error_code: 400,
+                                    error_message:
+                                        "Bad request. Missing parameters.",
+                                    detail: "Not found: did",
+                                },
+                            },
+                            "Invalid DID": {
+                                value: {
+                                    error_code: 400,
+                                    error_message: "Invalid DID",
+                                },
+                            },
+                            "Cannot get document information": {
+                                value: {
+                                    error_code: 400,
+                                    error_message:
+                                        "Cannot get document information",
+                                },
                             },
                         },
                     },

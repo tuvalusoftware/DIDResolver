@@ -33,6 +33,13 @@ import { validateJSONSchema } from "../../utils/index.js";
 
 axios.defaults.withCredentials = true;
 
+/**
+ * Controller for getting a document by DID
+ * @param {Object} req - Express request object
+ * @param {Object} res - Express response object
+ * @param {Function} next - Express next middleware function
+ * @returns {Object} - Express response object with document hash and DID
+ */
 export default {
     getDocument: async (req, res, next) => {
         try {
@@ -68,6 +75,14 @@ export default {
                   });
         }
     },
+
+    /**
+     * Controller for creating a plot certification document
+     * @param {Object} req - Express request object
+     * @param {Object} res - Express response object
+     * @param {Function} next - Express next middleware function
+     * @returns {Object} - Express response object with claimants credential DIDs
+     */
     createPlotCertification: async (req, res, next) => {
         try {
             logger.apiInfo(req, res, `API Request: Create Plot Certification`);
