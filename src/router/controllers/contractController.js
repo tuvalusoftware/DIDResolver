@@ -106,7 +106,7 @@ export default {
                 await ControllerHelper.storeDocument({
                     accessToken,
                     companyName,
-                    fileName,
+                    fileName: contractFileName,
                     wrappedDocument: willWrappedDocument,
                 });
             return res.status(200).json({
