@@ -461,6 +461,18 @@ export const CONTROLLER_RESPONSE = {
                 targetHash:
                     "cb4032a26e998a43c9bcb1e7dbe3e570492b79348e0eb9eb724fadb3930fcfdf",
             },
+            mintingConfig: {
+                type: "document",
+                policy: {
+                    type: "sampleType",
+                    script: "sampleScript",
+                    ttl: 23124354353,
+                    id: "sampleId",
+                },
+                asset: "sampleAsset",
+                txHash: "sampleTxHash",
+                walletId: 3,
+            },
         },
     },
     SUCCESS_WITHOUT_CONFIG: {
@@ -474,9 +486,7 @@ export const CONTROLLER_RESPONSE = {
     },
     VERIFIABLE_CREDENTIAL: {
         valid: true,
-        data: {
-            
-        },
+        data: {},
     },
 };
 

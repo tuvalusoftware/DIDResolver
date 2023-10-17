@@ -1,17 +1,35 @@
 import "dotenv/config";
 import logger from "../../../logger.js";
-import {
-    checkUndefinedVar,
-    validateDID,
-} from "../../utils/index.js";
+import { checkUndefinedVar, validateDID } from "../../utils/index.js";
 import {
     AuthHelper,
     CardanoHelper,
     ControllerHelper,
+    VerifiableCredentialHelper,
 } from "../../helpers/index.js";
 import { ERRORS } from "../../config/errors/error.constants.js";
 
+/**
+ * Controller for verifying a certificate.
+ * @typedef {Object} VerifierController
+ * @property {Function} verifyCertificate - Verifies a certificate.
+ * @property {Function} verifyVerifiableCredential - Verifies a verifiable credential.
+ */
+
+/**
+ * Verifier controller object.
+ * @type {VerifierController}
+ */
 export default {
+    /**
+     * Verifies a certificate.
+     * @function verifyCertificate
+     * @async
+     * @param {Object} req - Express request object.
+     * @param {Object} res - Express response object.
+     * @param {Function} next - Express next middleware function.
+     * @returns {Object} - Returns a JSON object with the verification result and data.
+     */
     verifyCertificate: async (req, res, next) => {
         try {
             logger.apiInfo(req, res, "API Request: Verify Certificate");
@@ -80,6 +98,15 @@ export default {
                   });
         }
     },
+    /**
+     * Verifies a verifiable credential.
+     * @function verifyVerifiableCredential
+     * @async
+     * @param {Object} req - Express request object.
+     * @param {Object} res - Express response object.
+     * @param {Function} next - Express next middleware function.
+     * @returns {Object} - Returns a JSON object with the verification result and data.
+     */
     verifyVerifiableCredential: async (req, res, next) => {
         try {
             logger.apiInfo(
@@ -114,6 +141,9 @@ export default {
             delete credentialContent._id;
             delete credentialContent.createdAt;
             delete credentialContent.updatedAt;
+            // const verifierResponse = await VerifiableCredentialHelper.verifyVerifiableCredential({
+            //     credential: credentialContent
+            // });
             return res.status(200).json({
                 valid: true,
                 data: credentialContent,

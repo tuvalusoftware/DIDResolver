@@ -17,7 +17,21 @@ const { suite: DOMINIUM_SUITE } = await setUpSuite({
     public_key: ADMIN_PUBLIC_KEY,
 });
 
+/**
+ * A helper object containing methods for issuing and creating verifiable credentials.
+ * @namespace VerifiableCredentialHelper
+ */
 export const VerifiableCredentialHelper = {
+    /**
+     * Issues a verifiable credential by signing the provided credential object.
+     * @async
+     * @memberof VerifiableCredentialHelper
+     * @method issueVerifiableCredential
+     * @param {Object} options - The options object.
+     * @param {Object} options.credential - The credential object to sign.
+     * @returns {Promise<Object>} A promise that resolves with the signed verifiable credential object.
+     * @throws {Error} Throws an error if there was an issue signing the credential.
+     */
     issueVerifiableCredential: async ({ credential }) => {
         try {
             try {
@@ -63,6 +77,20 @@ export const VerifiableCredentialHelper = {
             throw error;
         }
     },
+
+    /**
+     * Creates a verifiable credential object with the provided data and signs it.
+     * @async
+     * @memberof VerifiableCredentialHelper
+     * @method createVerifiableCredential
+     * @param {Object} options - The options object.
+     * @param {Object} options.signData - The data to sign the credential with.
+     * @param {string} options.issuerKey - The issuer's key.
+     * @param {Object} options.subject - The subject of the credential.
+     * @param {string} options.credentialDid - The DID of the credential.
+     * @returns {Promise<Object>} A promise that resolves with the signed verifiable credential object.
+     * @throws {Error} Throws an error if there was an issue creating or signing the credential.
+     */
     createVerifiableCredential: async ({
         signData,
         issuerKey,
@@ -94,6 +122,20 @@ export const VerifiableCredentialHelper = {
             throw e;
         }
     },
+
+    /**
+     * Creates verifiable credential DIDs for the provided claimants.
+     * @async
+     * @memberof VerifiableCredentialHelper
+     * @method getCredentialDidsFromClaimants
+     * @param {Object} options - The options object.
+     * @param {Array<Object>} options.claimants - The claimants to create DIDs for.
+     * @param {string} options.did - The DID of the issuer.
+     * @param {string} options.companyName - The name of the company.
+     * @param {string} options.plotId - The ID of the plot.
+     * @returns {Promise<Object>} A promise that resolves with an object containing the created DIDs and plot ID.
+     * @throws {Error} Throws an error if there was an issue creating the DIDs.
+     */
     getCredentialDidsFromClaimants: async ({
         claimants,
         did,
@@ -124,5 +166,16 @@ export const VerifiableCredentialHelper = {
         } catch (error) {
             throw error;
         }
+    },
+    verifyVerifiableCredential: async ({ credential }) => {
+        const documentLoader = await getDynamicDocumentLoader(
+            credential["@context"]
+        );
+        const data = await jsigs.verify(credential, {
+            suite: DOMINIUM_SUITE,
+            purpose: new AssertionProofPurpose(),
+            documentLoader,
+        });
+        return data;
     },
 };

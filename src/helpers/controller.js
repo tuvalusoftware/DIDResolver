@@ -67,6 +67,9 @@ export const ControllerHelper = {
                     },
                 }
             );
+            if (isExistedResponse?.data?.error_code) {
+                throw isExistedResponse?.data;
+            }
             return isExistedResponse;
         } catch (error) {
             throw error;
@@ -92,7 +95,7 @@ export const ControllerHelper = {
         wrappedDocument,
     }) => {
         try {
-            const storeWrappedDocumentStatus = await axios.post(
+            const storeWrappedDocumentResponse = await axios.post(
                 SERVERS.DID_CONTROLLER + "/api/doc",
                 {
                     fileName,
@@ -104,7 +107,10 @@ export const ControllerHelper = {
                     headers: { Cookie: `access_token=${accessToken};` },
                 }
             );
-            return storeWrappedDocumentStatus;
+            if(storeWrappedDocumentResponse?.data?.error_code) {
+                throw storeWrappedDocumentResponse?.data;
+            }
+            return storeWrappedDocumentResponse;
         } catch (error) {
             throw error;
         }

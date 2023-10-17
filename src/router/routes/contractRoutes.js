@@ -7,4 +7,6 @@ const upload = multer({ storage: storage });
 
 const router = express.Router();
 
+router.post("/", contractController.createContract);
+
 export default router;

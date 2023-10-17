@@ -67,7 +67,7 @@ export default {
                           "Something went wrong!",
                   });
         }
-    }, //
+    },
     createPlotCertification: async (req, res, next) => {
         try {
             logger.apiInfo(req, res, `API Request: Create Plot Certification`);
@@ -92,7 +92,6 @@ export default {
                 process.env.NODE_ENV === "test"
                     ? "mock-access-token"
                     : await AuthHelper.authenticationProgress();
-
             const isCronExists = await TaskQueueHelper.isExisted({
                 did: generateDid(companyName, plotCertificationFileName),
             });
@@ -195,7 +194,7 @@ export default {
                           "Something went wrong!",
                   });
         }
-    }, //
+    },
     updatePlotCertification: async (req, res, next) => {
         try {
             logger.apiInfo(req, res, `API Request: Update Plot Certification`);
@@ -340,7 +339,7 @@ export default {
                           "Something went wrong!",
                   });
         }
-    }, //
+    },
     revokePlotCertification: async (req, res, next) => {
         try {
             logger.apiInfo(req, res, `API Request: Revoke Plot Certification`);
@@ -379,7 +378,7 @@ export default {
                           "Something went wrong!",
                   });
         }
-    },
+    }, // TODO: Write unit-test for this endpoint
     hashDocument: async (req, res, next) => {
         try {
             const { plot, claimant } = req.body;
@@ -449,7 +448,7 @@ export default {
                           "Something went wrong!",
                   });
         }
-    }, //
+    },
     checkLastestVersion: async (req, res, next) => {
         try {
             logger.apiInfo(req, res, `API Request: Check Lastest Version`);
@@ -489,7 +488,7 @@ export default {
                           "Something went wrong!",
                   });
         }
-    }, //
+    },
     addClaimantToCertificate: async (req, res, next) => {
         try {
             logger.apiInfo(
@@ -561,5 +560,5 @@ export default {
                           "Something went wrong!",
                   });
         }
-    }, //
+    },
 };

@@ -9,6 +9,10 @@ import axios from "axios";
  * A helper object containing methods for sending minting requests to the task queue service.
  * @namespace TaskQueueHelper
  */
+/**
+ * A helper object for interacting with the task queue service.
+ * @namespace TaskQueueHelper
+ */
 export const TaskQueueHelper = {
     /**
      * Sends a minting request to the task queue service.
@@ -77,6 +81,17 @@ export const TaskQueueHelper = {
             throw error;
         }
     },
+
+    /**
+     * Checks if a DID exists in the task queue service.
+     * @async
+     * @memberof TaskQueueHelper
+     * @method isExisted
+     * @param {Object} options - The options for the check.
+     * @param {string} options.did - The DID to check.
+     * @returns {Promise<Object>} - A promise that resolves with the response from the task queue service.
+     * @throws {Error} - If the request fails or the response contains an error code.
+     */
     isExisted: async ({ did }) => {
         try {
             const requestResponse = await axios.get(
@@ -90,6 +105,17 @@ export const TaskQueueHelper = {
             throw error;
         }
     },
+
+    /**
+     * Finds all requests related to a DID in the task queue service.
+     * @async
+     * @memberof TaskQueueHelper
+     * @method findRequestsRelatedToDid
+     * @param {Object} options - The options for the search.
+     * @param {string} options.did - The DID to search for.
+     * @returns {Promise<Object>} - A promise that resolves with the response from the task queue service.
+     * @throws {Error} - If the request fails or the response contains an error code.
+     */
     findRequestsRelatedToDid: async ({ did }) => {
         try {
             const requestsResponse = await axios.get(

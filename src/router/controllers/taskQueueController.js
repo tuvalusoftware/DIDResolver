@@ -1,7 +1,7 @@
 import { REQUEST_TYPE } from "../../config/constants.js";
 import { ERRORS } from "../../config/errors/error.constants.js";
 import logger from "../../../logger.js";
-import { checkUndefinedVar } from "../../utils/index.js";
+import { checkUndefinedVar, validateDID } from "../../utils/index.js";
 import {
     AuthHelper,
     TaskQueueHelper,
@@ -34,31 +34,38 @@ export default {
     revokeDocument: async (req, res, next) => {
         try {
             logger.apiInfo(req, res, "Request API: Request revoke document!");
-            const { mintingConfig } = req.body;
-            const undefinedVar = checkUndefinedVar({ mintingConfig });
+            const { did } = req.body;
+            const undefinedVar = checkUndefinedVar({
+                did,
+            });
             if (undefinedVar.undefined) {
                 return next({
                     ...ERRORS.MISSING_PARAMETERS,
                     detail: undefinedVar.detail,
                 });
             }
+            const { valid } = validateDID(did);
+            if (!valid) {
+                return next(ERRORS.INVALID_DID);
+            }
             const accessToken =
                 process.env.NODE_ENV === "test"
                     ? "mock-access-token"
                     : await AuthHelper.authenticationProgress();
-            const revokeResponse = await CardanoHelper.burnNft({
-                mintingConfig,
-                accessToken,
-            });
-            if (revokeResponse?.data?.code !== 0) {
-                return next({
-                    ...ERRORS?.REVOKE_DOCUMENT_FAILED,
-                    detail: revokeResponse?.data,
+            const documentContentResponse =
+                await ControllerHelper.getDocumentContent({
+                    accessToken,
+                    did,
                 });
-            }
-            logger.apiInfo(req, res, `Revoke document successfully!`);
+            const mintingConfig =
+                documentContentResponse?.data?.wrappedDoc?.mintingConfig;
+            const burnResponse = await CardanoHelper.burnToken({
+                accessToken,
+                mintingConfig,
+            });
             return res.status(200).json({
                 revoked: true,
+                data: documentContentResponse?.data?.wrappedDoc,
             });
         } catch (error) {
             error?.error_code
@@ -153,11 +160,12 @@ export default {
                 ...didResponse?.data?.didDoc,
                 pdfUrl: url,
             };
-            const updateDidDocResponse = await ControllerHelper.updateDocumentDid({
-                did: did,
-                accessToken: accessToken,
-                didDoc: updateDidDoc,
-            });
+            const updateDidDocResponse =
+                await ControllerHelper.updateDocumentDid({
+                    did: did,
+                    accessToken: accessToken,
+                    didDoc: updateDidDoc,
+                });
             return res.status(200).json({ url: url, did: did });
         } catch (error) {
             error?.error_code
@@ -548,10 +556,11 @@ export default {
                     plotDid: plotDid,
                 });
             }
-            const documentContentResponse = await ControllerHelper.getDocumentContent({
-                accessToken: accessToken,
-                did: plotDid,
-            });
+            const documentContentResponse =
+                await ControllerHelper.getDocumentContent({
+                    accessToken: accessToken,
+                    did: plotDid,
+                });
             if (!documentContentResponse?.data?.wrappedDoc?.mintingConfig) {
                 return next({
                     ...ERRORS.CANNOT_GET_DOCUMENT_INFORMATION,

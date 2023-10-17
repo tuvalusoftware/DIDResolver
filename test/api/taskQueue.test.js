@@ -50,12 +50,8 @@ describe("TASK QUEUE", function () {
                     res.body.should.be.a("object");
                     res.body.should.have.property("error_code");
                     res.body.should.have.property("error_message");
-                    res.body.should.have.property("error_detail");
                     expect(res.body.error_code).equal(
                         ERRORS.CANNOT_MINT_NFT.error_code
-                    );
-                    expect(JSON.stringify(res.body.error_detail)).equal(
-                        JSON.stringify(CARDANO_RESPONSES.ERROR_RESPONSE)
                     );
                     done();
                 });
@@ -222,59 +218,117 @@ describe("TASK QUEUE", function () {
     });
 
     describe("/POST revoke document", () => {
-        it('it should return "Missing parameters" error', (done) => {
+        it("It should return 'Missing parameters' error", (done) => {
             chai.request(server)
                 .post("/resolver/task-queue/revoke")
                 .send({})
                 .end((error, res) => {
                     res.should.have.status(200);
                     res.body.should.be.a("object");
-                    res.body.should.have.property("error_code");
+                    res.body.should.have
+                        .property("error_code")
+                        .equal(ERRORS.MISSING_PARAMETERS.error_code);
                     res.body.should.have.property("error_message");
-                    expect(res.body.error_code).equal(
-                        ERRORS.MISSING_PARAMETERS.error_code
+                    res.body.should.have.property("error_detail");
+                    done();
+                });
+        });
+
+        it("It should return 'Invalid did'", (done) => {
+            chai.request(server)
+                .post("/resolver/task-queue/revoke")
+                .send({
+                    did: "invalid-did",
+                    claimants: [],
+                })
+                .end((error, res) => {
+                    res.should.have.status(200);
+                    res.body.should.be.a("object");
+                    res.body.should.have
+                        .property("error_code")
+                        .equal(ERRORS.INVALID_DID.error_code);
+                    res.body.should.have.property("error_message");
+                    done();
+                });
+        });
+
+        nock(SERVERS.DID_CONTROLLER)
+            .get("/api/doc")
+            .query(
+                (object) => object.companyName && object.fileName && object.only
+            )
+            .reply(200, CONTROLLER_RESPONSE.ERROR);
+        it("it should return 'Cannot get document' error", (done) => {
+            chai.request(server)
+                .post("/resolver/task-queue/revoke")
+                .send({
+                    did: "did:example:example2:123456789abcdefghi#test",
+                    claimants: [],
+                })
+                .end((error, res) => {
+                    res.should.have.status(200);
+                    res.body.should.be.a("object");
+                    expect(JSON.stringify(res.body)).equal(
+                        JSON.stringify(CONTROLLER_RESPONSE.ERROR) ||
+                            JSON.stringify(
+                                ERRORS.CANNOT_GET_DOCUMENT_INFORMATION
+                            )
                     );
                     done();
                 });
         });
 
+        nock(SERVERS.DID_CONTROLLER)
+            .get("/api/doc")
+            .query(
+                (object) => object.companyName && object.fileName && object.only
+            )
+            .reply(200, CONTROLLER_RESPONSE.SUCCESS);
         nock(SERVERS.CARDANO_SERVICE)
             .delete("/api/v2/hash")
             .reply(200, CARDANO_RESPONSES.ERROR_RESPONSE);
-        it("it should return 'error from cardano service'", (done) => {
+        it("It should return 'Error from Cardano service'", (done) => {
             chai.request(server)
                 .post("/resolver/task-queue/revoke")
-                .send(REVOKE_DOCUMENT_REQUEST)
+                .send({
+                    did: "did:example:example2:123456789abcdefghi#test",
+                    claimants: [],
+                })
                 .end((error, res) => {
                     res.should.have.status(200);
                     res.body.should.be.a("object");
-                    res.body.should.have.property("error_code");
+                    res.body.should.have
+                        .property("error_code")
+                        .equal(ERRORS.REVOKE_DOCUMENT_FAILED.error_code);
                     res.body.should.have.property("error_message");
-                    res.body.should.have.property("error_detail");
-                    expect(res.body.error_code).equal(
-                        ERRORS.REVOKE_DOCUMENT_FAILED.error_code
-                    );
-                    expect(JSON.stringify(res.body.error_detail)).equal(
-                        JSON.stringify(CARDANO_RESPONSES.ERROR_RESPONSE)
-                    );
                     done();
                 });
         });
 
+        nock(SERVERS.DID_CONTROLLER)
+            .get("/api/doc")
+            .query(
+                (object) => object.companyName && object.fileName && object.only
+            )
+            .reply(200, CONTROLLER_RESPONSE.SUCCESS);
         nock(SERVERS.CARDANO_SERVICE)
             .delete("/api/v2/hash")
             .reply(200, CARDANO_RESPONSES.CONFIG_RESPONSE);
-        it("it should return 'revoke successfully response'", (done) => {
+        it("It should return 'Success message", (done) => {
             chai.request(server)
                 .post("/resolver/task-queue/revoke")
-                .send(REVOKE_DOCUMENT_REQUEST)
+                .send({
+                    did: "did:example:example2:123456789abcdefghi#test",
+                    claimants: [],
+                })
                 .end((error, res) => {
                     res.should.have.status(200);
                     res.body.should.be.a("object");
-                    res.body.should.not.have.property("error_code");
-                    res.body.should.not.have.property("error_message");
-                    res.body.should.have.property("revoked");
-                    expect(res.body.revoked).equal(true);
+                    expect(res.body).have.property("revoked").equal(true);
+                    res.body.should.have.property("data").a("object");
+                    expect(JSON.stringify(res.body.data)).equal(
+                        JSON.stringify(CONTROLLER_RESPONSE.SUCCESS.wrappedDoc)
+                    );
                     done();
                 });
         });

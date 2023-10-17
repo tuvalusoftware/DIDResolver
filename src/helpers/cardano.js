@@ -55,9 +55,9 @@ export const CardanoHelper = {
      * @param {Object} options.mintingConfig - The configuration object for the NFT minting.
      * @returns {Promise<Object>} - A promise that resolves with the response data from the Cardano service API.
      */
-    burnNft: async ({ mintingConfig, accessToken }) => {
+    burnToken: async ({ mintingConfig, accessToken }) => {
         try {
-            const burnNftResponse = await axios.delete(
+            const burnTokenResponse = await axios.delete(
                 SERVERS.CARDANO_SERVICE + "/api/v2/hash",
                 {
                     withCredentials: true,
@@ -67,7 +67,10 @@ export const CardanoHelper = {
                     data: { config: mintingConfig },
                 }
             );
-            return burnNftResponse;
+            if (burnTokenResponse?.data?.code !== 0) {
+                throw ERRORS.REVOKE_DOCUMENT_FAILED;
+            }
+            return burnTokenResponse;
         } catch (error) {
             throw error;
         }
@@ -129,6 +132,9 @@ export const CardanoHelper = {
                     },
                 }
             );
+            if(tokenResponse?.data?.code !== 0) {
+                throw ERRORS.CANNOT_MINT_NFT;
+            }
             return tokenResponse;
         } catch (error) {
             throw error;
@@ -264,7 +270,7 @@ export const CardanoHelper = {
                     },
                 }
             );
-            if(getTokenResponse?.data?.code !== 0) {
+            if (getTokenResponse?.data?.code !== 0) {
                 throw ERRORS.CANNOT_FETCH_NFT;
             }
             return getTokenResponse;
