@@ -120,6 +120,7 @@ export default {
                     fileName: contractFileName,
                     wrappedDocument: willWrappedDocument,
                 });
+            logger.apiInfo(req, res, `Document ${contractFileName} created!`);
             return res.status(200).json({
                 did: contractDid,
             });
