@@ -484,6 +484,9 @@ export const CONTROLLER_RESPONSE = {
     IS_EXISTED: {
         isExisted: true,
     },
+    IS_NOT_EXISTED: {
+        isExisted: false,
+    },
     VERIFIABLE_CREDENTIAL: {
         valid: true,
         data: {},

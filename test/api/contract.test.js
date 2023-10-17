@@ -9,6 +9,8 @@ import {
     CONTROLLER_RESPONSE,
     WRAPPED_DOCUMENT_REQUEST,
     TASK_QUEUE_RESPONSE,
+    CARDANO_ERROR_RESPONSE,
+    CARDANO_RESPONSES,
 } from "../mockData.js";
 
 chai.use(chaiHttp);
@@ -97,6 +99,113 @@ describe("Contract API", function () {
                     expect(JSON.stringify(res.body)).equal(
                         JSON.stringify(CONTROLLER_RESPONSE.ERROR)
                     );
+                    done();
+                });
+        });
+
+        nock(SERVERS.DID_CONTROLLER)
+            .get("/api/doc/exists")
+            .query((object) => object.companyName && object.fileName)
+            .reply(200, CONTROLLER_RESPONSE.IS_EXISTED);
+        nock(SERVERS.DID_CONTROLLER)
+            .get("/api/doc")
+            .query(
+                (object) => object.companyName && object.fileName && object.only
+            )
+            .reply(200, CONTROLLER_RESPONSE.SUCCESS);
+        it("It should return content of wrapped document whenever document is existed", (done) => {
+            chai.request(server)
+                .post("/resolver/contract")
+                .send({
+                    contract: {
+                        _id: "123",
+                    },
+                })
+                .end((err, res) => {
+                    res.should.have.status(200);
+                    res.body.should.be.a("object");
+                    expect(JSON.stringify(res.body)).equal(
+                        JSON.stringify(CONTROLLER_RESPONSE.SUCCESS.wrappedDoc)
+                    );
+                    done();
+                });
+        });
+
+        nock(SERVERS.DID_CONTROLLER)
+            .get("/api/doc/exists")
+            .query((object) => object.companyName && object.fileName)
+            .reply(200, CONTROLLER_RESPONSE.IS_NOT_EXISTED);
+        nock(SERVERS.CARDANO_SERVICE)
+            .post("/api/v2/hash-random")
+            .reply(200, CARDANO_ERROR_RESPONSE);
+        it("It should return error from 'Cardano server' when user request to store token", (done) => {
+            chai.request(server)
+                .post("/resolver/contract")
+                .send({
+                    contract: {
+                        _id: "123",
+                    },
+                })
+                .end((err, res) => {
+                    res.should.have.status(200);
+                    res.body.should.be.a("object");
+                    expect(JSON.stringify(res.body)).equal(
+                        JSON.stringify(ERRORS.CANNOT_MINT_NFT)
+                    );
+                    done();
+                });
+        });
+
+        nock(SERVERS.DID_CONTROLLER)
+            .get("/api/doc/exists")
+            .query((object) => object.companyName && object.fileName)
+            .reply(200, CONTROLLER_RESPONSE.IS_NOT_EXISTED);
+        nock(SERVERS.CARDANO_SERVICE)
+            .post("/api/v2/hash-random")
+            .reply(200, CARDANO_RESPONSES.CONFIG_RESPONSE);
+        nock(SERVERS.DID_CONTROLLER)
+            .post("/api/doc")
+            .reply(200, CONTROLLER_RESPONSE.ERROR);
+        it("It should return 'Error from Controller' when user request to store document", (done) => {
+            chai.request(server)
+                .post("/resolver/contract")
+                .send({
+                    contract: {
+                        _id: "123",
+                    },
+                })
+                .end((err, res) => {
+                    res.should.have.status(200);
+                    res.body.should.be.a("object");
+                    expect(JSON.stringify(res.body)).equal(
+                        JSON.stringify(CONTROLLER_RESPONSE.ERROR)
+                    );
+                    done();
+                });
+        });
+
+        nock(SERVERS.DID_CONTROLLER)
+            .get("/api/doc/exists")
+            .query((object) => object.companyName && object.fileName)
+            .reply(200, CONTROLLER_RESPONSE.IS_NOT_EXISTED);
+        nock(SERVERS.CARDANO_SERVICE)
+            .post("/api/v2/hash-random")
+            .reply(200, CARDANO_RESPONSES.CONFIG_RESPONSE);
+        nock(SERVERS.DID_CONTROLLER)
+            .post("/api/doc")
+            .reply(200, CONTROLLER_RESPONSE.SUCCESS);
+        it("It should return did from Controller when user request to store document", (done) => {
+            chai.request(server)
+                .post("/resolver/contract")
+                .send({
+                    contract: {
+                        _id: "123",
+                    },
+                })
+                .end((err, res) => {
+                    res.should.have.status(200);
+                    res.body.should.be.a("object");
+                    res.body.should.have.property("did").be.a("string");
                     done();
                 });
         });
