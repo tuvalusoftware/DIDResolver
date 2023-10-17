@@ -5,61 +5,77 @@ import compression from "compression";
 import cookieParser from "cookie-parser";
 import methodOverride from "method-override";
 import logger from "./logger.js";
-const app = express();
+import swaggerUi from "swagger-ui-express";
+import { swaggerDocument } from "./src/config/swagger/index.js";
+import routes from "./src/router/routes/index.js";
+import { ERRORS } from "./src/config/errors/error.constants.js";
 
-// // App configurations
-// const corsOptions = {
-//   origin: [
-//     "http://18.139.84.180:11000",
-//     "https://paperless-fuixlabs.ap.ngrok.io",
-//     "http://localhost:4000",
-//   ],
-//   credentials: true,
-// };
+const app = express();
 app.use(cors());
 app.use(cookieParser());
 app.use(compression());
 app.use(express.json({ limit: "200mb" }));
 app.use(express.urlencoded({ limit: "200mb", extended: true }));
+app.use(methodOverride());
 app.use(
   express.urlencoded({
     extended: true,
   })
 );
-app.use(methodOverride());
+
+const normalizePort = (val) => {
+  const port = parseInt(val, 10);
+
+  if (isNaN(port)) {
+    return val;
+  }
+  if (port >= 0) {
+    return port;
+  }
+  return false;
+};
 
 /* c8 ignore start */
 // SET UP SWAGGER API DOCUMENT
-import swaggerUi from "swagger-ui-express";
-import { swaggerDocument } from "./swagger/index.js";
 const swaggerOptions = {
   customCss: ".swagger-ui .topbar { display: none }",
   customSiteTitle: "DID Resolver API",
 };
-
 app.use(
   "/api-docs",
   swaggerUi.serve,
   swaggerUi.setup(swaggerDocument, swaggerOptions)
 );
-/* c8 ignore stop */
 
-// ROUTES
 const server = http.createServer(app);
 server.timeout = 300000;
-import routes from "./api/routes/index.js";
 routes(app);
-
+app.use(express.static('assets'));
 app.use((err, req, res, _) => {
-  logger.apiError(req, res, `Error: ${JSON.stringify(err)}`);
-  return res.status(200).json({
-    error_code: err.error_code,
-    error_message: err.error_message || err?.message || "Something went wrong!",
-    detail: err.detail,
-  });
+  try {
+    if (err.code === "ECONNABORTED") {
+      throw ERRORS.CONNECTION_TIMEOUT;
+    }
+    if (err.code === "ECONNREFUSED") {
+      throw ERRORS.CONNECTION_REFUSED;
+    }
+    throw err;
+  } catch (error) {
+    logger.apiError(
+      req,
+      res,
+      `Error in ${req.method} ${req.url}: ${err?.error_message}`
+    );
+    return res.status(200).json({
+      error_code: err.error_code,
+      error_message:
+        err.error_message || err?.message || "Something went wrong!",
+      error_detail: err.detail || err.error_detail,
+    });
+  }
 });
 
-const port = process.env.NODE_PORT || 8000;
+const port = normalizePort(process.env.NODE_PORT || "8000");
 server.listen(port, () => {
   logger.info(`Server is live on port ${port}: http://localhost:${port}/`);
 });

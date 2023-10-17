@@ -75,7 +75,6 @@ const apiInfo = (req, res, message) => {
 // Log error that occurs when an API is called (most of these errors are catch)
 const apiError = (req, res, error) => {
   infoLogger.error(`[${req.method} - ${req.originalUrl}]\n${error}`);
-  debugLogger.error(`[${req.method} - ${req.originalUrl}]\n${error}`);
 };
 
 export { info, error, apiInfo, apiError };
