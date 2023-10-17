@@ -186,7 +186,7 @@ const getCurrentDateTime = () => {
     const seconds = now.getSeconds().toString().padStart(2, "0");
     const formattedDateTime = `${year}-${month}-${day} ${hours}:${minutes}:${seconds}`;
     return formattedDateTime;
-};
+}; // TODO - Write unit-test
 
 /**
  * Function used for generating QR code
@@ -209,7 +209,7 @@ const generateQRCode = async (text, backgroundColor, color, size) => {
     const img = await loadImage(qrCodeData);
     ctx.drawImage(img, 0, 0);
     return canvas.toBuffer("image/png");
-};
+}; // TODO - Write unit-test
 
 /**
  * Function used for generating random string with given seed and length
@@ -379,4 +379,5 @@ export {
     decrypt,
     generateRandomDID,
     replaceKey,
+    stringToBytes32,
 };

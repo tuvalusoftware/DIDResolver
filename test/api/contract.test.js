@@ -7,8 +7,6 @@ import { ERRORS } from "../../src/config/errors/error.constants.js";
 import { SERVERS } from "../../src/config/constants.js";
 import {
     CONTROLLER_RESPONSE,
-    WRAPPED_DOCUMENT_REQUEST,
-    TASK_QUEUE_RESPONSE,
     CARDANO_ERROR_RESPONSE,
     CARDANO_RESPONSES,
 } from "../mockData.js";
