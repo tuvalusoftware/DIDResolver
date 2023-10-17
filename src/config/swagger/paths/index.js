@@ -7,6 +7,7 @@ import {
 import { user } from "./user.js";
 import { unsalt } from "./utility.js";
 import { certificateVerifier, credentialVerifier } from "./verifier.js";
+import { contract } from "./contract.js";
 
 export const paths = {
     "/commonlands/document/{did}": {
@@ -20,6 +21,9 @@ export const paths = {
     },
     "/commonlands/document/hash": {
         ...hashDocumentContent,
+    },
+    "/contract": {
+        ...contract,
     },
     "/verify/certificate": {
         ...certificateVerifier,
