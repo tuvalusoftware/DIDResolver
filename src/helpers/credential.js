@@ -34,7 +34,6 @@ export const VerifiableCredentialHelper = {
      */
     issueVerifiableCredential: async ({ credential }) => {
         try {
-            console.log('credential', credential)
             try {
                 if (credential.hasOwnProperty("credentialSchema")) {
                     if (Array.isArray(credential.credentialSchema)) {
@@ -68,7 +67,6 @@ export const VerifiableCredentialHelper = {
                 });
                 return { verifiableCredential };
             } catch (error) {
-                console.log(error)
                 throw {
                     error_code: 400,
                     error_message: `Error sign contract: ${error.message}`,
@@ -146,15 +144,16 @@ export const VerifiableCredentialHelper = {
     }) => {
         try {
             const promises = claimants.map(async (claimant) => {
-                const { credentialHash } = await createClaimantVerifiableCredential({
-                    subject: {
-                        claims: {
-                            plot: plotId,
-                            ...claimant,
+                const { credentialHash } =
+                    await createClaimantVerifiableCredential({
+                        subject: {
+                            claims: {
+                                plot: plotId,
+                                ...claimant,
+                            },
                         },
-                    },
-                    issuerKey: did,
-                });
+                        issuerKey: did,
+                    });
                 return {
                     userId: claimant?._id,
                     did: generateDid(companyName, credentialHash),

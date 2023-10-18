@@ -35,7 +35,7 @@ export const ControllerHelper = {
                     },
                 }
             );
-            if(storeCredentialStatus?.data?.error_code) {
+            if (storeCredentialStatus?.data?.error_code) {
                 throw storeCredentialStatus?.data;
             }
             return storeCredentialStatus;
@@ -110,7 +110,7 @@ export const ControllerHelper = {
                     headers: { Cookie: `access_token=${accessToken};` },
                 }
             );
-            if(storeWrappedDocumentResponse?.data?.error_code) {
+            if (storeWrappedDocumentResponse?.data?.error_code) {
                 throw storeWrappedDocumentResponse?.data;
             }
             return storeWrappedDocumentResponse;
@@ -187,7 +187,7 @@ export const ControllerHelper = {
             const companyName = didComponents[2];
             const fileName = didComponents[3];
             const createUserDidReq = await axios.put(
-                SERVERS.DID_CONTROLLER + "/api/doc",
+                SERVERS.DID_CONTROLLER + "/api/did",
                 {
                     companyName,
                     fileName,

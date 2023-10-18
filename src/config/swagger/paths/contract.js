@@ -11,11 +11,19 @@ export const contract = {
                     schema: {
                         type: "object",
                         properties: {
-                            contract: {
+                            wrappedDoc: {
                                 type: "object",
                                 example: {
-                                    _id: "123",
+                                    _id: "652faaab0a0679ca3824d270",
+                                    link: "https://docs.google.com/doc/12345",
+                                    hash: "HHiiiUUUU",
+                                    underwriter: "651e25b0eeacd4968d1257a0",
+                                    createdAt: "2023-10-18T09:51:39.599Z",
                                 },
+                            },
+                            metadata: {
+                                type: "object",
+                                example: { status: "created" },
                             },
                         },
                     },

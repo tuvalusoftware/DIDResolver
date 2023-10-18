@@ -39,9 +39,9 @@ export default {
     createContract: async (req, res, next) => {
         try {
             logger.apiInfo(req, res, "Request API: Create Contract!");
-            const { contract } = req.body;
+            const { wrappedDoc, metadata } = req.body;
             const undefinedVar = checkUndefinedVar({
-                contract,
+                wrappedDoc,
             });
             if (undefinedVar.undefined) {
                 return next({
@@ -51,13 +51,13 @@ export default {
             }
             const validateSchema = validateJSONSchema(
                 contractSchema.CREATE_CONTRACT_REQUEST_BODY,
-                contract
+                wrappedDoc
             );
             if (!validateSchema.valid) {
                 return next(ERRORS.INVALID_INPUT);
             }
             const contractFileName = `LoanContract_${
-                contract._id || contract.id
+                wrappedDoc._id || wrappedDoc.id
             }`;
             const companyName = process.env.COMPANY_NAME;
             logger.apiInfo(req, res, `Pdf file name: ${contractFileName}`);
@@ -88,7 +88,7 @@ export default {
             const contractForm = {
                 fileName: contractFileName,
                 name: `Loan Contract`,
-                title: `Land-Certificate-${contract?._id}`,
+                title: `Land-Certificate-${wrappedDoc?._id}`,
                 dateIssue: getCurrentDateTime(),
             };
             const { currentWallet, lucidClient } = await getAccountBySeedPhrase(
@@ -121,6 +121,23 @@ export default {
                     fileName: contractFileName,
                     wrappedDocument: willWrappedDocument,
                 });
+            // if (metadata) {
+            //     const didDocumentResponse =
+            //         await ControllerHelper.getDocumentDid({
+            //             did: contractDid,
+            //             accessToken,
+            //         });
+            //     const originDidDocument = didDocumentResponse?.data?.didDoc;
+            //     const updateDidDocumentResponse =
+            //         await ControllerHelper.updateDocumentDid({
+            //             accessToken,
+            //             did: contractDid,
+            //             didDoc: {
+            //                 ...originDidDocument,
+            //                 metadata,
+            //             },
+            //         });
+            // }
             logger.apiInfo(req, res, `Document ${contractFileName} created!`);
             return res.status(200).json({
                 did: contractDid,
@@ -234,7 +251,7 @@ export default {
                         userDid,
                         contractDid: contract,
                         certificateDid,
-                        role
+                        role,
                     },
                     issuerKey: contract,
                 });
@@ -242,7 +259,7 @@ export default {
                 ...verifiableCredential,
             };
             const credentialResponse = await CardanoHelper.storeCredentials({
-                mintingConfig,
+                mintingConfig: contractMintingConfig,
                 credentialHash: credentialHash,
                 accessToken,
             });
