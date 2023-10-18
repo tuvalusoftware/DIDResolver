@@ -19,7 +19,7 @@ import {
     createDocumentTaskQueue,
 } from "../../utils/document.js";
 import { getAccountBySeedPhrase } from "../../utils/lucid.js";
-import { createVerifiableCredential } from "../../utils/credential.js";
+import { createClaimantVerifiableCredential } from "../../utils/credential.js";
 import { unsalt } from "../../fuixlabs-documentor/utils/data.js";
 import { generateDid } from "../../fuixlabs-documentor/utils/did.js";
 import logger from "../../../logger.js";
@@ -520,7 +520,7 @@ export default {
             const plotId = plotDid.split(":")[3].split("-")[1];
             const companyName = process.env.COMPANY_NAME;
             const { verifiableCredential, credentialHash, did } =
-                await createVerifiableCredential({
+                await createClaimantVerifiableCredential({
                     subject: {
                         claims: {
                             plot: plotId,

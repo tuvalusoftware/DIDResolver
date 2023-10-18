@@ -39,6 +39,9 @@ export const CardanoHelper = {
                     },
                 }
             );
+            if(credentialResponse?.data?.code !== 0) {
+                throw ERRORS.CANNOT_MINT_NFT;
+            }
             return credentialResponse;
         } catch (error) {
             throw error;

@@ -35,6 +35,9 @@ export const ControllerHelper = {
                     },
                 }
             );
+            if(storeCredentialStatus?.data?.error_code) {
+                throw storeCredentialStatus?.data;
+            }
             return storeCredentialStatus;
         } catch (error) {
             throw error;
