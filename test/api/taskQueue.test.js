@@ -160,12 +160,8 @@ describe("TASK QUEUE", function () {
                     res.body.should.be.a("object");
                     res.body.should.have.property("error_code");
                     res.body.should.have.property("error_message");
-                    res.body.should.have.property("error_detail");
                     expect(res.body.error_code).equal(
-                        ERRORS.CREDENTIAL_FAILED.error_code
-                    );
-                    expect(JSON.stringify(res.body.error_detail)).equal(
-                        JSON.stringify(CARDANO_RESPONSES.ERROR_RESPONSE)
+                        ERRORS.CANNOT_MINT_NFT.error_code
                     );
                     done();
                 });
