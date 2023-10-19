@@ -32,7 +32,7 @@ export const VerifiableCredentialHelper = {
      * @returns {Promise<Object>} A promise that resolves with the signed verifiable credential object.
      * @throws {Error} Throws an error if there was an issue signing the credential.
      */
-    issueVerifiableCredential: async ({ credential }) => {
+    issueVerifiableCredential: async ({ credential, customSuite }) => {
         try {
             try {
                 if (credential.hasOwnProperty("credentialSchema")) {
@@ -61,7 +61,7 @@ export const VerifiableCredentialHelper = {
                     credential["@context"]
                 );
                 const verifiableCredential = await jsigs.sign(credential, {
-                    suite: DOMINIUM_SUITE,
+                    suite: customSuite ? customSuite : DOMINIUM_SUITE,
                     purpose: new AssertionProofPurpose(),
                     documentLoader,
                 });

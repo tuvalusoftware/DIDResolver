@@ -2,6 +2,7 @@
 import { sha256 } from "js-sha256";
 import { VerifiableCredentialHelper } from "../helpers/credential.js";
 import { generateRandomDID } from "./index.js";
+import { setUpSuite } from "../utils/verifiableCredential.js";
 
 // * Constants
 import { COMPANY_NAME } from "../config/constants.js";
@@ -69,7 +70,12 @@ const createClaimantVerifiableCredential = async ({ issuerKey, subject }) => {
     }
 };
 
-const createContractVerifiableCredential = async ({ issuerKey, subject, key }) => {
+const createContractVerifiableCredential = async ({
+    issuerKey,
+    subject,
+    privateKey,
+    publicKey,
+}) => {
     try {
         logger.info(JSON.stringify(subject));
         const credentialDid = generateRandomDID();
@@ -99,6 +105,10 @@ const createContractVerifiableCredential = async ({ issuerKey, subject, key }) =
                 role: subject.role,
             },
         };
+        const { suite: CUSTOM_SUITE } = await setUpSuite({
+            private_key: privateKey,
+            public_key: publicKey,
+        });
         const { verifiableCredential } =
             process.env.NODE_ENV === "test"
                 ? {
@@ -106,6 +116,7 @@ const createContractVerifiableCredential = async ({ issuerKey, subject, key }) =
                   }
                 : await VerifiableCredentialHelper.issueVerifiableCredential({
                       credential,
+                      customSuite: CUSTOM_SUITE,
                   });
         return {
             verifiableCredential,

@@ -1,5 +1,6 @@
 // * Utilities
 import axios from "axios";
+import bs58 from "bs58";
 import "dotenv/config";
 import {
     checkUndefinedVar,
@@ -121,23 +122,23 @@ export default {
                     fileName: contractFileName,
                     wrappedDocument: willWrappedDocument,
                 });
-            // if (metadata) {
-            //     const didDocumentResponse =
-            //         await ControllerHelper.getDocumentDid({
-            //             did: contractDid,
-            //             accessToken,
-            //         });
-            //     const originDidDocument = didDocumentResponse?.data?.didDoc;
-            //     const updateDidDocumentResponse =
-            //         await ControllerHelper.updateDocumentDid({
-            //             accessToken,
-            //             did: contractDid,
-            //             didDoc: {
-            //                 ...originDidDocument,
-            //                 metadata,
-            //             },
-            //         });
-            // }
+            if (metadata) {
+                const didDocumentResponse =
+                    await ControllerHelper.getDocumentDid({
+                        did: contractDid,
+                        accessToken,
+                    });
+                const originDidDocument = didDocumentResponse?.data?.didDoc;
+                const updateDidDocumentResponse =
+                    await ControllerHelper.updateDocumentDid({
+                        accessToken,
+                        did: contractDid,
+                        didDoc: {
+                            ...originDidDocument,
+                            meta_data: metadata,
+                        },
+                    });
+            }
             logger.apiInfo(req, res, `Document ${contractFileName} created!`);
             return res.status(200).json({
                 did: contractDid,
@@ -245,6 +246,15 @@ export default {
                     detail: "Missing minting config!",
                 });
             }
+            const { currentWallet } = await getAccountBySeedPhrase({
+                seedPhrase,
+            });
+            const userPrivateKey = bs58.encode(
+                currentWallet?.paymentKey.as_bytes()
+            );
+            const userPublicKey = bs58.encode(
+                currentWallet?.paymentKeyPub.as_bytes()
+            );
             const { verifiableCredential, credentialHash } =
                 await createContractVerifiableCredential({
                     subject: {
@@ -254,6 +264,8 @@ export default {
                         role,
                     },
                     issuerKey: contract,
+                    privateKey: userPrivateKey,
+                    publicKey: userPublicKey,
                 });
             const verifiedCredential = {
                 ...verifiableCredential,
@@ -277,6 +289,7 @@ export default {
                     },
                     accessToken,
                 });
+            logger.apiInfo(req, res, "Successfully store credential!");
             return res.status(200).json({
                 did: credentialDid,
             });

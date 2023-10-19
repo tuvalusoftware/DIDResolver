@@ -70,17 +70,17 @@ export async function setUpSuite({ public_key, private_key }) {
         id: `did:key:${public_key}#${public_key}`,
         name: "Dominium Issuer",
     };
-
     const _keyPair = {
-        type: "Ed25519VerificationKey2020",
         issuer,
         id: issuer.id,
-        publicKeyMultibase: public_key,
-        privateKeyMultibase: private_key,
+        publicKeyBase58: public_key,
+        privateKeyBase58: private_key,
     };
-    const keyPair = await Ed25519VerificationKey2020.from(_keyPair);
-
-    const suite = new Ed25519Signature2020({ key: keyPair });
+    const keyPair = await Ed25519VerificationKey2020.from({
+        type: "Ed25519VerificationKey2018",
+        keyPair: _keyPair,
+    });
+    const suite = await new Ed25519Signature2020({ key: keyPair });
     suite.date = new Date().toISOString();
 
     return { suite, issuer };
