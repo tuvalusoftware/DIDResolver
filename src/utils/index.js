@@ -391,8 +391,6 @@ export {
     validateDID,
     getDidByComponents,
     requireFieldInArray,
-    encrypt,
-    decrypt,
     generateRandomDID,
     replaceKey,
     stringToBytes32,
