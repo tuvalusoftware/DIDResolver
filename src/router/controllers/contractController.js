@@ -305,4 +305,55 @@ export default {
                   });
         }
     },
+    updateContract: async (req, res, next) => {
+        try {
+            const { did, metadata } = req.body;
+            const undefinedVar = checkUndefinedVar({
+                did,
+                metadata,
+            });
+            if (undefinedVar.undefined) {
+                return next({
+                    ...ERRORS.MISSING_PARAMETERS,
+                    detail: undefinedVar.detail,
+                });
+            }
+            const didValidation = validateDID(did);
+            if (!didValidation.valid) {
+                return next(ERRORS.INVALID_DID);
+            }
+            const accessToken =
+                process.env.NODE_ENV === "test"
+                    ? "mock-access-token"
+                    : await AuthHelper.authenticationProgress();
+            const didDocumentResponse = await ControllerHelper.getDocumentDid({
+                did,
+                accessToken,
+            });
+            const originDidDocument = didDocumentResponse?.data?.didDoc;
+            const updateDidDocumentResponse =
+                await ControllerHelper.updateDocumentDid({
+                    accessToken,
+                    did: contractDid,
+                    didDoc: {
+                        ...originDidDocument,
+                        meta_data: metadata,
+                    },
+                });
+            logger.apiInfo(req, res, "Successfully update contract!");
+            return res.status(200).json({
+                updated: true,
+            });
+        } catch (error) {
+            error?.error_code
+                ? next(error)
+                : next({
+                      error_code: 400,
+                      error_message:
+                          error?.error_message ||
+                          error?.message ||
+                          "Something went wrong!",
+                  });
+        }
+    },
 };
