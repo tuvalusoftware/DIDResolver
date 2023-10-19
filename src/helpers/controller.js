@@ -5,12 +5,8 @@ import axios from "axios";
 axios.defaults.withCredentials = true;
 
 /**
- * A helper object containing methods for interacting with the DID Controller API.
- * @namespace ControllerHelper
- */
-/**
- * A helper object that contains methods for interacting with the DID Controller API.
- * @namespace ControllerHelper
+ * This module contains a set of helper methods for interacting with the DID Controller API.
+ * @module ControllerHelper
  */
 export const ControllerHelper = {
     /**
@@ -187,7 +183,7 @@ export const ControllerHelper = {
             const companyName = didComponents[2];
             const fileName = didComponents[3];
             const createUserDidReq = await axios.put(
-                SERVERS.DID_CONTROLLER + "/api/did",
+                SERVERS.DID_CONTROLLER + "/api/doc",
                 {
                     companyName,
                     fileName,
