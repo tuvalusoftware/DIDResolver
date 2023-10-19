@@ -99,10 +99,7 @@ const createContractVerifiableCredential = async ({
             credentialSubject: {
                 id: generateDid(COMPANY_NAME, credentialHash),
                 type: ["ContractSubject"],
-                userDid: subject.userDid,
-                contractDid: subject.contractDid,
-                certificateDid: subject.certificateDid,
-                role: subject.role,
+                ...subject,
             },
         };
         const { suite: CUSTOM_SUITE } = await setUpSuite({

@@ -224,7 +224,7 @@ export default {
             }
             logger.apiInfo(req, res, `Pass validation!`);
             const { certificateDid, seedPhrase, userDid } = claimant;
-            const { valid: validCertificateDid } = validateDID(certificateDid);
+            const { valid: validCertificateDid } = validateDID(contract);
             const companyName = process.env.COMPANY_NAME;
             if (!validCertificateDid) {
                 return next(ERRORS.INVALID_DID);

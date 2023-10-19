@@ -21,7 +21,7 @@ export default {
             },
             claimant: {
                 type: "object",
-                required: ["certificateDid", "seedPhrase", "userDid"],
+                required: ["seedPhrase", "userDid"],
                 properties: {
                     certificateDid: {
                         type: "string",
