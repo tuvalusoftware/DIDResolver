@@ -9,7 +9,7 @@ import {
 } from "../../helpers/index.js";
 import "dotenv/config";
 import { unsalt } from "../../fuixlabs-documentor/utils/data.js";
-import { createVerifiableCredential } from "../../utils/credential.js";
+import { createClaimantVerifiableCredential } from "../../utils/credential.js";
 import { generateDid } from "../../fuixlabs-documentor/utils/did.js";
 import { CardanoHelper } from "../../helpers/index.js";
 
@@ -253,7 +253,7 @@ export default {
             if (claimants) {
                 const promises = claimants?.map(async (claimant) => {
                     const { verifiableCredential, credentialHash } =
-                        await createVerifiableCredential({
+                        await createClaimantVerifiableCredential({
                             subject: {
                                 claims: {
                                     plot: plot?._id,
@@ -348,7 +348,7 @@ export default {
             if (claimants) {
                 const promises = claimants?.map(async (claimant) => {
                     const { verifiableCredential, credentialHash } =
-                        await createVerifiableCredential({
+                        await createClaimantVerifiableCredential({
                             subject: {
                                 claims: {
                                     plot: plot?._id,

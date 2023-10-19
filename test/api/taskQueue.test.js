@@ -61,7 +61,7 @@ describe("TASK QUEUE", function () {
             .post("/api/v2/hash-random")
             .reply(200, CARDANO_RESPONSES.CONFIG_RESPONSE);
         nock(SERVERS.DID_CONTROLLER)
-            .post("/api/doc")
+            .post("/api/v2/doc")
             .reply(200, CONTROLLER_RESPONSE.ERROR);
         it("It should return 'Cannot store certificate' error", (done) => {
             chai.request(server)
@@ -85,7 +85,7 @@ describe("TASK QUEUE", function () {
             .reply(200, CARDANO_RESPONSES.CONFIG_RESPONSE);
 
         nock(SERVERS.DID_CONTROLLER)
-            .post("/api/doc")
+            .post("/api/v2/doc")
             .reply(200, CONTROLLER_RESPONSE.SUCCESS);
         nock(SERVERS.TASK_QUEUE_SERVICE)
             .post("/api/mint")
@@ -110,7 +110,7 @@ describe("TASK QUEUE", function () {
             .post("/api/v2/hash-random")
             .reply(200, CARDANO_RESPONSES.CONFIG_RESPONSE);
         nock(SERVERS.DID_CONTROLLER)
-            .post("/api/doc")
+            .post("/api/v2/doc")
             .reply(200, CONTROLLER_RESPONSE.SUCCESS);
         nock(SERVERS.TASK_QUEUE_SERVICE)
             .post("/api/mint")
@@ -160,12 +160,8 @@ describe("TASK QUEUE", function () {
                     res.body.should.be.a("object");
                     res.body.should.have.property("error_code");
                     res.body.should.have.property("error_message");
-                    res.body.should.have.property("error_detail");
                     expect(res.body.error_code).equal(
-                        ERRORS.CREDENTIAL_FAILED.error_code
-                    );
-                    expect(JSON.stringify(res.body.error_detail)).equal(
-                        JSON.stringify(CARDANO_RESPONSES.ERROR_RESPONSE)
+                        ERRORS.CANNOT_MINT_NFT.error_code
                     );
                     done();
                 });
@@ -174,7 +170,7 @@ describe("TASK QUEUE", function () {
             .post("/api/v2/credential-random")
             .reply(200, CARDANO_RESPONSES.CONFIG_RESPONSE);
         nock(SERVERS.DID_CONTROLLER)
-            .post("/api/credential")
+            .post("/api/v2/credential")
             .reply(200, CONTROLLER_RESPONSE.ERROR);
         it("It should return 'error from controller'", (done) => {
             chai.request(server)
@@ -196,7 +192,7 @@ describe("TASK QUEUE", function () {
             .post("/api/v2/credential-random")
             .reply(200, CARDANO_RESPONSES.CONFIG_RESPONSE);
         nock(SERVERS.DID_CONTROLLER)
-            .post("/api/credential")
+            .post("/api/v2/credential")
             .reply(200, CONTROLLER_RESPONSE.SUCCESS);
         it("It should return 'success data'", (done) => {
             chai.request(server)
@@ -253,7 +249,7 @@ describe("TASK QUEUE", function () {
         });
 
         nock(SERVERS.DID_CONTROLLER)
-            .get("/api/doc")
+            .get("/api/v2/doc")
             .query(
                 (object) => object.companyName && object.fileName && object.only
             )
@@ -279,7 +275,7 @@ describe("TASK QUEUE", function () {
         });
 
         nock(SERVERS.DID_CONTROLLER)
-            .get("/api/doc")
+            .get("/api/v2/doc")
             .query(
                 (object) => object.companyName && object.fileName && object.only
             )
@@ -306,7 +302,7 @@ describe("TASK QUEUE", function () {
         });
 
         nock(SERVERS.DID_CONTROLLER)
-            .get("/api/doc")
+            .get("/api/v2/doc")
             .query(
                 (object) => object.companyName && object.fileName && object.only
             )

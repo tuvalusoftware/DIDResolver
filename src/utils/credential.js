@@ -2,6 +2,7 @@
 import { sha256 } from "js-sha256";
 import { VerifiableCredentialHelper } from "../helpers/credential.js";
 import { generateRandomDID } from "./index.js";
+import { setUpSuite } from "../utils/verifiableCredential.js";
 
 // * Constants
 import { COMPANY_NAME } from "../config/constants.js";
@@ -18,7 +19,7 @@ import logger from "../../logger.js";
  * @param {String} signature
  * @return {Object} - return a credential
  */
-const createVerifiableCredential = async ({ issuerKey, subject }) => {
+const createClaimantVerifiableCredential = async ({ issuerKey, subject }) => {
     try {
         logger.info(JSON.stringify(subject));
         const credentialDid = generateRandomDID();
@@ -69,5 +70,62 @@ const createVerifiableCredential = async ({ issuerKey, subject }) => {
     }
 };
 
+const createContractVerifiableCredential = async ({
+    issuerKey,
+    subject,
+    privateKey,
+    publicKey,
+}) => {
+    try {
+        logger.info(JSON.stringify(subject));
+        const credentialDid = generateRandomDID();
+        let hashingCredential = {
+            "@context": [
+                "https://www.w3.org/2018/credentials/v1",
+                "https://cml-resolver.ap.ngrok.io/config/dominium-credential.json",
+            ],
+            id: credentialDid,
+            type: ["VerifiableCredential", "ContractCredential"],
+            issuer: issuerKey,
+        };
+        const credentialHash = sha256(
+            Buffer.from(
+                `$${subject?.claims?.did}${issuerKey}`,
+                "utf8"
+            ).toString("hex")
+        );
+        const credential = {
+            ...hashingCredential,
+            credentialSubject: {
+                id: generateDid(COMPANY_NAME, credentialHash),
+                type: ["ContractSubject"],
+                ...subject,
+            },
+        };
+        const { suite: CUSTOM_SUITE } = await setUpSuite({
+            private_key: privateKey,
+            public_key: publicKey,
+        });
+        const { verifiableCredential } =
+            process.env.NODE_ENV === "test"
+                ? {
+                      verifiableCredential: credential,
+                  }
+                : await VerifiableCredentialHelper.issueVerifiableCredential({
+                      credential,
+                      customSuite: CUSTOM_SUITE,
+                  });
+        return {
+            verifiableCredential,
+            credentialHash,
+            did: generateDid(COMPANY_NAME, credentialHash),
+        };
+    } catch (e) {
+        throw e;
+    }
+};
 
-export { createVerifiableCredential };
+export {
+    createClaimantVerifiableCredential,
+    createContractVerifiableCredential,
+};

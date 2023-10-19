@@ -10,7 +10,7 @@ import {
 } from "../utils/verifiableCredential.js";
 import { ADMIN_PRIVATE_KEY, ADMIN_PUBLIC_KEY } from "../config/constants.js";
 import axios from "axios";
-import { createVerifiableCredential } from "../utils/credential.js";
+import { createClaimantVerifiableCredential } from "../utils/credential.js";
 
 const { suite: DOMINIUM_SUITE } = await setUpSuite({
     private_key: ADMIN_PRIVATE_KEY,
@@ -32,7 +32,7 @@ export const VerifiableCredentialHelper = {
      * @returns {Promise<Object>} A promise that resolves with the signed verifiable credential object.
      * @throws {Error} Throws an error if there was an issue signing the credential.
      */
-    issueVerifiableCredential: async ({ credential }) => {
+    issueVerifiableCredential: async ({ credential, customSuite }) => {
         try {
             try {
                 if (credential.hasOwnProperty("credentialSchema")) {
@@ -61,7 +61,7 @@ export const VerifiableCredentialHelper = {
                     credential["@context"]
                 );
                 const verifiableCredential = await jsigs.sign(credential, {
-                    suite: DOMINIUM_SUITE,
+                    suite: customSuite ? customSuite : DOMINIUM_SUITE,
                     purpose: new AssertionProofPurpose(),
                     documentLoader,
                 });
@@ -82,7 +82,7 @@ export const VerifiableCredentialHelper = {
      * Creates a verifiable credential object with the provided data and signs it.
      * @async
      * @memberof VerifiableCredentialHelper
-     * @method createVerifiableCredential
+     * @method createClaimantVerifiableCredential
      * @param {Object} options - The options object.
      * @param {Object} options.signData - The data to sign the credential with.
      * @param {string} options.issuerKey - The issuer's key.
@@ -91,7 +91,7 @@ export const VerifiableCredentialHelper = {
      * @returns {Promise<Object>} A promise that resolves with the signed verifiable credential object.
      * @throws {Error} Throws an error if there was an issue creating or signing the credential.
      */
-    createVerifiableCredential: async ({
+    createClaimantVerifiableCredential: async ({
         signData,
         issuerKey,
         subject,
@@ -144,15 +144,16 @@ export const VerifiableCredentialHelper = {
     }) => {
         try {
             const promises = claimants.map(async (claimant) => {
-                const { credentialHash } = await createVerifiableCredential({
-                    subject: {
-                        claims: {
-                            plot: plotId,
-                            ...claimant,
+                const { credentialHash } =
+                    await createClaimantVerifiableCredential({
+                        subject: {
+                            claims: {
+                                plot: plotId,
+                                ...claimant,
+                            },
                         },
-                    },
-                    issuerKey: did,
-                });
+                        issuerKey: did,
+                    });
                 return {
                     userId: claimant?._id,
                     did: generateDid(companyName, credentialHash),

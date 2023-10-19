@@ -287,42 +287,6 @@ const stringToBytes32 = (input) => {
 };
 
 /**
- * Encrypts a message using AES-256-CBC encryption algorithm.
- * @param {string} message - The message to be encrypted.
- * @returns {string} - The encrypted message in hexadecimal format.
- */
-const encrypt = (message) => {
-    const securityCode = process.env.COMMONLANDS_SECRET_KEY;
-    const initVector = crypto.randomBytes(16);
-    const cipher = crypto.createCipheriv(
-        "aes-256-cbc",
-        stringToBytes32(securityCode),
-        initVector
-    );
-    let encryptedData = cipher.update(message, "utf-8", "hex");
-    encryptedData += cipher.final("hex");
-    return encryptedData;
-};
-
-/**
- * Decrypts the given encrypted text using AES-256-CBC algorithm and a secret key.
- * @param {string} encryptedText - The encrypted text to be decrypted.
- * @returns {string} The decrypted text.
- */
-const decrypt = (encryptedText) => {
-    const iv = Buffer.from(encryptedText.slice(0, 32), "hex");
-    const encryptedData = encryptedText.slice(32);
-    const decipher = crypto.createDecipheriv(
-        "aes-256-cbc",
-        Buffer.from(secretKey),
-        iv
-    );
-    let decrypted = decipher.update(encryptedData, "hex", "utf8");
-    decrypted += decipher.final("utf8");
-    return decrypted;
-};
-
-/**
  * Generates a random DID (Decentralized Identifier) using a specific ID and a chosen DID method.
  * @function
  * @returns {string} The generated DID.
@@ -360,7 +324,59 @@ const replaceKey = (obj, oldKey, newKey) => {
     }
 };
 
+/**
+ * Encrypts the given data using the provided security key.
+ * @param {string} data - The data to be encrypted.
+ * @param {string} securityKey - The security key to use for encryption.
+ * @returns {string} - The encrypted data in hexadecimal format.
+ */
+const encryptData = (data, securityKey) => {
+    const algorithm = "aes-256-cbc";
+    const initVector = crypto.randomBytes(16);
+    const cipher = crypto.createCipheriv(algorithm, securityKey, initVector);
+
+    // encrypt the message
+    // input encoding
+    // output encoding
+    let encryptedData = cipher.update(data, "utf-8", "hex");
+    encryptedData += cipher.final("hex");
+    return encryptedData;
+}; // TODO - Write unit-test
+
+/**
+ * Decrypts the given data using the provided security key.
+ * @param {string} data - The data to be decrypted.
+ * @param {string} securityKey - The security key to use for decryption.
+ * @returns {string} The decrypted data.
+ */
+const decryptData = (data, securityKey) => {
+    const algorithm = "aes-256-cbc";
+    const initVector = crypto.randomBytes(16);
+    const cipher = crypto.createCipheriv(algorithm, securityKey, initVector);
+
+    // encrypt the message
+    // input encoding
+    // output encoding
+    let encryptedData = cipher.update(data, "utf-8", "hex");
+
+    encryptedData += cipher.final("hex");
+
+    // the decipher function
+    const decipher = crypto.createDecipheriv(
+        algorithm,
+        Securitykey,
+        initVector
+    );
+
+    let decryptedData = decipher.update(encryptedData, "hex", "utf-8");
+
+    decryptedData += decipher.final("utf8");
+    return decryptedData;
+}; // TODO - Write unit-test
+
 export {
+    decryptData,
+    encryptData,
     validateDIDSyntax,
     getAddressFromHexEncoded,
     getPublicKeyFromAddress,
@@ -375,8 +391,6 @@ export {
     validateDID,
     getDidByComponents,
     requireFieldInArray,
-    encrypt,
-    decrypt,
     generateRandomDID,
     replaceKey,
     stringToBytes32,

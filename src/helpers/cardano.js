@@ -39,6 +39,9 @@ export const CardanoHelper = {
                     },
                 }
             );
+            if(credentialResponse?.data?.code !== 0) {
+                throw ERRORS.CANNOT_MINT_NFT;
+            }
             return credentialResponse;
         } catch (error) {
             throw error;
@@ -65,6 +68,36 @@ export const CardanoHelper = {
                         Cookie: `access_token=${accessToken};`,
                     },
                     data: { config: mintingConfig },
+                }
+            );
+            if (burnTokenResponse?.data?.code !== 0) {
+                throw ERRORS.REVOKE_DOCUMENT_FAILED;
+            }
+            return burnTokenResponse;
+        } catch (error) {
+            throw error;
+        }
+    },
+    /**
+     * Deletes an NFT from the Cardano blockchain by sending a DELETE request to the Cardano service API.
+     * @async
+     * @function
+     * @memberof CardanoHelper
+     * @param {Object} options - The options object.
+     * @param {string} options.accessToken - The access token for the user making the request.
+     * @param {Object} options.mintingConfig - The configuration object for the NFT minting.
+     * @returns {Promise<Object>} - A promise that resolves with the response data from the Cardano service API.
+     */
+    burnAllRelatedToken: async ({ mintingConfig, accessToken }) => {
+        try {
+            const burnTokenResponse = await axios.delete(
+                SERVERS.CARDANO_SERVICE + "/api/v2/hash",
+                {
+                    withCredentials: true,
+                    headers: {
+                        Cookie: `access_token=${accessToken};`,
+                    },
+                    data: { config: mintingConfig, burnAll: true },
                 }
             );
             if (burnTokenResponse?.data?.code !== 0) {
@@ -132,7 +165,7 @@ export const CardanoHelper = {
                     },
                 }
             );
-            if(tokenResponse?.data?.code !== 0) {
+            if (tokenResponse?.data?.code !== 0) {
                 throw ERRORS.CANNOT_MINT_NFT;
             }
             return tokenResponse;

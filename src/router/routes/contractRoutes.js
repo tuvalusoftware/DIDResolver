@@ -9,5 +9,7 @@ const router = express.Router();
 
 router.post("/", contractController.createContract);
 router.get("/:did", contractController.getContract);
+router.put("/", contractController.updateContract);
+router.post("/sign", contractController.signContract);
 
 export default router;

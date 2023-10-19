@@ -5,12 +5,8 @@ import axios from "axios";
 axios.defaults.withCredentials = true;
 
 /**
- * A helper object containing methods for interacting with the DID Controller API.
- * @namespace ControllerHelper
- */
-/**
- * A helper object that contains methods for interacting with the DID Controller API.
- * @namespace ControllerHelper
+ * This module contains a set of helper methods for interacting with the DID Controller API.
+ * @module ControllerHelper
  */
 export const ControllerHelper = {
     /**
@@ -27,7 +23,7 @@ export const ControllerHelper = {
     storeCredentials: async ({ payload, accessToken }) => {
         try {
             const storeCredentialStatus = await axios.post(
-                SERVERS.DID_CONTROLLER + "/api/credential",
+                SERVERS.DID_CONTROLLER + "/api/v2/credential",
                 payload,
                 {
                     headers: {
@@ -35,6 +31,9 @@ export const ControllerHelper = {
                     },
                 }
             );
+            if (storeCredentialStatus?.data?.error_code) {
+                throw storeCredentialStatus?.data;
+            }
             return storeCredentialStatus;
         } catch (error) {
             throw error;
@@ -55,7 +54,7 @@ export const ControllerHelper = {
     isExisted: async ({ accessToken, companyName, fileName }) => {
         try {
             const isExistedResponse = await axios.get(
-                SERVERS.DID_CONTROLLER + "/api/doc/exists",
+                SERVERS.DID_CONTROLLER + "/api/v2/doc/exists",
                 {
                     withCredentials: true,
                     headers: {
@@ -96,7 +95,7 @@ export const ControllerHelper = {
     }) => {
         try {
             const storeWrappedDocumentResponse = await axios.post(
-                SERVERS.DID_CONTROLLER + "/api/doc",
+                SERVERS.DID_CONTROLLER + "/api/v2/doc",
                 {
                     fileName,
                     wrappedDocument,
@@ -107,7 +106,7 @@ export const ControllerHelper = {
                     headers: { Cookie: `access_token=${accessToken};` },
                 }
             );
-            if(storeWrappedDocumentResponse?.data?.error_code) {
+            if (storeWrappedDocumentResponse?.data?.error_code) {
                 throw storeWrappedDocumentResponse?.data;
             }
             return storeWrappedDocumentResponse;
@@ -135,7 +134,7 @@ export const ControllerHelper = {
                 throw ERRORS.INVALID_INPUT;
             }
             const documentResponse = await axios.get(
-                SERVERS.DID_CONTROLLER + "/api/doc",
+                SERVERS.DID_CONTROLLER + "/api/v2/doc",
                 {
                     withCredentials: true,
                     headers: {
@@ -161,7 +160,7 @@ export const ControllerHelper = {
                 throw ERRORS.INVALID_INPUT;
             }
             const documentResponse = await axios.get(
-                SERVERS.DID_CONTROLLER + "/api/doc",
+                SERVERS.DID_CONTROLLER + "/api/v2/doc",
                 {
                     withCredentials: true,
                     headers: {
@@ -184,7 +183,7 @@ export const ControllerHelper = {
             const companyName = didComponents[2];
             const fileName = didComponents[3];
             const createUserDidReq = await axios.put(
-                SERVERS.DID_CONTROLLER + "/api/doc",
+                SERVERS.DID_CONTROLLER + "/api/v2/doc",
                 {
                     companyName,
                     fileName,
@@ -208,7 +207,7 @@ export const ControllerHelper = {
     getCredentialContent: async ({ accessToken, did }) => {
         try {
             const credentialResponse = await axios.get(
-                SERVERS.DID_CONTROLLER + `/api/credential/${did}`,
+                SERVERS.DID_CONTROLLER + `/api/v2/credential/${did}`,
                 {
                     withCredentials: true,
                     headers: {
