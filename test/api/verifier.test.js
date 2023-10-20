@@ -49,7 +49,7 @@ describe("VERIFIER", function () {
         });
 
         nock(SERVERS.DID_CONTROLLER)
-            .get("/api/doc")
+            .get("/api/v2/doc")
             .query(
                 (object) => object.companyName && object.fileName && object.only
             )
@@ -70,7 +70,7 @@ describe("VERIFIER", function () {
                 });
         });
         nock(SERVERS.DID_CONTROLLER)
-            .get("/api/doc")
+            .get("/api/v2/doc")
             .query(
                 (object) => object.companyName && object.fileName && object.only
             )
@@ -96,7 +96,7 @@ describe("VERIFIER", function () {
         });
 
         nock(SERVERS.DID_CONTROLLER)
-            .get("/api/doc")
+            .get("/api/v2/doc")
             .query(
                 (object) => object.companyName && object.fileName && object.only
             )
@@ -128,7 +128,7 @@ describe("VERIFIER", function () {
         });
 
         nock(SERVERS.DID_CONTROLLER)
-            .get("/api/doc")
+            .get("/api/v2/doc")
             .query(
                 (object) => object.companyName && object.fileName && object.only
             )
@@ -189,7 +189,7 @@ describe("VERIFIER", function () {
         });
 
         nock(SERVERS.DID_CONTROLLER)
-            .get("/api/credential/did:example:ethers:0x1234")
+            .get("/api/v2/credential/did:example:ethers:0x1234")
             .reply(200, CONTROLLER_RESPONSE.ERROR);
         it("It should return 'Error from Controller'", (done) => {
             chai.request(server)
@@ -208,7 +208,7 @@ describe("VERIFIER", function () {
         });
 
         nock(SERVERS.DID_CONTROLLER)
-            .get("/api/credential/did:example:ethers:0x1234")
+            .get("/api/v2/credential/did:example:ethers:0x1234")
             .reply(200, CONTROLLER_RESPONSE.VERIFIABLE_CREDENTIAL);
         it("It should return 'isValid is true'", (done) => {
             chai.request(server)
