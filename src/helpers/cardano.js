@@ -39,7 +39,7 @@ export const CardanoHelper = {
                     },
                 }
             );
-            if(credentialResponse?.data?.code !== 0) {
+            if (credentialResponse?.data?.code !== 0) {
                 throw ERRORS.CANNOT_MINT_NFT;
             }
             return credentialResponse;
@@ -245,6 +245,9 @@ export const CardanoHelper = {
                     },
                 }
             );
+            if (updateResponse?.data?.code !== 0) {
+                throw ERRORS.CANNOT_MINT_NFT;
+            }
             return updateResponse;
         } catch (error) {
             throw error;
