@@ -334,7 +334,7 @@ export default {
             const updateDidDocumentResponse =
                 await ControllerHelper.updateDocumentDid({
                     accessToken,
-                    did: contractDid,
+                    did,
                     didDoc: {
                         ...originDidDocument,
                         meta_data: metadata,
