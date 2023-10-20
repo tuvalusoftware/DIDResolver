@@ -35,7 +35,7 @@ describe("DOCUMENT", function () {
         });
 
         nock(SERVERS.DID_CONTROLLER)
-            .get("/api/v2/doc")
+            .get("/api/doc")
             .query(
                 (object) => object.companyName && object.fileName && object.only
             )
@@ -56,7 +56,7 @@ describe("DOCUMENT", function () {
         });
 
         nock(SERVERS.DID_CONTROLLER)
-            .get("/api/v2/doc")
+            .get("/api/doc")
             .query(
                 (object) => object.companyName && object.fileName && object.only
             )
@@ -260,7 +260,7 @@ describe("DOCUMENT", function () {
         });
 
         nock(SERVERS.DID_CONTROLLER)
-            .get("/api/v2/doc/exists")
+            .get("/api/doc/exists")
             .query((queryObj) => queryObj.companyName && queryObj.fileName)
             .reply(200, CONTROLLER_RESPONSE.IS_EXISTED);
         it("It should return ''", (done) => {

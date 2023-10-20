@@ -23,7 +23,7 @@ export const ControllerHelper = {
     storeCredentials: async ({ payload, accessToken }) => {
         try {
             const storeCredentialStatus = await axios.post(
-                SERVERS.DID_CONTROLLER + "/api/v2/credential",
+                SERVERS.DID_CONTROLLER + "/api/credential",
                 payload,
                 {
                     headers: {
@@ -54,7 +54,7 @@ export const ControllerHelper = {
     isExisted: async ({ accessToken, companyName, fileName }) => {
         try {
             const isExistedResponse = await axios.get(
-                SERVERS.DID_CONTROLLER + "/api/v2/doc/exists",
+                SERVERS.DID_CONTROLLER + "/api/doc/exists",
                 {
                     withCredentials: true,
                     headers: {
@@ -95,7 +95,7 @@ export const ControllerHelper = {
     }) => {
         try {
             const storeWrappedDocumentResponse = await axios.post(
-                SERVERS.DID_CONTROLLER + "/api/v2/doc",
+                SERVERS.DID_CONTROLLER + "/api/doc",
                 {
                     fileName,
                     wrappedDocument,
@@ -134,7 +134,7 @@ export const ControllerHelper = {
                 throw ERRORS.INVALID_INPUT;
             }
             const documentResponse = await axios.get(
-                SERVERS.DID_CONTROLLER + "/api/v2/doc",
+                SERVERS.DID_CONTROLLER + "/api/doc",
                 {
                     withCredentials: true,
                     headers: {
@@ -160,7 +160,7 @@ export const ControllerHelper = {
                 throw ERRORS.INVALID_INPUT;
             }
             const documentResponse = await axios.get(
-                SERVERS.DID_CONTROLLER + "/api/v2/doc",
+                SERVERS.DID_CONTROLLER + "/api/doc",
                 {
                     withCredentials: true,
                     headers: {
@@ -183,7 +183,7 @@ export const ControllerHelper = {
             const companyName = didComponents[2];
             const fileName = didComponents[3];
             const createUserDidReq = await axios.put(
-                SERVERS.DID_CONTROLLER + "/api/v2/doc",
+                SERVERS.DID_CONTROLLER + "/api/doc",
                 {
                     companyName,
                     fileName,
@@ -207,7 +207,7 @@ export const ControllerHelper = {
     getCredentialContent: async ({ accessToken, did }) => {
         try {
             const credentialResponse = await axios.get(
-                SERVERS.DID_CONTROLLER + `/api/v2/credential/${did}`,
+                SERVERS.DID_CONTROLLER + `/api/credential/${did}`,
                 {
                     withCredentials: true,
                     headers: {
