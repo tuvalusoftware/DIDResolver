@@ -429,8 +429,7 @@ export default {
                 return response?.data;
             });
             const values = await Promise.all(getPromise);
-            const result = values.map((value) => value?.data);
-            return res.status(200).json(result);
+            return res.status(200).json(values);
         } catch (error) {
             error?.error_code
                 ? next(error)
