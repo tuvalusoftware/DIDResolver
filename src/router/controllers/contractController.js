@@ -426,7 +426,7 @@ export default {
                         did,
                     }
                 );
-                return response?.data?.requests;
+                return response?.data?.requests[0]?.data?.claimants;
             });
             const values = await Promise.all(getPromise);
             return res.status(200).json(values);
