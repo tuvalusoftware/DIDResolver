@@ -491,6 +491,12 @@ export const CONTROLLER_RESPONSE = {
         valid: true,
         data: {},
     },
+    GET_DID_DOCUMENT_SUCCESS: {
+        didDoc: {
+            "@context": "https://www.w3.org/ns/did/v1",
+            id: "did:cardano:1234567890abcdef",
+        },
+    },
 };
 
 export const TASK_QUEUE_RESPONSE = {

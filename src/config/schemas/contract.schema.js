@@ -33,9 +33,9 @@ export default {
                         type: "string",
                     },
                 },
-                additionalProperties: false,
+                additionalProperties: true,
             },
         },
-        additionalProperties: false,
+        additionalProperties: true,
     },
 };

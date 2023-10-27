@@ -5,11 +5,7 @@ import nock from "nock";
 import server from "../../server.js";
 import { ERRORS } from "../../src/config/errors/error.constants.js";
 import { SERVERS } from "../../src/config/constants.js";
-import {
-    CONTROLLER_RESPONSE,
-    CARDANO_ERROR_RESPONSE,
-    CARDANO_RESPONSES,
-} from "../mockData.js";
+import { CONTROLLER_RESPONSE, CARDANO_RESPONSES } from "../mockData.js";
 
 chai.use(chaiHttp);
 let should = chai.should();
@@ -377,6 +373,121 @@ describe("Contract API", function () {
                             hash: CONTROLLER_RESPONSE.SUCCESS.wrappedDoc
                                 .signature.targetHash,
                             did: "did:example:ethr:0x123",
+                        })
+                    );
+                    done();
+                });
+        });
+    });
+
+    describe("/PUT Update contract did document by given metadata", () => {
+        it("It should return 'Missing parameters' error", (done) => {
+            chai.request(server)
+                .put("/resolver/contract")
+                .send({})
+                .end((err, res) => {
+                    res.should.have.status(200);
+                    res.body.should.be.a("object");
+                    res.body.should.have.property("error_code");
+                    res.body.should.have.property("error_message");
+                    res.body.should.have.property("error_detail");
+                    expect(res.body.error_code).equal(
+                        ERRORS.MISSING_PARAMETERS.error_code
+                    );
+                    done();
+                });
+        });
+
+        it("It should return 'Invalid' due to to input did is not valid", (done) => {
+            chai.request(server)
+                .put("/resolver/contract")
+                .send({
+                    did: "invalid-did",
+                    metadata: {},
+                })
+                .end((err, res) => {
+                    res.should.have.status(200);
+                    res.body.should.be.a("object");
+                    expect(JSON.stringify(res.body)).equal(
+                        JSON.stringify(ERRORS.INVALID_DID)
+                    );
+                    done();
+                });
+        });
+
+        nock(SERVERS.DID_CONTROLLER)
+            .get("/api/v2/doc")
+            .query(
+                (object) => object.companyName && object.fileName && object.only
+            )
+            .reply(200, CONTROLLER_RESPONSE.ERROR);
+        it("It should return 'Error from Controller' when server request to get did of document", (done) => {
+            chai.request(server)
+                .put("/resolver/contract")
+                .send({
+                    did: "did:example:ethr:0x123",
+                    metadata: {},
+                })
+                .end((err, res) => {
+                    done();
+                });
+        });
+
+        nock(SERVERS.DID_CONTROLLER)
+            .get("/api/v2/doc")
+            .query(
+                (object) => object.companyName && object.fileName && object.only
+            )
+            .reply(200, CONTROLLER_RESPONSE.GET_DID_DOCUMENT_SUCCESS);
+        nock(SERVERS.DID_CONTROLLER)
+            .put("/api/v2/doc")
+            .reply(200, CONTROLLER_RESPONSE.ERROR);
+        it("It should return 'Error from Controller' when user call to update did of document", (done) => {
+            chai.request(server)
+                .put("/resolver/contract")
+                .send({
+                    did: "did:example:ethr:0x123",
+                    metadata: {
+                        status: "pending",
+                    },
+                })
+                .end((err, res) => {
+                    res.status.should.equal(200);
+                    res.body.should.be.a("object");
+                    expect(JSON.stringify(res.body)).equal(
+                        JSON.stringify(CONTROLLER_RESPONSE.ERROR)
+                    );
+                    done();
+                });
+        });
+
+        nock(SERVERS.DID_CONTROLLER)
+            .get("/api/v2/doc")
+            .query(
+                (object) => object.companyName && object.fileName && object.only
+            )
+            .reply(200, CONTROLLER_RESPONSE.GET_DID_DOCUMENT_SUCCESS);
+        nock(SERVERS.DID_CONTROLLER)
+            .put("/api/v2/doc")
+            .reply(200, CONTROLLER_RESPONSE.SUCCESS);
+        it("It should return 'Updated is true' whenever update did of document success", (done) => {
+            chai.request(server)
+                .put("/resolver/contract")
+                .send({
+                    did: "did:example:ethr:0x123",
+                    metadata: {
+                        status: "pending",
+                    },
+                })
+                .end((err, res) => {
+                    res.should.have.status(200);
+                    res.body.should.be.a("object");
+                    res.body.should.not.have.property("error_code");
+                    res.body.should.not.have.property("error_message");
+                    res.body.should.not.have.property("error_detail");
+                    expect(JSON.stringify(res.body)).equal(
+                        JSON.stringify({
+                            updated: true,
                         })
                     );
                     done();

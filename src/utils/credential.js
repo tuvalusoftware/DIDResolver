@@ -89,10 +89,9 @@ const createContractVerifiableCredential = async ({
             issuer: issuerKey,
         };
         const credentialHash = sha256(
-            Buffer.from(
-                `$${subject?.claims?.did}${issuerKey}`,
-                "utf8"
-            ).toString("hex")
+            Buffer.from(`$${subject?.userDid}${issuerKey}`, "utf8").toString(
+                "hex"
+            )
         );
         const credential = {
             ...hashingCredential,

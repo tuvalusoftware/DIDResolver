@@ -14,6 +14,7 @@ import {
     AuthHelper,
     ControllerHelper,
     CardanoHelper,
+    TaskQueueHelper,
 } from "../../helpers/index.js";
 import { getAccountBySeedPhrase } from "../../utils/lucid.js";
 import { createContractVerifiableCredential } from "../../utils/credential.js";
@@ -26,17 +27,13 @@ import contractSchema from "../../config/schemas/contract.schema.js";
 
 axios.defaults.withCredentials = true;
 
+/**
+ * Controller for creating and getting contracts.
+ * @typedef {Object} ContractController
+ * @property {Function} createContract - Creates a new contract.
+ * @property {Function} getContract - Gets an existing contract by DID.
+ */
 export default {
-    /**
-     * Creates a new contract
-     * @memberof contractController
-     * @async
-     * @function createContract
-     * @param {Object} req - The request object
-     * @param {Object} res - The response object
-     * @param {Function} next - The next middleware function
-     * @returns {Object} - The response object containing the DID of the created contract
-     */
     createContract: async (req, res, next) => {
         try {
             logger.apiInfo(req, res, "Request API: Create Contract!");
@@ -155,16 +152,6 @@ export default {
                   });
         }
     },
-    /**
-     * Retrieves a contract by its DID
-     * @memberof contractController
-     * @async
-     * @function getContract
-     * @param {Object} req - The request object
-     * @param {Object} res - The response object
-     * @param {Function} next - The next middleware function
-     * @returns {Object} - The response object containing the hash and DID of the retrieved contract
-     */
     getContract: async (req, res, next) => {
         try {
             logger.apiInfo(req, res, "Request API: Get Contract!");
@@ -334,7 +321,7 @@ export default {
             const updateDidDocumentResponse =
                 await ControllerHelper.updateDocumentDid({
                     accessToken,
-                    did: contractDid,
+                    did,
                     didDoc: {
                         ...originDidDocument,
                         meta_data: metadata,
@@ -344,6 +331,32 @@ export default {
             return res.status(200).json({
                 updated: true,
             });
+        } catch (error) {
+            error?.error_code
+                ? next(error)
+                : next({
+                      error_code: 400,
+                      error_message:
+                          error?.error_message ||
+                          error?.message ||
+                          "Something went wrong!",
+                  });
+        }
+    },
+    verifyContract: async (req, res, next) => {
+        try {
+            logger.apiInfo(req, res, "Request API: Verify Contract!");
+            const { seedPhrase, contractDid } = req.body;
+            const undefinedVar = checkUndefinedVar({
+                seedPhrase,
+                contractDid,
+            });
+            if (undefinedVar.undefined) {
+                return next({
+                    ...ERRORS.MISSING_PARAMETERS,
+                    detail: undefinedVar.detail,
+                });
+            }
         } catch (error) {
             error?.error_code
                 ? next(error)

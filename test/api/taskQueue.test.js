@@ -329,4 +329,105 @@ describe("TASK QUEUE", function () {
                 });
         });
     });
+
+    describe("/UPDATE update plot document", () => {
+        it('it should return "Missing parameters" error', (done) => {
+            chai.request(server)
+                .put("/resolver/task-queue/plot-mint")
+                .send({})
+                .end((error, res) => {
+                    res.should.have.status(200);
+                    res.body.should.be.a("object");
+                    res.body.should.have.property("error_code");
+                    res.body.should.have.property("error_message");
+                    expect(res.body.error_code).equal(
+                        ERRORS.MISSING_PARAMETERS.error_code
+                    );
+                    done();
+                });
+        });
+
+        nock(SERVERS.CARDANO_SERVICE)
+            .put("/api/v2/hash/")
+            .reply(200, CARDANO_RESPONSES.ERROR_RESPONSE);
+        it("It should return 'Error from Cardano server'", (done) => {
+            chai.request(server)
+                .put("/resolver/task-queue/plot-mint")
+                .send({
+                    wrappedDocument: {},
+                    plot: {},
+                    did: "",
+                    companyName: "",
+                    mintingConfig: {},
+                })
+                .end((error, res) => {
+                    res.should.have.status(200);
+                    res.body.should.be.a("object");
+                    expect(JSON.stringify(res.body)).equal(
+                        JSON.stringify(ERRORS.CANNOT_MINT_NFT)
+                    );
+                    done();
+                });
+        });
+
+        nock(SERVERS.CARDANO_SERVICE)
+            .put("/api/v2/hash/")
+            .reply(200, CARDANO_RESPONSES.CONFIG_RESPONSE);
+        nock(SERVERS.DID_CONTROLLER)
+            .post("/api/v2/doc")
+            .reply(200, CONTROLLER_RESPONSE.ERROR);
+        it("It should return 'Error from Controller server' when request store document", (done) => {
+            chai.request(server)
+                .put("/resolver/task-queue/plot-mint")
+                .send({
+                    wrappedDocument: {},
+                    plot: {
+                        claimants: [],
+                    },
+                    did: "",
+                    companyName: "",
+                    mintingConfig: {},
+                })
+                .end((error, res) => {
+                    res.should.have.status(200);
+                    res.body.should.be.a("object");
+                    expect(JSON.stringify(res.body)).equal(
+                        JSON.stringify(CONTROLLER_RESPONSE.ERROR)
+                    );
+                    done();
+                });
+        });
+
+        nock(SERVERS.CARDANO_SERVICE)
+            .put("/api/v2/hash/")
+            .reply(200, CARDANO_RESPONSES.CONFIG_RESPONSE);
+        nock(SERVERS.DID_CONTROLLER)
+            .post("/api/v2/doc")
+            .reply(200, CONTROLLER_RESPONSE.SUCCESS);
+        it("It should return 'Success message with empty claimants response' due to given claimant is empty", (done) => {
+            chai.request(server)
+                .put("/resolver/task-queue/plot-mint")
+                .send({
+                    wrappedDocument: {},
+                    plot: {
+                        claimants: [],
+                    },
+                    did: "",
+                    companyName: "",
+                    mintingConfig: {},
+                })
+                .end((error, res) => {
+                    res.should.have.status(200);
+                    res.body.should.be.a("object");
+                    res.body.should.not.have.property("error_code");
+                    res.body.should.not.have.property("error_message");
+                    res.body.should.have.property("claimants");
+                    expect(JSON.stringify(res.body.claimants)).equal(
+                        JSON.stringify([])
+                    );
+                    res.body.should.have.property("plot");
+                    done();
+                });
+        });
+    });
 });
