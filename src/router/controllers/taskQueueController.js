@@ -322,12 +322,6 @@ export default {
                 accessToken,
                 did,
             });
-            if (updateResponse?.data?.code !== 0) {
-                return next({
-                    ...ERRORS.CANNOT_UPDATE_NFT,
-                    detail: updateResponse?.data,
-                });
-            }
             const updateConfig = updateResponse?.data?.data;
             let updateWrappedDocument = {
                 ...wrappedDocument,
@@ -340,9 +334,6 @@ export default {
                 fileName,
                 wrappedDocument: updateWrappedDocument,
             });
-            if (storeResponse?.data?.error_code) {
-                return next(storeResponse?.data);
-            }
             const claimants = plot?.claimants;
             let claimantData = [];
             if (claimants) {
@@ -388,7 +379,7 @@ export default {
                           "Something went wrong!",
                   });
         }
-    },
+    }, // TODO: Write unit-test
     createClaimantCredential: async (req, res, next) => {
         try {
             logger.apiInfo(
@@ -522,7 +513,7 @@ export default {
                           "Something went wrong!",
                   });
         }
-    },
+    }, // TODO: Write unit-test
     addClaimant: async (req, res, next) => {
         try {
             logger.apiInfo(req, res, "Request API: Request add claimant!");
@@ -614,5 +605,5 @@ export default {
                           "Something went wrong!",
                   });
         }
-    },
+    }, // TODO: Write unit-test
 };

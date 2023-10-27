@@ -5,6 +5,8 @@ import { validateJSONSchema } from "../utils/index.js";
 import { SERVERS } from "../config/constants.js";
 import axios from "axios";
 
+axios.defaults.withCredentials = true;
+
 /**
  * A helper object containing methods for sending minting requests to the task queue service.
  * @namespace TaskQueueHelper
@@ -120,7 +122,23 @@ export const TaskQueueHelper = {
         try {
             const requestsResponse = await axios.get(
                 SERVERS.TASK_QUEUE_SERVICE +
-                    `/api/db/findRequestsRelatedToDid/${did}`
+                    `/api/db/findRequestsRelatedToDid/${did}`,
+                {
+                    withCredentials: true,
+                }
+            );
+            if (requestsResponse?.data?.error_code) {
+                throw requestsResponse.data || ERRORS.PUSH_TO_TASK_QUEUE_FAILED;
+            }
+            return requestsResponse;
+        } catch (error) {
+            throw error;
+        }
+    },
+    findRequestByDid: async ({ did }) => {
+        try {
+            const requestsResponse = await axios.get(
+                SERVERS.TASK_QUEUE_SERVICE + `/api/db/request?did=${did}`
             );
             if (requestsResponse?.data?.error_code) {
                 throw requestsResponse.data || ERRORS.PUSH_TO_TASK_QUEUE_FAILED;

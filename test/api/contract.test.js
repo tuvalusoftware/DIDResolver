@@ -5,11 +5,7 @@ import nock from "nock";
 import server from "../../server.js";
 import { ERRORS } from "../../src/config/errors/error.constants.js";
 import { SERVERS } from "../../src/config/constants.js";
-import {
-    CONTROLLER_RESPONSE,
-    CARDANO_ERROR_RESPONSE,
-    CARDANO_RESPONSES,
-} from "../mockData.js";
+import { CONTROLLER_RESPONSE, CARDANO_RESPONSES } from "../mockData.js";
 
 chai.use(chaiHttp);
 let should = chai.should();

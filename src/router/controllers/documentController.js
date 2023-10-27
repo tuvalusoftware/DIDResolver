@@ -378,7 +378,7 @@ export default {
                           "Something went wrong!",
                   });
         }
-    }, // TODO: Write unit-test for this endpoint
+    },
     hashDocument: async (req, res, next) => {
         try {
             const { plot, claimant } = req.body;

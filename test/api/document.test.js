@@ -339,5 +339,37 @@ describe("DOCUMENT", function () {
                     done();
                 });
         });
+
+        nock(SERVERS.TASK_QUEUE_SERVICE)
+            .post("/api/mint")
+            .reply(200, TASK_QUEUE_RESPONSE.BAD_REQUEST);
+        it("It should return 'Error from task-queue server' when user call put revoke request to task-queue server", (done) => {
+            chai.request(server)
+                .delete("/resolver/commonlands/document/certificate")
+                .send({ did: "did:example:example2:231" })
+                .end((err, res) => {
+                    res.should.have.status(200);
+                    res.body.should.be.a("object");
+                    expect(JSON.stringify(res.body)).equal(
+                        JSON.stringify(TASK_QUEUE_RESPONSE.BAD_REQUEST)
+                    );
+                    done();
+                });
+        });
+
+        nock(SERVERS.TASK_QUEUE_SERVICE)
+            .post("/api/mint")
+            .reply(200, TASK_QUEUE_RESPONSE.REQUEST_CREDENTIAL);
+        it("It should return 'success message is true' when request revoking document is successfully done", (done) => {
+            chai.request(server)
+                .delete("/resolver/commonlands/document/certificate")
+                .send({ did: "did:example:example2:231" })
+                .end((err, res) => {
+                    res.should.have.status(200);
+                    res.body.should.be.a("object");
+                    res.body.should.have.property("success").equal(true);
+                    done();
+                });
+        });
     });
 });

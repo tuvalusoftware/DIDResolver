@@ -718,3 +718,9 @@ export const addClaimantToDocument = {
         },
     },
 };
+
+export const getClaimantContract = {
+    get: {
+        
+    }
+}
