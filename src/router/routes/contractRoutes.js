@@ -7,7 +7,6 @@ const upload = multer({ storage: storage });
 
 const router = express.Router();
 
-router.get("/claimant", contractController.getClaimantContract);
 router.post("/", contractController.createContract);
 router.get("/:did", contractController.getContract);
 router.put("/", contractController.updateContract);

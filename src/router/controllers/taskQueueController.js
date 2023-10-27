@@ -14,22 +14,17 @@ import { generateDid } from "../../fuixlabs-documentor/utils/did.js";
 import { CardanoHelper } from "../../helpers/index.js";
 
 /**
- * Controller object containing functions for handling task queue requests.
- */
-/**
- * Controller object for task queue related functions.
- * @namespace taskQueueController
+ * Controller object containing functions for handling document creation, revocation, and plot document creation.
  */
 export default {
     /**
-     * Revoke a document by burning its NFT.
+     * Revoke a document with the given DID.
      * @async
      * @function revokeDocument
-     * @memberof taskQueueController
      * @param {Object} req - The request object.
      * @param {Object} res - The response object.
      * @param {Function} next - The next middleware function.
-     * @returns {Object} The response object with a status of 200 and a JSON object containing the "revoked" property set to true.
+     * @returns {Object} The response object with a status of 200 and a JSON object containing the revoked status and document data.
      */
     revokeDocument: async (req, res, next) => {
         try {
@@ -80,14 +75,13 @@ export default {
         }
     },
     /**
-     * Create a document by minting its NFT and storing its wrapped document.
+     * Create a document with the given wrapped document, company name, URL, and DID.
      * @async
      * @function createDocument
-     * @memberof taskQueueController
      * @param {Object} req - The request object.
      * @param {Object} res - The response object.
      * @param {Function} next - The next middleware function.
-     * @returns {Object} The response object with a status of 200 and a JSON object containing the "url" and "did" properties.
+     * @returns {Object} The response object with a status of 200 and a JSON object containing the URL and DID.
      */
     createDocument: async (req, res, next) => {
         try {
@@ -180,13 +174,12 @@ export default {
         }
     },
     /**
-     * Create a plot document by minting its NFT and storing its wrapped document.
+     * Create a plot document with the given wrapped document, plot, DID, and company name.
      * @async
      * @function createPlotDocument
      * @param {Object} req - The request object.
      * @param {Object} res - The response object.
      * @param {Function} next - The next middleware function.
-     * @returns {Object} The response object with a status of 200 and a JSON object containing the "url" and "did" properties.
      */
     createPlotDocument: async (req, res, next) => {
         try {

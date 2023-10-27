@@ -12,8 +12,4 @@ export default (app) => {
     app.use("/resolver/task-queue", taskQueueRoutes);
     app.use("/resolver/verify", verifierRoutes);
     app.use(express.static("assets"));
-
-    // app.get("*", (req, res) => {
-    //   res.status(404).send("Not found");
-    // });
 };

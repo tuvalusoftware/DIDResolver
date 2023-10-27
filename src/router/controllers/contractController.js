@@ -27,17 +27,13 @@ import contractSchema from "../../config/schemas/contract.schema.js";
 
 axios.defaults.withCredentials = true;
 
+/**
+ * Controller for creating and getting contracts.
+ * @typedef {Object} ContractController
+ * @property {Function} createContract - Creates a new contract.
+ * @property {Function} getContract - Gets an existing contract by DID.
+ */
 export default {
-    /**
-     * Creates a new contract
-     * @memberof contractController
-     * @async
-     * @function createContract
-     * @param {Object} req - The request object
-     * @param {Object} res - The response object
-     * @param {Function} next - The next middleware function
-     * @returns {Object} - The response object containing the DID of the created contract
-     */
     createContract: async (req, res, next) => {
         try {
             logger.apiInfo(req, res, "Request API: Create Contract!");
@@ -156,16 +152,6 @@ export default {
                   });
         }
     },
-    /**
-     * Retrieves a contract by its DID
-     * @memberof contractController
-     * @async
-     * @function getContract
-     * @param {Object} req - The request object
-     * @param {Object} res - The response object
-     * @param {Function} next - The next middleware function
-     * @returns {Object} - The response object containing the hash and DID of the retrieved contract
-     */
     getContract: async (req, res, next) => {
         try {
             logger.apiInfo(req, res, "Request API: Get Contract!");
@@ -371,65 +357,6 @@ export default {
                     detail: undefinedVar.detail,
                 });
             }
-        } catch (error) {
-            error?.error_code
-                ? next(error)
-                : next({
-                      error_code: 400,
-                      error_message:
-                          error?.error_message ||
-                          error?.message ||
-                          "Something went wrong!",
-                  });
-        }
-    },
-    getClaimantContract: async (req, res, next) => {
-        try {
-            logger.apiInfo(req, res, "Request API: Get Claimant Contract!");
-            const dids = [
-                "did:fuixlabs:commonlands:PlotCertification-650152ce975b3ac94f4b4f45",
-                "did:fuixlabs:commonlands:PlotCertification-65016830975b3ac94f4bf11d",
-                "did:fuixlabs:commonlands:PlotCertification-650173c5975b3ac94f4cca07",
-                "did:fuixlabs:commonlands:PlotCertification-650175b4975b3ac94f4cfcd1",
-                "did:fuixlabs:commonlands:PlotCertification-65017c56975b3ac94f4db6cf",
-                "did:fuixlabs:commonlands:PlotCertification-65017c7a975b3ac94f4dba00",
-                "did:fuixlabs:commonlands:PlotCertification-65017cfb975b3ac94f4dc04b",
-                "did:fuixlabs:commonlands:PlotCertification-65017e0b975b3ac94f4de2e0",
-                "did:fuixlabs:commonlands:PlotCertification-65017e84975b3ac94f4ded75",
-                "did:fuixlabs:commonlands:PlotCertification-65017ea4975b3ac94f4df430",
-                "did:fuixlabs:commonlands:PlotCertification-65018035975b3ac94f4e19d7",
-                "did:fuixlabs:commonlands:PlotCertification-650180c8975b3ac94f4e3abf",
-                "did:fuixlabs:commonlands:PlotCertification-650181e0975b3ac94f4e6edc",
-                "did:fuixlabs:commonlands:PlotCertification-6501823f975b3ac94f4e7633",
-                "did:fuixlabs:commonlands:PlotCertification-6501843e975b3ac94f4ec2ca",
-                "did:fuixlabs:commonlands:PlotCertification-650184fe975b3ac94f4ec6db",
-                "did:fuixlabs:commonlands:PlotCertification-65018527975b3ac94f4ec95e",
-                "did:fuixlabs:commonlands:PlotCertification-65018634975b3ac94f4ef1e7",
-                "did:fuixlabs:commonlands:PlotCertification-650187e0975b3ac94f4f1cc2",
-                "did:fuixlabs:commonlands:PlotCertification-650187e6975b3ac94f4f1ce1",
-                "did:fuixlabs:commonlands:PlotCertification-65018803975b3ac94f4f1f9d",
-                "did:fuixlabs:commonlands:PlotCertification-65018b4a975b3ac94f4f6c9d",
-                "did:fuixlabs:commonlands:PlotCertification-65018b5a975b3ac94f4f6e24",
-                "did:fuixlabs:commonlands:PlotCertification-65018ba0975b3ac94f4f7bc9",
-                "did:fuixlabs:commonlands:PlotCertification-65018d5b975b3ac94f4fb9c6",
-                "did:fuixlabs:commonlands:PlotCertification-65018f2c975b3ac94f50138c",
-                "did:fuixlabs:commonlands:PlotCertification-65019006975b3ac94f5029a1",
-                "did:fuixlabs:commonlands:PlotCertification-65019008975b3ac94f502b4a",
-                "did:fuixlabs:commonlands:PlotCertification-650191ae975b3ac94f505fa5",
-                "did:fuixlabs:commonlands:PlotCertification-6501932c975b3ac94f508f29",
-                "did:fuixlabs:commonlands:PlotCertification-65019389975b3ac94f5091f6",
-                "did:fuixlabs:commonlands:PlotCertification-650195d5975b3ac94f50b36b",
-            ];
-            const getPromise = dids.map(async (did) => {
-                const response = await TaskQueueHelper.findRequestsRelatedToDid(
-                    {
-                        did,
-                    }
-                );
-                return response?.data?.requests[0]?.data?.claimants;
-            });
-            const values = await Promise.all(getPromise);
-            return res.status(200).json(values);
         } catch (error) {
             error?.error_code
                 ? next(error)
