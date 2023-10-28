@@ -52,6 +52,7 @@ export const SERVERS = {
         "https://commonlands-gitdb.ap.ngrok.io",
     TASK_QUEUE_SERVICE:
         process.env.TASK_QUEUE_SERVICE || "http://localhost:18000",
+    RABBITMQ_SERVICE: process.env.MESSAGE_QUEUE || "amqp://localhost",
 };
 
 export const NETWORK_ID = {
