@@ -4,11 +4,14 @@ import cors from "cors";
 import compression from "compression";
 import cookieParser from "cookie-parser";
 import methodOverride from "method-override";
-import logger from "./logger.js";
 import swaggerUi from "swagger-ui-express";
 import { swaggerDocument } from "./src/config/swagger/index.js";
 import routes from "./src/router/routes/index.js";
 import { ERRORS } from "./src/config/errors/error.constants.js";
+import {} from "./src/rabbit/index.js";
+import { Logger } from "tslog";
+
+const logger = new Logger();
 
 const app = express();
 app.use(cors());
@@ -61,11 +64,7 @@ app.use((err, req, res, _) => {
         }
         throw err;
     } catch (error) {
-        logger.apiError(
-            req,
-            res,
-            `Error in ${req.method} ${req.url}: ${err?.error_message}`
-        );
+        process?.env?.NODE_ENV !== "test" && logger.error(error);
         return res.status(200).json({
             error_code: err.error_code,
             error_message:

@@ -7,7 +7,6 @@ import { setUpSuite } from "../utils/verifiableCredential.js";
 // * Constants
 import { COMPANY_NAME } from "../config/constants.js";
 import { generateDid } from "../fuixlabs-documentor/utils/did.js";
-import logger from "../../logger.js";
 
 /**
  * Create credential to authenticate the exchange of document ownership between the owner and the holders
@@ -21,7 +20,6 @@ import logger from "../../logger.js";
  */
 const createClaimantVerifiableCredential = async ({ issuerKey, subject }) => {
     try {
-        logger.info(JSON.stringify(subject));
         const credentialDid = generateRandomDID();
         let hashingCredential = {
             "@context": [
@@ -77,7 +75,6 @@ const createContractVerifiableCredential = async ({
     publicKey,
 }) => {
     try {
-        logger.info(JSON.stringify(subject));
         const credentialDid = generateRandomDID();
         let hashingCredential = {
             "@context": [

@@ -1,6 +1,8 @@
 import mongoose from "mongoose";
-import logger from "../logger.js";
+import { Logger } from "tslog";
 import "dotenv/config";
+
+const logger = new Logger();
 
 /**
  * Connects to a MongoDB database using the specified environment variables.
@@ -22,7 +24,7 @@ export default () => {
                 return logger.info(`Successfully connected to ${dbUrl}`);
             })
             .catch((error) => {
-                logger.apiError(`Error connecting to database: ${error}`);
+                logger.error(`Error connecting to database: ${error}`);
                 return process.exit(1);
             });
     };
