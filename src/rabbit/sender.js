@@ -1,17 +1,22 @@
-import { CardanoService, getSender } from "./index.js";
+import { getSender } from "./index.js";
+import { RABBITMQ_SERVICE } from "./config.js";
 
-const { sender: cardanoSender, cardanoQueue } = getSender({
-    service: CardanoService,
+const { sender: cardanoSender, queue: cardanoQueue } = getSender({
+    service: RABBITMQ_SERVICE.CardanoService,
 });
 
-export const CardanoSender = async ({ type, data, _id }) => {
+export const CardanoSender = async ({ type, data, id, options }) => {
     const message = {
         type,
         data,
-        _id,
+        id,
+        options,
     };
     cardanoSender.sendToQueue(
         cardanoQueue,
-        Buffer.from(JSON.stringify(message))
+        Buffer.from(JSON.stringify(message)),
+        {
+            durable: true,
+        }
     );
 };

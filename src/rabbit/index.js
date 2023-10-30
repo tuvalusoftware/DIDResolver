@@ -1,6 +1,7 @@
 import amqplib from "amqplib";
 import { Logger } from "tslog";
 import { SERVERS } from "../config/constants.js";
+import { RABBITMQ_SERVICE } from "./config.js";
 
 const logger = new Logger();
 
@@ -15,31 +16,26 @@ try {
 } catch (error) {
     logger.error("Error connecting to RabbitMQ", error);
 }
-export const CardanoService = "CardanoService";
-export const TaskQueue = "TaskQueue";
 
 const queue = {
-    CardanoService: CardanoService,
-    TaskQueue: TaskQueue,
+    CardanoService: RABBITMQ_SERVICE.CardanoService,
+    ResolverService: RABBITMQ_SERVICE.ResolverService,
 };
 
 const cardanoChannel = await rabbitMQ.createChannel();
-await cardanoChannel.assertQueue(queue[CardanoService], { durable: true });
+await cardanoChannel.assertQueue(queue[RABBITMQ_SERVICE.CardanoService], {
+    durable: true,
+});
 
-const taskChannel = await rabbitMQ.createChannel();
-await taskChannel.assertQueue(queue[TaskQueue], { durable: true });
+const resolverChanel = await rabbitMQ.createChannel();
+await resolverChanel.assertQueue(queue[RABBITMQ_SERVICE.ResolverService], {
+    durable: true,
+});
 
 const channel = {
     CardanoService: cardanoChannel,
-    TaskQueue: taskChannel,
+    ResolverService: resolverChanel,
 };
-
-channel[TaskQueue].consume(queue[TaskQueue], async (msg) => {
-    if (msg !== null) {
-        logger.info("[TaskQueue] 🔈", msg.content.toString());
-        channel[TaskQueue].ack(msg);
-    }
-});
 
 export function getSender({ service }) {
     return {
