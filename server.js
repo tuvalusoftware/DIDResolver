@@ -10,6 +10,9 @@ import routes from "./src/router/routes/index.js";
 import { ERRORS } from "./src/config/errors/error.constants.js";
 import {} from "./src/rabbit/index.js";
 import { Logger } from "tslog";
+import { ResolverConsumer } from "./src/rabbit/receivers.js";
+import connectMongo from "./src/libs/connectMongo.js";
+import morgen from "morgan";
 
 const logger = new Logger();
 
@@ -20,11 +23,15 @@ app.use(compression());
 app.use(express.json({ limit: "200mb" }));
 app.use(express.urlencoded({ limit: "200mb", extended: true }));
 app.use(methodOverride());
+app.use(morgen("tiny"));
 app.use(
     express.urlencoded({
         extended: true,
     })
 );
+
+connectMongo();
+await ResolverConsumer();
 
 const normalizePort = (val) => {
     const port = parseInt(val, 10);
@@ -76,7 +83,7 @@ app.use((err, req, res, _) => {
 
 const port = normalizePort(process.env.NODE_PORT || "8000");
 server.listen(port, () => {
-    logger.info(`Server is live on port ${port}: http://localhost:${port}/`);
+    logger.debug(`Server is live on port ${port}: http://localhost:${port}/`);
 });
 
 export default server;
