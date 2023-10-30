@@ -19,6 +19,8 @@ import {
 import { getAccountBySeedPhrase } from "../../utils/lucid.js";
 import { createContractVerifiableCredential } from "../../utils/credential.js";
 import logger from "../../../logger.js";
+import RequestRepo from "../../db/repos/requestRepo.js";
+import { REQUEST_TYPE } from "../../rabbit/config.js";
 
 // * Constants
 import { ERRORS } from "../../config/errors/error.constants.js";
@@ -103,39 +105,19 @@ export default {
                 currentWallet: currentWallet,
                 companyName: companyName,
             });
-            const mintingResponse = await CardanoHelper.storeToken({
+            const request = await RequestRepo.createRequest({
+                data: {
+                    wrappedDocument,
+                    metadata
+                },
+                type: REQUEST_TYPE.MINTING_TYPE.createContract,
+                status: "pending",
+            });
+             await CardanoHelper.storeToken({
                 hash: wrappedDocument?.signature?.targetHash,
                 accessToken,
+                id: request._id,
             });
-            const mintingConfig = mintingResponse?.data?.data;
-            const willWrappedDocument = {
-                ...wrappedDocument,
-                mintingConfig,
-            };
-            const storeWrappedDocumentResponse =
-                await ControllerHelper.storeDocument({
-                    accessToken,
-                    companyName,
-                    fileName: contractFileName,
-                    wrappedDocument: willWrappedDocument,
-                });
-            if (metadata) {
-                const didDocumentResponse =
-                    await ControllerHelper.getDocumentDid({
-                        did: contractDid,
-                        accessToken,
-                    });
-                const originDidDocument = didDocumentResponse?.data?.didDoc;
-                const updateDidDocumentResponse =
-                    await ControllerHelper.updateDocumentDid({
-                        accessToken,
-                        did: contractDid,
-                        didDoc: {
-                            ...originDidDocument,
-                            meta_data: metadata,
-                        },
-                    });
-            }
             logger.apiInfo(req, res, `Document ${contractFileName} created!`);
             return res.status(200).json({
                 did: contractDid,

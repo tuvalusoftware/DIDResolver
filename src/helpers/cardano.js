@@ -1,6 +1,8 @@
 import axios from "axios";
 import { SERVERS } from "../config/constants.js";
 import { ERRORS } from "../config/errors/error.constants.js";
+import { CardanoSender } from "../rabbit/sender.js";
+import { REQUEST_TYPE } from "../rabbit/config.js";
 
 axios.defaults.withCredentials = true;
 
@@ -151,24 +153,18 @@ export const CardanoHelper = {
      * @param {string} options.accessToken - The access token for authentication.
      * @returns {Promise<Object>} - A promise that resolves to the token response object.
      */
-    storeToken: async ({ hash, accessToken }) => {
+    storeToken: async ({ hash, id }) => {
         try {
-            const tokenResponse = await axios.post(
-                SERVERS.CARDANO_SERVICE + "/api/v2/hash-random",
-                {
+            await CardanoSender({
+                data: {
                     hash,
                 },
-                {
-                    withCredentials: true,
-                    headers: {
-                        Cookie: `access_token=${accessToken};`,
-                    },
-                }
-            );
-            if (tokenResponse?.data?.code !== 0) {
-                throw ERRORS.CANNOT_MINT_NFT;
-            }
-            return tokenResponse;
+                options: {
+                    skipWait: true,
+                },
+                type: REQUEST_TYPE.CARDANO_SERVICE.mintToken,
+                id,
+            });
         } catch (error) {
             throw error;
         }
