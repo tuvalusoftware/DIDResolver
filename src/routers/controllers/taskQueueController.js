@@ -1,5 +1,5 @@
-import { REQUEST_TYPE } from "../../config/constants.js";
-import { ERRORS } from "../../config/errors/error.constants.js";
+import { REQUEST_TYPE } from "../../configs/constants.js";
+import { ERRORS } from "../../configs/errors/error.constants.js";
 import logger from "../../../logger.js";
 import { checkUndefinedVar, validateDID } from "../../utils/index.js";
 import {
@@ -227,20 +227,13 @@ export default {
             };
             const fileName = unsalt(willWrappedDocument?.data?.fileName);
             logger.apiInfo(req, res, `File name: ${fileName}`);
-            const storeWrappedDocumentStatus =
+            
                 await ControllerHelper.storeDocument({
                     accessToken,
                     companyName,
                     fileName,
                     wrappedDocument: willWrappedDocument,
                 });
-
-            if (storeWrappedDocumentStatus?.data?.error_code) {
-                return next(
-                    storeWrappedDocumentStatus?.data ||
-                        ERRORS.CANNOT_STORE_DOCUMENT
-                );
-            }
             const claimants = plot?.claimants;
             let claimantData = [];
             if (claimants) {

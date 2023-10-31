@@ -7,19 +7,19 @@ import { JsonLdDocumentLoader } from "jsonld-document-loader";
 import {
     CONTEXT as EdTechJsonSchemaValidator2019Context,
     CONTEXT_URL as EdTechJsonSchemaValidator2019ContextURL,
-} from "../config/contexts/1EdTechJsonSchemaValidator2019.js";
+} from "../configs/contexts/1EdTechJsonSchemaValidator2019.js";
 import {
     CONTEXT as VCContext,
     CONTEXT_URL as VCContextURL,
-} from "../config/contexts/VCSchema.js";
+} from "../configs/contexts/VCSchema.js";
 import {
     CONTEXT as odrlContext,
     CONTEXT_URL as odrlContextURL,
-} from "../config/contexts/odrl.js";
+} from "../configs/contexts/odrl.js";
 import {
     CONTEXT as vcedContext,
     CONTEXT_URL as vcedContextURL,
-} from "../config/contexts/vced.js";
+} from "../configs/contexts/vced.js";
 
 /**
  * @description Get Document Loader with full contexts

@@ -1,6 +1,6 @@
 import amqplib from "amqplib";
 import { Logger } from "tslog";
-import { SERVERS } from "../config/constants.js";
+import { SERVERS } from "../configs/constants.js";
 import { RABBITMQ_SERVICE } from "./config.js";
 
 const logger = new Logger();

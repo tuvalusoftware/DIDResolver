@@ -7,7 +7,8 @@ import {
     ControllerHelper,
     VerifiableCredentialHelper,
 } from "../../helpers/index.js";
-import { ERRORS } from "../../config/errors/error.constants.js";
+import { ERRORS } from "../../configs/errors/error.constants.js";
+import { handleServerError } from "../../configs/errors/errorHandler.js";
 
 /**
  * Controller for verifying a certificate.
@@ -21,15 +22,6 @@ import { ERRORS } from "../../config/errors/error.constants.js";
  * @type {VerifierController}
  */
 export default {
-    /**
-     * Verifies a certificate.
-     * @function verifyCertificate
-     * @async
-     * @param {Object} req - Express request object.
-     * @param {Object} res - Express response object.
-     * @param {Function} next - Express next middleware function.
-     * @returns {Object} - Returns a JSON object with the verification result and data.
-     */
     verifyCertificate: async (req, res, next) => {
         try {
             logger.apiInfo(req, res, "API Request: Verify Certificate");
@@ -87,26 +79,9 @@ export default {
                 data: documentContentResponse?.data?.wrappedDoc,
             });
         } catch (error) {
-            error?.error_code
-                ? next(error)
-                : next({
-                      error_code: 400,
-                      error_message:
-                          error?.error_message ||
-                          error?.message ||
-                          "Something went wrong!",
-                  });
+            next(handleServerError(error));
         }
     },
-    /**
-     * Verifies a verifiable credential.
-     * @function verifyVerifiableCredential
-     * @async
-     * @param {Object} req - Express request object.
-     * @param {Object} res - Express response object.
-     * @param {Function} next - Express next middleware function.
-     * @returns {Object} - Returns a JSON object with the verification result and data.
-     */
     verifyVerifiableCredential: async (req, res, next) => {
         try {
             logger.apiInfo(
@@ -149,15 +124,7 @@ export default {
                 data: credentialContent,
             });
         } catch (error) {
-            error?.error_code
-                ? next(error)
-                : next({
-                      error_code: 400,
-                      error_message:
-                          error?.error_message ||
-                          error?.message ||
-                          "Something went wrong!",
-                  });
+            next(handleServerError(error));
         }
     },
 };

@@ -8,9 +8,11 @@ export const RABBITMQ_SERVICE = {
 export const REQUEST_TYPE = {
     CARDANO_SERVICE: {
         mintToken: "mint-token",
+        mintCredential: "mint-credential",
     },
     MINTING_TYPE: {
         createContract: "create-contract",
         createPlot: "create-plot",
+        createClaimantCredential: "create-claimant-credential",
     },
 };

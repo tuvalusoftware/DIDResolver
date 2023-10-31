@@ -30,8 +30,8 @@ import {
     SAMPLE_SERVICE,
     _DOCUMENT_TYPE,
 } from "../fuixlabs-documentor/constants/type.js";
-import { SERVERS } from "../config/constants.js";
-import { ERRORS } from "../config/errors/error.constants.js";
+import { SERVERS } from "../configs/constants.js";
+import { ERRORS } from "../configs/errors/error.constants.js";
 import { ControllerHelper } from "../helpers/controller.js";
 import { CardanoHelper } from "../helpers/cardano.js";
 

@@ -5,7 +5,7 @@ import axios from "axios";
 import { getAccountBySeedPhrase, signData } from "../utils/lucid.js";
 
 // * Constants
-import { SERVERS } from "../config/constants.js";
+import { SERVERS } from "../configs/constants.js";
 import jwt_decode from "jwt-decode";
 import { getPublicKeyFromAddress } from "../utils/index.js";
 

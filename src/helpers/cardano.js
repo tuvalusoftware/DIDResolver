@@ -1,6 +1,6 @@
 import axios from "axios";
-import { SERVERS } from "../config/constants.js";
-import { ERRORS } from "../config/errors/error.constants.js";
+import { SERVERS } from "../configs/constants.js";
+import { ERRORS } from "../configs/errors/error.constants.js";
 import { CardanoSender } from "../rabbit/sender.js";
 import { REQUEST_TYPE } from "../rabbit/config.js";
 
@@ -153,11 +153,12 @@ export const CardanoHelper = {
      * @param {string} options.accessToken - The access token for authentication.
      * @returns {Promise<Object>} - A promise that resolves to the token response object.
      */
-    storeToken: async ({ hash, id }) => {
+    storeToken: async ({ hash, id, type = "document" }) => {
         try {
             await CardanoSender({
                 data: {
                     hash,
+                    type,
                 },
                 options: {
                     skipWait: true,
@@ -184,31 +185,21 @@ export const CardanoHelper = {
     storeCredentialsWithPolicyId: async ({
         credentials,
         mintingConfig,
-        accessToken,
+        id
     }) => {
         try {
-            /**
-             * Sends a POST request to the Cardano service to generate a random credential.
-             *
-             * @param {Object} mintingConfig - The configuration object for minting the credential.
-             * @param {Object} credentials - The credentials object.
-             * @param {string} accessToken - The access token for authentication.
-             * @returns {Promise<Object>} - A promise that resolves to the credential response object.
-             */
-            const credentialResponse = await axios.post(
-                SERVERS.CARDANO_SERVICE + "/api/v2/credentials",
-                {
+            await CardanoSender({
+                data: {
                     config: mintingConfig,
                     credentials: credentials,
+                    type: 'credential',
                 },
-                {
-                    withCredentials: true,
-                    headers: {
-                        Cookie: `access_token=${accessToken};`,
-                    },
-                }
-            );
-            return credentialResponse;
+                options: {
+                    skipWait: true,
+                },
+                type: REQUEST_TYPE.CARDANO_SERVICE.mintCredential,
+                id
+            })
         } catch (error) {
             throw error;
         }

@@ -5,7 +5,7 @@ import { generateRandomDID } from "./index.js";
 import { setUpSuite } from "../utils/verifiableCredential.js";
 
 // * Constants
-import { COMPANY_NAME } from "../config/constants.js";
+import { COMPANY_NAME } from "../configs/constants.js";
 import { generateDid } from "../fuixlabs-documentor/utils/did.js";
 
 /**

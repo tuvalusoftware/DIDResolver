@@ -8,7 +8,7 @@ import {
     getDynamicDocumentLoader,
     setUpSuite,
 } from "../utils/verifiableCredential.js";
-import { ADMIN_PRIVATE_KEY, ADMIN_PUBLIC_KEY } from "../config/constants.js";
+import { ADMIN_PRIVATE_KEY, ADMIN_PUBLIC_KEY } from "../configs/constants.js";
 import axios from "axios";
 import { createClaimantVerifiableCredential } from "../utils/credential.js";
 

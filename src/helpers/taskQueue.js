@@ -1,8 +1,8 @@
-import { REQUEST_TYPE } from "../config/constants.js";
-import { ERRORS } from "../config/errors/error.constants.js";
-import QUEUE_SCHEMA from "../config/schemas/queue.schema.js";
+import { REQUEST_TYPE } from "../configs/constants.js";
+import { ERRORS } from "../configs/errors/error.constants.js";
+import QUEUE_SCHEMA from "../configs/schemas/queue.schema.js";
 import { validateJSONSchema } from "../utils/index.js";
-import { SERVERS } from "../config/constants.js";
+import { SERVERS } from "../configs/constants.js";
 import axios from "axios";
 
 axios.defaults.withCredentials = true;

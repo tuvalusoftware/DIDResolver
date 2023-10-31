@@ -14,18 +14,18 @@ import {
     AuthHelper,
     ControllerHelper,
     CardanoHelper,
-    TaskQueueHelper,
 } from "../../helpers/index.js";
 import { getAccountBySeedPhrase } from "../../utils/lucid.js";
 import { createContractVerifiableCredential } from "../../utils/credential.js";
 import logger from "../../../logger.js";
 import RequestRepo from "../../db/repos/requestRepo.js";
 import { REQUEST_TYPE } from "../../rabbit/config.js";
+import { handleServerError } from "../../configs/errors/errorHandler.js";
 
 // * Constants
-import { ERRORS } from "../../config/errors/error.constants.js";
+import { ERRORS } from "../../configs/errors/error.constants.js";
 import { generateDid } from "../../fuixlabs-documentor/utils/did.js";
-import contractSchema from "../../config/schemas/contract.schema.js";
+import contractSchema from "../../configs/schemas/contract.schema.js";
 
 axios.defaults.withCredentials = true;
 
@@ -108,14 +108,13 @@ export default {
             const request = await RequestRepo.createRequest({
                 data: {
                     wrappedDocument,
-                    metadata
+                    metadata,
                 },
                 type: REQUEST_TYPE.MINTING_TYPE.createContract,
                 status: "pending",
             });
-             await CardanoHelper.storeToken({
+            await CardanoHelper.storeToken({
                 hash: wrappedDocument?.signature?.targetHash,
-                accessToken,
                 id: request._id,
             });
             logger.apiInfo(req, res, `Document ${contractFileName} created!`);
@@ -123,15 +122,7 @@ export default {
                 did: contractDid,
             });
         } catch (error) {
-            error?.error_code
-                ? next(error)
-                : next({
-                      error_code: 400,
-                      error_message:
-                          error?.error_message ||
-                          error?.message ||
-                          "Something went wrong!",
-                  });
+            next(handleServerError(error));
         }
     },
     getContract: async (req, res, next) => {
@@ -158,15 +149,7 @@ export default {
                 did: did,
             });
         } catch (error) {
-            error?.error_code
-                ? next(error)
-                : next({
-                      error_code: 400,
-                      error_message:
-                          error?.error_message ||
-                          error?.message ||
-                          "Something went wrong!",
-                  });
+            next(handleServerError(error));
         }
     },
     signContract: async (req, res, next) => {
@@ -263,15 +246,7 @@ export default {
                 did: credentialDid,
             });
         } catch (error) {
-            error?.error_code
-                ? next(error)
-                : next({
-                      error_code: 400,
-                      error_message:
-                          error?.error_message ||
-                          error?.message ||
-                          "Something went wrong!",
-                  });
+            next(handleServerError(error));
         }
     },
     updateContract: async (req, res, next) => {
@@ -314,15 +289,7 @@ export default {
                 updated: true,
             });
         } catch (error) {
-            error?.error_code
-                ? next(error)
-                : next({
-                      error_code: 400,
-                      error_message:
-                          error?.error_message ||
-                          error?.message ||
-                          "Something went wrong!",
-                  });
+            next(handleServerError(error));
         }
     },
     verifyContract: async (req, res, next) => {
@@ -340,15 +307,7 @@ export default {
                 });
             }
         } catch (error) {
-            error?.error_code
-                ? next(error)
-                : next({
-                      error_code: 400,
-                      error_message:
-                          error?.error_message ||
-                          error?.message ||
-                          "Something went wrong!",
-                  });
+            next(handleServerError(error));
         }
     },
 };

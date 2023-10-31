@@ -1,6 +1,6 @@
 // * Constants
-import { REQUEST_TYPE } from "../../config/constants.js";
-import { ERRORS } from "../../config/errors/error.constants.js";
+import { REQUEST_TYPE } from "../../configs/constants.js";
+import { ERRORS } from "../../configs/errors/error.constants.js";
 
 // * Utilities
 import axios from "axios";
@@ -28,18 +28,15 @@ import {
     ControllerHelper,
     TaskQueueHelper,
     VerifiableCredentialHelper,
+    CardanoHelper,
 } from "../../helpers/index.js";
 import { validateJSONSchema } from "../../utils/index.js";
+import RequestRepo from "../../db/repos/requestRepo.js";
+import { handleServerError } from "../../configs/errors/errorHandler.js";
+import { REQUEST_TYPE as RABBIT_REQUEST_TYPE } from "../../rabbit/config.js";
 
 axios.defaults.withCredentials = true;
 
-/**
- * Controller for getting a document by DID
- * @param {Object} req - Express request object
- * @param {Object} res - Express response object
- * @param {Function} next - Express next middleware function
- * @returns {Object} - Returns a JSON object with the hash and DID of the document
- */
 export default {
     getDocument: async (req, res, next) => {
         try {
@@ -64,25 +61,9 @@ export default {
                 did: did,
             });
         } catch (error) {
-            error?.error_code
-                ? next(error)
-                : next({
-                      error_code: 400,
-                      error_message:
-                          error?.error_message ||
-                          error?.message ||
-                          "Something went wrong!",
-                  });
+           next(handleServerError(error));
         }
     },
-
-    /**
-     * Controller for creating a plot certification document
-     * @param {Object} req - Express request object
-     * @param {Object} res - Express response object
-     * @param {Function} next - Express next middleware function
-     * @returns {Object} - Returns a JSON object with the claimants of the document
-     */
     createPlotCertification: async (req, res, next) => {
         try {
             logger.apiInfo(req, res, `API Request: Create Plot Certification`);
@@ -107,15 +88,15 @@ export default {
                 process.env.NODE_ENV === "test"
                     ? "mock-access-token"
                     : await AuthHelper.authenticationProgress();
-            const isCronExists = await TaskQueueHelper.isExisted({
-                did: generateDid(companyName, plotCertificationFileName),
-            });
-            logger.apiInfo(req, res, isCronExists?.data);
-            if (isCronExists?.data?.isExists) {
-                return res
-                    .status(200)
-                    .json(isCronExists?.data?.data?.claimants);
-            }
+            // const isCronExists = await TaskQueueHelper.isExisted({
+            //     did: generateDid(companyName, plotCertificationFileName),
+            // });
+            // logger.apiInfo(req, res, isCronExists?.data);
+            // if (isCronExists?.data?.isExists) {
+            //     return res
+            //         .status(200)
+            //         .json(isCronExists?.data?.data?.claimants);
+            // }
             const isExistedResponse = await ControllerHelper.isExisted({
                 accessToken: accessToken,
                 companyName: companyName,
@@ -186,28 +167,34 @@ export default {
                         plotId: plot?._id,
                     }
                 );
-            await TaskQueueHelper.sendMintingRequest({
+            const request = await RequestRepo.createRequest({
                 data: {
                     wrappedDocument,
-                    companyName,
-                    did: documentDid,
-                    plot,
                     claimants: claimantsCredentialDids,
+                    plot,
                 },
-                type: REQUEST_TYPE.PLOT_MINT,
-                did: documentDid,
+                type: RABBIT_REQUEST_TYPE.MINTING_TYPE.createPlot,
+                status: "pending",
             });
+            await CardanoHelper.storeToken({
+                hash: wrappedDocument?.signature?.targetHash,
+                id: request._id,
+            });
+            logger.apiInfo(req, res, `Document DID: ${documentDid}`);
+            // await TaskQueueHelper.sendMintingRequest({
+            //     data: {
+            //         wrappedDocument,
+            //         companyName,
+            //         did: documentDid,
+            //         plot,
+            //         claimants: claimantsCredentialDids,
+            //     },
+            //     type: REQUEST_TYPE.PLOT_MINT,
+            //     did: documentDid,
+            // });
             return res.status(200).json(claimantsCredentialDids);
         } catch (error) {
-            error?.error_code
-                ? next(error)
-                : next({
-                      error_code: 400,
-                      error_message:
-                          error?.error_message ||
-                          error?.message ||
-                          "Something went wrong!",
-                  });
+            next(handleServerError(error));
         }
     },
     updatePlotCertification: async (req, res, next) => {
@@ -344,15 +331,7 @@ export default {
             });
             return res.status(200).json(claimantsCredentialDids);
         } catch (error) {
-            error?.error_code
-                ? next(error)
-                : next({
-                      error_code: 400,
-                      error_message:
-                          error?.error_message ||
-                          error?.message ||
-                          "Something went wrong!",
-                  });
+            next(handleServerError(error));
         }
     },
     revokePlotCertification: async (req, res, next) => {
@@ -383,15 +362,7 @@ export default {
                 success: true,
             });
         } catch (error) {
-            error?.error_code
-                ? next(error)
-                : next({
-                      error_code: 400,
-                      error_message:
-                          error?.error_message ||
-                          error?.message ||
-                          "Something went wrong!",
-                  });
+            next(handleServerError(error));
         }
     },
     hashDocument: async (req, res, next) => {
@@ -453,15 +424,7 @@ export default {
                 targetHash,
             });
         } catch (error) {
-            error?.error_code
-                ? next(error)
-                : next({
-                      error_code: 400,
-                      error_message:
-                          error?.error_message ||
-                          error?.message ||
-                          "Something went wrong!",
-                  });
+            next(handleServerError(error));
         }
     },
     checkLastestVersion: async (req, res, next) => {
@@ -493,15 +456,7 @@ export default {
             });
             return res.status(200).json(isLastest);
         } catch (error) {
-            error?.error_code
-                ? next(error)
-                : next({
-                      error_code: 400,
-                      error_message:
-                          error?.error_message ||
-                          error?.message ||
-                          "Something went wrong!",
-                  });
+            next(handleServerError(error));
         }
     },
     addClaimantToCertificate: async (req, res, next) => {
@@ -565,15 +520,7 @@ export default {
                 did: taskQueueResponse?.data?.data?.did,
             });
         } catch (error) {
-            error?.error_code
-                ? next(error)
-                : next({
-                      error_code: 400,
-                      error_message:
-                          error?.error_message ||
-                          error?.message ||
-                          "Something went wrong!",
-                  });
+            next(handleServerError(error));
         }
     },
 };

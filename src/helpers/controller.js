@@ -1,5 +1,5 @@
-import { SERVERS } from "../config/constants.js";
-import { ERRORS } from "../config/errors/error.constants.js";
+import { SERVERS } from "../configs/constants.js";
+import { ERRORS } from "../configs/errors/error.constants.js";
 import { validateDIDSyntax } from "../utils/index.js";
 import axios from "axios";
 axios.defaults.withCredentials = true;
