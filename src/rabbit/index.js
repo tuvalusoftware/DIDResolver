@@ -37,6 +37,12 @@ const channel = {
     ResolverService: resolverChanel,
 };
 
+/**
+ * Returns the sender and queue for a given service.
+ * @param {Object} options - The options object.
+ * @param {string} options.service - The name of the service.
+ * @returns {Object} - An object containing the sender and queue for the given service.
+ */
 export function getSender({ service }) {
     return {
         sender: channel[service],

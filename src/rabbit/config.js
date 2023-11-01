@@ -9,10 +9,12 @@ export const REQUEST_TYPE = {
     CARDANO_SERVICE: {
         mintToken: "mint-token",
         mintCredential: "mint-credential",
+        updateToken: "update-token",
     },
     MINTING_TYPE: {
         createContract: "create-contract",
         createPlot: "create-plot",
         createClaimantCredential: "create-claimant-credential",
+        updatePlot: "update-plot",
     },
 };
