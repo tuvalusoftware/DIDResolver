@@ -1,12 +1,12 @@
 // * Utilities
 import { sha256 } from "js-sha256";
-import { VerifiableCredentialHelper } from "../helpers/credential.js";
 import { generateRandomDID } from "./index.js";
 import { setUpSuite } from "../utils/verifiableCredential.js";
 
 // * Constants
 import { COMPANY_NAME } from "../configs/constants.js";
 import { generateDid } from "../fuixlabs-documentor/utils/did.js";
+import credentialService from "../services/VerifiableCredential.service.js";
 
 /**
  * Create credential to authenticate the exchange of document ownership between the owner and the holders
@@ -55,7 +55,7 @@ const createClaimantVerifiableCredential = async ({ issuerKey, subject }) => {
                 ? {
                       verifiableCredential: credential,
                   }
-                : await VerifiableCredentialHelper.issueVerifiableCredential({
+                : await credentialService.issueVerifiableCredential({
                       credential,
                   });
         return {
@@ -107,7 +107,7 @@ const createContractVerifiableCredential = async ({
                 ? {
                       verifiableCredential: credential,
                   }
-                : await VerifiableCredentialHelper.issueVerifiableCredential({
+                : await credentialService.issueVerifiableCredential({
                       credential,
                       customSuite: CUSTOM_SUITE,
                   });

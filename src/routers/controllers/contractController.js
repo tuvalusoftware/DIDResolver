@@ -10,22 +10,20 @@ import {
     validateDID,
 } from "../../utils/index.js";
 import { createDocumentTaskQueue } from "../../utils/document.js";
-import {
-    AuthHelper,
-    ControllerHelper,
-    CardanoHelper,
-} from "../../helpers/index.js";
 import { getAccountBySeedPhrase } from "../../utils/lucid.js";
 import { createContractVerifiableCredential } from "../../utils/credential.js";
 import logger from "../../../logger.js";
 import RequestRepo from "../../db/repos/requestRepo.js";
 import { REQUEST_TYPE } from "../../rabbit/config.js";
 import { handleServerError } from "../../configs/errors/errorHandler.js";
+import ControllerService from "../../services/Controller.service.js";
 
 // * Constants
 import { ERRORS } from "../../configs/errors/error.constants.js";
 import { generateDid } from "../../fuixlabs-documentor/utils/did.js";
 import contractSchema from "../../configs/schemas/contract.schema.js";
+import AuthenticationService from "../../services/Authentication.service.js";
+import CardanoService from "../../services/Cardano.service.js";
 
 axios.defaults.withCredentials = true;
 
@@ -64,9 +62,10 @@ export default {
             const accessToken =
                 process.env.NODE_ENV === "test"
                     ? "mock-access-token"
-                    : await AuthHelper.authenticationProgress();
-            const isExistedResponse = await ControllerHelper.isExisted({
-                accessToken: accessToken,
+                    : await AuthenticationService().authenticationProgress();
+            const isExistedResponse = await ControllerService(
+                accessToken
+            ).isExisted({
                 companyName: companyName,
                 fileName: contractFileName,
             });
@@ -77,11 +76,11 @@ export default {
                     res,
                     `Document ${contractFileName} existed`
                 );
-                const getDocumentResponse =
-                    await ControllerHelper.getDocumentContent({
-                        accessToken,
-                        did: contractDid,
-                    });
+                const getDocumentResponse = await ControllerService(
+                    accessToken
+                ).getDocumentContent({
+                    did: contractDid,
+                });
                 const wrappedDocument = getDocumentResponse?.data?.wrappedDoc;
                 return res.status(200).json(wrappedDocument);
             }
@@ -113,7 +112,7 @@ export default {
                 type: REQUEST_TYPE.MINTING_TYPE.createContract,
                 status: "pending",
             });
-            await CardanoHelper.storeToken({
+            await CardanoService(accessToken).storeToken({
                 hash: wrappedDocument?.signature?.targetHash,
                 id: request._id,
             });
@@ -136,12 +135,12 @@ export default {
             const accessToken =
                 process.env.NODE_ENV === "test"
                     ? "mock-access-token"
-                    : await AuthHelper.authenticationProgress();
-            const docContentResponse =
-                await ControllerHelper.getDocumentContent({
-                    did: did,
-                    accessToken: accessToken,
-                });
+                    : await AuthenticationService().authenticationProgress();
+            const docContentResponse = await ControllerService(
+                accessToken
+            ).getDocumentContent({
+                did: did,
+            });
             const hash =
                 docContentResponse?.data?.wrappedDoc?.signature?.targetHash;
             return res.status(200).json({
@@ -184,12 +183,12 @@ export default {
             const accessToken =
                 process.env.NODE_ENV === "test"
                     ? "mock-access-token"
-                    : await AuthHelper.authenticationProgress();
-            const contractContentResponse =
-                await ControllerHelper.getDocumentContent({
-                    accessToken,
-                    did: contract,
-                });
+                    : await AuthenticationService().authenticationProgress();
+            const contractContentResponse = await ControllerService(
+                accessToken
+            ).getDocumentContent({
+                did: contract,
+            });
             const contractMintingConfig =
                 contractContentResponse?.data?.wrappedDoc?.mintingConfig;
             if (!contractMintingConfig) {
@@ -222,10 +221,9 @@ export default {
             const verifiedCredential = {
                 ...verifiableCredential,
             };
-            const credentialResponse = await CardanoHelper.storeCredentials({
+            await CardanoService(accessToken).storeCredentials({
                 mintingConfig: contractMintingConfig,
                 credentialHash: credentialHash,
-                accessToken,
             });
             const credentialDid = generateDid(companyName, credentialHash);
             verifiedCredential.credentialSubject = {
@@ -233,14 +231,14 @@ export default {
                 id: credentialDid,
             };
             logger.apiInfo(req, res, JSON.stringify(verifiedCredential));
-            const storeCredentialStatus =
-                await ControllerHelper.storeCredentials({
-                    payload: {
-                        ...verifiedCredential,
-                        id: credentialDid,
-                    },
-                    accessToken,
-                });
+            const storeCredentialStatus = await ControllerService(
+                accessToken
+            ).storeCredentials({
+                payload: {
+                    ...verifiedCredential,
+                    id: credentialDid,
+                },
+            });
             logger.apiInfo(req, res, "Successfully store credential!");
             return res.status(200).json({
                 did: credentialDid,
@@ -269,21 +267,20 @@ export default {
             const accessToken =
                 process.env.NODE_ENV === "test"
                     ? "mock-access-token"
-                    : await AuthHelper.authenticationProgress();
-            const didDocumentResponse = await ControllerHelper.getDocumentDid({
+                    : await AuthenticationService().authenticationProgress();
+            const didDocumentResponse = await ControllerService(
+                accessToken
+            ).getDocumentDid({
                 did,
-                accessToken,
             });
             const originDidDocument = didDocumentResponse?.data?.didDoc;
-            const updateDidDocumentResponse =
-                await ControllerHelper.updateDocumentDid({
-                    accessToken,
-                    did,
-                    didDoc: {
-                        ...originDidDocument,
-                        meta_data: metadata,
-                    },
-                });
+            await ControllerService(accessToken).updateDocumentDid({
+                did,
+                didDoc: {
+                    ...originDidDocument,
+                    meta_data: metadata,
+                },
+            });
             logger.apiInfo(req, res, "Successfully update contract!");
             return res.status(200).json({
                 updated: true,

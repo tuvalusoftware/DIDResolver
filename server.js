@@ -10,7 +10,7 @@ import routes from "./src/routers/routes/index.js";
 import { ERRORS } from "./src/configs/errors/error.constants.js";
 import {} from "./src/rabbit/index.js";
 import { Logger } from "tslog";
-import { ResolverConsumer } from "./src/rabbit/receivers.js";
+import { ResolverConsumer } from "./src/rabbit/rabbit.consumer.js";
 import connectMongo from "./src/libs/connectMongo.js";
 import morgen from "morgan";
 

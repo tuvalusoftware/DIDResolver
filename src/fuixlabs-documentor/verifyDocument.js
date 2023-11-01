@@ -15,12 +15,12 @@ import { checkProof } from "./utils/merkle.js";
 import pkg from "lodash";
 import { Buffer } from "buffer";
 import { unsalt } from "./utils/data.js";
-import { AuthHelper } from "../helpers/index.js";
 import {
   verifyCardanoNft,
   verifyCardanoSignature,
 } from "../api/utils/cardano.js";
 import { getDidDocumentByDid as _getDidDocumentByDid } from "../api/utils/controller.js";
+import AuthenticationService from "../services/Authentication.service.js";
 const { get } = pkg;
 /**
  * Function used to validate wrapped document against current service
@@ -33,7 +33,6 @@ export const verifyWrappedDocument = async (
   document,
   usedAddress,
   service,
-  issuerSignedData = null
 ) => {
   if (!document || !service || !usedAddress) {
     throw VERIFIER_ERROR_CODE.INVALID_PARAMETER;
@@ -44,7 +43,7 @@ export const verifyWrappedDocument = async (
     // * Coming soon
   } else {
     try {
-      const accessToken = await AuthHelper.authenticationProgress();
+      const accessToken = await AuthenticationService().authenticationProgress();
       const res = await verifyCardanoDocument({
         document: document,
         accessToken: accessToken,

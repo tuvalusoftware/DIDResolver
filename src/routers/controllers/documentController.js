@@ -1,5 +1,4 @@
 // * Constants
-import { REQUEST_TYPE } from "../../configs/constants.js";
 import { ERRORS } from "../../configs/errors/error.constants.js";
 
 // * Utilities
@@ -23,17 +22,14 @@ import { createClaimantVerifiableCredential } from "../../utils/credential.js";
 import { unsalt } from "../../fuixlabs-documentor/utils/data.js";
 import { generateDid } from "../../fuixlabs-documentor/utils/did.js";
 import logger from "../../../logger.js";
-import {
-    AuthHelper,
-    ControllerHelper,
-    TaskQueueHelper,
-    VerifiableCredentialHelper,
-    CardanoHelper,
-} from "../../helpers/index.js";
 import { validateJSONSchema } from "../../utils/index.js";
 import RequestRepo from "../../db/repos/requestRepo.js";
 import { handleServerError } from "../../configs/errors/errorHandler.js";
 import { REQUEST_TYPE as RABBIT_REQUEST_TYPE } from "../../rabbit/config.js";
+import ControllerService from "../../services/Controller.service.js";
+import AuthenticationService from "../../services/Authentication.service.js";
+import CardanoService from "../../services/Cardano.service.js";
+import credentialService from "../../services/VerifiableCredential.service.js";
 
 axios.defaults.withCredentials = true;
 
@@ -48,12 +44,12 @@ export default {
             const accessToken =
                 process.env.NODE_ENV === "test"
                     ? "mock-access-token"
-                    : await AuthHelper.authenticationProgress();
-            const docContentResponse =
-                await ControllerHelper.getDocumentContent({
-                    did: did,
-                    accessToken: accessToken,
-                });
+                    : await AuthenticationService().authenticationProgress();
+            const docContentResponse = await ControllerService(
+                accessToken
+            ).getDocumentContent({
+                did: did,
+            });
             const hash =
                 docContentResponse?.data?.wrappedDoc?.signature?.targetHash;
             return res.status(200).json({
@@ -61,7 +57,7 @@ export default {
                 did: did,
             });
         } catch (error) {
-           next(handleServerError(error));
+            next(handleServerError(error));
         }
     },
     createPlotCertification: async (req, res, next) => {
@@ -87,18 +83,10 @@ export default {
             const accessToken =
                 process.env.NODE_ENV === "test"
                     ? "mock-access-token"
-                    : await AuthHelper.authenticationProgress();
-            // const isCronExists = await TaskQueueHelper.isExisted({
-            //     did: generateDid(companyName, plotCertificationFileName),
-            // });
-            // logger.apiInfo(req, res, isCronExists?.data);
-            // if (isCronExists?.data?.isExists) {
-            //     return res
-            //         .status(200)
-            //         .json(isCronExists?.data?.data?.claimants);
-            // }
-            const isExistedResponse = await ControllerHelper.isExisted({
-                accessToken: accessToken,
+                    : await AuthenticationService().authenticationProgress();
+            const isExistedResponse = await ControllerService(
+                accessToken
+            ).isExisted({
                 companyName: companyName,
                 fileName: plotCertificationFileName,
             });
@@ -108,8 +96,9 @@ export default {
                     res,
                     `Document ${plotCertificationFileName} existed`
                 );
-                const existedDidDoc = await ControllerHelper.getDocumentDid({
-                    accessToken: accessToken,
+                const existedDidDoc = await ControllerService(
+                    accessToken
+                ).getDocumentDid({
                     did: generateDid(companyName, plotCertificationFileName),
                 });
                 if (existedDidDoc?.error_code) {
@@ -159,14 +148,12 @@ export default {
                 return next(ERRORS.CANNOT_GET_DOCUMENT_INFORMATION);
             }
             const claimantsCredentialDids =
-                await VerifiableCredentialHelper.getCredentialDidsFromClaimants(
-                    {
-                        claimants: plot?.claimants,
-                        did: documentDid,
-                        companyName,
-                        plotId: plot?._id,
-                    }
-                );
+                await credentialService.getCredentialDidsFromClaimants({
+                    claimants: plot?.claimants,
+                    did: documentDid,
+                    companyName,
+                    plotId: plot?._id,
+                });
             const request = await RequestRepo.createRequest({
                 data: {
                     wrappedDocument,
@@ -176,22 +163,11 @@ export default {
                 type: RABBIT_REQUEST_TYPE.MINTING_TYPE.createPlot,
                 status: "pending",
             });
-            await CardanoHelper.storeToken({
+            await CardanoService(accessToken).storeToken({
                 hash: wrappedDocument?.signature?.targetHash,
                 id: request._id,
             });
             logger.apiInfo(req, res, `Document DID: ${documentDid}`);
-            // await TaskQueueHelper.sendMintingRequest({
-            //     data: {
-            //         wrappedDocument,
-            //         companyName,
-            //         did: documentDid,
-            //         plot,
-            //         claimants: claimantsCredentialDids,
-            //     },
-            //     type: REQUEST_TYPE.PLOT_MINT,
-            //     did: documentDid,
-            // });
             return res.status(200).json(claimantsCredentialDids);
         } catch (error) {
             next(handleServerError(error));
@@ -237,33 +213,13 @@ export default {
             const accessToken =
                 process.env.NODE_ENV === "test"
                     ? "mock-access-token"
-                    : await AuthHelper.authenticationProgress();
-            const requestsResponse =
-                await TaskQueueHelper.findRequestsRelatedToDid({
-                    did: plot?.did,
-                });
-            const relatedRequests = requestsResponse?.data?.requests;
-            if (
-                relatedRequests?.length > 0 &&
-                relatedRequests.find(
-                    (request) =>
-                        request?.type === REQUEST_TYPE.UPDATE ||
-                        request?.did === documentDid
-                )
-            ) {
-                const cronedRequest = relatedRequests.find(
-                    (request) =>
-                        request?.type === REQUEST_TYPE.UPDATE ||
-                        request?.did === documentDid
-                );
-                return res.status(200).json(cronedRequest?.data?.claimants);
-            }
-            const documentContentResponse =
-                await ControllerHelper.getDocumentContent({
-                    did: plot?.did,
-                    accessToken: accessToken,
-                });
-            const mintingConfig = {
+                    : await AuthenticationService().authenticationProgress();
+            const documentContentResponse = await ControllerService(
+                accessToken
+            ).getDocumentContent({
+                did: plot?.did,
+            });
+            let mintingConfig = {
                 ...documentContentResponse?.data?.wrappedDoc?.mintingConfig,
             };
             if (!mintingConfig) {
@@ -272,8 +228,8 @@ export default {
                     detail: "Missing minting config",
                 });
             }
-            mintingConfig.policy = {
-                ...mintingConfig.policy,
+            mintingConfig = {
+                ...mintingConfig,
                 reuse: true,
             };
             let plotDetailForm = {
@@ -309,15 +265,13 @@ export default {
                 companyName: companyName,
             });
             const claimantsCredentialDids =
-                await VerifiableCredentialHelper.getCredentialDidsFromClaimants(
-                    {
-                        claimants: plot?.claimants,
-                        did: documentDid,
-                        companyName,
-                        plotId: plot?._id,
-                    }
-                );
-            await TaskQueueHelper.sendMintingRequest({
+                await credentialService.getCredentialDidsFromClaimants({
+                    claimants: plot?.claimants,
+                    did: documentDid,
+                    companyName,
+                    plotId: plot?._id,
+                });
+            const request = await RequestRepo.createRequest({
                 data: {
                     wrappedDocument,
                     mintingConfig,
@@ -326,8 +280,13 @@ export default {
                     plot,
                     claimants: claimantsCredentialDids,
                 },
-                type: REQUEST_TYPE.UPDATE,
-                did: documentDid,
+                type: RABBIT_REQUEST_TYPE.MINTING_TYPE.updatePlot,
+                status: "pending",
+            });
+            await CardanoService(accessToken).updateToken({
+                hash: wrappedDocument?.signature?.targetHash,
+                mintingConfig,
+                id: request._id,
             });
             return res.status(200).json(claimantsCredentialDids);
         } catch (error) {
@@ -351,13 +310,13 @@ export default {
             if (!valid) {
                 return next(ERRORS.INVALID_DID);
             }
-            const taskQueueResponse = await TaskQueueHelper.sendMintingRequest({
-                data: {
-                    did,
-                },
-                type: REQUEST_TYPE.BURN,
-                did: did,
-            });
+            // const taskQueueResponse = await TaskQueueHelper.sendMintingRequest({
+            //     data: {
+            //         did,
+            //     },
+            //     type: REQUEST_TYPE.BURN,
+            //     did: did,
+            // });
             return res.status(200).json({
                 success: true,
             });
@@ -445,7 +404,8 @@ export default {
             if (!valid) {
                 return next(ERRORS.INVALID_DID);
             }
-            const accessToken = await AuthHelper.authenticationProgress();
+            const accessToken =
+                await AuthenticationService().authenticationProgress();
             const endorsementChain = await fetchEndorsementChain({
                 did: did,
                 accessToken: accessToken,
@@ -499,23 +459,23 @@ export default {
                     },
                     issuerKey: plotDid,
                 });
-            const isCronExists = await TaskQueueHelper.isExisted({
-                did,
-            });
-            if (isCronExists?.data?.isExists) {
-                return res.status(200).json({
-                    did: isCronExists?.data?.data?.verifiedCredential
-                        ?.credentialSubject?.id,
-                });
-            }
-            const taskQueueResponse = await TaskQueueHelper.sendMintingRequest({
-                data: {
-                    credential: credentialHash,
-                    verifiedCredential: verifiableCredential,
-                },
-                type: REQUEST_TYPE.ADD_CLAIMANT,
-                did: generateDid(companyName, credentialHash),
-            });
+            // const isCronExists = await TaskQueueHelper.isExisted({
+            //     did,
+            // });
+            // if (isCronExists?.data?.isExists) {
+            //     return res.status(200).json({
+            //         did: isCronExists?.data?.data?.verifiedCredential
+            //             ?.credentialSubject?.id,
+            //     });
+            // }
+            // const taskQueueResponse = await TaskQueueHelper.sendMintingRequest({
+            //     data: {
+            //         credential: credentialHash,
+            //         verifiedCredential: verifiableCredential,
+            //     },
+            //     type: REQUEST_TYPE.ADD_CLAIMANT,
+            //     did: generateDid(companyName, credentialHash),
+            // });
             return res.status(200).json({
                 did: taskQueueResponse?.data?.data?.did,
             });

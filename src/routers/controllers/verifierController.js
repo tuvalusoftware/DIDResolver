@@ -1,14 +1,11 @@
 import "dotenv/config";
 import logger from "../../../logger.js";
 import { checkUndefinedVar, validateDID } from "../../utils/index.js";
-import {
-    AuthHelper,
-    CardanoHelper,
-    ControllerHelper,
-    VerifiableCredentialHelper,
-} from "../../helpers/index.js";
 import { ERRORS } from "../../configs/errors/error.constants.js";
 import { handleServerError } from "../../configs/errors/errorHandler.js";
+import ControllerService from "../../services/Controller.service.js";
+import AuthenticationService from "../../services/Authentication.service.js";
+import CardanoService from "../../services/Cardano.service.js";
 
 /**
  * Controller for verifying a certificate.
@@ -42,28 +39,27 @@ export default {
             const accessToken =
                 process.env.NODE_ENV === "test"
                     ? "mock-access-token"
-                    : await AuthHelper.authenticationProgress();
-            const documentContentResponse =
-                await ControllerHelper.getDocumentContent({
-                    did,
-                    accessToken,
-                });
+                    : await AuthenticationService().authenticationProgress();
+            const documentContentResponse = await ControllerService(
+                accessToken
+            ).getDocumentContent({
+                did,
+            });
             const documentHash =
                 documentContentResponse?.data?.wrappedDoc?.signature
                     ?.targetHash;
             const policyId =
                 documentContentResponse?.data?.wrappedDoc?.mintingConfig?.policy
                     ?.id;
-            await CardanoHelper.verifyCardanoNft({
+            await CardanoService(accessToken).verifyCardanoNft({
                 hashofdocument: documentHash,
-                accessToken,
                 policyid: policyId,
             });
-            const getEndorsementChainResponse =
-                await CardanoHelper.getEndorsementChain({
-                    accessToken,
-                    policyId,
-                });
+            const getEndorsementChainResponse = await CardanoService(
+                accessToken
+            ).getEndorsementChain({
+                policyId,
+            });
             const documentHistory = getEndorsementChainResponse?.data
                 ?.filter((item) => item?.onchainMetadata?.type === "document")
                 .sort(
@@ -106,19 +102,16 @@ export default {
             const accessToken =
                 process.env.NODE_ENV === "test"
                     ? "mock-access-token"
-                    : await AuthHelper.authenticationProgress();
-            const credentialContentResponse =
-                await ControllerHelper.getCredentialContent({
-                    accessToken,
-                    did,
-                });
+                    : await AuthenticationService().authenticationProgress();
+            const credentialContentResponse = await ControllerService(
+                accessToken
+            ).getCredentialContent({
+                did,
+            });
             const credentialContent = credentialContentResponse?.data;
             delete credentialContent._id;
             delete credentialContent.createdAt;
             delete credentialContent.updatedAt;
-            // const verifierResponse = await VerifiableCredentialHelper.verifyVerifiableCredential({
-            //     credential: credentialContent
-            // });
             return res.status(200).json({
                 valid: true,
                 data: credentialContent,
