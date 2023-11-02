@@ -20,6 +20,7 @@ try {
 const queue = {
     CardanoService: RABBITMQ_SERVICE.CardanoService,
     ResolverService: RABBITMQ_SERVICE.ResolverService,
+    ErrorService: RABBITMQ_SERVICE.ErrorService,
 };
 
 const cardanoChannel = await rabbitMQ.createChannel();
@@ -32,9 +33,15 @@ await resolverChanel.assertQueue(queue[RABBITMQ_SERVICE.ResolverService], {
     durable: true,
 });
 
+const errorChannel = await rabbitMQ.createChannel();
+await errorChannel.assertQueue(queue[RABBITMQ_SERVICE.ErrorService], {
+    durable: true,
+});
+
 const channel = {
     CardanoService: cardanoChannel,
     ResolverService: resolverChanel,
+    ErrorService: errorChannel,
 };
 
 /**

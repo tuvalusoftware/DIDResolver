@@ -5,15 +5,10 @@ const { sender: cardanoSender, queue: cardanoQueue } = getSender({
     service: RABBITMQ_SERVICE.CardanoService,
 });
 
-/**
- * Sends a message to the Cardano queue.
- * @param {Object} params - The parameters object.
- * @param {string} params.type - The type of the message.
- * @param {Object} params.data - The data to be sent.
- * @param {string} params.id - The ID of the message.
- * @param {Object} params.options - The options for the message.
- * @returns {Promise<void>} - A Promise that resolves when the message is sent.
- */
+const { sender: errorSender, queue: errorQueue } = getSender({
+    service: RABBITMQ_SERVICE.ErrorService,
+});
+
 export const CardanoProducer = async ({ type, data, id, options }) => {
     const message = {
         type,
@@ -28,4 +23,16 @@ export const CardanoProducer = async ({ type, data, id, options }) => {
             durable: true,
         }
     );
+};
+
+export const ErrorProducer = async ({ type, data, id, options }) => {
+    const message = {
+        type,
+        data,
+        id,
+        options,
+    };
+    errorSender.sendToQueue(errorQueue, Buffer.from(JSON.stringify(message)), {
+        durable: true,
+    });
 };
