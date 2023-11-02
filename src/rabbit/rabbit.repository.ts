@@ -1,6 +1,10 @@
 import ControllerService from "../services/Controller.service.js";
 import CardanoService from "../services/Cardano.service.js";
 import { createClaimantVerifiableCredential } from "../utils/credential.js";
+import {
+    ContractCreationPayload,
+    PlotCreationPayload,
+} from "../configs/types/rabbit.type.js";
 import RequestRepo from "../db/repos/requestRepo.js";
 import { generateDid } from "../fuixlabs-documentor/utils/did.js";
 import { REQUEST_TYPE } from "./config.js";
@@ -13,7 +17,7 @@ const logger = new Logger();
  * @param {string} accessToken - The access token.
  * @returns {Object} Rabbit repository object.
  */
-const RabbitRepository = (accessToken) => {
+const RabbitRepository = (accessToken: string) => {
     return {
         /**
          * Creates a contract.
@@ -33,7 +37,7 @@ const RabbitRepository = (accessToken) => {
             wrappedDocument,
             mintingConfig,
             metadata = null,
-        }) {
+        }: ContractCreationPayload): Promise<void> {
             const willWrappedDocument = {
                 ...wrappedDocument,
                 mintingConfig,
@@ -81,7 +85,7 @@ const RabbitRepository = (accessToken) => {
             fileName,
             did,
             plot,
-        }) {
+        }: PlotCreationPayload): Promise<void> {
             const willWrappedDocument = {
                 ...wrappedDocument,
                 mintingConfig,
@@ -91,8 +95,8 @@ const RabbitRepository = (accessToken) => {
                 fileName,
                 wrappedDocument: willWrappedDocument,
             });
-            if (claimants?.claimants) {
-                const promises = claimants?.claimants?.map(async (claimant) => {
+            if (claimants) {
+                const promises = claimants?.map(async (claimant) => {
                     const { verifiableCredential, credentialHash } =
                         await createClaimantVerifiableCredential({
                             subject: {

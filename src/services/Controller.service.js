@@ -1,6 +1,6 @@
 import dotenv from "dotenv";
 import { handleServiceError } from "../configs/errors/errorHandler.js";
-import { validateDIDSyntax } from "../utils/index.js";
+import { validateDIDSyntax } from "../utils/index.ts";
 import { SERVERS } from "../configs/constants.js";
 import axios from "axios";
 

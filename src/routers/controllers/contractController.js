@@ -8,7 +8,7 @@ import {
     getPublicKeyFromAddress,
     validateJSONSchema,
     validateDID,
-} from "../../utils/index.js";
+} from "../../utils/index.ts";
 import { createDocumentTaskQueue } from "../../utils/document.js";
 import { getAccountBySeedPhrase } from "../../utils/lucid.js";
 import { createContractVerifiableCredential } from "../../utils/credential.js";

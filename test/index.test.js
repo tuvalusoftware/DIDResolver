@@ -12,7 +12,7 @@ import {
     stringToBytes32,
     generateRandomDID,
     replaceKey,
-} from "../src/utils/index.js";
+} from "../src/utils/index.ts";
 import chai from "chai";
 
 let expect = chai.expect;

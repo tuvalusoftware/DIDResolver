@@ -1,4 +1,4 @@
-import { ERRORS } from "../../errors/error.constants.js";
+import { ERRORS } from "../../errors/error.constants";
 
 export const getDocumentInformation = {
     get: {

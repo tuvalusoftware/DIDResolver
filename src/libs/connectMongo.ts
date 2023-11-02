@@ -4,10 +4,6 @@ import "dotenv/config";
 
 const logger = new Logger();
 
-/**
- * Connects to a MongoDB database using the environment variables MONGO_PORT and MONGO_DB_NAME.
- * @returns {void}
- */
 export default () => {
     const port = process.env.MONGO_PORT || 27017;
     const dbName = process.env.MONGO_DB_NAME || "mint-queue";

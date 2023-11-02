@@ -1,24 +1,24 @@
 // * Utilities
 import { sha256 } from "js-sha256";
 import { generateRandomDID } from "./index.js";
-import { setUpSuite } from "../utils/verifiableCredential.js";
+import { setUpSuite } from "./verifiableCredential.js";
 
 // * Constants
 import { COMPANY_NAME } from "../configs/constants.js";
 import { generateDid } from "../fuixlabs-documentor/utils/did.js";
 import credentialService from "../services/VerifiableCredential.service.js";
 
-/**
- * Create credential to authenticate the exchange of document ownership between the owner and the holders
- * @param {String} issuerDid
- * @param {String} holderDid
- * @param {String} didoWrappedDocument
- * @param {Object} metadata
- * @param {Object} action - purpose of creating credential
- * @param {String} signature
- * @return {Object} - return a credential
- */
-const createClaimantVerifiableCredential = async ({ issuerKey, subject }) => {
+const createClaimantVerifiableCredential = async ({
+    issuerKey,
+    subject,
+}: {
+    issuerKey: string;
+    subject: any;
+}): Promise<{
+    verifiableCredential: Object;
+    credentialHash: string;
+    did: string;
+}> => {
     try {
         const credentialDid = generateRandomDID();
         let hashingCredential = {
@@ -73,7 +73,16 @@ const createContractVerifiableCredential = async ({
     subject,
     privateKey,
     publicKey,
-}) => {
+}: {
+    issuerKey: string;
+    subject: any;
+    privateKey: string;
+    publicKey: string;
+}): Promise<{
+    verifiableCredential: Object;
+    credentialHash: string;
+    did: string;
+}> => {
     try {
         const credentialDid = generateRandomDID();
         let hashingCredential = {

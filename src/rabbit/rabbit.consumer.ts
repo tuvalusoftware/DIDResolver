@@ -1,13 +1,13 @@
-import { getSender } from "./index.js";
-import { RABBITMQ_SERVICE } from "./config.js";
-import RequestRepo from "../db/repos/requestRepo.js";
-import { REQUEST_TYPE } from "./config.js";
+import { getSender } from "./index";
+import amqp, { Message } from "amqplib/callback_api";
 import "dotenv/config";
 import { Logger } from "tslog";
+import { RABBITMQ_SERVICE, REQUEST_TYPE } from "./config";
+import RequestRepo from "../db/repos/requestRepo.js";
 import { deepUnsalt } from "../fuixlabs-documentor/utils/data.js";
 import AuthenticationService from "../services/Authentication.service.js";
-import RabbitRepository from "./rabbit.repository.js";
-import { ErrorProducer } from "./rabbit.producer.js";
+import RabbitRepository from "./rabbit.repository";
+import { ErrorProducer } from "./rabbit.producer";
 
 const logger = new Logger();
 
@@ -20,10 +20,10 @@ const { sender: resolverSender, queue: resolverQueue } = getSender({
 
 const { sender: errorSender, queue: errorQueue } = getSender({
     service: RABBITMQ_SERVICE.ErrorService,
-})
+});
 
 export const CardanoConsumer = async () => {
-    cardanoSender.consume(cardanoQueue, async (msg) => {
+    cardanoSender.consume(cardanoQueue, async (msg: Message | null) => {
         if (msg !== null) {
             logger.info("[CardanoQueue] 🔈", msg.content.toString());
             cardanoSender.ack(msg);
@@ -32,16 +32,16 @@ export const CardanoConsumer = async () => {
 };
 
 export const ErrorConsumer = async () => {
-    errorSender.consume(errorQueue, async (msg) => {
+    errorSender.consume(errorQueue, async (msg: Message | null) => {
         if (msg !== null) {
             logger.info("[ErrorQueue] 🔈", msg.content.toString());
             errorSender.ack(msg);
         }
-    })
-}
+    });
+};
 
 export const ResolverConsumer = async () => {
-    resolverSender.consume(resolverQueue, async (msg) => {
+    resolverSender.consume(resolverQueue, async (msg: Message | null) => {
         if (msg !== null) {
             try {
                 const cardanoResponse = JSON.parse(msg.content);
@@ -92,7 +92,7 @@ export const ResolverConsumer = async () => {
                         await RabbitRepository(accessToken).createPlot({
                             wrappedDocument,
                             mintingConfig,
-                            claimants,
+                            claimants: claimants.claimants,
                             companyName,
                             fileName,
                             did,

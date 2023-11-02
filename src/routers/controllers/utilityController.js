@@ -1,7 +1,7 @@
 import logger from "../../../logger.js";
 import { ERRORS } from "../../configs/errors/error.constants.js";
 import { unsalt } from "../../fuixlabs-documentor/utils/data.js";
-import { checkUndefinedVar } from "../../utils/index.js";
+import { checkUndefinedVar } from "../../utils/index.ts";
 import { handleServerError } from "../../configs/errors/errorHandler.js";
 
 /**

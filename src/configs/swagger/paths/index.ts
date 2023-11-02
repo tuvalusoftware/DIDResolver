@@ -3,11 +3,11 @@ import {
     commonlandsPlotCertificate,
     getDocumentInformation,
     addClaimantToDocument,
-} from "./commonlands.js";
-import { user } from "./user.js";
-import { unsalt } from "./utility.js";
-import { certificateVerifier, credentialVerifier } from "./verifier.js";
-import { contract, signContract, getContract } from "./contract.js";
+} from "./commonlands";
+import { user } from "./user";
+import { unsalt } from "./utility";
+import { certificateVerifier, credentialVerifier } from "./verifier";
+import { contract, signContract, getContract } from "./contract";
 
 export const paths = {
     "/commonlands/document/{did}": {

@@ -1,4 +1,5 @@
 import { getSender } from "./index.js";
+import { ProducerPayload } from "../configs/types/rabbit.type";
 import { RABBITMQ_SERVICE } from "./config.js";
 
 const { sender: cardanoSender, queue: cardanoQueue } = getSender({
@@ -9,7 +10,12 @@ const { sender: errorSender, queue: errorQueue } = getSender({
     service: RABBITMQ_SERVICE.ErrorService,
 });
 
-export const CardanoProducer = async ({ type, data, id, options }) => {
+export const CardanoProducer = async ({
+    type,
+    data,
+    id,
+    options,
+}: ProducerPayload): Promise<void> => {
     const message = {
         type,
         data,
@@ -25,7 +31,12 @@ export const CardanoProducer = async ({ type, data, id, options }) => {
     );
 };
 
-export const ErrorProducer = async ({ type, data, id, options }) => {
+export const ErrorProducer = async ({
+    type,
+    data,
+    id,
+    options,
+}: ProducerPayload): Promise<void> => {
     const message = {
         type,
         data,

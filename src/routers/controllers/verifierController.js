@@ -1,6 +1,6 @@
 import "dotenv/config";
 import logger from "../../../logger.js";
-import { checkUndefinedVar, validateDID } from "../../utils/index.js";
+import { checkUndefinedVar, validateDID } from "../../utils/index.ts";
 import { ERRORS } from "../../configs/errors/error.constants.js";
 import { handleServerError } from "../../configs/errors/errorHandler.js";
 import ControllerService from "../../services/Controller.service.js";

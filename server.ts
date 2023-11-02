@@ -1,17 +1,17 @@
 import http from "http";
-import express from "express";
+import express, { Request, Response, NextFunction } from "express";
 import cors from "cors";
 import compression from "compression";
 import cookieParser from "cookie-parser";
 import methodOverride from "method-override";
 import swaggerUi from "swagger-ui-express";
-import { swaggerDocument } from "./src/configs/swagger/index.js";
-import routes from "./src/routers/routes/index.js";
-import { ERRORS } from "./src/configs/errors/error.constants.js";
-import {} from "./src/rabbit/index.js";
+import { swaggerDocument } from "./src/configs/swagger";
+import routes from "./src/routers/routes";
+import { ERRORS } from "./src/configs/errors/error.constants";
+import {} from "./src/rabbit";
 import { Logger } from "tslog";
-import { ResolverConsumer } from "./src/rabbit/rabbit.consumer.js";
-import connectMongo from "./src/libs/connectMongo.js";
+import { ResolverConsumer } from "./src/rabbit/rabbit.consumer";
+import connectMongo from "./src/libs/connectMongo";
 import morgen from "morgan";
 
 const logger = new Logger();
@@ -31,19 +31,7 @@ app.use(
 );
 
 connectMongo();
-await ResolverConsumer();
-
-const normalizePort = (val) => {
-    const port = parseInt(val, 10);
-
-    if (isNaN(port)) {
-        return val;
-    }
-    if (port >= 0) {
-        return port;
-    }
-    return false;
-};
+ResolverConsumer();
 
 /* c8 ignore start */
 // SET UP SWAGGER API DOCUMENT
@@ -51,17 +39,17 @@ const swaggerOptions = {
     customCss: ".swagger-ui .topbar { display: none }",
     customSiteTitle: "DID Resolver API",
 };
-app.use(
-    "/api-docs",
-    swaggerUi.serve,
-    swaggerUi.setup(swaggerDocument, swaggerOptions)
-);
+// app.use(
+//     "/api-docs",
+//     swaggerUi.serve,
+//     swaggerUi.setup(swaggerDocument, swaggerOptions)
+// );
 
 const server = http.createServer(app);
 server.timeout = 300000;
 routes(app);
 app.use(express.static("assets"));
-app.use((err, req, res, _) => {
+app.use((err: any, req: Request, res: Response, _: NextFunction) => {
     try {
         if (err.code === "ECONNABORTED") {
             throw ERRORS.CONNECTION_TIMEOUT;
@@ -81,7 +69,7 @@ app.use((err, req, res, _) => {
     }
 });
 
-const port = normalizePort(process.env.NODE_PORT || "8000");
+const port = process.env.NODE_ENV === "test" ? process.env.NODE_PORT : 8001;
 server.listen(port, () => {
     logger.debug(`Server is live on port ${port}: http://localhost:${port}/`);
 });

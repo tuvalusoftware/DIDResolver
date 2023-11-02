@@ -10,7 +10,7 @@ import {
     getPublicKeyFromAddress,
     generateRandomString,
     validateDID,
-} from "../../utils/index.js";
+} from "../../utils/index.ts";
 import {
     hashDocumentContent,
     isLastestCertificate,
@@ -22,7 +22,7 @@ import { createClaimantVerifiableCredential } from "../../utils/credential.js";
 import { unsalt } from "../../fuixlabs-documentor/utils/data.js";
 import { generateDid } from "../../fuixlabs-documentor/utils/did.js";
 import logger from "../../../logger.js";
-import { validateJSONSchema } from "../../utils/index.js";
+import { validateJSONSchema } from "../../utils/index.ts";
 import RequestRepo from "../../db/repos/requestRepo.js";
 import { handleServerError } from "../../configs/errors/errorHandler.js";
 import { REQUEST_TYPE as RABBIT_REQUEST_TYPE } from "../../rabbit/config.js";

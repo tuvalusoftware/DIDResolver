@@ -4,7 +4,7 @@ import jwt_decode from "jwt-decode";
 import { SERVERS } from "../configs/constants.js";
 import { handleServiceError } from "../configs/errors/errorHandler.js";
 import { getAccountBySeedPhrase, signData } from "../utils/lucid.js";
-import { getPublicKeyFromAddress } from "../utils/index.js";
+import { getPublicKeyFromAddress } from "../utils/index.ts";
 
 dotenv.config();
 

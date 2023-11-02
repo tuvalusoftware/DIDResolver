@@ -1,7 +1,7 @@
 import { REQUEST_TYPE } from "../../configs/constants.js";
 import { ERRORS } from "../../configs/errors/error.constants.js";
 import logger from "../../../logger.js";
-import { checkUndefinedVar, validateDID } from "../../utils/index.js";
+import { checkUndefinedVar, validateDID } from "../../utils/index.ts";
 import { unsalt } from "../../fuixlabs-documentor/utils/data.js";
 import { createClaimantVerifiableCredential } from "../../utils/credential.js";
 import { generateDid } from "../../fuixlabs-documentor/utils/did.js";

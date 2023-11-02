@@ -1,7 +1,8 @@
 import amqplib from "amqplib";
+import amqp, { Connection } from "amqplib/callback_api";
 import { Logger } from "tslog";
-import { SERVERS } from "../configs/constants.js";
-import { RABBITMQ_SERVICE } from "./config.js";
+import { SERVERS } from "../configs/constants";
+import { RABBITMQ_SERVICE } from "./config";
 
 const logger = new Logger();
 
@@ -50,7 +51,10 @@ const channel = {
  * @param {string} options.service - The name of the service.
  * @returns {Object} - An object containing the sender and queue for the given service.
  */
-export function getSender({ service }) {
+export function getSender({ service }: { service: string }): {
+    sender: Connection;
+    queue: string;
+} {
     return {
         sender: channel[service],
         queue: queue[service],

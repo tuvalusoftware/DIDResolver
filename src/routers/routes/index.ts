@@ -3,9 +3,9 @@ import contractRoutes from "./contractRoutes.js";
 import utilityRoutes from "./utilityRoutes.js";
 import taskQueueRoutes from "./taskQueueRoutes.js";
 import verifierRoutes from "./verifierRoutes.js";
-import express from "express";
+import express, { Express } from "express";
 
-export default (app) => {
+export default (app: Express) => {
     app.use("/resolver/commonlands/document", documentRoutes);
     app.use("/resolver/contract", contractRoutes);
     app.use("/resolver/utility", utilityRoutes);
