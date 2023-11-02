@@ -7,15 +7,20 @@ import { Logger } from "tslog";
 import { deepUnsalt } from "../fuixlabs-documentor/utils/data.js";
 import AuthenticationService from "../services/Authentication.service.js";
 import RabbitRepository from "./rabbit.repository.js";
+import { ErrorProducer } from "./rabbit.producer.js";
 
 const logger = new Logger();
 
 const { sender: cardanoSender, queue: cardanoQueue } = getSender({
-    service: RABBITMQ_SERVICE?.CardanoService,
+    service: RABBITMQ_SERVICE.CardanoService,
 });
 const { sender: resolverSender, queue: resolverQueue } = getSender({
-    service: RABBITMQ_SERVICE?.ResolverService,
+    service: RABBITMQ_SERVICE.ResolverService,
 });
+
+const { sender: errorSender, queue: errorQueue } = getSender({
+    service: RABBITMQ_SERVICE.ErrorService,
+})
 
 export const CardanoConsumer = async () => {
     cardanoSender.consume(cardanoQueue, async (msg) => {
@@ -26,6 +31,15 @@ export const CardanoConsumer = async () => {
     });
 };
 
+export const ErrorConsumer = async () => {
+    errorSender.consume(errorQueue, async (msg) => {
+        if (msg !== null) {
+            logger.info("[ErrorQueue] 🔈", msg.content.toString());
+            errorSender.ack(msg);
+        }
+    })
+}
+
 export const ResolverConsumer = async () => {
     resolverSender.consume(resolverQueue, async (msg) => {
         if (msg !== null) {
@@ -34,6 +48,12 @@ export const ResolverConsumer = async () => {
                 let response = null;
                 if (cardanoResponse?.error_code) {
                     logger.error("[ResolverQueue] 🔈", msg.content.toString());
+                    const { data, type, id } = cardanoResponse;
+                    await ErrorProducer({
+                        data,
+                        type,
+                        id,
+                    });
                     resolverSender.ack(msg);
                     return;
                 }
@@ -122,8 +142,13 @@ export const ResolverConsumer = async () => {
                             companyName,
                             fileName,
                             plot,
-                            did
+                            did,
                         });
+                        response = cardanoResponse?.data;
+                        break;
+                    }
+                    case REQUEST_TYPE.MINTING_TYPE.deletePlot: {
+                        logger.info("Requesting delete document...");
                         response = cardanoResponse?.data;
                         break;
                     }

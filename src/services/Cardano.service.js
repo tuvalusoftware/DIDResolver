@@ -56,20 +56,16 @@ const CardanoService = (accessToken) => {
          * @param {Object} options.mintingConfig - The minting configuration for the token to burn.
          * @returns {Promise} A promise that resolves with the response from the server.
          */
-        async burnToken({ mintingConfig }) {
-            return new Promise((resolve, reject) => {
-                axios
-                    .delete(serverUrl + "/api/v2/hash", {
-                        ...corsConfig,
-                        data: { config: mintingConfig },
-                    })
-                    .then((response) => {
-                        handleServiceError(response);
-                        resolve(response);
-                    })
-                    .catch((error) => {
-                        reject(error);
-                    });
+        async burnToken({ mintingConfig, skipWait = false, id }) {
+            return await CardanoProducer({
+                data: {
+                    ...mintingConfig
+                },
+                options: {
+                    skipWait,
+                },
+                type: REQUEST_TYPE.CARDANO_SERVICE.burnToken,
+                id,
             });
         },
 

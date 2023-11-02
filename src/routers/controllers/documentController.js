@@ -310,13 +310,28 @@ export default {
             if (!valid) {
                 return next(ERRORS.INVALID_DID);
             }
-            // const taskQueueResponse = await TaskQueueHelper.sendMintingRequest({
-            //     data: {
-            //         did,
-            //     },
-            //     type: REQUEST_TYPE.BURN,
-            //     did: did,
-            // });
+            const accessToken =
+                process.env.NODE_ENV === "test"
+                    ? "mock-access-token"
+                    : await AuthenticationService().authenticationProgress();
+            const documentContentResponse = await ControllerService(
+                accessToken
+            ).getDocumentContent({
+                did,
+            });
+            const { mintingConfig } = documentContentResponse?.data?.wrappedDoc;
+            const request = await RequestRepo.createRequest({
+                data: {
+                    mintingConfig,
+                    did,
+                },
+                type: RABBIT_REQUEST_TYPE.MINTING_TYPE.deletePlot,
+                status: "pending",
+            });
+            await CardanoService(accessToken).burnToken({
+                mintingConfig,
+                id: request._id,
+            });
             return res.status(200).json({
                 success: true,
             });
