@@ -71,12 +71,14 @@ export const ResolverConsumer = async () => {
                             requestData?.data?.wrappedDocument?.data
                         );
                         const { wrappedDocument, metadata } = requestData?.data;
+                        const mintingConfig = cardanoResponse.data;
                         await RabbitRepository(accessToken).createContract({
                             companyName,
                             fileName,
                             did,
                             wrappedDocument,
                             metadata,
+                            mintingConfig
                         });
                         response = cardanoResponse?.data;
                         break;
