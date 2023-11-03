@@ -221,24 +221,40 @@ export default {
             const verifiedCredential = {
                 ...verifiableCredential,
             };
-            await CardanoService(accessToken).storeCredentials({
-                mintingConfig: contractMintingConfig,
-                credentialHash: credentialHash,
-            });
             const credentialDid = generateDid(companyName, credentialHash);
-            verifiedCredential.credentialSubject = {
-                ...verifiedCredential.credentialSubject,
-                id: credentialDid,
-            };
-            logger.apiInfo(req, res, JSON.stringify(verifiedCredential));
-            const storeCredentialStatus = await ControllerService(
-                accessToken
-            ).storeCredentials({
-                payload: {
-                    ...verifiedCredential,
-                    id: credentialDid,
+            const request = await RequestRepo.createRequest({
+                data: {
+                    mintingConfig: contractMintingConfig,
+                    credential: credentialHash,
+                    verifiedCredential,
+                    companyName,
                 },
+                type: REQUEST_TYPE.MINTING_TYPE.createClaimantCredential,
+                status: "pending",
             });
+            await CardanoService(accessToken).storeCredentialsWithPolicyId({
+                credentials: [credentialHash],
+                mintingConfig: contractMintingConfig,
+                id: request?._id,
+            });
+            // await CardanoService(accessToken).storeCredentials({
+            //     mintingConfig: contractMintingConfig,
+            //     credentialHash: credentialHash,
+            // });
+            // const credentialDid = generateDid(companyName, credentialHash);
+            // verifiedCredential.credentialSubject = {
+            //     ...verifiedCredential.credentialSubject,
+            //     id: credentialDid,
+            // };
+            // logger.apiInfo(req, res, JSON.stringify(verifiedCredential));
+            // const storeCredentialStatus = await ControllerService(
+            //     accessToken
+            // ).storeCredentials({
+            //     payload: {
+            //         ...verifiedCredential,
+            //         id: credentialDid,
+            //     },
+            // });
             logger.apiInfo(req, res, "Successfully store credential!");
             return res.status(200).json({
                 did: credentialDid,
