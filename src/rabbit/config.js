@@ -3,7 +3,7 @@ import "dotenv/config";
 export const RABBITMQ_SERVICE = {
     CardanoService: process.env.CardanoService || "CardanoService",
     ResolverService: process.env.ResolverService || "ResolverService",
-    ErrorService: process.env.ErrorService || "ErrorService",
+    ErrorService: process.env.ErrorService || "CardanoErrorService",
 };
 
 export const REQUEST_TYPE = {
