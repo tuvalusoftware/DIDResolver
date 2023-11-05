@@ -1,6 +1,6 @@
 import * as BIP39 from "bip39";
 import { C as CardanoWasm, M as CardanoMessage } from "lucid-cardano";
-import { NETWORK_ID } from "../config/constants.js";
+import { NETWORK_ID } from "../configs/constants.js";
 import { Lucid } from "lucid-cardano";
 import cryptoRandomString from "crypto-random-string";
 import "dotenv/config";

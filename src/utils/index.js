@@ -1,14 +1,11 @@
 import cardanoSerialization from "@emurgo/cardano-serialization-lib-nodejs";
 import Ajv from "ajv";
-import Logger from "../../logger.js";
 import * as dotenv from "dotenv";
-import { createCanvas, loadImage } from "canvas";
 import crypto from "crypto";
 import QRCode from "qrcode";
 import _ from "lodash";
 
 dotenv.config();
-
 const secretKey = process.env.COMMONLANDS_SECRET_KEY;
 const companyName = process.env.COMPANY_NAME;
 const devCompanyName = process.env.DEV_COMPANY_NAME;
@@ -21,7 +18,6 @@ const devCompanyName = process.env.DEV_COMPANY_NAME;
  */
 const validateDIDSyntax = (did, isSalted) => {
     if (!did) {
-        Logger.error("Undefined did.");
         return { valid: false, detail: "Undefined did." };
     }
     const maxLength = isSalted ? 6 : 4;
@@ -32,14 +28,8 @@ const validateDIDSyntax = (did, isSalted) => {
         didComponents.length < maxLength ||
         didComponents[didPosition] !== "did"
     ) {
-        Logger.error(
-            `Invalid DID syntax. Given did = ${did} should be ${
-                isSalted ? "salted" : "unsalted"
-            }.`
-        );
         return { valid: false };
     }
-    Logger.info("Valid did.");
     return {
         valid: true,
         companyName: didComponents[didPosition + 2],
@@ -54,18 +44,13 @@ const validateDIDSyntax = (did, isSalted) => {
  */
 const validateDID = (did) => {
     if (!did) {
-        Logger.error("Undefined did.");
         return { valid: false, detail: "Undefined did." };
     }
     const didComponents = did.split(":");
 
     if (didComponents.length < 4 || didComponents[0] !== "did") {
-        Logger.error(
-            `Invalid DID syntax. Given did = ${did} should be unsalted.`
-        );
         return { valid: false };
     }
-    Logger.info("Valid did.");
     return {
         valid: true,
         companyName: didComponents[2],
@@ -83,7 +68,6 @@ const getAddressFromHexEncoded = (hexAddress) => {
         Buffer.from(hexAddress, "hex")
     ).to_bech32();
 
-    Logger.info(`Address from hex (${hexAddress}) = ${address}`);
     return address;
 };
 
@@ -109,8 +93,6 @@ const validateJSONSchema = (rawSchema, object) => {
     const ajv = new Ajv();
     const validate = ajv.compile(schema);
     const valid = validate(object);
-    if (!valid)
-        Logger.error(`Invalid object.\n${JSON.stringify(validate.errors)}`);
     return valid ? { valid } : { valid, detail: validate.errors };
 };
 
@@ -128,8 +110,6 @@ const checkUndefinedVar = (object) => {
             flag = true;
         }
     }
-    if (flag) Logger.error(`${detail}`);
-    else Logger.info(`Valid JSON object.`);
     return flag ? { undefined: true, detail } : { undefined: false };
 };
 
@@ -186,29 +166,6 @@ const getCurrentDateTime = () => {
     const seconds = now.getSeconds().toString().padStart(2, "0");
     const formattedDateTime = `${year}-${month}-${day} ${hours}:${minutes}:${seconds}`;
     return formattedDateTime;
-}; // TODO - Write unit-test
-
-/**
- * Function used for generating QR code
- * @param {String} text
- * @param {String} backgroundColor
- * @param {String} color
- * @param {Number} size
- * @returns {Buffer} - QR code
- */
-const generateQRCode = async (text, backgroundColor, color, size) => {
-    const qrCodeData = await QRCode.toDataURL(text, {
-        width: size,
-        color: {
-            dark: color,
-            light: backgroundColor,
-        },
-    });
-    const canvas = createCanvas(size, size);
-    const ctx = canvas.getContext("2d");
-    const img = await loadImage(qrCodeData);
-    ctx.drawImage(img, 0, 0);
-    return canvas.toBuffer("image/png");
 }; // TODO - Write unit-test
 
 /**
@@ -385,7 +342,6 @@ export {
     checkForSpecialChar,
     isSameError,
     getCurrentDateTime,
-    generateQRCode,
     generateRandomString,
     splitCamelCase,
     validateDID,

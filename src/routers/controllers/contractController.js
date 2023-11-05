@@ -10,20 +10,20 @@ import {
     validateDID,
 } from "../../utils/index.js";
 import { createDocumentTaskQueue } from "../../utils/document.js";
-import {
-    AuthHelper,
-    ControllerHelper,
-    CardanoHelper,
-    TaskQueueHelper,
-} from "../../helpers/index.js";
 import { getAccountBySeedPhrase } from "../../utils/lucid.js";
 import { createContractVerifiableCredential } from "../../utils/credential.js";
 import logger from "../../../logger.js";
+import RequestRepo from "../../db/repos/requestRepo.js";
+import { REQUEST_TYPE } from "../../rabbit/config.js";
+import { handleServerError } from "../../configs/errors/errorHandler.js";
+import ControllerService from "../../services/Controller.service.js";
 
 // * Constants
-import { ERRORS } from "../../config/errors/error.constants.js";
+import { ERRORS } from "../../configs/errors/error.constants.js";
 import { generateDid } from "../../fuixlabs-documentor/utils/did.js";
-import contractSchema from "../../config/schemas/contract.schema.js";
+import contractSchema from "../../configs/schemas/contract.schema.js";
+import AuthenticationService from "../../services/Authentication.service.js";
+import CardanoService from "../../services/Cardano.service.js";
 
 axios.defaults.withCredentials = true;
 
@@ -62,9 +62,10 @@ export default {
             const accessToken =
                 process.env.NODE_ENV === "test"
                     ? "mock-access-token"
-                    : await AuthHelper.authenticationProgress();
-            const isExistedResponse = await ControllerHelper.isExisted({
-                accessToken: accessToken,
+                    : await AuthenticationService().authenticationProgress();
+            const isExistedResponse = await ControllerService(
+                accessToken
+            ).isExisted({
                 companyName: companyName,
                 fileName: contractFileName,
             });
@@ -75,11 +76,11 @@ export default {
                     res,
                     `Document ${contractFileName} existed`
                 );
-                const getDocumentResponse =
-                    await ControllerHelper.getDocumentContent({
-                        accessToken,
-                        did: contractDid,
-                    });
+                const getDocumentResponse = await ControllerService(
+                    accessToken
+                ).getDocumentContent({
+                    did: contractDid,
+                });
                 const wrappedDocument = getDocumentResponse?.data?.wrappedDoc;
                 return res.status(200).json(wrappedDocument);
             }
@@ -103,53 +104,24 @@ export default {
                 currentWallet: currentWallet,
                 companyName: companyName,
             });
-            const mintingResponse = await CardanoHelper.storeToken({
-                hash: wrappedDocument?.signature?.targetHash,
-                accessToken,
+            const request = await RequestRepo.createRequest({
+                data: {
+                    wrappedDocument,
+                    metadata,
+                },
+                type: REQUEST_TYPE.MINTING_TYPE.createContract,
+                status: "pending",
             });
-            const mintingConfig = mintingResponse?.data?.data;
-            const willWrappedDocument = {
-                ...wrappedDocument,
-                mintingConfig,
-            };
-            const storeWrappedDocumentResponse =
-                await ControllerHelper.storeDocument({
-                    accessToken,
-                    companyName,
-                    fileName: contractFileName,
-                    wrappedDocument: willWrappedDocument,
-                });
-            if (metadata) {
-                const didDocumentResponse =
-                    await ControllerHelper.getDocumentDid({
-                        did: contractDid,
-                        accessToken,
-                    });
-                const originDidDocument = didDocumentResponse?.data?.didDoc;
-                const updateDidDocumentResponse =
-                    await ControllerHelper.updateDocumentDid({
-                        accessToken,
-                        did: contractDid,
-                        didDoc: {
-                            ...originDidDocument,
-                            meta_data: metadata,
-                        },
-                    });
-            }
+            await CardanoService(accessToken).storeToken({
+                hash: wrappedDocument?.signature?.targetHash,
+                id: request._id,
+            });
             logger.apiInfo(req, res, `Document ${contractFileName} created!`);
             return res.status(200).json({
                 did: contractDid,
             });
         } catch (error) {
-            error?.error_code
-                ? next(error)
-                : next({
-                      error_code: 400,
-                      error_message:
-                          error?.error_message ||
-                          error?.message ||
-                          "Something went wrong!",
-                  });
+            next(handleServerError(error));
         }
     },
     getContract: async (req, res, next) => {
@@ -163,12 +135,12 @@ export default {
             const accessToken =
                 process.env.NODE_ENV === "test"
                     ? "mock-access-token"
-                    : await AuthHelper.authenticationProgress();
-            const docContentResponse =
-                await ControllerHelper.getDocumentContent({
-                    did: did,
-                    accessToken: accessToken,
-                });
+                    : await AuthenticationService().authenticationProgress();
+            const docContentResponse = await ControllerService(
+                accessToken
+            ).getDocumentContent({
+                did: did,
+            });
             const hash =
                 docContentResponse?.data?.wrappedDoc?.signature?.targetHash;
             return res.status(200).json({
@@ -176,15 +148,7 @@ export default {
                 did: did,
             });
         } catch (error) {
-            error?.error_code
-                ? next(error)
-                : next({
-                      error_code: 400,
-                      error_message:
-                          error?.error_message ||
-                          error?.message ||
-                          "Something went wrong!",
-                  });
+            next(handleServerError(error));
         }
     },
     signContract: async (req, res, next) => {
@@ -219,12 +183,12 @@ export default {
             const accessToken =
                 process.env.NODE_ENV === "test"
                     ? "mock-access-token"
-                    : await AuthHelper.authenticationProgress();
-            const contractContentResponse =
-                await ControllerHelper.getDocumentContent({
-                    accessToken,
-                    did: contract,
-                });
+                    : await AuthenticationService().authenticationProgress();
+            const contractContentResponse = await ControllerService(
+                accessToken
+            ).getDocumentContent({
+                did: contract,
+            });
             const contractMintingConfig =
                 contractContentResponse?.data?.wrappedDoc?.mintingConfig;
             if (!contractMintingConfig) {
@@ -257,39 +221,46 @@ export default {
             const verifiedCredential = {
                 ...verifiableCredential,
             };
-            const credentialResponse = await CardanoHelper.storeCredentials({
-                mintingConfig: contractMintingConfig,
-                credentialHash: credentialHash,
-                accessToken,
-            });
             const credentialDid = generateDid(companyName, credentialHash);
-            verifiedCredential.credentialSubject = {
-                ...verifiedCredential.credentialSubject,
-                id: credentialDid,
-            };
-            logger.apiInfo(req, res, JSON.stringify(verifiedCredential));
-            const storeCredentialStatus =
-                await ControllerHelper.storeCredentials({
-                    payload: {
-                        ...verifiedCredential,
-                        id: credentialDid,
-                    },
-                    accessToken,
-                });
+            const request = await RequestRepo.createRequest({
+                data: {
+                    mintingConfig: contractMintingConfig,
+                    credential: credentialHash,
+                    verifiedCredential,
+                    companyName,
+                },
+                type: REQUEST_TYPE.MINTING_TYPE.createClaimantCredential,
+                status: "pending",
+            });
+            await CardanoService(accessToken).storeCredentialsWithPolicyId({
+                credentials: [credentialHash],
+                mintingConfig: contractMintingConfig,
+                id: request?._id,
+            });
+            // await CardanoService(accessToken).storeCredentials({
+            //     mintingConfig: contractMintingConfig,
+            //     credentialHash: credentialHash,
+            // });
+            // const credentialDid = generateDid(companyName, credentialHash);
+            // verifiedCredential.credentialSubject = {
+            //     ...verifiedCredential.credentialSubject,
+            //     id: credentialDid,
+            // };
+            // logger.apiInfo(req, res, JSON.stringify(verifiedCredential));
+            // const storeCredentialStatus = await ControllerService(
+            //     accessToken
+            // ).storeCredentials({
+            //     payload: {
+            //         ...verifiedCredential,
+            //         id: credentialDid,
+            //     },
+            // });
             logger.apiInfo(req, res, "Successfully store credential!");
             return res.status(200).json({
                 did: credentialDid,
             });
         } catch (error) {
-            error?.error_code
-                ? next(error)
-                : next({
-                      error_code: 400,
-                      error_message:
-                          error?.error_message ||
-                          error?.message ||
-                          "Something went wrong!",
-                  });
+            next(handleServerError(error));
         }
     },
     updateContract: async (req, res, next) => {
@@ -312,35 +283,26 @@ export default {
             const accessToken =
                 process.env.NODE_ENV === "test"
                     ? "mock-access-token"
-                    : await AuthHelper.authenticationProgress();
-            const didDocumentResponse = await ControllerHelper.getDocumentDid({
+                    : await AuthenticationService().authenticationProgress();
+            const didDocumentResponse = await ControllerService(
+                accessToken
+            ).getDocumentDid({
                 did,
-                accessToken,
             });
             const originDidDocument = didDocumentResponse?.data?.didDoc;
-            const updateDidDocumentResponse =
-                await ControllerHelper.updateDocumentDid({
-                    accessToken,
-                    did,
-                    didDoc: {
-                        ...originDidDocument,
-                        meta_data: metadata,
-                    },
-                });
+            await ControllerService(accessToken).updateDocumentDid({
+                did,
+                didDoc: {
+                    ...originDidDocument,
+                    meta_data: metadata,
+                },
+            });
             logger.apiInfo(req, res, "Successfully update contract!");
             return res.status(200).json({
                 updated: true,
             });
         } catch (error) {
-            error?.error_code
-                ? next(error)
-                : next({
-                      error_code: 400,
-                      error_message:
-                          error?.error_message ||
-                          error?.message ||
-                          "Something went wrong!",
-                  });
+            next(handleServerError(error));
         }
     },
     verifyContract: async (req, res, next) => {
@@ -358,15 +320,7 @@ export default {
                 });
             }
         } catch (error) {
-            error?.error_code
-                ? next(error)
-                : next({
-                      error_code: 400,
-                      error_message:
-                          error?.error_message ||
-                          error?.message ||
-                          "Something went wrong!",
-                  });
+            next(handleServerError(error));
         }
     },
 };

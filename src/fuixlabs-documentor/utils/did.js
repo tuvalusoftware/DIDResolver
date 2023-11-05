@@ -1,6 +1,6 @@
 // * Constant libraries
 import { DID_ERROR } from "../constants/error.js";
-import { DEV_COMPANY_NAME } from "../../config/constants.js";
+import { DEV_COMPANY_NAME } from "../../configs/constants.js";
 
 // * Rest libraries
 import {
