@@ -1,13 +1,11 @@
 import "dotenv/config";
 import logger from "../../../logger.js";
 import { checkUndefinedVar, validateDID } from "../../utils/index.js";
-import {
-    AuthHelper,
-    CardanoHelper,
-    ControllerHelper,
-    VerifiableCredentialHelper,
-} from "../../helpers/index.js";
-import { ERRORS } from "../../config/errors/error.constants.js";
+import { ERRORS } from "../../configs/errors/error.constants.js";
+import { handleServerError } from "../../configs/errors/errorHandler.js";
+import ControllerService from "../../services/Controller.service.js";
+import AuthenticationService from "../../services/Authentication.service.js";
+import CardanoService from "../../services/Cardano.service.js";
 
 /**
  * Controller for verifying a certificate.
@@ -21,15 +19,6 @@ import { ERRORS } from "../../config/errors/error.constants.js";
  * @type {VerifierController}
  */
 export default {
-    /**
-     * Verifies a certificate.
-     * @function verifyCertificate
-     * @async
-     * @param {Object} req - Express request object.
-     * @param {Object} res - Express response object.
-     * @param {Function} next - Express next middleware function.
-     * @returns {Object} - Returns a JSON object with the verification result and data.
-     */
     verifyCertificate: async (req, res, next) => {
         try {
             logger.apiInfo(req, res, "API Request: Verify Certificate");
@@ -50,28 +39,27 @@ export default {
             const accessToken =
                 process.env.NODE_ENV === "test"
                     ? "mock-access-token"
-                    : await AuthHelper.authenticationProgress();
-            const documentContentResponse =
-                await ControllerHelper.getDocumentContent({
-                    did,
-                    accessToken,
-                });
+                    : await AuthenticationService().authenticationProgress();
+            const documentContentResponse = await ControllerService(
+                accessToken
+            ).getDocumentContent({
+                did,
+            });
             const documentHash =
                 documentContentResponse?.data?.wrappedDoc?.signature
                     ?.targetHash;
             const policyId =
                 documentContentResponse?.data?.wrappedDoc?.mintingConfig?.policy
                     ?.id;
-            await CardanoHelper.verifyCardanoNft({
+            await CardanoService(accessToken).verifyCardanoNft({
                 hashofdocument: documentHash,
-                accessToken,
                 policyid: policyId,
             });
-            const getEndorsementChainResponse =
-                await CardanoHelper.getEndorsementChain({
-                    accessToken,
-                    policyId,
-                });
+            const getEndorsementChainResponse = await CardanoService(
+                accessToken
+            ).getEndorsementChain({
+                policyId,
+            });
             const documentHistory = getEndorsementChainResponse?.data
                 ?.filter((item) => item?.onchainMetadata?.type === "document")
                 .sort(
@@ -87,26 +75,9 @@ export default {
                 data: documentContentResponse?.data?.wrappedDoc,
             });
         } catch (error) {
-            error?.error_code
-                ? next(error)
-                : next({
-                      error_code: 400,
-                      error_message:
-                          error?.error_message ||
-                          error?.message ||
-                          "Something went wrong!",
-                  });
+            next(handleServerError(error));
         }
     },
-    /**
-     * Verifies a verifiable credential.
-     * @function verifyVerifiableCredential
-     * @async
-     * @param {Object} req - Express request object.
-     * @param {Object} res - Express response object.
-     * @param {Function} next - Express next middleware function.
-     * @returns {Object} - Returns a JSON object with the verification result and data.
-     */
     verifyVerifiableCredential: async (req, res, next) => {
         try {
             logger.apiInfo(
@@ -131,33 +102,22 @@ export default {
             const accessToken =
                 process.env.NODE_ENV === "test"
                     ? "mock-access-token"
-                    : await AuthHelper.authenticationProgress();
-            const credentialContentResponse =
-                await ControllerHelper.getCredentialContent({
-                    accessToken,
-                    did,
-                });
+                    : await AuthenticationService().authenticationProgress();
+            const credentialContentResponse = await ControllerService(
+                accessToken
+            ).getCredentialContent({
+                did,
+            });
             const credentialContent = credentialContentResponse?.data;
             delete credentialContent._id;
             delete credentialContent.createdAt;
             delete credentialContent.updatedAt;
-            // const verifierResponse = await VerifiableCredentialHelper.verifyVerifiableCredential({
-            //     credential: credentialContent
-            // });
             return res.status(200).json({
                 valid: true,
                 data: credentialContent,
             });
         } catch (error) {
-            error?.error_code
-                ? next(error)
-                : next({
-                      error_code: 400,
-                      error_message:
-                          error?.error_message ||
-                          error?.message ||
-                          "Something went wrong!",
-                  });
+            next(handleServerError(error));
         }
     },
 };

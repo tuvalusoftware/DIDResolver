@@ -30,10 +30,10 @@ import {
     SAMPLE_SERVICE,
     _DOCUMENT_TYPE,
 } from "../fuixlabs-documentor/constants/type.js";
-import { SERVERS } from "../config/constants.js";
-import { ERRORS } from "../config/errors/error.constants.js";
-import { ControllerHelper } from "../helpers/controller.js";
-import { CardanoHelper } from "../helpers/cardano.js";
+import { SERVERS } from "../configs/constants.js";
+import { ERRORS } from "../configs/errors/error.constants.js";
+import ControllerService from "../services/Controller.service.js";
+import CardanoService from "../services/Cardano.service.js";
 
 /**
  * Function used for generating wrapped document
@@ -446,11 +446,11 @@ export const createDocumentTaskQueue = async ({
  */
 export const fetchEndorsementChain = async ({ did, accessToken }) => {
     try {
-        const documentContentResponse =
-            await ControllerHelper.getDocumentContent({
-                accessToken: accessToken,
-                did: did,
-            });
+        const documentContentResponse = await ControllerService(
+            accessToken
+        ).getDocumentContent({
+            did: did,
+        });
         if (!documentContentResponse?.data?.wrappedDoc?.mintingNFTConfig) {
             throw {
                 ...ERRORS.CANNOT_UPDATE_DOCUMENT_INFORMATION,
@@ -460,8 +460,7 @@ export const fetchEndorsementChain = async ({ did, accessToken }) => {
         const policyId =
             documentContentResponse?.data?.wrappedDoc?.mintingNFTConfig?.policy
                 ?.id;
-        const getNftResponse = await CardanoHelper.getToken({
-            accessToken,
+        const getNftResponse = await CardanoService(accessToken).getToken({
             policyId,
         });
         const nftContracts = getNftResponse?.data?.data;
@@ -469,14 +468,15 @@ export const fetchEndorsementChain = async ({ did, accessToken }) => {
             const certificateDid = getDidByComponents(
                 nft?.onchainMetadata?.did
             );
-            const certificateResponse =
-                await ControllerHelper.getDocumentContent({
-                    did: certificateDid,
-                    accessToken: accessToken,
-                });
-            const didDocumentResponse = await ControllerHelper.getDocumentDid({
+            const certificateResponse = await ControllerService(
+                accessToken
+            ).getDocumentContent({
                 did: certificateDid,
-                accessToken: accessToken,
+            });
+            const didDocumentResponse = await ControllerService(
+                accessToken
+            ).getDocumentDid({
+                did: certificateDid,
             });
             return {
                 data: { ...certificateResponse?.data?.wrappedDoc?.data },

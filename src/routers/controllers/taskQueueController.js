@@ -1,17 +1,15 @@
-import { REQUEST_TYPE } from "../../config/constants.js";
-import { ERRORS } from "../../config/errors/error.constants.js";
+import { REQUEST_TYPE } from "../../configs/constants.js";
+import { ERRORS } from "../../configs/errors/error.constants.js";
 import logger from "../../../logger.js";
 import { checkUndefinedVar, validateDID } from "../../utils/index.js";
-import {
-    AuthHelper,
-    TaskQueueHelper,
-    ControllerHelper,
-} from "../../helpers/index.js";
-import "dotenv/config";
 import { unsalt } from "../../fuixlabs-documentor/utils/data.js";
 import { createClaimantVerifiableCredential } from "../../utils/credential.js";
 import { generateDid } from "../../fuixlabs-documentor/utils/did.js";
-import { CardanoHelper } from "../../helpers/index.js";
+import ControllerService from "../../services/Controller.service.js";
+import AuthenticationService from "../../services/Authentication.service.js";
+
+import "dotenv/config";
+import CardanoService from "../../services/Cardano.service.js";
 
 /**
  * Controller object containing functions for handling document creation, revocation, and plot document creation.
@@ -46,16 +44,15 @@ export default {
             const accessToken =
                 process.env.NODE_ENV === "test"
                     ? "mock-access-token"
-                    : await AuthHelper.authenticationProgress();
-            const documentContentResponse =
-                await ControllerHelper.getDocumentContent({
-                    accessToken,
-                    did,
-                });
+                    : await AuthenticationService().authenticationProgress();
+            const documentContentResponse = await ControllerService(
+                accessToken
+            ).getDocumentContent({
+                did,
+            });
             const mintingConfig =
                 documentContentResponse?.data?.wrappedDoc?.mintingConfig;
-            const burnResponse = await CardanoHelper.burnToken({
-                accessToken,
+            await CardanoService(accessToken).burnToken({
                 mintingConfig,
             });
             return res.status(200).json({
@@ -102,10 +99,11 @@ export default {
             const accessToken =
                 process.env.NODE_ENV === "test"
                     ? "mock-access-token"
-                    : await AuthHelper.authenticationProgress();
-            const mintingResponse = await CardanoHelper.storeToken({
+                    : await AuthenticationService().authenticationProgress();
+            const mintingResponse = await CardanoService(
+                accessToken
+            ).storeToken({
                 hash: wrappedDocument?.signature?.targetHash,
-                accessToken,
             });
             if (mintingResponse?.data?.code !== 0) {
                 throw {
@@ -125,13 +123,13 @@ export default {
             };
             const fileName = unsalt(willWrappedDocument?.data?.fileName);
             logger.apiInfo(req, res, `File name: ${fileName}`);
-            const storeWrappedDocumentStatus =
-                await ControllerHelper.storeDocument({
-                    accessToken,
-                    companyName,
-                    fileName,
-                    wrappedDocument: willWrappedDocument,
-                });
+            const storeWrappedDocumentStatus = await ControllerService(
+                accessToken
+            ).storeDocument({
+                companyName,
+                fileName,
+                wrappedDocument: willWrappedDocument,
+            });
             if (storeWrappedDocumentStatus?.data?.error_code) {
                 return next(
                     storeWrappedDocumentStatus?.data ||
@@ -143,9 +141,10 @@ export default {
                 res,
                 `Wrapped document ${JSON.stringify(willWrappedDocument)}`
             );
-            const didResponse = await ControllerHelper.getDocumentDid({
+            const didResponse = await ControllerService(
+                accessToken
+            ).getDocumentDid({
                 did: did,
-                accessToken: accessToken,
             });
             if (!didResponse?.data?.didDoc) {
                 return next(ERRORS.CANNOT_GET_DID_DOCUMENT);
@@ -154,12 +153,12 @@ export default {
                 ...didResponse?.data?.didDoc,
                 pdfUrl: url,
             };
-            const updateDidDocResponse =
-                await ControllerHelper.updateDocumentDid({
-                    did: did,
-                    accessToken: accessToken,
-                    didDoc: updateDidDoc,
-                });
+            const updateDidDocResponse = await ControllerService(
+                accessToken
+            ).updateDocumentDid({
+                did: did,
+                didDoc: updateDidDoc,
+            });
             return res.status(200).json({ url: url, did: did });
         } catch (error) {
             error?.error_code
@@ -208,10 +207,11 @@ export default {
             const accessToken =
                 process.env.NODE_ENV === "test"
                     ? "mock-access-token"
-                    : await AuthHelper.authenticationProgress();
-            const mintingResponse = await CardanoHelper.storeToken({
+                    : await AuthenticationService().authenticationProgress();
+            const mintingResponse = await CardanoService(
+                accessToken
+            ).storeToken({
                 hash: wrappedDocument?.signature?.targetHash,
-                accessToken,
             });
 
             if (mintingResponse?.data?.code !== 0) {
@@ -227,20 +227,12 @@ export default {
             };
             const fileName = unsalt(willWrappedDocument?.data?.fileName);
             logger.apiInfo(req, res, `File name: ${fileName}`);
-            const storeWrappedDocumentStatus =
-                await ControllerHelper.storeDocument({
-                    accessToken,
-                    companyName,
-                    fileName,
-                    wrappedDocument: willWrappedDocument,
-                });
 
-            if (storeWrappedDocumentStatus?.data?.error_code) {
-                return next(
-                    storeWrappedDocumentStatus?.data ||
-                        ERRORS.CANNOT_STORE_DOCUMENT
-                );
-            }
+            await ControllerService(accessToken).storeDocument({
+                companyName,
+                fileName,
+                wrappedDocument: willWrappedDocument,
+            });
             const claimants = plot?.claimants;
             let claimantData = [];
             if (claimants) {
@@ -308,11 +300,12 @@ export default {
             const accessToken =
                 process.env.NODE_ENV === "test"
                     ? "mock-access-token"
-                    : await AuthHelper.authenticationProgress();
-            const updateResponse = await CardanoHelper.updateToken({
+                    : await AuthenticationService().authenticationProgress();
+            const updateResponse = await CardanoService(
+                accessToken
+            ).updateToken({
                 hash: wrappedDocument?.signature?.targetHash,
                 mintingConfig,
-                accessToken,
                 did,
             });
             const updateConfig = updateResponse?.data?.data;
@@ -321,8 +314,9 @@ export default {
                 mintingConfig: updateConfig,
             };
             const fileName = did.split(":")[3];
-            const storeResponse = await ControllerHelper.storeDocument({
-                accessToken,
+            await ControllerService(
+                accessToken
+            ).storeDocument({
                 companyName,
                 fileName,
                 wrappedDocument: updateWrappedDocument,
@@ -401,11 +395,12 @@ export default {
             const accessToken =
                 process.env.NODE_ENV === "test"
                     ? "mock-access-token"
-                    : await AuthHelper.authenticationProgress();
-            const credentialResponse = await CardanoHelper.storeCredentials({
+                    : await AuthenticationService().authenticationProgress();
+            const credentialResponse = await CardanoService(
+                accessToken
+            ).storeCredentials({
                 mintingConfig,
                 credentialHash: credentialHash,
-                accessToken,
             });
             if (credentialResponse?.data?.code !== 0) {
                 return next({
@@ -418,14 +413,14 @@ export default {
                 id: generateDid(companyName, credentialHash),
             };
             logger.apiInfo(req, res, JSON.stringify(verifiedCredential));
-            const storeCredentialStatus =
-                await ControllerHelper.storeCredentials({
-                    payload: {
-                        ...verifiedCredential,
-                        id: generateDid(companyName, credentialHash),
-                    },
-                    accessToken,
-                });
+            const storeCredentialStatus = await ControllerService(
+                accessToken
+            ).storeCredentials({
+                payload: {
+                    ...verifiedCredential,
+                    id: generateDid(companyName, credentialHash),
+                },
+            });
             if (storeCredentialStatus?.data?.error_code) {
                 return next(storeCredentialStatus?.data);
             }
@@ -469,13 +464,13 @@ export default {
             const accessToken =
                 process.env.NODE_ENV === "test"
                     ? "mock-access-token"
-                    : await AuthHelper.authenticationProgress();
-            const credentialResponse =
-                await CardanoHelper.storeCredentialsWithPolicyId({
-                    credentials,
-                    mintingConfig,
-                    accessToken,
-                });
+                    : await AuthenticationService().authenticationProgress();
+            const credentialResponse = await CardanoService(
+                accessToken
+            ).storeCredentialsWithPolicyId({
+                credentials,
+                mintingConfig,
+            });
             if (credentialResponse?.data?.code !== 0) {
                 return next({
                     ...ERRORS.CREDENTIAL_FAILED,
@@ -484,11 +479,11 @@ export default {
             }
             const storeCredentialsPromises = credentials?.map(
                 async (credential) => {
-                    const storeCredentialStatus =
-                        await ControllerHelper.storeCredentials({
-                            payload: credential,
-                            accessToken,
-                        });
+                    const storeCredentialStatus = await ControllerService(
+                        accessToken
+                    ).storeCredentials({
+                        payload: credential,
+                    });
                     if (storeCredentialStatus?.data?.error_code) {
                         return next(storeCredentialStatus?.data);
                     }
@@ -528,9 +523,10 @@ export default {
             const accessToken =
                 process.env.NODE_ENV === "test"
                     ? "mock-access-token"
-                    : await AuthHelper.authenticationProgress();
-            const isExistedResponse = await ControllerHelper.isExisted({
-                accessToken: accessToken,
+                    : await AuthenticationService().authenticationProgress();
+            const isExistedResponse = await ControllerService(
+                accessToken
+            ).isExisted({
                 companyName: companyName,
                 fileName: plotCertificationFileName,
             });
@@ -540,11 +536,11 @@ export default {
                     plotDid: plotDid,
                 });
             }
-            const documentContentResponse =
-                await ControllerHelper.getDocumentContent({
-                    accessToken: accessToken,
-                    did: plotDid,
-                });
+            const documentContentResponse = await ControllerService(
+                accessToken
+            ).getDocumentContent({
+                did: plotDid,
+            });
             if (!documentContentResponse?.data?.wrappedDoc?.mintingConfig) {
                 return next({
                     ...ERRORS.CANNOT_GET_DOCUMENT_INFORMATION,
@@ -553,10 +549,11 @@ export default {
             }
             const mintingConfig =
                 documentContentResponse?.data?.wrappedDoc?.mintingConfig;
-            const credentialResponse = await CardanoHelper.storeCredentials({
+            const credentialResponse = await CardanoService(
+                accessToken
+            ).storeCredentials({
                 mintingConfig,
                 credentialHash: credential,
-                accessToken,
             });
             if (credentialResponse?.data?.code !== 0) {
                 return next({
@@ -568,14 +565,14 @@ export default {
                 claims: { ...verifiedCredential.credentialSubject.claims },
                 id: generateDid(companyName, credential),
             };
-            const storeCredentialStatus =
-                await ControllerHelper.storeCredentials({
-                    payload: {
-                        ...verifiedCredential,
-                        id: generateDid(companyName, credential),
-                    },
-                    accessToken,
-                });
+            const storeCredentialStatus = await ControllerService(
+                accessToken
+            ).storeCredentials({
+                payload: {
+                    ...verifiedCredential,
+                    id: generateDid(companyName, credential),
+                },
+            });
             if (storeCredentialStatus?.data?.error_code) {
                 return next(storeCredentialStatus?.data);
             }

@@ -4,11 +4,17 @@ import cors from "cors";
 import compression from "compression";
 import cookieParser from "cookie-parser";
 import methodOverride from "method-override";
-import logger from "./logger.js";
 import swaggerUi from "swagger-ui-express";
-import { swaggerDocument } from "./src/config/swagger/index.js";
-import routes from "./src/router/routes/index.js";
-import { ERRORS } from "./src/config/errors/error.constants.js";
+import { swaggerDocument } from "./src/configs/swagger/index.js";
+import routes from "./src/routers/routes/index.js";
+import { ERRORS } from "./src/configs/errors/error.constants.js";
+import {} from "./src/rabbit/index.js";
+import { Logger } from "tslog";
+import { ResolverConsumer } from "./src/rabbit/rabbit.consumer.js";
+import connectMongo from "./src/libs/connectMongo.js";
+import morgen from "morgan";
+
+const logger = new Logger();
 
 const app = express();
 app.use(cors());
@@ -17,11 +23,15 @@ app.use(compression());
 app.use(express.json({ limit: "200mb" }));
 app.use(express.urlencoded({ limit: "200mb", extended: true }));
 app.use(methodOverride());
+app.use(morgen("tiny"));
 app.use(
     express.urlencoded({
         extended: true,
     })
 );
+
+connectMongo();
+await ResolverConsumer();
 
 const normalizePort = (val) => {
     const port = parseInt(val, 10);
@@ -61,11 +71,7 @@ app.use((err, req, res, _) => {
         }
         throw err;
     } catch (error) {
-        logger.apiError(
-            req,
-            res,
-            `Error in ${req.method} ${req.url}: ${err?.error_message}`
-        );
+        process?.env?.NODE_ENV !== "test" && logger.error(error);
         return res.status(200).json({
             error_code: err.error_code,
             error_message:
@@ -77,7 +83,7 @@ app.use((err, req, res, _) => {
 
 const port = normalizePort(process.env.NODE_PORT || "8000");
 server.listen(port, () => {
-    logger.info(`Server is live on port ${port}: http://localhost:${port}/`);
+    logger.debug(`Server is live on port ${port}: http://localhost:${port}/`);
 });
 
 export default server;

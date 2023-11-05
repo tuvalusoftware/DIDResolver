@@ -1,7 +1,8 @@
 import logger from "../../../logger.js";
-import { ERRORS } from "../../config/errors/error.constants.js";
+import { ERRORS } from "../../configs/errors/error.constants.js";
 import { unsalt } from "../../fuixlabs-documentor/utils/data.js";
 import { checkUndefinedVar } from "../../utils/index.js";
+import { handleServerError } from "../../configs/errors/errorHandler.js";
 
 /**
  * Controller for unsalting data.
@@ -32,15 +33,7 @@ export default {
                 data: unsaltedData,
             });
         } catch (error) {
-            error?.error_code
-                ? next(error)
-                : next({
-                      error_code: 400,
-                      error_message:
-                          error?.error_message ||
-                          error?.message ||
-                          "Something went wrong!",
-                  });
+            next(handleServerError(error));
         }
     },
 };
