@@ -115,6 +115,7 @@ export default {
             await CardanoService(accessToken).storeToken({
                 hash: wrappedDocument?.signature?.targetHash,
                 id: request._id,
+                isContract: true,
             });
             logger.apiInfo(req, res, `Document ${contractFileName} created!`);
             return res.status(200).json({

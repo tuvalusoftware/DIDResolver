@@ -20,7 +20,7 @@ const { sender: resolverSender, queue: resolverQueue } = getSender({
 
 const { sender: errorSender, queue: errorQueue } = getSender({
     service: RABBITMQ_SERVICE.ErrorService,
-})
+});
 
 export const CardanoConsumer = async () => {
     cardanoSender.consume(cardanoQueue, async (msg) => {
@@ -37,8 +37,8 @@ export const ErrorConsumer = async () => {
             logger.info("[ErrorQueue] 🔈", msg.content.toString());
             errorSender.ack(msg);
         }
-    })
-}
+    });
+};
 
 export const ResolverConsumer = async () => {
     resolverSender.consume(resolverQueue, async (msg) => {
@@ -47,14 +47,14 @@ export const ResolverConsumer = async () => {
                 const cardanoResponse = JSON.parse(msg.content);
                 let response = null;
                 if (cardanoResponse?.error_code) {
-                    logger.error("[ResolverQueue] 🔈", msg.content.toString());
-                    // const { data, type, id } = cardanoResponse;
-                    // await ErrorProducer({
-                    //     data,
-                    //     type,
-                    //     id,
-                    // });
                     resolverSender.ack(msg);
+                    logger.error("[ResolverQueue] 🔈", msg.content.toString());
+                    const { data, type, id } = cardanoResponse?.data;
+                    await ErrorProducer({
+                        data,
+                        type,
+                        id,
+                    });
                     return;
                 }
                 const requestData = await RequestRepo.retrieveRequest({
@@ -78,7 +78,7 @@ export const ResolverConsumer = async () => {
                             did,
                             wrappedDocument,
                             metadata,
-                            mintingConfig
+                            mintingConfig,
                         });
                         response = cardanoResponse?.data;
                         break;

@@ -1,6 +1,9 @@
 import { SERVERS } from "../configs/constants.js";
 import { handleServiceError } from "../configs/errors/errorHandler.js";
-import { CardanoProducer } from "../rabbit/rabbit.producer.js";
+import {
+    CardanoProducer,
+    CardanoContractProducer,
+} from "../rabbit/rabbit.producer.js";
 import { REQUEST_TYPE } from "../rabbit/config.js";
 import dotenv from "dotenv";
 import axios from "axios";
@@ -59,7 +62,7 @@ const CardanoService = (accessToken) => {
         async burnToken({ mintingConfig, skipWait = false, id }) {
             return await CardanoProducer({
                 data: {
-                    ...mintingConfig
+                    ...mintingConfig,
                 },
                 options: {
                     skipWait,
@@ -126,18 +129,38 @@ const CardanoService = (accessToken) => {
          * @param {boolean} [options.skipWait=true] - Whether to skip waiting for the transaction to be confirmed (default: true).
          * @returns {Promise} A promise that resolves with the response from the server.
          */
-        async storeToken({ hash, id, type = "document", skipWait = true }) {
-            return await CardanoProducer({
-                data: {
-                    hash,
-                    type,
-                },
-                options: {
-                    skipWait,
-                },
-                type: REQUEST_TYPE.CARDANO_SERVICE.mintToken,
-                id,
-            });
+        async storeToken({
+            hash,
+            id,
+            type = "document",
+            skipWait = true,
+            isContract = false,
+        }) {
+            if (isContract) {
+                return await CardanoContractProducer({
+                    data: {
+                        hash,
+                        type,
+                    },
+                    options: {
+                        skipWait,
+                    },
+                    type: REQUEST_TYPE.CARDANO_SERVICE.mintToken,
+                    id,
+                });
+            } else {
+                return await CardanoProducer({
+                    data: {
+                        hash,
+                        type,
+                    },
+                    options: {
+                        skipWait,
+                    },
+                    type: REQUEST_TYPE.CARDANO_SERVICE.mintToken,
+                    id,
+                });
+            }
         },
 
         /**
