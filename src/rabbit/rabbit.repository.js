@@ -82,49 +82,55 @@ const RabbitRepository = (accessToken) => {
             did,
             plot,
         }) {
-            const willWrappedDocument = {
-                ...wrappedDocument,
-                mintingConfig,
-            };
-            await ControllerService(accessToken).storeDocument({
-                companyName,
-                fileName,
-                wrappedDocument: willWrappedDocument,
-            });
-            if (claimants?.claimants) {
-                const promises = claimants?.claimants?.map(async (claimant) => {
-                    const { verifiableCredential, credentialHash } =
-                        await createClaimantVerifiableCredential({
-                            subject: {
-                                claims: {
-                                    plot: plot?._id,
-                                    ...claimant,
+            try {
+                const willWrappedDocument = {
+                    ...wrappedDocument,
+                    mintingConfig,
+                };
+                await ControllerService(accessToken).storeDocument({
+                    companyName,
+                    fileName,
+                    wrappedDocument: willWrappedDocument,
+                });
+                if (claimants?.claimants) {
+                    const promises = claimants?.claimants?.map(
+                        async (claimant) => {
+                            const { verifiableCredential, credentialHash } =
+                                await createClaimantVerifiableCredential({
+                                    subject: {
+                                        claims: {
+                                            plot: plot?._id,
+                                            ...claimant,
+                                        },
+                                    },
+                                    issuerKey: did,
+                                });
+                            const request = await RequestRepo.createRequest({
+                                data: {
+                                    mintingConfig,
+                                    credential: credentialHash,
+                                    verifiedCredential: verifiableCredential,
+                                    companyName,
                                 },
-                            },
-                            issuerKey: did,
-                        });
-                    const request = await RequestRepo.createRequest({
-                        data: {
-                            mintingConfig,
-                            credential: credentialHash,
-                            verifiedCredential: verifiableCredential,
-                            companyName,
-                        },
-                        type: REQUEST_TYPE.MINTING_TYPE
-                            .createClaimantCredential,
-                        status: "pending",
+                                type: REQUEST_TYPE.MINTING_TYPE
+                                    .createClaimantCredential,
+                                status: "pending",
+                            });
+                            await CardanoService(
+                                accessToken
+                            ).storeCredentialsWithPolicyId({
+                                credentials: [credentialHash],
+                                mintingConfig,
+                                id: request?._id,
+                            });
+                        }
+                    );
+                    await Promise.all(promises).catch((error) => {
+                        logger.error(error);
                     });
-                    await CardanoService(
-                        accessToken
-                    ).storeCredentialsWithPolicyId({
-                        credentials: [credentialHash],
-                        mintingConfig,
-                        id: request?._id,
-                    });
-                });
-                await Promise.all(promises).catch((error) => {
-                    logger.error(error);
-                });
+                }
+            } catch (error) {
+                throw error;
             }
         },
 
@@ -150,7 +156,7 @@ const RabbitRepository = (accessToken) => {
                     claims: { ..._verifiedCredential.credentialSubject.claims },
                     id: generateDid(companyName, credentialHash),
                 };
-                ControllerService(accessToken).storeCredentials({
+                await ControllerService(accessToken).storeCredentials({
                     payload: {
                         ..._verifiedCredential,
                         id: generateDid(companyName, credentialHash),

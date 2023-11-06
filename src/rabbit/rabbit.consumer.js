@@ -48,12 +48,12 @@ export const ResolverConsumer = async () => {
                 let response = null;
                 if (cardanoResponse?.error_code) {
                     logger.error("[ResolverQueue] 🔈", msg.content.toString());
-                    const { data, type, id } = cardanoResponse;
-                    await ErrorProducer({
-                        data,
-                        type,
-                        id,
-                    });
+                    // const { data, type, id } = cardanoResponse;
+                    // await ErrorProducer({
+                    //     data,
+                    //     type,
+                    //     id,
+                    // });
                     resolverSender.ack(msg);
                     return;
                 }

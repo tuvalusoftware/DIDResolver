@@ -9,14 +9,14 @@ services:
     networks:
       - resolver-network
     restart: always
-  rabbitmq:
-    image: rabbitmq
-    container_name: request-rabbitmq
-    ports:
-      - "${RABBITMQ_PORT}:${RABBITMQ_PORT}"
-    networks:
-      - resolver-network
-    restart: always
+  # rabbitmq:
+  #   image: rabbitmq
+  #   container_name: request-rabbitmq
+  #   ports:
+  #     - "${RABBITMQ_PORT}:${RABBITMQ_PORT}"
+  #   networks:
+  #     - resolver-network
+  #   restart: always
 networks:
   resolver-network:
         driver: bridge
