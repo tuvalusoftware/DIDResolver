@@ -18,9 +18,11 @@ try {
 }
 
 const queue = {
-    CardanoService: RABBITMQ_SERVICE.CardanoService,
-    ResolverService: RABBITMQ_SERVICE.ResolverService,
-    ErrorService: RABBITMQ_SERVICE.ErrorService,
+    [RABBITMQ_SERVICE.CardanoService]: RABBITMQ_SERVICE.CardanoService,
+    [RABBITMQ_SERVICE.ResolverService]: RABBITMQ_SERVICE.ResolverService,
+    [RABBITMQ_SERVICE.ErrorService]: RABBITMQ_SERVICE.ErrorService,
+    [RABBITMQ_SERVICE.CardanoContractService]:
+        RABBITMQ_SERVICE.CardanoContractService,
 };
 
 const cardanoChannel = await rabbitMQ.createChannel();
@@ -38,10 +40,19 @@ await errorChannel.assertQueue(queue[RABBITMQ_SERVICE.ErrorService], {
     durable: true,
 });
 
+const cardanoContractChannel = await rabbitMQ.createChannel();
+await cardanoContractChannel.assertQueue(
+    queue[RABBITMQ_SERVICE.CardanoContractService],
+    {
+        durable: true,
+    }
+);
+
 const channel = {
-    CardanoService: cardanoChannel,
-    ResolverService: resolverChanel,
-    ErrorService: errorChannel,
+    [RABBITMQ_SERVICE.CardanoService]: cardanoChannel,
+    [RABBITMQ_SERVICE.ResolverService]: resolverChanel,
+    [RABBITMQ_SERVICE.ErrorService]: errorChannel,
+    [RABBITMQ_SERVICE.CardanoContractService]: cardanoContractChannel,
 };
 
 /**
@@ -54,5 +65,16 @@ export function getSender({ service }) {
     return {
         sender: channel[service],
         queue: queue[service],
+    };
+}
+
+export async function createSender(name) {
+    const customChanel = await rabbitMQ.createChannel();
+    await customChanel.assertQueue(name, {
+        durable: true,
+    });
+    return {
+        sender: customChanel,
+        queue: name,
     };
 }

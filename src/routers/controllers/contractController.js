@@ -17,6 +17,7 @@ import RequestRepo from "../../db/repos/requestRepo.js";
 import { REQUEST_TYPE } from "../../rabbit/config.js";
 import { handleServerError } from "../../configs/errors/errorHandler.js";
 import ControllerService from "../../services/Controller.service.js";
+import { CustomChanel } from "../../rabbit/rabbit.consumer.js";
 
 // * Constants
 import { ERRORS } from "../../configs/errors/error.constants.js";
@@ -24,6 +25,7 @@ import { generateDid } from "../../fuixlabs-documentor/utils/did.js";
 import contractSchema from "../../configs/schemas/contract.schema.js";
 import AuthenticationService from "../../services/Authentication.service.js";
 import CardanoService from "../../services/Cardano.service.js";
+import { RABBITMQ_SERVICE } from "../../rabbit/config.js";
 
 axios.defaults.withCredentials = true;
 
@@ -112,9 +114,12 @@ export default {
                 type: REQUEST_TYPE.MINTING_TYPE.createContract,
                 status: "pending",
             });
-            await CardanoService(accessToken).storeToken({
+
+            await CustomChanel(RABBITMQ_SERVICE.CardanoContractService, {
                 hash: wrappedDocument?.signature?.targetHash,
                 id: request._id,
+                isContract: true,
+                type: "document",
             });
             logger.apiInfo(req, res, `Document ${contractFileName} created!`);
             return res.status(200).json({
