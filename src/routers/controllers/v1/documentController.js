@@ -1,5 +1,5 @@
 // * Constants
-import { ERRORS } from "../../configs/errors/error.constants.js";
+import { ERRORS } from "../../../configs/errors/error.constants.js";
 
 // * Utilities
 import axios from "axios";
@@ -10,26 +10,26 @@ import {
     getPublicKeyFromAddress,
     generateRandomString,
     validateDID,
-} from "../../utils/index.js";
+} from "../../../utils/index.js";
 import {
     hashDocumentContent,
     isLastestCertificate,
     fetchEndorsementChain,
     createDocumentTaskQueue,
-} from "../../utils/document.js";
-import { getAccountBySeedPhrase } from "../../utils/lucid.js";
-import { createClaimantVerifiableCredential } from "../../utils/credential.js";
-import { unsalt } from "../../fuixlabs-documentor/utils/data.js";
-import { generateDid } from "../../fuixlabs-documentor/utils/did.js";
-import logger from "../../../logger.js";
-import { validateJSONSchema } from "../../utils/index.js";
-import RequestRepo from "../../db/repos/requestRepo.js";
-import { handleServerError } from "../../configs/errors/errorHandler.js";
-import { REQUEST_TYPE as RABBIT_REQUEST_TYPE } from "../../rabbit/config.js";
-import ControllerService from "../../services/Controller.service.js";
-import AuthenticationService from "../../services/Authentication.service.js";
-import CardanoService from "../../services/Cardano.service.js";
-import credentialService from "../../services/VerifiableCredential.service.js";
+} from "../../../utils/document.js";
+import { getAccountBySeedPhrase } from "../../../utils/lucid.js";
+import { createClaimantVerifiableCredential } from "../../../utils/credential.js";
+import { unsalt } from "../../../fuixlabs-documentor/utils/data.js";
+import { generateDid } from "../../../fuixlabs-documentor/utils/did.js";
+import logger from "../../../../logger.js";
+import { validateJSONSchema } from "../../../utils/index.js";
+import RequestRepo from "../../../db/repos/requestRepo.js";
+import { handleServerError } from "../../../configs/errors/errorHandler.js";
+import { REQUEST_TYPE as RABBIT_REQUEST_TYPE } from "../../../rabbit/config.js";
+import ControllerService from "../../../services/Controller.service.js";
+import AuthenticationService from "../../../services/Authentication.service.js";
+import CardanoService from "../../../services/Cardano.service.js";
+import credentialService from "../../../services/VerifiableCredential.service.js";
 
 axios.defaults.withCredentials = true;
 
@@ -474,23 +474,6 @@ export default {
                     },
                     issuerKey: plotDid,
                 });
-            // const isCronExists = await TaskQueueHelper.isExisted({
-            //     did,
-            // });
-            // if (isCronExists?.data?.isExists) {
-            //     return res.status(200).json({
-            //         did: isCronExists?.data?.data?.verifiedCredential
-            //             ?.credentialSubject?.id,
-            //     });
-            // }
-            // const taskQueueResponse = await TaskQueueHelper.sendMintingRequest({
-            //     data: {
-            //         credential: credentialHash,
-            //         verifiedCredential: verifiableCredential,
-            //     },
-            //     type: REQUEST_TYPE.ADD_CLAIMANT,
-            //     did: generateDid(companyName, credentialHash),
-            // });
             return res.status(200).json({
                 did: taskQueueResponse?.data?.data?.did,
             });

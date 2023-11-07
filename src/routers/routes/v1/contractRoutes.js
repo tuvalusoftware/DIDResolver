@@ -1,6 +1,6 @@
 import express from "express";
 import multer from "multer";
-import contractController from "../controllers/contractController.js";
+import contractController from "../../controllers/v1/contractController.js";
 
 const storage = multer.memoryStorage();
 const upload = multer({ storage: storage });

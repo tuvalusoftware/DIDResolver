@@ -8,24 +8,22 @@ import {
     getPublicKeyFromAddress,
     validateJSONSchema,
     validateDID,
-} from "../../utils/index.js";
-import { createDocumentTaskQueue } from "../../utils/document.js";
-import { getAccountBySeedPhrase } from "../../utils/lucid.js";
-import { createContractVerifiableCredential } from "../../utils/credential.js";
-import logger from "../../../logger.js";
-import RequestRepo from "../../db/repos/requestRepo.js";
-import { REQUEST_TYPE } from "../../rabbit/config.js";
-import { handleServerError } from "../../configs/errors/errorHandler.js";
-import ControllerService from "../../services/Controller.service.js";
-import { CustomChanel } from "../../rabbit/rabbit.consumer.js";
+} from "../../../utils/index.js";
+import { createDocumentTaskQueue } from "../../../utils/document.js";
+import { getAccountBySeedPhrase } from "../../../utils/lucid.js";
+import { createContractVerifiableCredential } from "../../../utils/credential.js";
+import logger from "../../../../logger.js";
+import RequestRepo from "../../../db/repos/requestRepo.js";
+import { REQUEST_TYPE } from "../../../rabbit/config.js";
+import { handleServerError } from "../../../configs/errors/errorHandler.js";
+import ControllerService from "../../../services/Controller.service.js";
 
 // * Constants
-import { ERRORS } from "../../configs/errors/error.constants.js";
-import { generateDid } from "../../fuixlabs-documentor/utils/did.js";
-import contractSchema from "../../configs/schemas/contract.schema.js";
-import AuthenticationService from "../../services/Authentication.service.js";
-import CardanoService from "../../services/Cardano.service.js";
-import { RABBITMQ_SERVICE } from "../../rabbit/config.js";
+import { ERRORS } from "../../../configs/errors/error.constants.js";
+import { generateDid } from "../../../fuixlabs-documentor/utils/did.js";
+import contractSchema from "../../../configs/schemas/contract.schema.js";
+import AuthenticationService from "../../../services/Authentication.service.js";
+import CardanoService from "../../../services/Cardano.service.js";
 
 axios.defaults.withCredentials = true;
 
@@ -114,11 +112,9 @@ export default {
                 type: REQUEST_TYPE.MINTING_TYPE.createContract,
                 status: "pending",
             });
-
-            await CustomChanel(RABBITMQ_SERVICE.CardanoContractService, {
+            await CardanoService(accessToken).storeToken({
                 hash: wrappedDocument?.signature?.targetHash,
                 id: request._id,
-                isContract: true,
                 type: "document",
             });
             logger.apiInfo(req, res, `Document ${contractFileName} created!`);
@@ -242,24 +238,6 @@ export default {
                 mintingConfig: contractMintingConfig,
                 id: request?._id,
             });
-            // await CardanoService(accessToken).storeCredentials({
-            //     mintingConfig: contractMintingConfig,
-            //     credentialHash: credentialHash,
-            // });
-            // const credentialDid = generateDid(companyName, credentialHash);
-            // verifiedCredential.credentialSubject = {
-            //     ...verifiedCredential.credentialSubject,
-            //     id: credentialDid,
-            // };
-            // logger.apiInfo(req, res, JSON.stringify(verifiedCredential));
-            // const storeCredentialStatus = await ControllerService(
-            //     accessToken
-            // ).storeCredentials({
-            //     payload: {
-            //         ...verifiedCredential,
-            //         id: credentialDid,
-            //     },
-            // });
             logger.apiInfo(req, res, "Successfully store credential!");
             return res.status(200).json({
                 did: credentialDid,

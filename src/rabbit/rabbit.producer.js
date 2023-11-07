@@ -30,12 +30,19 @@ export const CardanoProducer = async ({ type, data, id, options }) => {
     );
 };
 
-export const ErrorProducer = async ({ type, data, id, options }) => {
+export const ErrorProducer = async ({
+    type,
+    data,
+    id,
+    options,
+    retryCount,
+}) => {
     const message = {
         type,
         data,
         id,
         options,
+        retryCount,
     };
     errorSender.sendToQueue(errorQueue, Buffer.from(JSON.stringify(message)), {
         durable: true,

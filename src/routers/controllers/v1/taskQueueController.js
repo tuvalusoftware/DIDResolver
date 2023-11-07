@@ -1,15 +1,15 @@
-import { REQUEST_TYPE } from "../../configs/constants.js";
-import { ERRORS } from "../../configs/errors/error.constants.js";
-import logger from "../../../logger.js";
-import { checkUndefinedVar, validateDID } from "../../utils/index.js";
-import { unsalt } from "../../fuixlabs-documentor/utils/data.js";
-import { createClaimantVerifiableCredential } from "../../utils/credential.js";
-import { generateDid } from "../../fuixlabs-documentor/utils/did.js";
-import ControllerService from "../../services/Controller.service.js";
-import AuthenticationService from "../../services/Authentication.service.js";
+import { REQUEST_TYPE } from "../../../configs/constants.js";
+import { ERRORS } from "../../../configs/errors/error.constants.js";
+import logger from "../../../../logger.js";
+import { checkUndefinedVar, validateDID } from "../../../utils/index.js";
+import { unsalt } from "../../../fuixlabs-documentor/utils/data.js";
+import { createClaimantVerifiableCredential } from "../../../utils/credential.js";
+import { generateDid } from "../../../fuixlabs-documentor/utils/did.js";
+import ControllerService from "../../../services/Controller.service.js";
+import AuthenticationService from "../../../services/Authentication.service.js";
 
 import "dotenv/config";
-import CardanoService from "../../services/Cardano.service.js";
+import CardanoService from "../../../services/Cardano.service.js";
 
 /**
  * Controller object containing functions for handling document creation, revocation, and plot document creation.

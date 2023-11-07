@@ -1,5 +1,5 @@
 import express from "express";
-import utilityController from "../controllers/utilityController.js";
+import utilityController from "../../controllers/v1/utilityController.js";
 
 const router = express.Router();
 
