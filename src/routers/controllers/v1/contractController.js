@@ -8,24 +8,22 @@ import {
     getPublicKeyFromAddress,
     validateJSONSchema,
     validateDID,
-} from "../../utils/index.js";
-import { createDocumentTaskQueue } from "../../utils/document.js";
-import { getAccountBySeedPhrase } from "../../utils/lucid.js";
-import { createContractVerifiableCredential } from "../../utils/credential.js";
-import logger from "../../../logger.js";
-import RequestRepo from "../../db/repos/requestRepo.js";
-import { REQUEST_TYPE } from "../../rabbit/config.js";
-import { handleServerError } from "../../configs/errors/errorHandler.js";
-import ControllerService from "../../services/Controller.service.js";
-import { CustomChanel } from "../../rabbit/rabbit.consumer.js";
+} from "../../../utils/index.js";
+import { createDocumentTaskQueue } from "../../../utils/document.js";
+import { getAccountBySeedPhrase } from "../../../utils/lucid.js";
+import { createContractVerifiableCredential } from "../../../utils/credential.js";
+import logger from "../../../../logger.js";
+import RequestRepo from "../../../db/repos/requestRepo.js";
+import { REQUEST_TYPE } from "../../../rabbit/config.js";
+import { handleServerError } from "../../../configs/errors/errorHandler.js";
+import ControllerService from "../../../services/Controller.service.js";
 
 // * Constants
-import { ERRORS } from "../../configs/errors/error.constants.js";
-import { generateDid } from "../../fuixlabs-documentor/utils/did.js";
-import contractSchema from "../../configs/schemas/contract.schema.js";
-import AuthenticationService from "../../services/Authentication.service.js";
-import CardanoService from "../../services/Cardano.service.js";
-import { RABBITMQ_SERVICE } from "../../rabbit/config.js";
+import { ERRORS } from "../../../configs/errors/error.constants.js";
+import { generateDid } from "../../../fuixlabs-documentor/utils/did.js";
+import contractSchema from "../../../configs/schemas/contract.schema.js";
+import AuthenticationService from "../../../services/Authentication.service.js";
+import CardanoService from "../../../services/Cardano.service.js";
 
 axios.defaults.withCredentials = true;
 
@@ -90,7 +88,6 @@ export default {
                 fileName: contractFileName,
                 name: `Loan Contract`,
                 title: `Land-Certificate-${wrappedDoc?._id}`,
-                status: wrappedDoc?.status,
                 dateIssue: getCurrentDateTime(),
             };
             const { currentWallet, lucidClient } = await getAccountBySeedPhrase(

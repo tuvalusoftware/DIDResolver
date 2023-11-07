@@ -1,5 +1,5 @@
 // * Constants
-import { ERRORS } from "../../configs/errors/error.constants.js";
+import { ERRORS } from "../../../configs/errors/error.constants.js";
 
 // * Utilities
 import axios from "axios";
@@ -10,26 +10,26 @@ import {
     getPublicKeyFromAddress,
     generateRandomString,
     validateDID,
-} from "../../utils/index.js";
+} from "../../../utils/index.js";
 import {
     hashDocumentContent,
     isLastestCertificate,
     fetchEndorsementChain,
     createDocumentTaskQueue,
-} from "../../utils/document.js";
-import { getAccountBySeedPhrase } from "../../utils/lucid.js";
-import { createClaimantVerifiableCredential } from "../../utils/credential.js";
-import { unsalt } from "../../fuixlabs-documentor/utils/data.js";
-import { generateDid } from "../../fuixlabs-documentor/utils/did.js";
-import logger from "../../../logger.js";
-import { validateJSONSchema } from "../../utils/index.js";
-import RequestRepo from "../../db/repos/requestRepo.js";
-import { handleServerError } from "../../configs/errors/errorHandler.js";
-import { REQUEST_TYPE as RABBIT_REQUEST_TYPE } from "../../rabbit/config.js";
-import ControllerService from "../../services/Controller.service.js";
-import AuthenticationService from "../../services/Authentication.service.js";
-import CardanoService from "../../services/Cardano.service.js";
-import credentialService from "../../services/VerifiableCredential.service.js";
+} from "../../../utils/document.js";
+import { getAccountBySeedPhrase } from "../../../utils/lucid.js";
+import { createClaimantVerifiableCredential } from "../../../utils/credential.js";
+import { unsalt } from "../../../fuixlabs-documentor/utils/data.js";
+import { generateDid } from "../../../fuixlabs-documentor/utils/did.js";
+import logger from "../../../../logger.js";
+import { validateJSONSchema } from "../../../utils/index.js";
+import RequestRepo from "../../../db/repos/requestRepo.js";
+import { handleServerError } from "../../../configs/errors/errorHandler.js";
+import { REQUEST_TYPE as RABBIT_REQUEST_TYPE } from "../../../rabbit/config.js";
+import ControllerService from "../../../services/Controller.service.js";
+import AuthenticationService from "../../../services/Authentication.service.js";
+import CardanoService from "../../../services/Cardano.service.js";
+import credentialService from "../../../services/VerifiableCredential.service.js";
 
 axios.defaults.withCredentials = true;
 
@@ -63,10 +63,9 @@ export default {
     createPlotCertification: async (req, res, next) => {
         try {
             logger.apiInfo(req, res, `API Request: Create Plot Certification`);
-            const { plot, status } = req.body;
+            const { plot } = req.body;
             const undefinedVar = checkUndefinedVar({
                 plot,
-                status,
             });
             if (undefinedVar.undefined) {
                 return next({
@@ -115,7 +114,6 @@ export default {
                 name: `Land Certificate`,
                 title: `Land-Certificate-${plot?.name}`,
                 dateIssue: getCurrentDateTime(),
-                status: status,
                 plotInformation: {
                     plotName: plot?.name,
                     plotId: plot?.id,

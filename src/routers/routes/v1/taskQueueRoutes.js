@@ -1,5 +1,5 @@
 import express from "express";
-import taskQueueController from "../controllers/taskQueueController.js";
+import taskQueueController from "../../controllers/v1/taskQueueController.js";
 
 const router = express.Router();
 
