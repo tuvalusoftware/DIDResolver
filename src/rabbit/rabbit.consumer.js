@@ -47,7 +47,7 @@ export const ErrorConsumer = async () => {
 
 export const CustomChanel = async (service, data) => {
     return new Promise((resolve, reject) => {
-        const { hash, id, skipWait = true, type } = data;
+        const { hash, id, skipWait = true, type, retryCount } = data;
         cardanoContractSender.sendToQueue(
             cardanoContractQueue,
             Buffer.from(
@@ -61,6 +61,7 @@ export const CustomChanel = async (service, data) => {
                     },
                     type: REQUEST_TYPE.CARDANO_SERVICE.mintToken,
                     id,
+                    retryCount,
                 })
             ),
             {
@@ -130,11 +131,13 @@ export const ResolverConsumer = async () => {
                 if (cardanoResponse?.error_code) {
                     resolverSender.ack(msg);
                     logger.error("[ResolverQueue] 🔈", msg.content.toString());
-                    const { data, type, id } = cardanoResponse?.data;
+                    const { data, type, id, retryCount } =
+                        cardanoResponse?.data;
                     await ErrorProducer({
                         data,
                         type,
                         id,
+                        retryCount,
                     });
                     return;
                 }
