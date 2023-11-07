@@ -1,6 +1,7 @@
 import mongoose from "mongoose";
 import { Logger } from "tslog";
 import "dotenv/config";
+import { env } from "../src/configs/constants.js";
 
 const logger = new Logger();
 

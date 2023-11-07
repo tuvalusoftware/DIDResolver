@@ -54,7 +54,7 @@ export default {
             const contractFileName = `LoanContract_${
                 wrappedDoc._id || wrappedDoc.id
             }`;
-            const companyName = process.env.COMPANY_NAME;
+            const companyName = env.COMPANY_NAME;
             logger.apiInfo(req, res, `Pdf file name: ${contractFileName}`);
             const accessToken =
                 process.env.NODE_ENV === "test"

@@ -40,7 +40,7 @@ export default {
                 });
             }
             const plotCertificationFileName = `PlotCertification-${plot?._id}`;
-            const companyName = process.env.COMPANY_NAME;
+            const companyName = env.COMPANY_NAME;
             logger.apiInfo(
                 req,
                 res,

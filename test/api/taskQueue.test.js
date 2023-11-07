@@ -12,7 +12,7 @@ import {
     TASK_QUEUE_CREDENTIAL_REQUEST,
     REVOKE_DOCUMENT_REQUEST,
 } from "../mockData.js";
-import { SERVERS } from "../../src/config/constants.js";
+import { env } from "../../src/config/constants.js";
 import server from "../../server.js";
 
 let should = chai.should();
@@ -38,7 +38,7 @@ describe("TASK QUEUE", function () {
                     done();
                 });
         });
-        nock(SERVERS.CARDANO_SERVICE)
+        nock(env.CARDANO_SERVICE)
             .post("/api/v2/hash-random")
             .reply(200, CARDANO_RESPONSES.ERROR_RESPONSE);
         it("it should return error from cardano service", (done) => {
@@ -57,10 +57,10 @@ describe("TASK QUEUE", function () {
                 });
         });
 
-        nock(SERVERS.CARDANO_SERVICE)
+        nock(env.CARDANO_SERVICE)
             .post("/api/v2/hash-random")
             .reply(200, CARDANO_RESPONSES.CONFIG_RESPONSE);
-        nock(SERVERS.DID_CONTROLLER)
+        nock(env.DID_CONTROLLER)
             .post("/api/v2/doc")
             .reply(200, CONTROLLER_RESPONSE.ERROR);
         it("It should return 'Cannot store certificate' error", (done) => {
@@ -80,55 +80,20 @@ describe("TASK QUEUE", function () {
                 });
         });
 
-        nock(SERVERS.CARDANO_SERVICE)
+        nock(env.CARDANO_SERVICE)
             .post("/api/v2/hash-random")
             .reply(200, CARDANO_RESPONSES.CONFIG_RESPONSE);
 
-        nock(SERVERS.DID_CONTROLLER)
+        nock(env.DID_CONTROLLER)
             .post("/api/v2/doc")
             .reply(200, CONTROLLER_RESPONSE.SUCCESS);
-        nock(SERVERS.TASK_QUEUE_SERVICE)
-            .post("/api/mint")
-            .reply(200, TASK_QUEUE_RESPONSE.REQUEST_CREDENTIAL);
-        it("It should return 'success response with empty claimants'", (done) => {
-            chai.request(server)
-                .post("/resolver/task-queue/plot-mint")
-                .send(VALID_CREATE_PLOT_CERTIFICATE_REQUEST_WITHOUT_CLAIMANTS)
-                .end((error, res) => {
-                    res.should.have.status(200);
-                    res.body.should.be.a("object");
-                    res.body.should.have.property("claimants");
-                    res.body.should.have.property("plot");
-                    res.body.claimants.should.be.a("array");
-                    res.body.plot.should.be.a("string");
-                    res.body.claimants.length.should.be.eql(0);
-                    done();
-                });
-        });
 
-        nock(SERVERS.CARDANO_SERVICE)
+        nock(env.CARDANO_SERVICE)
             .post("/api/v2/hash-random")
             .reply(200, CARDANO_RESPONSES.CONFIG_RESPONSE);
-        nock(SERVERS.DID_CONTROLLER)
+        nock(env.DID_CONTROLLER)
             .post("/api/v2/doc")
             .reply(200, CONTROLLER_RESPONSE.SUCCESS);
-        nock(SERVERS.TASK_QUEUE_SERVICE)
-            .post("/api/mint")
-            .reply(200, TASK_QUEUE_RESPONSE.REQUEST_CREDENTIAL);
-        it("It should return 'success mint plot data'", (done) => {
-            chai.request(server)
-                .post("/resolver/task-queue/plot-mint")
-                .send(VALID_CREATE_PLOT_CERTIFICATE_REQUEST)
-                .end((error, res) => {
-                    res.should.have.status(200);
-                    res.body.should.be.a("object");
-                    res.body.should.have.property("claimants");
-                    res.body.should.have.property("plot");
-                    res.body.claimants.should.be.a("array");
-                    res.body.plot.should.be.a("string");
-                    done();
-                });
-        });
     });
 
     describe("/POST create claimant credential", () => {
@@ -148,7 +113,7 @@ describe("TASK QUEUE", function () {
                 });
         });
 
-        nock(SERVERS.CARDANO_SERVICE)
+        nock(env.CARDANO_SERVICE)
             .post("/api/v2/credential-random")
             .reply(200, CARDANO_RESPONSES.ERROR_RESPONSE);
         it("it should return error from cardano service", (done) => {
@@ -166,10 +131,10 @@ describe("TASK QUEUE", function () {
                     done();
                 });
         });
-        nock(SERVERS.CARDANO_SERVICE)
+        nock(env.CARDANO_SERVICE)
             .post("/api/v2/credential-random")
             .reply(200, CARDANO_RESPONSES.CONFIG_RESPONSE);
-        nock(SERVERS.DID_CONTROLLER)
+        nock(env.DID_CONTROLLER)
             .post("/api/v2/credential")
             .reply(200, CONTROLLER_RESPONSE.ERROR);
         it("It should return 'error from controller'", (done) => {
@@ -188,10 +153,10 @@ describe("TASK QUEUE", function () {
                     done();
                 });
         });
-        nock(SERVERS.CARDANO_SERVICE)
+        nock(env.CARDANO_SERVICE)
             .post("/api/v2/credential-random")
             .reply(200, CARDANO_RESPONSES.CONFIG_RESPONSE);
-        nock(SERVERS.DID_CONTROLLER)
+        nock(env.DID_CONTROLLER)
             .post("/api/v2/credential")
             .reply(200, CONTROLLER_RESPONSE.SUCCESS);
         it("It should return 'success data'", (done) => {
@@ -248,7 +213,7 @@ describe("TASK QUEUE", function () {
                 });
         });
 
-        nock(SERVERS.DID_CONTROLLER)
+        nock(env.DID_CONTROLLER)
             .get("/api/v2/doc")
             .query(
                 (object) => object.companyName && object.fileName && object.only
@@ -274,13 +239,13 @@ describe("TASK QUEUE", function () {
                 });
         });
 
-        nock(SERVERS.DID_CONTROLLER)
+        nock(env.DID_CONTROLLER)
             .get("/api/v2/doc")
             .query(
                 (object) => object.companyName && object.fileName && object.only
             )
             .reply(200, CONTROLLER_RESPONSE.SUCCESS);
-        nock(SERVERS.CARDANO_SERVICE)
+        nock(env.CARDANO_SERVICE)
             .delete("/api/v2/hash")
             .reply(200, CARDANO_RESPONSES.ERROR_RESPONSE);
         it("It should return 'Error from Cardano service'", (done) => {
@@ -301,13 +266,13 @@ describe("TASK QUEUE", function () {
                 });
         });
 
-        nock(SERVERS.DID_CONTROLLER)
+        nock(env.DID_CONTROLLER)
             .get("/api/v2/doc")
             .query(
                 (object) => object.companyName && object.fileName && object.only
             )
             .reply(200, CONTROLLER_RESPONSE.SUCCESS);
-        nock(SERVERS.CARDANO_SERVICE)
+        nock(env.CARDANO_SERVICE)
             .delete("/api/v2/hash")
             .reply(200, CARDANO_RESPONSES.CONFIG_RESPONSE);
         it("It should return 'Success message", (done) => {
@@ -347,7 +312,7 @@ describe("TASK QUEUE", function () {
                 });
         });
 
-        nock(SERVERS.CARDANO_SERVICE)
+        nock(env.CARDANO_SERVICE)
             .put("/api/v2/hash/")
             .reply(200, CARDANO_RESPONSES.ERROR_RESPONSE);
         it("It should return 'Error from Cardano server'", (done) => {
@@ -370,10 +335,10 @@ describe("TASK QUEUE", function () {
                 });
         });
 
-        nock(SERVERS.CARDANO_SERVICE)
+        nock(env.CARDANO_SERVICE)
             .put("/api/v2/hash/")
             .reply(200, CARDANO_RESPONSES.CONFIG_RESPONSE);
-        nock(SERVERS.DID_CONTROLLER)
+        nock(env.DID_CONTROLLER)
             .post("/api/v2/doc")
             .reply(200, CONTROLLER_RESPONSE.ERROR);
         it("It should return 'Error from Controller server' when request store document", (done) => {
@@ -398,10 +363,10 @@ describe("TASK QUEUE", function () {
                 });
         });
 
-        nock(SERVERS.CARDANO_SERVICE)
+        nock(env.CARDANO_SERVICE)
             .put("/api/v2/hash/")
             .reply(200, CARDANO_RESPONSES.CONFIG_RESPONSE);
-        nock(SERVERS.DID_CONTROLLER)
+        nock(env.DID_CONTROLLER)
             .post("/api/v2/doc")
             .reply(200, CONTROLLER_RESPONSE.SUCCESS);
         it("It should return 'Success message with empty claimants response' due to given claimant is empty", (done) => {

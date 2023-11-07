@@ -1,4 +1,4 @@
-import { SERVERS } from "../configs/constants.js";
+import { env } from "../configs/constants.js";
 import { handleServiceError } from "../configs/errors/errorHandler.js";
 import {
     CardanoProducer,
@@ -16,7 +16,7 @@ dotenv.config();
  * @returns {Object} An object containing methods for interacting with the Cardano blockchain.
  */
 const CardanoService = (accessToken) => {
-    const serverUrl = SERVERS.CARDANO_SERVICE;
+    const serverUrl = env.CARDANO_SERVICE;
     const corsConfig = {
         withCredentials: true,
         headers: {

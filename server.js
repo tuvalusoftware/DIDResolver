@@ -12,6 +12,7 @@ import {} from "./src/rabbit/index.js";
 import { Logger } from "tslog";
 import { ResolverConsumer } from "./src/rabbit/rabbit.consumer.js";
 import connectMongo from "./src/libs/connectMongo.js";
+import { env } from "./src/configs/constants.js";
 import morgen from "morgan";
 
 const logger = new Logger();
@@ -81,7 +82,7 @@ app.use((err, req, res, _) => {
     }
 });
 
-const port = normalizePort(process.env.NODE_PORT || "8000");
+const port = normalizePort(env.NODE_PORT || "8000");
 server.listen(port, () => {
     logger.debug(`Server is live on port ${port}: http://localhost:${port}/`);
 });

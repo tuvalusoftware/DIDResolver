@@ -24,6 +24,7 @@ import { generateDid } from "../../../fuixlabs-documentor/utils/did.js";
 import contractSchema from "../../../configs/schemas/contract.schema.js";
 import AuthenticationService from "../../../services/Authentication.service.js";
 import CardanoService from "../../../services/Cardano.service.js";
+import { env } from "../../../configs/constants.js";
 
 axios.defaults.withCredentials = true;
 
@@ -57,7 +58,7 @@ export default {
             const contractFileName = `LoanContract_${
                 wrappedDoc._id || wrappedDoc.id
             }`;
-            const companyName = process.env.COMPANY_NAME;
+            const companyName = env.COMPANY_NAME;
             logger.apiInfo(req, res, `Pdf file name: ${contractFileName}`);
             const accessToken =
                 process.env.NODE_ENV === "test"
@@ -177,7 +178,7 @@ export default {
             logger.apiInfo(req, res, `Pass validation!`);
             const { certificateDid, seedPhrase, userDid } = claimant;
             const { valid: validCertificateDid } = validateDID(contract);
-            const companyName = process.env.COMPANY_NAME;
+            const companyName = env.COMPANY_NAME;
             if (!validCertificateDid) {
                 return next(ERRORS.INVALID_DID);
             }

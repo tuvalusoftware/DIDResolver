@@ -1,7 +1,7 @@
 import axios from "axios";
 import dotenv from "dotenv";
 import jwt_decode from "jwt-decode";
-import { SERVERS } from "../configs/constants.js";
+import { env } from "../configs/constants.js";
 import { handleServiceError } from "../configs/errors/errorHandler.js";
 import { getAccountBySeedPhrase, signData } from "../utils/lucid.js";
 import { getPublicKeyFromAddress } from "../utils/index.js";
@@ -14,7 +14,7 @@ dotenv.config();
  */
 
 const AuthenticationService = () => {
-    const serverUrl = SERVERS.AUTHENTICATION_SERVICE;
+    const serverUrl = env.AUTHENTICATION_SERVICE;
 
     /**
      * Get random number encryption from server.

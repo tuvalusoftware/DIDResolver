@@ -30,7 +30,7 @@ import {
     SAMPLE_SERVICE,
     _DOCUMENT_TYPE,
 } from "../fuixlabs-documentor/constants/type.js";
-import { SERVERS } from "../configs/constants.js";
+import { env } from "../configs/constants.js";
 import { ERRORS } from "../configs/errors/error.constants.js";
 import ControllerService from "../services/Controller.service.js";
 import CardanoService from "../services/Cardano.service.js";
@@ -73,7 +73,7 @@ export const generateWrappedDocument = async ({
             };
         const targetHash = wrappedDocument?.signature?.targetHash;
         const existence = await axios.get(
-            SERVERS.DID_CONTROLLER + "/api/doc/exists",
+            env.DID_CONTROLLER + "/api/doc/exists",
             {
                 withCredentials: true,
                 headers: {
@@ -101,7 +101,7 @@ export const generateWrappedDocument = async ({
                 did: didComponents[2] + ":" + didComponents[3],
             };
             mintingNFT = await axios.put(
-                SERVERS.CARDANO_SERVICE + "/api/v2/hash/",
+                env.CARDANO_SERVICE + "/api/v2/hash/",
                 mintBody,
                 {
                     withCredentials: true,
@@ -112,7 +112,7 @@ export const generateWrappedDocument = async ({
             );
         } else {
             mintingNFT = await axios.post(
-                SERVERS.CARDANO_SERVICE + "/api/v2/hash",
+                env.CARDANO_SERVICE + "/api/v2/hash",
                 mintBody,
                 {
                     withCredentials: true,
@@ -137,7 +137,7 @@ export const generateWrappedDocument = async ({
             mintingNFTConfig: _mintingNFTConfig,
         };
         const storeWrappedDocumentStatus = await axios.post(
-            SERVERS.DID_CONTROLLER + "/api/doc",
+            env.DID_CONTROLLER + "/api/doc",
             {
                 fileName,
                 wrappedDocument,
@@ -203,12 +203,12 @@ export const hashDocumentContent = async ({ document, address }) => {
                 });
         }
         createdDocument = Object.assign(createdDocument, {
-            companyName: process.env.COMPANY_NAME,
+            companyName: env.COMPANY_NAME,
             intention: VALID_DOCUMENT_NAME_TYPE.find(
                 (prop) => prop.name === createdDocument.name
             ).type,
         });
-        const did = generateDid(process.env.COMPANY_NAME, address);
+        const did = generateDid(env.COMPANY_NAME, address);
         let { targetHash } = await createWrappedDocument(
             createdDocument,
             SAMPLE_SERVICE,

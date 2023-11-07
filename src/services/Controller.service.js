@@ -1,7 +1,7 @@
 import dotenv from "dotenv";
 import { handleServiceError } from "../configs/errors/errorHandler.js";
 import { validateDIDSyntax } from "../utils/index.js";
-import { SERVERS } from "../configs/constants.js";
+import { env } from "../configs/constants.js";
 import axios from "axios";
 
 dotenv.config();
@@ -17,7 +17,7 @@ const ControllerService = (accessToken) => {
             Cookie: `access_token=${accessToken};`,
         },
     };
-    const controllerUrl = SERVERS.DID_CONTROLLER;
+    const controllerUrl = env.DID_CONTROLLER;
     return {
         /**
          * Stores a credential in the DID controller.

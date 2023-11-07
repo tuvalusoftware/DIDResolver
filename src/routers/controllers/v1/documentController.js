@@ -74,7 +74,7 @@ export default {
                 });
             }
             const plotCertificationFileName = `PlotCertification-${plot?._id}`;
-            const companyName = process.env.COMPANY_NAME;
+            const companyName = env.COMPANY_NAME;
             logger.apiInfo(
                 req,
                 res,
@@ -202,7 +202,7 @@ export default {
             if (!valid) {
                 return next(ERRORS.INVALID_INPUT);
             }
-            const companyName = process.env.COMPANY_NAME;
+            const companyName = env.COMPANY_NAME;
             const plotCertificationFileName = `PlotCertification-${
                 plot?._id
             }-${generateRandomString(plot._id, 4)}`;
@@ -463,7 +463,7 @@ export default {
                 });
             }
             const plotId = plotDid.split(":")[3].split("-")[1];
-            const companyName = process.env.COMPANY_NAME;
+            const companyName = env.COMPANY_NAME;
             const { verifiableCredential, credentialHash, did } =
                 await createClaimantVerifiableCredential({
                     subject: {

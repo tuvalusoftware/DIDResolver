@@ -1,4 +1,45 @@
-import "dotenv/config";
+import { cleanEnv, port, str, url, num } from "envalid";
+
+export const env = cleanEnv(process.env, {
+    DID_CONTROLLER: url({
+        default: "http://localhost:58003",
+    }),
+    CARDANO_SERVICE: url(),
+    AUTHENTICATION_SERVICE: url({
+        default: "http://18.139.84.180:12000",
+    }),
+    ALGORAND_SERVICE: url({}),
+    MESSAGE_QUEUE: url({
+        default: "amqp://localhost",
+    }),
+    COMPANY_NAME: str(),
+    DEV_COMPANY_NAME: str({
+        default: "fuixlabs",
+    }),
+    DAPP_KEY: str({
+        default: "dapp_dominium",
+    }),
+    ADMIN_PUBLIC_KEY: str(),
+    ADMIN_SEED_PHRASE: str(),
+    COMMONLANDS_SECRET_KEY: str(),
+    ADMIN_PUBLIC_KEY: str(),
+    ADMIN_PRIVATE_KEY: str(),
+    RABBITMQ_PORT: port({
+        default: 5672,
+    }),
+    MONGO_PORT: port({
+        default: 27017,
+    }),
+    SERVER_PORT: port({
+        default: 8000,
+    }),
+    CARDANO_NETWORK: num({
+        choices: [1, 2, 3],
+    }),
+    RABBITMQ_SERVICE: url({
+        default: "amqp://localhost",
+    }),
+});
 
 export const PLOT_STATUSES = {
     "F&C": {
@@ -39,22 +80,6 @@ export const PLOT_STATUSES = {
     },
 };
 
-export const SERVERS = {
-    DID_CONTROLLER: process.env.DID_CONTROLLER,
-    CARDANO_SERVICE: process.env.CARDANO_SERVICE || "http://localhost:10003",
-    AUTHENTICATION_SERVICE:
-        process.env.AUTHENTICATION_SERVICE || "http://localhost:12000",
-    ALGORAND_SERVICE: process.env.ALGORAND_SERVICE || "http://localhost:10005",
-    STAGING_SERVER:
-        process.env.STAGING_SERVICE || "https://commonlands-user.ap.ngrok.io/",
-    COMMONLANDS_GITHUB_SERVICE:
-        process.env.COMMONLANDS_GITHUB_SERVICE ||
-        "https://commonlands-gitdb.ap.ngrok.io",
-    TASK_QUEUE_SERVICE:
-        process.env.TASK_QUEUE_SERVICE || "http://localhost:18000",
-    RABBITMQ_SERVICE: process.env.MESSAGE_QUEUE || "amqp://localhost",
-};
-
 export const NETWORK_ID = {
     mainnet: "mainnet",
     testnet: "testnet",
@@ -71,7 +96,5 @@ export const REQUEST_TYPE = {
     ADD_CLAIMANT: "add_claimant",
 };
 
-export const ADMIN_PUBLIC_KEY = process.env.ADMIN_PUBLIC_KEY;
-export const ADMIN_PRIVATE_KEY = process.env.ADMIN_PRIVATE_KEY;
 export const COMPANY_NAME = process.env.COMPANY_NAME;
 export const DEV_COMPANY_NAME = process.env.DEV_COMPANY_NAME;
