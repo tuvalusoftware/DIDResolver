@@ -15,7 +15,6 @@ import {
 import { deepMap } from "../fuixlabs-documentor/utils/salt.js";
 import {
     validateDIDSyntax,
-    checkUndefinedVar,
     getPublicKeyFromAddress,
     getDidByComponents,
     requireFieldInArray,
@@ -51,17 +50,6 @@ export const generateWrappedDocument = async ({
     ddidDocument,
 }) => {
     try {
-        const undefinedVar = checkUndefinedVar({
-            wrappedDocument,
-            encryptedIssuerAddress,
-            access_token,
-        });
-        if (undefinedVar.undefined) {
-            throw {
-                ...ERRORS.MISSING_PARAMETERS,
-                detail: undefinedVar.detail,
-            };
-        }
         const did = wrappedDocument.data?.did,
             validDid = validateDIDSyntax(did, true),
             companyName = validDid.companyName,

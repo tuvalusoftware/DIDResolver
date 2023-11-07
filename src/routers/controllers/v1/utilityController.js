@@ -1,8 +1,8 @@
 import logger from "../../../../logger.js";
-import { ERRORS } from "../../../configs/errors/error.constants.js";
 import { unsalt } from "../../../fuixlabs-documentor/utils/data.js";
-import { checkUndefinedVar } from "../../../utils/index.js";
 import { handleServerError } from "../../../configs/errors/errorHandler.js";
+import schemaValidator from "../../../helpers/validator.js";
+import requestSchema from "../../../configs/schemas/request.schema.js";
 
 /**
  * Controller for unsalting data.
@@ -18,14 +18,10 @@ export default {
     unsaltData: async (req, res, next) => {
         try {
             logger.apiInfo(req, res, "API Request: Unsalt data");
-            const { data } = req.body;
-            const undefinedVar = checkUndefinedVar({ data });
-            if (undefinedVar.undefined) {
-                return next({
-                    ...ERRORS.MISSING_PARAMETERS,
-                    detail: undefinedVar.detail,
-                });
-            }
+            const { data } = schemaValidator(
+                requestSchema.unsaltData,
+                req.body
+            );
             const unsaltedData = unsalt(data);
             return res.status(200).json({
                 success: true,

@@ -5,7 +5,6 @@ import { ERRORS } from "../../../configs/errors/error.constants.js";
 import axios from "axios";
 import "dotenv/config";
 import {
-    checkUndefinedVar,
     getCurrentDateTime,
     getPublicKeyFromAddress,
 } from "../../../utils/index.js";
@@ -22,6 +21,8 @@ import AuthenticationService from "../../../services/Authentication.service.js";
 import CardanoService from "../../../services/Cardano.service.js";
 import credentialService from "../../../services/VerifiableCredential.service.js";
 import { env } from "../../../configs/constants.js";
+import schemaValidator from "../../../helpers/validator.js";
+import requestSchema from "../../../configs/schemas/request.schema.js";
 
 axios.defaults.withCredentials = true;
 
@@ -29,17 +30,10 @@ export default {
     createPlotCertification: async (req, res, next) => {
         try {
             logger.apiInfo(req, res, `API Request: Create Plot Certification`);
-            const { plot, status } = req.body;
-            const undefinedVar = checkUndefinedVar({
-                plot,
-                status,
-            });
-            if (undefinedVar.undefined) {
-                return next({
-                    ...ERRORS.MISSING_PARAMETERS,
-                    detail: undefinedVar?.detail,
-                });
-            }
+            const { plot, status } = schemaValidator(
+                requestSchema.createCertificateForPlot,
+                req.body
+            );
             const plotCertificationFileName = `PlotCertification-${plot?._id}`;
             const companyName = env.COMPANY_NAME;
             logger.apiInfo(

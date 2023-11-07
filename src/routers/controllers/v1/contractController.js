@@ -3,10 +3,8 @@ import axios from "axios";
 import bs58 from "bs58";
 import "dotenv/config";
 import {
-    checkUndefinedVar,
     getCurrentDateTime,
     getPublicKeyFromAddress,
-    validateJSONSchema,
     validateDID,
 } from "../../../utils/index.js";
 import { createDocumentTaskQueue } from "../../../utils/document.js";
@@ -17,11 +15,12 @@ import RequestRepo from "../../../db/repos/requestRepo.js";
 import { REQUEST_TYPE } from "../../../rabbit/config.js";
 import { handleServerError } from "../../../configs/errors/errorHandler.js";
 import ControllerService from "../../../services/Controller.service.js";
+import schemaValidator from "../../../helpers/validator.js";
+import requestSchema from "../../../configs/schemas/request.schema.js";
 
 // * Constants
 import { ERRORS } from "../../../configs/errors/error.constants.js";
 import { generateDid } from "../../../fuixlabs-documentor/utils/did.js";
-import contractSchema from "../../../configs/schemas/contract.schema.js";
 import AuthenticationService from "../../../services/Authentication.service.js";
 import CardanoService from "../../../services/Cardano.service.js";
 import { env } from "../../../configs/constants.js";
@@ -38,23 +37,10 @@ export default {
     createContract: async (req, res, next) => {
         try {
             logger.apiInfo(req, res, "Request API: Create Contract!");
-            const { wrappedDoc, metadata } = req.body;
-            const undefinedVar = checkUndefinedVar({
-                wrappedDoc,
-            });
-            if (undefinedVar.undefined) {
-                return next({
-                    ...ERRORS.MISSING_PARAMETERS,
-                    detail: undefinedVar.detail,
-                });
-            }
-            const validateSchema = validateJSONSchema(
-                contractSchema.CREATE_CONTRACT_REQUEST_BODY,
-                wrappedDoc
+            const { wrappedDoc, metadata } = schemaValidator(
+                requestSchema.createContract,
+                req.body
             );
-            if (!validateSchema.valid) {
-                return next(ERRORS.INVALID_INPUT);
-            }
             const contractFileName = `LoanContract_${
                 wrappedDoc._id || wrappedDoc.id
             }`;
@@ -156,25 +142,10 @@ export default {
     signContract: async (req, res, next) => {
         try {
             logger.apiInfo(req, res, "Request API: Sign Contract!");
-            const { contract, claimant, role } = req.body;
-            const undefinedVar = checkUndefinedVar({
-                contract,
-                role,
-                claimant,
-            });
-            if (undefinedVar.undefined) {
-                return next({
-                    ...ERRORS.MISSING_PARAMETERS,
-                    detail: undefinedVar.detail,
-                });
-            }
-            const validateSchema = validateJSONSchema(
-                contractSchema.SIGN_CONTRACT_REQUEST_BODY,
+            const { contract, claimant, role } = schemaValidator(
+                requestSchema.signContractWithClaimant,
                 req.body
             );
-            if (!validateSchema.valid) {
-                return next(ERRORS.INVALID_INPUT);
-            }
             logger.apiInfo(req, res, `Pass validation!`);
             const { certificateDid, seedPhrase, userDid } = claimant;
             const { valid: validCertificateDid } = validateDID(contract);
@@ -249,17 +220,10 @@ export default {
     },
     updateContract: async (req, res, next) => {
         try {
-            const { did, metadata } = req.body;
-            const undefinedVar = checkUndefinedVar({
-                did,
-                metadata,
-            });
-            if (undefinedVar.undefined) {
-                return next({
-                    ...ERRORS.MISSING_PARAMETERS,
-                    detail: undefinedVar.detail,
-                });
-            }
+            const { did, metadata } = schemaValidator(
+                requestSchema.updateContract,
+                req.body
+            );
             const didValidation = validateDID(did);
             if (!didValidation.valid) {
                 return next(ERRORS.INVALID_DID);
@@ -292,17 +256,10 @@ export default {
     verifyContract: async (req, res, next) => {
         try {
             logger.apiInfo(req, res, "Request API: Verify Contract!");
-            const { seedPhrase, contractDid } = req.body;
-            const undefinedVar = checkUndefinedVar({
-                seedPhrase,
-                contractDid,
-            });
-            if (undefinedVar.undefined) {
-                return next({
-                    ...ERRORS.MISSING_PARAMETERS,
-                    detail: undefinedVar.detail,
-                });
-            }
+            const { seedPhrase, contractDid } = schemaValidator(
+                requestSchema.verifyContract,
+                req.body
+            );
         } catch (error) {
             next(handleServerError(error));
         }

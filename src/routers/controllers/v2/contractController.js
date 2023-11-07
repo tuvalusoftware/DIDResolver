@@ -2,10 +2,8 @@
 import axios from "axios";
 import "dotenv/config";
 import {
-    checkUndefinedVar,
     getCurrentDateTime,
     getPublicKeyFromAddress,
-    validateJSONSchema,
 } from "../../../utils/index.js";
 import { createDocumentTaskQueue } from "../../../utils/document.js";
 import { getAccountBySeedPhrase } from "../../../utils/lucid.js";
@@ -14,14 +12,14 @@ import RequestRepo from "../../../db/repos/requestRepo.js";
 import { REQUEST_TYPE } from "../../../rabbit/config.js";
 import { handleServerError } from "../../../configs/errors/errorHandler.js";
 import ControllerService from "../../../services/Controller.service.js";
+import schemaValidator from "../../../helpers/validator.js";
 
 // * Constants
-import { ERRORS } from "../../../configs/errors/error.constants.js";
 import { generateDid } from "../../../fuixlabs-documentor/utils/did.js";
-import contractSchema from "../../../configs/schemas/contract.schema.js";
 import AuthenticationService from "../../../services/Authentication.service.js";
 import CardanoService from "../../../services/Cardano.service.js";
 import { env } from "../../../configs/constants.js";
+import requestSchema from "../../../configs/schemas/request.schema.js";
 
 axios.defaults.withCredentials = true;
 
@@ -35,23 +33,10 @@ export default {
     createContract: async (req, res, next) => {
         try {
             logger.apiInfo(req, res, "Request API: Create Contract!");
-            const { wrappedDoc, metadata } = req.body;
-            const undefinedVar = checkUndefinedVar({
-                wrappedDoc,
-            });
-            if (undefinedVar.undefined) {
-                return next({
-                    ...ERRORS.MISSING_PARAMETERS,
-                    detail: undefinedVar.detail,
-                });
-            }
-            const validateSchema = validateJSONSchema(
-                contractSchema.CREATE_CONTRACT_REQUEST_BODY,
-                wrappedDoc
+            const { wrappedDoc, metadata } = schemaValidator(
+                requestSchema.createContract,
+                req.body
             );
-            if (!validateSchema.valid) {
-                return next(ERRORS.INVALID_INPUT);
-            }
             const contractFileName = `LoanContract_${
                 wrappedDoc._id || wrappedDoc.id
             }`;

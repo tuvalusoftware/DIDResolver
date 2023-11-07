@@ -1,6 +1,5 @@
 import {
     validateDIDSyntax,
-    checkUndefinedVar,
     checkForSpecialChar,
     splitCamelCase,
     getDidByComponents,
@@ -69,29 +68,6 @@ describe("UTILITIES", function () {
             const data = { name: "John" };
             expect(validateJSONSchema(schema, data))
                 .have.property("valid")
-                .equal(false);
-        });
-    });
-
-    describe("checkUndefinedVar", () => {
-        it("should return true if the variable is undefined", () => {
-            const undefinedVar = {
-                name: undefined,
-            };
-            expect(checkUndefinedVar(undefinedVar))
-                .have.property("undefined")
-                .equal(true);
-            expect(checkUndefinedVar(undefinedVar))
-                .have.property("detail")
-                .equal("Not found: name");
-        });
-
-        it("should return false if the variable is defined", () => {
-            const definedVar = {
-                name: "sample-name",
-            };
-            expect(checkUndefinedVar(definedVar))
-                .have.property("undefined")
                 .equal(false);
         });
     });

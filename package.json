@@ -53,6 +53,7 @@
     "handlebars": "^4.7.8",
     "heroku-logger": "^0.3.3",
     "jimp": "^0.22.10",
+    "joi": "^17.11.0",
     "js-sha256": "^0.9.0",
     "jsonld-document-loader": "^2.0.0",
     "jwt-decode": "^3.1.2",

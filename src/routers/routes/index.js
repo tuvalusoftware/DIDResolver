@@ -1,7 +1,6 @@
 import documentRoutes from "./v1/documentRoutes.js";
 import contractRoutes from "./v1/contractRoutes.js";
 import utilityRoutes from "./v1/utilityRoutes.js";
-import taskQueueRoutes from "./v1/taskQueueRoutes.js";
 import verifierRoutes from "./v1/verifierRoutes.js";
 
 import documentRouteV2 from "./v2/documentRoutes.js";
@@ -13,7 +12,6 @@ export default (app) => {
     app.use("/resolver/commonlands/document", documentRoutes);
     app.use("/resolver/contract", contractRoutes);
     app.use("/resolver/utility", utilityRoutes);
-    app.use("/resolver/task-queue", taskQueueRoutes);
     app.use("/resolver/verify", verifierRoutes);
 
     app.use("/resolver/v2/contract", contractRouteV2);

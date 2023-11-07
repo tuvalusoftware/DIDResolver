@@ -96,23 +96,6 @@ const validateJSONSchema = (rawSchema, object) => {
 };
 
 /**
- * Function used for checking if there is any undefined variable in JSON object
- * @param {Object} object - JSON object
- * @returns {Object} - { undefined: Boolean, detail: String }
- */
-const checkUndefinedVar = (object) => {
-    let detail = "Not found:",
-        flag = false;
-    for (const [key, value] of Object.entries(object)) {
-        if (value === undefined) {
-            detail += " " + key;
-            flag = true;
-        }
-    }
-    return flag ? { undefined: true, detail } : { undefined: false };
-};
-
-/**
  * Function used for checking if there is any special character in strings
  * @param {String} strings - strings to be checked
  * @returns {Object} - { valid: Boolean, string: String }
@@ -336,7 +319,6 @@ export {
     getAddressFromHexEncoded,
     getPublicKeyFromAddress,
     validateJSONSchema,
-    checkUndefinedVar,
     checkForSpecialChar,
     isSameError,
     getCurrentDateTime,

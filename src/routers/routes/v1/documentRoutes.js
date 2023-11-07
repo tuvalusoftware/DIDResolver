@@ -6,7 +6,6 @@ router.post(
     "/certificate/add-claimant",
     documentController.addClaimantToCertificate
 );
-router.route("/hash").post(documentController.hashDocument);
 router.route("/lastest-version").post(documentController.checkLastestVersion);
 router
     .route("/certificate")

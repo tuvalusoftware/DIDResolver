@@ -6,14 +6,12 @@ import { REQUEST_TYPE } from "../../../rabbit/config.js";
 import axios from "axios";
 import "dotenv/config";
 import {
-    checkUndefinedVar,
     getCurrentDateTime,
     getPublicKeyFromAddress,
     generateRandomString,
     validateDID,
 } from "../../../utils/index.js";
 import {
-    hashDocumentContent,
     isLastestCertificate,
     fetchEndorsementChain,
     createDocumentTaskQueue,
@@ -23,7 +21,6 @@ import { createClaimantVerifiableCredential } from "../../../utils/credential.js
 import { unsalt } from "../../../fuixlabs-documentor/utils/data.js";
 import { generateDid } from "../../../fuixlabs-documentor/utils/did.js";
 import logger from "../../../../logger.js";
-import { validateJSONSchema } from "../../../utils/index.js";
 import RequestRepo from "../../../db/repos/requestRepo.js";
 import { handleServerError } from "../../../configs/errors/errorHandler.js";
 import { REQUEST_TYPE as RABBIT_REQUEST_TYPE } from "../../../rabbit/config.js";
@@ -32,6 +29,8 @@ import AuthenticationService from "../../../services/Authentication.service.js";
 import CardanoService from "../../../services/Cardano.service.js";
 import credentialService from "../../../services/VerifiableCredential.service.js";
 import { env } from "../../../configs/constants.js";
+import schemaValidator from "../../../helpers/validator.js";
+import requestSchema from "../../../configs/schemas/request.schema.js";
 
 axios.defaults.withCredentials = true;
 
@@ -65,16 +64,10 @@ export default {
     createPlotCertification: async (req, res, next) => {
         try {
             logger.apiInfo(req, res, `API Request: Create Plot Certification`);
-            const { plot } = req.body;
-            const undefinedVar = checkUndefinedVar({
-                plot,
-            });
-            if (undefinedVar.undefined) {
-                return next({
-                    ...ERRORS.MISSING_PARAMETERS,
-                    detail: undefinedVar?.detail,
-                });
-            }
+            const { plot } = schemaValidator(
+                requestSchema.createCertificateForPlot,
+                req.body
+            );
             const plotCertificationFileName = `PlotCertification-${plot?._id}`;
             const companyName = env.COMPANY_NAME;
             logger.apiInfo(
@@ -178,32 +171,10 @@ export default {
     updatePlotCertification: async (req, res, next) => {
         try {
             logger.apiInfo(req, res, `API Request: Update Plot Certification`);
-            const { plot } = req.body;
-            const undefinedVar = checkUndefinedVar({
-                plot,
-            });
-            if (undefinedVar.undefined) {
-                return next({
-                    ...ERRORS.MISSING_PARAMETERS,
-                    detail: undefinedVar?.detail,
-                });
-            }
-            const { valid } = validateJSONSchema(
-                {
-                    type: "object",
-                    required: ["did"],
-                    properties: {
-                        did: {
-                            type: "string",
-                        },
-                    },
-                    additionalProperties: true,
-                },
-                plot
+            const { plot } = schemaValidator(
+                requestSchema.createCertificateForPlot,
+                req.body
             );
-            if (!valid) {
-                return next(ERRORS.INVALID_INPUT);
-            }
             const companyName = env.COMPANY_NAME;
             const plotCertificationFileName = `PlotCertification-${
                 plot?._id
@@ -298,16 +269,10 @@ export default {
     revokePlotCertification: async (req, res, next) => {
         try {
             logger.apiInfo(req, res, `API Request: Revoke Plot Certification`);
-            const { did } = req.body;
-            const undefinedVar = checkUndefinedVar({
-                did,
-            });
-            if (undefinedVar.undefined) {
-                return next({
-                    ...ERRORS.MISSING_PARAMETERS,
-                    detail: undefinedVar?.detail,
-                });
-            }
+            const { did } = schemaValidator(
+                requestSchema.revokeCertificateForPlot,
+                req.body
+            );
             const { valid } = validateDID(did);
             if (!valid) {
                 return next(ERRORS.INVALID_DID);
@@ -341,82 +306,13 @@ export default {
             next(handleServerError(error));
         }
     },
-    hashDocument: async (req, res, next) => {
-        try {
-            const { plot, claimant } = req.body;
-            const undefinedVar = checkUndefinedVar({
-                plot,
-                claimant,
-            });
-            if (undefinedVar.undefined) {
-                return next({
-                    ...ERRORS.MISSING_PARAMETERS,
-                    detail: undefinedVar?.detail,
-                });
-            }
-            const pdfFileName =
-                `LandCertificate-${claimant?.phoneNumber?.replace("+", "")}-${
-                    plot?._id
-                }` || "";
-            const plotDetailForm = {
-                profileImage: "sampleProfileImage",
-                fileName: pdfFileName,
-                name: `Land Certificate`,
-                title: `Land-Certificate-${plot?.name || ""}`,
-                No: plot?.no || "CML21566325",
-                dateIssue: getCurrentDateTime(),
-                personalInformation: {
-                    claimant: claimant?.fullName || "",
-                    right: claimant?.role || "",
-                    phoneNumber: claimant?.phoneNumber || "",
-                    claimrank: "okay",
-                    description:
-                        "Okay is the starting point. This level may have some boundaries unverified and may include one boundary dispute. If there is an ownership dispute of a plot but and one of the owners is part of a claimchain and the other’s has not completed a claimchain, the completed claimchain person will be listed as Okay. ",
-                },
-                plotInformation: {
-                    plotName: plot?.name || "",
-                    plotId: plot?.id || "",
-                    plotStatus: "Free & Clear",
-                    plotPeople: "Verified by 3 claimants, 6 Neighbors",
-                    plotLocation: plot?.placeName || "",
-                },
-                certificateByCommonlands: {
-                    name: "Commonlands System LLC",
-                },
-                certificateByCEO: {
-                    name: "Darius Golkar",
-                },
-            };
-            const { currentWallet } = await getAccountBySeedPhrase({
-                seedPhrase: env.ADMIN_SEED_PHRASE,
-            });
-
-            const targetHash = await hashDocumentContent({
-                document: plotDetailForm,
-                address: getPublicKeyFromAddress(currentWallet?.paymentAddr),
-            });
-            logger.apiInfo(req, res, `Hash of document: ${targetHash}`);
-            return res.status(200).json({
-                targetHash,
-            });
-        } catch (error) {
-            next(handleServerError(error));
-        }
-    },
     checkLastestVersion: async (req, res, next) => {
         try {
             logger.apiInfo(req, res, `API Request: Check Lastest Version`);
-            const { did, hash } = req.body;
-            const undefinedVar = checkUndefinedVar({
-                hash,
-                did,
-            });
-            if (undefinedVar.undefined) {
-                return next({
-                    ...ERRORS.MISSING_PARAMETERS,
-                    detail: undefinedVar?.detail,
-                });
-            }
+            const { did, hash } = schemaValidator(
+                requestSchema.checkLastestVersion,
+                req.body
+            )
             const { valid } = validateDID(did);
             if (!valid) {
                 return next(ERRORS.INVALID_DID);
@@ -443,26 +339,13 @@ export default {
                 res,
                 `API Request: Add Claimant To Certificate`
             );
-            const { plotDid, claimant } = req.body;
-            const undefinedVar = checkUndefinedVar({
-                plotDid,
-                claimant,
-            });
-            if (undefinedVar.undefined) {
-                return next({
-                    ...ERRORS.MISSING_PARAMETERS,
-                    detail: undefinedVar?.detail,
-                });
-            }
+            const { plotDid, claimant } = schemaValidator(
+                requestSchema.addClaimantToPlot,
+                req.body
+            );
             const { valid } = validateDID(plotDid);
             if (!valid) {
                 return next(ERRORS.INVALID_DID);
-            }
-            if (!plotDid || !claimant.did || !claimant.role) {
-                return next({
-                    ...ERRORS.MISSING_PARAMETERS,
-                    detail: "Invalid credential subject",
-                });
             }
             const plotId = plotDid.split(":")[3].split("-")[1];
             const companyName = env.COMPANY_NAME;

@@ -1,11 +1,13 @@
 import "dotenv/config";
 import logger from "../../../../logger.js";
-import { checkUndefinedVar, validateDID } from "../../../utils/index.js";
+import { validateDID } from "../../../utils/index.js";
 import { ERRORS } from "../../../configs/errors/error.constants.js";
 import { handleServerError } from "../../../configs/errors/errorHandler.js";
 import ControllerService from "../../../services/Controller.service.js";
 import AuthenticationService from "../../../services/Authentication.service.js";
 import CardanoService from "../../../services/Cardano.service.js";
+import schemaValidator from "../../../helpers/validator.js";
+import requestSchema from "../../../configs/schemas/request.schema.js";
 
 /**
  * Controller for verifying a certificate.
@@ -22,16 +24,10 @@ export default {
     verifyCertificate: async (req, res, next) => {
         try {
             logger.apiInfo(req, res, "API Request: Verify Certificate");
-            const { did } = req.body;
-            const undefinedVar = checkUndefinedVar({
-                did,
-            });
-            if (undefinedVar.undefined) {
-                return next({
-                    ...ERRORS.MISSING_PARAMETERS,
-                    detail: undefinedVar?.detail,
-                });
-            }
+            const { did } = schemaValidator(
+                requestSchema.verifyCertificate,
+                req.body
+            );
             const { valid } = validateDID(did);
             if (!valid) {
                 return next(ERRORS.INVALID_DID);
@@ -85,16 +81,10 @@ export default {
                 res,
                 "API Request: Verify Verifiable Credential"
             );
-            const { did } = req.body;
-            const undefinedVar = checkUndefinedVar({
-                did,
-            });
-            if (undefinedVar.undefined) {
-                return next({
-                    ...ERRORS.MISSING_PARAMETERS,
-                    detail: undefinedVar?.detail,
-                });
-            }
+            const { did } = schemaValidator(
+                requestSchema.verifyCertificate,
+                req.body
+            );
             const { valid } = validateDID(did);
             if (!valid) {
                 return next(ERRORS.INVALID_DID);
