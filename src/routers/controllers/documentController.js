@@ -63,9 +63,10 @@ export default {
     createPlotCertification: async (req, res, next) => {
         try {
             logger.apiInfo(req, res, `API Request: Create Plot Certification`);
-            const { plot } = req.body;
+            const { plot, status } = req.body;
             const undefinedVar = checkUndefinedVar({
                 plot,
+                status,
             });
             if (undefinedVar.undefined) {
                 return next({
@@ -114,6 +115,7 @@ export default {
                 name: `Land Certificate`,
                 title: `Land-Certificate-${plot?.name}`,
                 dateIssue: getCurrentDateTime(),
+                status: status,
                 plotInformation: {
                     plotName: plot?.name,
                     plotId: plot?.id,
@@ -474,23 +476,6 @@ export default {
                     },
                     issuerKey: plotDid,
                 });
-            // const isCronExists = await TaskQueueHelper.isExisted({
-            //     did,
-            // });
-            // if (isCronExists?.data?.isExists) {
-            //     return res.status(200).json({
-            //         did: isCronExists?.data?.data?.verifiedCredential
-            //             ?.credentialSubject?.id,
-            //     });
-            // }
-            // const taskQueueResponse = await TaskQueueHelper.sendMintingRequest({
-            //     data: {
-            //         credential: credentialHash,
-            //         verifiedCredential: verifiableCredential,
-            //     },
-            //     type: REQUEST_TYPE.ADD_CLAIMANT,
-            //     did: generateDid(companyName, credentialHash),
-            // });
             return res.status(200).json({
                 did: taskQueueResponse?.data?.data?.did,
             });

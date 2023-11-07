@@ -90,6 +90,7 @@ export default {
                 fileName: contractFileName,
                 name: `Loan Contract`,
                 title: `Land-Certificate-${wrappedDoc?._id}`,
+                status: wrappedDoc?.status,
                 dateIssue: getCurrentDateTime(),
             };
             const { currentWallet, lucidClient } = await getAccountBySeedPhrase(
@@ -114,11 +115,9 @@ export default {
                 type: REQUEST_TYPE.MINTING_TYPE.createContract,
                 status: "pending",
             });
-
-            await CustomChanel(RABBITMQ_SERVICE.CardanoContractService, {
+            await CardanoService(accessToken).storeToken({
                 hash: wrappedDocument?.signature?.targetHash,
                 id: request._id,
-                isContract: true,
                 type: "document",
             });
             logger.apiInfo(req, res, `Document ${contractFileName} created!`);
@@ -242,24 +241,6 @@ export default {
                 mintingConfig: contractMintingConfig,
                 id: request?._id,
             });
-            // await CardanoService(accessToken).storeCredentials({
-            //     mintingConfig: contractMintingConfig,
-            //     credentialHash: credentialHash,
-            // });
-            // const credentialDid = generateDid(companyName, credentialHash);
-            // verifiedCredential.credentialSubject = {
-            //     ...verifiedCredential.credentialSubject,
-            //     id: credentialDid,
-            // };
-            // logger.apiInfo(req, res, JSON.stringify(verifiedCredential));
-            // const storeCredentialStatus = await ControllerService(
-            //     accessToken
-            // ).storeCredentials({
-            //     payload: {
-            //         ...verifiedCredential,
-            //         id: credentialDid,
-            //     },
-            // });
             logger.apiInfo(req, res, "Successfully store credential!");
             return res.status(200).json({
                 did: credentialDid,
