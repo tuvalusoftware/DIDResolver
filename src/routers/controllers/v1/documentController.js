@@ -1,5 +1,6 @@
 // * Constants
 import { ERRORS } from "../../../configs/errors/error.constants.js";
+import { REQUEST_TYPE } from "../../../rabbit/config.js";
 
 // * Utilities
 import axios from "axios";
@@ -475,8 +476,31 @@ export default {
                     },
                     issuerKey: plotDid,
                 });
+            const accessToken =
+                await AuthenticationService().authenticationProgress();
+            const documentContentResponse = await ControllerService(
+                accessToken
+            ).getDocumentContent({
+                did: plotDid,
+            });
+            const { mintingConfig } = documentContentResponse?.data?.wrappedDoc;
+            const request = await RequestRepo.createRequest({
+                data: {
+                    mintingConfig,
+                    credential: credentialHash,
+                    verifiedCredential: verifiableCredential,
+                    companyName,
+                },
+                type: REQUEST_TYPE.MINTING_TYPE.createClaimantCredential,
+                status: "pending",
+            });
+            await CardanoService(accessToken).storeCredentialsWithPolicyId({
+                credentials: [credentialHash],
+                mintingConfig,
+                id: request?._id,
+            });
             return res.status(200).json({
-                did: taskQueueResponse?.data?.data?.did,
+                did,
             });
         } catch (error) {
             next(handleServerError(error));
