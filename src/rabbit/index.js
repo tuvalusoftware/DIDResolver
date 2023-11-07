@@ -67,3 +67,14 @@ export function getSender({ service }) {
         queue: queue[service],
     };
 }
+
+export async function createSender(name) {
+    const customChanel = await rabbitMQ.createChannel();
+    await customChanel.assertQueue(name, {
+        durable: true,
+    });
+    return {
+        sender: customChanel,
+        queue: name,
+    };
+}
