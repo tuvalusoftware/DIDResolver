@@ -13,6 +13,7 @@ import { Logger } from "tslog";
 import { ResolverConsumer } from "./src/rabbit/rabbit.consumer.js";
 import connectMongo from "./src/libs/connectMongo.js";
 import { env } from "./src/configs/constants.js";
+import morganMiddleware from "./src/routers/middlewares/morganLogger.js";
 import morgen from "morgan";
 
 const logger = new Logger();
@@ -45,6 +46,8 @@ const normalizePort = (val) => {
     }
     return false;
 };
+
+app.use(morganMiddleware);
 
 /* c8 ignore start */
 // SET UP SWAGGER API DOCUMENT

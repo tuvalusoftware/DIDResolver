@@ -36,7 +36,6 @@ axios.defaults.withCredentials = true;
 export default {
     createContract: async (req, res, next) => {
         try {
-            logger.apiInfo(req, res, "Request API: Create Contract!");
             const { wrappedDoc, metadata } = schemaValidator(
                 requestSchema.createContract,
                 req.body
@@ -114,7 +113,6 @@ export default {
     },
     getContract: async (req, res, next) => {
         try {
-            logger.apiInfo(req, res, "Request API: Get Contract!");
             const { did } = req.params;
             const { valid } = validateDID(did);
             if (!valid) {
@@ -141,7 +139,6 @@ export default {
     },
     signContract: async (req, res, next) => {
         try {
-            logger.apiInfo(req, res, "Request API: Sign Contract!");
             const { contract, claimant, role } = schemaValidator(
                 requestSchema.signContractWithClaimant,
                 req.body
@@ -255,7 +252,6 @@ export default {
     },
     verifyContract: async (req, res, next) => {
         try {
-            logger.apiInfo(req, res, "Request API: Verify Contract!");
             const { seedPhrase, contractDid } = schemaValidator(
                 requestSchema.verifyContract,
                 req.body

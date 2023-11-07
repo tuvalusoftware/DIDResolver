@@ -1,5 +1,4 @@
 import "dotenv/config";
-import logger from "../../../../logger.js";
 import { validateDID } from "../../../utils/index.js";
 import { ERRORS } from "../../../configs/errors/error.constants.js";
 import { handleServerError } from "../../../configs/errors/errorHandler.js";
@@ -23,7 +22,6 @@ import requestSchema from "../../../configs/schemas/request.schema.js";
 export default {
     verifyCertificate: async (req, res, next) => {
         try {
-            logger.apiInfo(req, res, "API Request: Verify Certificate");
             const { did } = schemaValidator(
                 requestSchema.verifyCertificate,
                 req.body
@@ -76,11 +74,6 @@ export default {
     },
     verifyVerifiableCredential: async (req, res, next) => {
         try {
-            logger.apiInfo(
-                req,
-                res,
-                "API Request: Verify Verifiable Credential"
-            );
             const { did } = schemaValidator(
                 requestSchema.verifyCertificate,
                 req.body

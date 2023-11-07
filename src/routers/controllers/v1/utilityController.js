@@ -1,4 +1,3 @@
-import logger from "../../../../logger.js";
 import { unsalt } from "../../../fuixlabs-documentor/utils/data.js";
 import { handleServerError } from "../../../configs/errors/errorHandler.js";
 import schemaValidator from "../../../helpers/validator.js";
@@ -17,7 +16,6 @@ import requestSchema from "../../../configs/schemas/request.schema.js";
 export default {
     unsaltData: async (req, res, next) => {
         try {
-            logger.apiInfo(req, res, "API Request: Unsalt data");
             const { data } = schemaValidator(
                 requestSchema.unsaltData,
                 req.body

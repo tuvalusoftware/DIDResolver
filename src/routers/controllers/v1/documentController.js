@@ -63,7 +63,6 @@ export default {
     },
     createPlotCertification: async (req, res, next) => {
         try {
-            logger.apiInfo(req, res, `API Request: Create Plot Certification`);
             const { plot } = schemaValidator(
                 requestSchema.createCertificateForPlot,
                 req.body
@@ -170,7 +169,6 @@ export default {
     },
     updatePlotCertification: async (req, res, next) => {
         try {
-            logger.apiInfo(req, res, `API Request: Update Plot Certification`);
             const { plot } = schemaValidator(
                 requestSchema.createCertificateForPlot,
                 req.body
@@ -268,7 +266,6 @@ export default {
     },
     revokePlotCertification: async (req, res, next) => {
         try {
-            logger.apiInfo(req, res, `API Request: Revoke Plot Certification`);
             const { did } = schemaValidator(
                 requestSchema.revokeCertificateForPlot,
                 req.body
@@ -308,7 +305,6 @@ export default {
     },
     checkLastestVersion: async (req, res, next) => {
         try {
-            logger.apiInfo(req, res, `API Request: Check Lastest Version`);
             const { did, hash } = schemaValidator(
                 requestSchema.checkLastestVersion,
                 req.body
@@ -334,11 +330,6 @@ export default {
     },
     addClaimantToCertificate: async (req, res, next) => {
         try {
-            logger.apiInfo(
-                req,
-                res,
-                `API Request: Add Claimant To Certificate`
-            );
             const { plotDid, claimant } = schemaValidator(
                 requestSchema.addClaimantToPlot,
                 req.body
