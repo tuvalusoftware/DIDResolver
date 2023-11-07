@@ -102,3 +102,8 @@ export const REQUEST_TYPE = {
     MINT_CREDENTIAL: "mint_credential",
     ADD_CLAIMANT: "add_claimant",
 };
+
+export const WRAPPED_DOCUMENT_TYPE = {
+    PLOT_CERTIFICATE: "Plot-Certificate",
+    LOAN_CONTRACT: "Loan-Contract",
+};

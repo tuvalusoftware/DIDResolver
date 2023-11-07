@@ -12,7 +12,7 @@ export const VALID_DOCUMENT_NAME_TYPE = [
         type: "trade",
     },
     {
-        name: "Land Certificate",
+        name: "Land-Certificate",
         type: "trade",
     },
     {
@@ -20,7 +20,7 @@ export const VALID_DOCUMENT_NAME_TYPE = [
         type: "trade",
     },
     {
-        name: "Loan Contract",
+        name: "Loan-Contract",
         type: "trade",
     },
 ];

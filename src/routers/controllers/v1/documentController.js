@@ -1,22 +1,14 @@
-// * Constants
-import { ERRORS } from "../../../configs/errors/error.constants.js";
-import { REQUEST_TYPE } from "../../../rabbit/config.js";
-
-// * Utilities
 import axios from "axios";
 import "dotenv/config";
 import {
     getCurrentDateTime,
-    getPublicKeyFromAddress,
     generateRandomString,
     validateDID,
 } from "../../../utils/index.js";
 import {
     isLastestCertificate,
     fetchEndorsementChain,
-    createDocumentTaskQueue,
 } from "../../../utils/document.js";
-import { getAccountBySeedPhrase } from "../../../utils/lucid.js";
 import { createClaimantVerifiableCredential } from "../../../utils/credential.js";
 import { unsalt } from "../../../fuixlabs-documentor/utils/data.js";
 import { generateDid } from "../../../fuixlabs-documentor/utils/did.js";
@@ -28,8 +20,13 @@ import ControllerService from "../../../services/Controller.service.js";
 import AuthenticationService from "../../../services/Authentication.service.js";
 import CardanoService from "../../../services/Cardano.service.js";
 import credentialService from "../../../services/VerifiableCredential.service.js";
-import { env } from "../../../configs/constants.js";
 import schemaValidator from "../../../helpers/validator.js";
+import DocumentService from "../../../services/Document.service.js";
+
+// * Constants
+import { ERRORS } from "../../../configs/errors/error.constants.js";
+import { REQUEST_TYPE } from "../../../rabbit/config.js";
+import { env, WRAPPED_DOCUMENT_TYPE } from "../../../configs/constants.js";
 import requestSchema from "../../../configs/schemas/request.schema.js";
 
 axios.defaults.withCredentials = true;
@@ -102,7 +99,7 @@ export default {
                     isExisted: true,
                 });
             }
-            let plotDetailForm = {
+            const plotDetailForm = {
                 profileImage: "sampleProfileImage",
                 fileName: plotCertificationFileName,
                 name: `Land Certificate`,
@@ -120,20 +117,9 @@ export default {
                     plotStatus: plot?.status,
                 },
             };
-            const { currentWallet, lucidClient } = await getAccountBySeedPhrase(
-                {
-                    seedPhrase: env.ADMIN_SEED_PHRASE,
-                }
-            );
-            const { wrappedDocument } = await createDocumentTaskQueue({
-                seedPhrase: env.ADMIN_SEED_PHRASE,
-                documents: [plotDetailForm],
-                address: getPublicKeyFromAddress(currentWallet?.paymentAddr),
-                access_token: accessToken,
-                client: lucidClient,
-                currentWallet: currentWallet,
-                companyName: companyName,
-            });
+            const { wrappedDocument } = await DocumentService(
+                accessToken
+            ).issueBySignByAdmin(plotDetailForm, companyName);
             const documentDid = generateDid(
                 companyName,
                 unsalt(wrappedDocument?.data?.fileName)
@@ -203,7 +189,7 @@ export default {
                 ...mintingConfig,
                 reuse: true,
             };
-            let plotDetailForm = {
+            const plotDetailForm = {
                 profileImage: "sampleProfileImage",
                 fileName: plotCertificationFileName,
                 name: `Land Certificate`,
@@ -221,20 +207,9 @@ export default {
                     plotStatus: plot?.status,
                 },
             };
-            const { currentWallet, lucidClient } = await getAccountBySeedPhrase(
-                {
-                    seedPhrase: env.ADMIN_SEED_PHRASE,
-                }
-            );
-            const { wrappedDocument } = await createDocumentTaskQueue({
-                seedPhrase: env.ADMIN_SEED_PHRASE,
-                documents: [plotDetailForm],
-                address: getPublicKeyFromAddress(currentWallet?.paymentAddr),
-                access_token: accessToken,
-                client: lucidClient,
-                currentWallet: currentWallet,
-                companyName: companyName,
-            });
+            const { wrappedDocument } = await DocumentService(
+                accessToken
+            ).issueBySignByAdmin(plotDetailForm, companyName);
             const claimantsCredentialDids =
                 await credentialService.getCredentialDidsFromClaimants({
                     claimants: plot?.claimants,
@@ -308,7 +283,7 @@ export default {
             const { did, hash } = schemaValidator(
                 requestSchema.checkLastestVersion,
                 req.body
-            )
+            );
             const { valid } = validateDID(did);
             if (!valid) {
                 return next(ERRORS.INVALID_DID);
