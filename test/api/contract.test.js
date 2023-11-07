@@ -4,7 +4,7 @@ import nock from "nock";
 
 import server from "../../server.js";
 import { ERRORS } from "../../src/config/errors/error.constants.js";
-import { SERVERS } from "../../src/config/constants.js";
+import { env } from "../../src/config/constants.js";
 import { CONTROLLER_RESPONSE, CARDANO_RESPONSES } from "../mockData.js";
 
 chai.use(chaiHttp);
@@ -49,7 +49,7 @@ describe("Contract API", function () {
                 });
         });
 
-        nock(SERVERS.DID_CONTROLLER)
+        nock(env.DID_CONTROLLER)
             .get("/api/v2/doc/exists")
             .query((object) => object.companyName && object.fileName)
             .reply(200, CONTROLLER_RESPONSE.ERROR);
@@ -74,11 +74,11 @@ describe("Contract API", function () {
                 });
         });
 
-        nock(SERVERS.DID_CONTROLLER)
+        nock(env.DID_CONTROLLER)
             .get("/api/v2/doc/exists")
             .query((object) => object.companyName && object.fileName)
             .reply(200, CONTROLLER_RESPONSE.IS_EXISTED);
-        nock(SERVERS.DID_CONTROLLER)
+        nock(env.DID_CONTROLLER)
             .get("/api/v2/doc")
             .query(
                 (object) => object.companyName && object.fileName && object.only
@@ -105,11 +105,11 @@ describe("Contract API", function () {
                 });
         });
 
-        nock(SERVERS.DID_CONTROLLER)
+        nock(env.DID_CONTROLLER)
             .get("/api/v2/doc/exists")
             .query((object) => object.companyName && object.fileName)
             .reply(200, CONTROLLER_RESPONSE.IS_EXISTED);
-        nock(SERVERS.DID_CONTROLLER)
+        nock(env.DID_CONTROLLER)
             .get("/api/v2/doc")
             .query(
                 (object) => object.companyName && object.fileName && object.only
@@ -139,11 +139,11 @@ describe("Contract API", function () {
                 });
         });
 
-        nock(SERVERS.DID_CONTROLLER)
+        nock(env.DID_CONTROLLER)
             .get("/api/v2/doc/exists")
             .query((object) => object.companyName && object.fileName)
             .reply(200, CONTROLLER_RESPONSE.IS_NOT_EXISTED);
-        nock(SERVERS.CARDANO_SERVICE)
+        nock(env.CARDANO_SERVICE)
             .post("/api/v2/hash-random")
             .reply(200, CARDANO_RESPONSES.ERROR_RESPONSE);
         it("It should return 'Error from Cardano service' when user call to get hash of document", (done) => {
@@ -167,14 +167,14 @@ describe("Contract API", function () {
                 });
         });
 
-        nock(SERVERS.DID_CONTROLLER)
+        nock(env.DID_CONTROLLER)
             .get("/api/v2/doc/exists")
             .query((object) => object.companyName && object.fileName)
             .reply(200, CONTROLLER_RESPONSE.IS_NOT_EXISTED);
-        nock(SERVERS.CARDANO_SERVICE)
+        nock(env.CARDANO_SERVICE)
             .post("/api/v2/hash-random")
             .reply(200, CARDANO_RESPONSES.CONFIG_RESPONSE);
-        nock(SERVERS.DID_CONTROLLER)
+        nock(env.DID_CONTROLLER)
             .post("/api/v2/doc")
             .reply(200, CONTROLLER_RESPONSE.ERROR);
         it("It should return 'Error from Controller' when user call to create document", (done) => {
@@ -198,17 +198,17 @@ describe("Contract API", function () {
                 });
         });
 
-        nock(SERVERS.DID_CONTROLLER)
+        nock(env.DID_CONTROLLER)
             .get("/api/v2/doc/exists")
             .query((object) => object.companyName && object.fileName)
             .reply(200, CONTROLLER_RESPONSE.IS_NOT_EXISTED);
-        nock(SERVERS.CARDANO_SERVICE)
+        nock(env.CARDANO_SERVICE)
             .post("/api/v2/hash-random")
             .reply(200, CARDANO_RESPONSES.CONFIG_RESPONSE);
-        nock(SERVERS.DID_CONTROLLER)
+        nock(env.DID_CONTROLLER)
             .post("/api/v2/doc")
             .reply(200, CONTROLLER_RESPONSE.SUCCESS);
-        nock(SERVERS.DID_CONTROLLER)
+        nock(env.DID_CONTROLLER)
             .get("/api/v2/doc")
             .query(
                 (object) => object.companyName && object.fileName && object.only
@@ -234,23 +234,23 @@ describe("Contract API", function () {
                     done();
                 });
         });
-        nock(SERVERS.DID_CONTROLLER)
+        nock(env.DID_CONTROLLER)
             .get("/api/v2/doc/exists")
             .query((object) => object.companyName && object.fileName)
             .reply(200, CONTROLLER_RESPONSE.IS_NOT_EXISTED);
-        nock(SERVERS.CARDANO_SERVICE)
+        nock(env.CARDANO_SERVICE)
             .post("/api/v2/hash-random")
             .reply(200, CARDANO_RESPONSES.CONFIG_RESPONSE);
-        nock(SERVERS.DID_CONTROLLER)
+        nock(env.DID_CONTROLLER)
             .post("/api/v2/doc")
             .reply(200, CONTROLLER_RESPONSE.SUCCESS);
-        nock(SERVERS.DID_CONTROLLER)
+        nock(env.DID_CONTROLLER)
             .get("/api/v2/doc")
             .query(
                 (object) => object.companyName && object.fileName && object.only
             )
             .reply(200, CONTROLLER_RESPONSE.SUCCESS);
-        nock(SERVERS.DID_CONTROLLER)
+        nock(env.DID_CONTROLLER)
             .put("/api/v2/doc")
             .reply(200, CONTROLLER_RESPONSE.ERROR);
         it("It should return 'Error from Controller' when user call to update did of document", (done) => {
@@ -274,23 +274,23 @@ describe("Contract API", function () {
                 });
         });
 
-        nock(SERVERS.DID_CONTROLLER)
+        nock(env.DID_CONTROLLER)
             .get("/api/v2/doc/exists")
             .query((object) => object.companyName && object.fileName)
             .reply(200, CONTROLLER_RESPONSE.IS_NOT_EXISTED);
-        nock(SERVERS.CARDANO_SERVICE)
+        nock(env.CARDANO_SERVICE)
             .post("/api/v2/hash-random")
             .reply(200, CARDANO_RESPONSES.CONFIG_RESPONSE);
-        nock(SERVERS.DID_CONTROLLER)
+        nock(env.DID_CONTROLLER)
             .post("/api/v2/doc")
             .reply(200, CONTROLLER_RESPONSE.SUCCESS);
-        nock(SERVERS.DID_CONTROLLER)
+        nock(env.DID_CONTROLLER)
             .get("/api/v2/doc")
             .query(
                 (object) => object.companyName && object.fileName && object.only
             )
             .reply(200, CONTROLLER_RESPONSE.SUCCESS);
-        nock(SERVERS.DID_CONTROLLER)
+        nock(env.DID_CONTROLLER)
             .put("/api/v2/doc")
             .reply(200, CONTROLLER_RESPONSE.SUCCESS);
         it("It should return 'Error from Controller' when user call to update did of document", (done) => {
@@ -332,7 +332,7 @@ describe("Contract API", function () {
                 });
         });
 
-        nock(SERVERS.DID_CONTROLLER)
+        nock(env.DID_CONTROLLER)
             .get("/api/v2/doc")
             .query(
                 (object) => object.companyName && object.fileName && object.only
@@ -353,7 +353,7 @@ describe("Contract API", function () {
                 });
         });
 
-        nock(SERVERS.DID_CONTROLLER)
+        nock(env.DID_CONTROLLER)
             .get("/api/v2/doc")
             .query(
                 (object) => object.companyName && object.fileName && object.only
@@ -415,7 +415,7 @@ describe("Contract API", function () {
                 });
         });
 
-        nock(SERVERS.DID_CONTROLLER)
+        nock(env.DID_CONTROLLER)
             .get("/api/v2/doc")
             .query(
                 (object) => object.companyName && object.fileName && object.only
@@ -433,13 +433,13 @@ describe("Contract API", function () {
                 });
         });
 
-        nock(SERVERS.DID_CONTROLLER)
+        nock(env.DID_CONTROLLER)
             .get("/api/v2/doc")
             .query(
                 (object) => object.companyName && object.fileName && object.only
             )
             .reply(200, CONTROLLER_RESPONSE.GET_DID_DOCUMENT_SUCCESS);
-        nock(SERVERS.DID_CONTROLLER)
+        nock(env.DID_CONTROLLER)
             .put("/api/v2/doc")
             .reply(200, CONTROLLER_RESPONSE.ERROR);
         it("It should return 'Error from Controller' when user call to update did of document", (done) => {
@@ -461,13 +461,13 @@ describe("Contract API", function () {
                 });
         });
 
-        nock(SERVERS.DID_CONTROLLER)
+        nock(env.DID_CONTROLLER)
             .get("/api/v2/doc")
             .query(
                 (object) => object.companyName && object.fileName && object.only
             )
             .reply(200, CONTROLLER_RESPONSE.GET_DID_DOCUMENT_SUCCESS);
-        nock(SERVERS.DID_CONTROLLER)
+        nock(env.DID_CONTROLLER)
             .put("/api/v2/doc")
             .reply(200, CONTROLLER_RESPONSE.SUCCESS);
         it("It should return 'Updated is true' whenever update did of document success", (done) => {

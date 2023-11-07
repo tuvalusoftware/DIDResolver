@@ -4,7 +4,7 @@ import nock from "nock";
 
 import server from "../../server.js";
 import { ERRORS } from "../../src/config/errors/error.constants.js";
-import { SERVERS } from "../../src/config/constants.js";
+import { env } from "../../src/config/constants.js";
 import { CONTROLLER_RESPONSE, CARDANO_RESPONSES } from "../mockData.js";
 
 chai.use(chaiHttp);
@@ -48,7 +48,7 @@ describe("VERIFIER", function () {
                 });
         });
 
-        nock(SERVERS.DID_CONTROLLER)
+        nock(env.DID_CONTROLLER)
             .get("/api/v2/doc")
             .query(
                 (object) => object.companyName && object.fileName && object.only
@@ -69,14 +69,14 @@ describe("VERIFIER", function () {
                     done();
                 });
         });
-        nock(SERVERS.DID_CONTROLLER)
+        nock(env.DID_CONTROLLER)
             .get("/api/v2/doc")
             .query(
                 (object) => object.companyName && object.fileName && object.only
             )
             .reply(200, CONTROLLER_RESPONSE.SUCCESS);
 
-        nock(SERVERS.CARDANO_SERVICE)
+        nock(env.CARDANO_SERVICE)
             .post("/api/v2/fetch/nft")
             .reply(200, CARDANO_RESPONSES.ERROR_RESPONSE);
         it("It should return 'Error from Cardano'", (done) => {
@@ -95,16 +95,16 @@ describe("VERIFIER", function () {
                 });
         });
 
-        nock(SERVERS.DID_CONTROLLER)
+        nock(env.DID_CONTROLLER)
             .get("/api/v2/doc")
             .query(
                 (object) => object.companyName && object.fileName && object.only
             )
             .reply(200, CONTROLLER_RESPONSE.SUCCESS);
-        nock(SERVERS.CARDANO_SERVICE)
+        nock(env.CARDANO_SERVICE)
             .post("/api/v2/fetch/nft")
             .reply(200, CARDANO_RESPONSES.ENDORSEMENT_CHAIN_RESPONSE);
-        nock(SERVERS.CARDANO_SERVICE)
+        nock(env.CARDANO_SERVICE)
             .post("/api/v2/fetch/nft")
             .reply(200, CARDANO_RESPONSES.ENDORSEMENT_CHAIN_RESPONSE);
 
@@ -127,16 +127,16 @@ describe("VERIFIER", function () {
                 });
         });
 
-        nock(SERVERS.DID_CONTROLLER)
+        nock(env.DID_CONTROLLER)
             .get("/api/v2/doc")
             .query(
                 (object) => object.companyName && object.fileName && object.only
             )
             .reply(200, CONTROLLER_RESPONSE.SUCCESS);
-        nock(SERVERS.CARDANO_SERVICE)
+        nock(env.CARDANO_SERVICE)
             .post("/api/v2/fetch/nft")
             .reply(200, CARDANO_RESPONSES.ENDORSEMENT_CHAIN_RESPONSE);
-        nock(SERVERS.CARDANO_SERVICE)
+        nock(env.CARDANO_SERVICE)
             .post("/api/v2/fetch/nft")
             .reply(200, CARDANO_RESPONSES.LASTEST_VERSION_RESPONSE);
         it("It should return 'isValid is true'", (done) => {
@@ -188,7 +188,7 @@ describe("VERIFIER", function () {
                 });
         });
 
-        nock(SERVERS.DID_CONTROLLER)
+        nock(env.DID_CONTROLLER)
             .get("/api/v2/credential/did:example:ethers:0x1234")
             .reply(200, CONTROLLER_RESPONSE.ERROR);
         it("It should return 'Error from Controller'", (done) => {
@@ -207,7 +207,7 @@ describe("VERIFIER", function () {
                 });
         });
 
-        nock(SERVERS.DID_CONTROLLER)
+        nock(env.DID_CONTROLLER)
             .get("/api/v2/credential/did:example:ethers:0x1234")
             .reply(200, CONTROLLER_RESPONSE.VERIFIABLE_CREDENTIAL);
         it("It should return 'isValid is true'", (done) => {

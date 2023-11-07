@@ -8,11 +8,13 @@ import {
     getDynamicDocumentLoader,
     setUpSuite,
 } from "../utils/verifiableCredential.js";
-import { ADMIN_PRIVATE_KEY, ADMIN_PUBLIC_KEY } from "../configs/constants.js";
+import {
+    env,
+} from "../configs/constants.js";
 import { createClaimantVerifiableCredential } from "../utils/credential.js";
 const { suite: DOMINIUM_SUITE } = await setUpSuite({
-    private_key: ADMIN_PRIVATE_KEY,
-    public_key: ADMIN_PUBLIC_KEY,
+    private_key: env.ADMIN_PRIVATE_KEY,
+    public_key: env.ADMIN_PUBLIC_KEY,
 });
 
 /**
@@ -38,8 +40,7 @@ class VerifiableCredentialService {
                             );
                             const { $schema } = credentialSchema;
                         }
-                    }
-                    else if (typeof credential.credentialSchema == "object") {
+                    } else if (typeof credential.credentialSchema == "object") {
                         const schema = credential.credentialSchema;
                         const { data: credentialSchema } = await axios.get(
                             schema.id
@@ -113,7 +114,7 @@ class VerifiableCredentialService {
             ],
             id: credentialDid,
             type: ["VerifiableCredential"],
-            issuer: generateDid(process.env.COMPANY_NAME, issuerKey),
+            issuer: generateDid(env.COMPANY_NAME, issuerKey),
             validFrom: new Date().toISOString(),
             credentialSubject: subject,
             proof: {

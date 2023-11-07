@@ -8,6 +8,7 @@ import { deepUnsalt } from "../fuixlabs-documentor/utils/data.js";
 import AuthenticationService from "../services/Authentication.service.js";
 import RabbitRepository from "./rabbit.repository.js";
 import { ErrorProducer } from "./rabbit.producer.js";
+import { env } from "../configs/constants.js";
 
 const logger = new Logger();
 
@@ -87,7 +88,7 @@ export const CustomChanel = async (service, data) => {
                     _id: cardanoResponse?.id,
                 });
                 const accessToken =
-                    process.env.NODE_ENV === "test"
+                    env.NODE_ENV === "test"
                         ? "mock-access-token"
                         : await AuthenticationService().authenticationProgress();
                 const { companyName, fileName, did } = deepUnsalt(
@@ -145,7 +146,7 @@ export const ResolverConsumer = async () => {
                     _id: cardanoResponse?.id,
                 });
                 const accessToken =
-                    process.env.NODE_ENV === "test"
+                    env.NODE_ENV === "test"
                         ? "mock-access-token"
                         : await AuthenticationService().authenticationProgress();
                 switch (requestData?.type) {

@@ -2,13 +2,12 @@ import cardanoSerialization from "@emurgo/cardano-serialization-lib-nodejs";
 import Ajv from "ajv";
 import * as dotenv from "dotenv";
 import crypto from "crypto";
-import QRCode from "qrcode";
 import _ from "lodash";
+import { env } from "../configs/constants.js";
 
 dotenv.config();
-const secretKey = process.env.COMMONLANDS_SECRET_KEY;
-const companyName = process.env.COMPANY_NAME;
-const devCompanyName = process.env.DEV_COMPANY_NAME;
+const companyName = env.COMPANY_NAME;
+const devCompanyName = env.DEV_COMPANY_NAME;
 
 /**
  * Function used for validating DID syntax
@@ -198,10 +197,10 @@ const splitCamelCase = (input) => {
 /**
  * Function used for getting DID by components
  * @param {String} didComponents - DID components
- * @returns {String} - DID {did}:{process.env.DEV_COMPANY_NAME}:{companyName}:{fileNameOrPublicKey
+ * @returns {String} - DID {did}:{env.DEV_COMPANY_NAME}:{companyName}:{fileNameOrPublicKey
  */
 const getDidByComponents = (didComponents) => {
-    return `did:${process.env.DEV_COMPANY_NAME}:${didComponents}`;
+    return `did:${env.DEV_COMPANY_NAME}:${didComponents}`;
 };
 
 /**
@@ -253,7 +252,6 @@ const generateRandomDID = () => {
     const randomSpecificId = Math.random().toString(36).substring(2, 10);
 
     // Choose a DID method (you can replace this with your desired method)
-    const didMethod = "example";
 
     // Combine the method and specific ID to create the DID
     const did = `did:${devCompanyName}:${companyName}:${randomSpecificId}`;

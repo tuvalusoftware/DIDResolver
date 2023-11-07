@@ -1,5 +1,6 @@
 // * Constants
 import { ERRORS } from "../../../configs/errors/error.constants.js";
+import { REQUEST_TYPE } from "../../../rabbit/config.js";
 
 // * Utilities
 import axios from "axios";
@@ -30,6 +31,7 @@ import ControllerService from "../../../services/Controller.service.js";
 import AuthenticationService from "../../../services/Authentication.service.js";
 import CardanoService from "../../../services/Cardano.service.js";
 import credentialService from "../../../services/VerifiableCredential.service.js";
+import { env } from "../../../configs/constants.js";
 
 axios.defaults.withCredentials = true;
 
@@ -42,7 +44,7 @@ export default {
                 return next(ERRORS.INVALID_DID);
             }
             const accessToken =
-                process.env.NODE_ENV === "test"
+                env.NODE_ENV === "test"
                     ? "mock-access-token"
                     : await AuthenticationService().authenticationProgress();
             const docContentResponse = await ControllerService(
@@ -74,14 +76,14 @@ export default {
                 });
             }
             const plotCertificationFileName = `PlotCertification-${plot?._id}`;
-            const companyName = process.env.COMPANY_NAME;
+            const companyName = env.COMPANY_NAME;
             logger.apiInfo(
                 req,
                 res,
                 `Pdf file name: ${plotCertificationFileName}`
             );
             const accessToken =
-                process.env.NODE_ENV === "test"
+                env.NODE_ENV === "test"
                     ? "mock-access-token"
                     : await AuthenticationService().authenticationProgress();
             const isExistedResponse = await ControllerService(
@@ -128,11 +130,11 @@ export default {
             };
             const { currentWallet, lucidClient } = await getAccountBySeedPhrase(
                 {
-                    seedPhrase: process.env.ADMIN_SEED_PHRASE,
+                    seedPhrase: env.ADMIN_SEED_PHRASE,
                 }
             );
             const { wrappedDocument } = await createDocumentTaskQueue({
-                seedPhrase: process.env.ADMIN_SEED_PHRASE,
+                seedPhrase: env.ADMIN_SEED_PHRASE,
                 documents: [plotDetailForm],
                 address: getPublicKeyFromAddress(currentWallet?.paymentAddr),
                 access_token: accessToken,
@@ -202,7 +204,7 @@ export default {
             if (!valid) {
                 return next(ERRORS.INVALID_INPUT);
             }
-            const companyName = process.env.COMPANY_NAME;
+            const companyName = env.COMPANY_NAME;
             const plotCertificationFileName = `PlotCertification-${
                 plot?._id
             }-${generateRandomString(plot._id, 4)}`;
@@ -211,7 +213,7 @@ export default {
                 plotCertificationFileName
             );
             const accessToken =
-                process.env.NODE_ENV === "test"
+                env.NODE_ENV === "test"
                     ? "mock-access-token"
                     : await AuthenticationService().authenticationProgress();
             const documentContentResponse = await ControllerService(
@@ -252,11 +254,11 @@ export default {
             };
             const { currentWallet, lucidClient } = await getAccountBySeedPhrase(
                 {
-                    seedPhrase: process.env.ADMIN_SEED_PHRASE,
+                    seedPhrase: env.ADMIN_SEED_PHRASE,
                 }
             );
             const { wrappedDocument } = await createDocumentTaskQueue({
-                seedPhrase: process.env.ADMIN_SEED_PHRASE,
+                seedPhrase: env.ADMIN_SEED_PHRASE,
                 documents: [plotDetailForm],
                 address: getPublicKeyFromAddress(currentWallet?.paymentAddr),
                 access_token: accessToken,
@@ -311,7 +313,7 @@ export default {
                 return next(ERRORS.INVALID_DID);
             }
             const accessToken =
-                process.env.NODE_ENV === "test"
+                env.NODE_ENV === "test"
                     ? "mock-access-token"
                     : await AuthenticationService().authenticationProgress();
             const documentContentResponse = await ControllerService(
@@ -386,7 +388,7 @@ export default {
                 },
             };
             const { currentWallet } = await getAccountBySeedPhrase({
-                seedPhrase: process.env.ADMIN_SEED_PHRASE,
+                seedPhrase: env.ADMIN_SEED_PHRASE,
             });
 
             const targetHash = await hashDocumentContent({
@@ -463,7 +465,7 @@ export default {
                 });
             }
             const plotId = plotDid.split(":")[3].split("-")[1];
-            const companyName = process.env.COMPANY_NAME;
+            const companyName = env.COMPANY_NAME;
             const { verifiableCredential, credentialHash, did } =
                 await createClaimantVerifiableCredential({
                     subject: {
@@ -474,8 +476,31 @@ export default {
                     },
                     issuerKey: plotDid,
                 });
+            const accessToken =
+                await AuthenticationService().authenticationProgress();
+            const documentContentResponse = await ControllerService(
+                accessToken
+            ).getDocumentContent({
+                did: plotDid,
+            });
+            const { mintingConfig } = documentContentResponse?.data?.wrappedDoc;
+            const request = await RequestRepo.createRequest({
+                data: {
+                    mintingConfig,
+                    credential: credentialHash,
+                    verifiedCredential: verifiableCredential,
+                    companyName,
+                },
+                type: REQUEST_TYPE.MINTING_TYPE.createClaimantCredential,
+                status: "pending",
+            });
+            await CardanoService(accessToken).storeCredentialsWithPolicyId({
+                credentials: [credentialHash],
+                mintingConfig,
+                id: request?._id,
+            });
             return res.status(200).json({
-                did: taskQueueResponse?.data?.data?.did,
+                did,
             });
         } catch (error) {
             next(handleServerError(error));

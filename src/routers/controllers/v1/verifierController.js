@@ -37,7 +37,7 @@ export default {
                 return next(ERRORS.INVALID_DID);
             }
             const accessToken =
-                process.env.NODE_ENV === "test"
+                env.NODE_ENV === "test"
                     ? "mock-access-token"
                     : await AuthenticationService().authenticationProgress();
             const documentContentResponse = await ControllerService(
@@ -100,7 +100,7 @@ export default {
                 return next(ERRORS.INVALID_DID);
             }
             const accessToken =
-                process.env.NODE_ENV === "test"
+                env.NODE_ENV === "test"
                     ? "mock-access-token"
                     : await AuthenticationService().authenticationProgress();
             const credentialContentResponse = await ControllerService(

@@ -4,7 +4,7 @@ import { generateRandomDID } from "./index.js";
 import { setUpSuite } from "../utils/verifiableCredential.js";
 
 // * Constants
-import { COMPANY_NAME } from "../configs/constants.js";
+import { env } from "../configs/constants.js";
 import { generateDid } from "../fuixlabs-documentor/utils/did.js";
 import credentialService from "../services/VerifiableCredential.service.js";
 
@@ -39,7 +39,7 @@ const createClaimantVerifiableCredential = async ({ issuerKey, subject }) => {
         const credential = {
             ...hashingCredential,
             credentialSubject: {
-                id: generateDid(COMPANY_NAME, credentialHash),
+                id: generateDid(env.COMPANY_NAME, credentialHash),
                 type: ["ClaimSubject"],
                 claims: {
                     type: ["Claims"],
@@ -51,7 +51,7 @@ const createClaimantVerifiableCredential = async ({ issuerKey, subject }) => {
             },
         };
         const { verifiableCredential } =
-            process.env.NODE_ENV === "test"
+            env.NODE_ENV === "test"
                 ? {
                       verifiableCredential: credential,
                   }
@@ -61,7 +61,7 @@ const createClaimantVerifiableCredential = async ({ issuerKey, subject }) => {
         return {
             verifiableCredential,
             credentialHash,
-            did: generateDid(COMPANY_NAME, credentialHash),
+            did: generateDid(env.COMPANY_NAME, credentialHash),
         };
     } catch (e) {
         throw e;
@@ -93,7 +93,7 @@ const createContractVerifiableCredential = async ({
         const credential = {
             ...hashingCredential,
             credentialSubject: {
-                id: generateDid(COMPANY_NAME, credentialHash),
+                id: generateDid(env.COMPANY_NAME, credentialHash),
                 type: ["ContractSubject"],
                 ...subject,
             },
@@ -103,7 +103,7 @@ const createContractVerifiableCredential = async ({
             public_key: publicKey,
         });
         const { verifiableCredential } =
-            process.env.NODE_ENV === "test"
+            env.NODE_ENV === "test"
                 ? {
                       verifiableCredential: credential,
                   }
@@ -114,7 +114,7 @@ const createContractVerifiableCredential = async ({
         return {
             verifiableCredential,
             credentialHash,
-            did: generateDid(COMPANY_NAME, credentialHash),
+            did: generateDid(env.COMPANY_NAME, credentialHash),
         };
     } catch (e) {
         throw e;

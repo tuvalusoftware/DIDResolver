@@ -1,6 +1,6 @@
 import amqplib from "amqplib";
 import { Logger } from "tslog";
-import { SERVERS } from "../configs/constants.js";
+import { env } from "../configs/constants.js";
 import { RABBITMQ_SERVICE } from "./config.js";
 
 const logger = new Logger();
@@ -8,7 +8,7 @@ const logger = new Logger();
 let rabbitMQ;
 
 try {
-    rabbitMQ = await amqplib.connect(SERVERS.RABBITMQ_SERVICE);
+    rabbitMQ = await amqplib.connect(env.RABBITMQ_SERVICE);
     logger.debug(
         "Connected to RabbitMQ",
         rabbitMQ?.connection?.serverProperties?.cluster_name

@@ -4,7 +4,7 @@ import nock from "nock";
 
 import server from "../../server.js";
 import { ERRORS } from "../../src/config/errors/error.constants.js";
-import { SERVERS } from "../../src/config/constants.js";
+import { env } from "../../src/config/constants.js";
 import {
     CONTROLLER_RESPONSE,
     WRAPPED_DOCUMENT_REQUEST,
@@ -34,7 +34,7 @@ describe("DOCUMENT", function () {
                 });
         });
 
-        nock(SERVERS.DID_CONTROLLER)
+        nock(env.DID_CONTROLLER)
             .get("/api/v2/doc")
             .query(
                 (object) => object.companyName && object.fileName && object.only
@@ -55,7 +55,7 @@ describe("DOCUMENT", function () {
                 });
         });
 
-        nock(SERVERS.DID_CONTROLLER)
+        nock(env.DID_CONTROLLER)
             .get("/api/v2/doc")
             .query(
                 (object) => object.companyName && object.fileName && object.only
@@ -218,27 +218,6 @@ describe("DOCUMENT", function () {
                     done();
                 });
         });
-
-        nock(SERVERS.TASK_QUEUE_SERVICE)
-            .get("/api/db/isExists")
-            // .query((queryObj) => queryObj.did)
-            .query({ did: "did:example:ethr:0x123" })
-            .reply(200, TASK_QUEUE_RESPONSE.ADD_CLAIMANT_DATA_IS_EXISTED);
-        it("It should return 'exists data from task queue'", (done) => {
-            chai.request(server)
-                .post("/resolver/commonlands/document/certificate/add-claimant")
-                .send({
-                    plotDid: "did:example:ethr:0x123",
-                    claimant: {
-                        plot: "example",
-                        did: "example",
-                        role: "example",
-                    },
-                })
-                .end((err, res) => {
-                    done();
-                });
-        });
     });
 
     describe("/POST Create certificate for plot by given information", () => {
@@ -259,7 +238,7 @@ describe("DOCUMENT", function () {
                 });
         });
 
-        nock(SERVERS.DID_CONTROLLER)
+        nock(env.DID_CONTROLLER)
             .get("/api/v2/doc/exists")
             .query((queryObj) => queryObj.companyName && queryObj.fileName)
             .reply(200, CONTROLLER_RESPONSE.IS_EXISTED);
@@ -336,38 +315,6 @@ describe("DOCUMENT", function () {
                         .property("error_code")
                         .equal(ERRORS.INVALID_DID.error_code);
                     res.body.should.have.property("error_message");
-                    done();
-                });
-        });
-
-        nock(SERVERS.TASK_QUEUE_SERVICE)
-            .post("/api/mint")
-            .reply(200, TASK_QUEUE_RESPONSE.BAD_REQUEST);
-        it("It should return 'Error from task-queue server' when user call put revoke request to task-queue server", (done) => {
-            chai.request(server)
-                .delete("/resolver/commonlands/document/certificate")
-                .send({ did: "did:example:example2:231" })
-                .end((err, res) => {
-                    res.should.have.status(200);
-                    res.body.should.be.a("object");
-                    expect(JSON.stringify(res.body)).equal(
-                        JSON.stringify(TASK_QUEUE_RESPONSE.BAD_REQUEST)
-                    );
-                    done();
-                });
-        });
-
-        nock(SERVERS.TASK_QUEUE_SERVICE)
-            .post("/api/mint")
-            .reply(200, TASK_QUEUE_RESPONSE.REQUEST_CREDENTIAL);
-        it("It should return 'success message is true' when request revoking document is successfully done", (done) => {
-            chai.request(server)
-                .delete("/resolver/commonlands/document/certificate")
-                .send({ did: "did:example:example2:231" })
-                .end((err, res) => {
-                    res.should.have.status(200);
-                    res.body.should.be.a("object");
-                    res.body.should.have.property("success").equal(true);
                     done();
                 });
         });

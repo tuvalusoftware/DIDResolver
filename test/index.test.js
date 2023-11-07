@@ -14,12 +14,13 @@ import {
     replaceKey,
 } from "../src/utils/index.js";
 import chai from "chai";
+import { env } from "../src/configs/constants.js";
 
 let expect = chai.expect;
 let should = chai.should;
 
-const companyName = process.env.COMPANY_NAME;
-const devCompanyName = process.env.DEV_COMPANY_NAME;
+const companyName = env.COMPANY_NAME;
+const devCompanyName = env.DEV_COMPANY_NAME;
 
 describe("UTILITIES", function () {
     describe("validateDIDSyntax", () => {
@@ -121,7 +122,7 @@ describe("UTILITIES", function () {
     describe("getDidByComponents", () => {
         it("should return a valid DID string", () => {
             const didComponents = "example:1234";
-            const expectedDID = `did:${process.env.DEV_COMPANY_NAME}:${didComponents}`;
+            const expectedDID = `did:${env.DEV_COMPANY_NAME}:${didComponents}`;
             expect(getDidByComponents(didComponents)).equal(expectedDID);
         });
     });

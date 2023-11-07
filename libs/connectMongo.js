@@ -1,6 +1,7 @@
 import mongoose from "mongoose";
 import { Logger } from "tslog";
 import "dotenv/config";
+import { env } from "../src/configs/constants.js";
 
 const logger = new Logger();
 
@@ -9,8 +10,8 @@ const logger = new Logger();
  * @returns {void}
  */
 export default () => {
-    const port = process.env.MONGO_PORT || 27017;
-    const dbName = process.env.MONGO_DB_NAME || "backup-blockchain";
+    const port = env.MONGO_PORT;
+    const dbName = env.MONGO_DB_NAME;
     const dbUrl = `mongodb://localhost:${port}/${dbName}`;
 
     /**

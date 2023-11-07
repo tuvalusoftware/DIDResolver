@@ -42,7 +42,7 @@ export default {
                 return next(ERRORS.INVALID_DID);
             }
             const accessToken =
-                process.env.NODE_ENV === "test"
+                env.NODE_ENV === "test"
                     ? "mock-access-token"
                     : await AuthenticationService().authenticationProgress();
             const documentContentResponse = await ControllerService(
@@ -97,7 +97,7 @@ export default {
                 });
             }
             const accessToken =
-                process.env.NODE_ENV === "test"
+                env.NODE_ENV === "test"
                     ? "mock-access-token"
                     : await AuthenticationService().authenticationProgress();
             const mintingResponse = await CardanoService(
@@ -205,7 +205,7 @@ export default {
                 `Wrapped document ${JSON.stringify(wrappedDocument)}`
             );
             const accessToken =
-                process.env.NODE_ENV === "test"
+                env.NODE_ENV === "test"
                     ? "mock-access-token"
                     : await AuthenticationService().authenticationProgress();
             const mintingResponse = await CardanoService(
@@ -298,7 +298,7 @@ export default {
                 });
             }
             const accessToken =
-                process.env.NODE_ENV === "test"
+                env.NODE_ENV === "test"
                     ? "mock-access-token"
                     : await AuthenticationService().authenticationProgress();
             const updateResponse = await CardanoService(
@@ -393,7 +393,7 @@ export default {
                 });
             }
             const accessToken =
-                process.env.NODE_ENV === "test"
+                env.NODE_ENV === "test"
                     ? "mock-access-token"
                     : await AuthenticationService().authenticationProgress();
             const credentialResponse = await CardanoService(
@@ -462,7 +462,7 @@ export default {
                 });
             }
             const accessToken =
-                process.env.NODE_ENV === "test"
+                env.NODE_ENV === "test"
                     ? "mock-access-token"
                     : await AuthenticationService().authenticationProgress();
             const credentialResponse = await CardanoService(
@@ -521,7 +521,7 @@ export default {
             const companyName = plotDid?.split(":")[2];
             const plotCertificationFileName = plotDid?.split(":")[3];
             const accessToken =
-                process.env.NODE_ENV === "test"
+                env.NODE_ENV === "test"
                     ? "mock-access-token"
                     : await AuthenticationService().authenticationProgress();
             const isExistedResponse = await ControllerService(
