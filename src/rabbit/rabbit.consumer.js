@@ -132,13 +132,14 @@ export const ResolverConsumer = async () => {
                 if (cardanoResponse?.error_code) {
                     resolverSender.ack(msg);
                     logger.error("[ResolverQueue] 🔈", msg.content.toString());
-                    const { data, type, id, retryCount } =
+                    const { data, type, id, retryCount, retryAfter } =
                         cardanoResponse?.data;
                     await ErrorProducer({
                         data,
                         type,
                         id,
                         retryCount,
+                        retryAfter
                     });
                     return;
                 }

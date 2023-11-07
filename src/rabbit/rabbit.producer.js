@@ -36,6 +36,7 @@ export const ErrorProducer = async ({
     id,
     options,
     retryCount,
+    retryAfter,
 }) => {
     const message = {
         type,
@@ -43,6 +44,7 @@ export const ErrorProducer = async ({
         id,
         options,
         retryCount,
+        retryAfter,
     };
     errorSender.sendToQueue(errorQueue, Buffer.from(JSON.stringify(message)), {
         durable: true,
