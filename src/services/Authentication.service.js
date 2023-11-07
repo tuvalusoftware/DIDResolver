@@ -105,7 +105,7 @@ const AuthenticationService = () => {
             );
             const { randomNumber, timestamp } = decodedData?.data;
             const { currentWallet } = await getAccountBySeedPhrase({
-                seedPhrase: process.env.ADMIN_SEED_PHRASE,
+                seedPhrase: env.ADMIN_SEED_PHRASE,
             });
 
             const signMessage = await signData(

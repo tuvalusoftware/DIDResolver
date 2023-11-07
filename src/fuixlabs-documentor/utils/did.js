@@ -1,6 +1,6 @@
 // * Constant libraries
 import { DID_ERROR } from "../constants/error.js";
-import { DEV_COMPANY_NAME } from "../../configs/constants.js";
+import { env } from "../../configs/constants.js";
 
 // * Rest libraries
 import {
@@ -21,7 +21,7 @@ import "dotenv/config";
  * @return {String} - Did
  */
 export const generateDid = (fileName, prop) => {
-    const did = `did:${DEV_COMPANY_NAME}:${fileName}:${prop}`;
+    const did = `did:${env.DEV_COMPANY_NAME}:${fileName}:${prop}`;
     return did;
 };
 

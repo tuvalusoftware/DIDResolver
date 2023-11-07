@@ -4,6 +4,7 @@ import { NETWORK_ID } from "../configs/constants.js";
 import { Lucid } from "lucid-cardano";
 import cryptoRandomString from "crypto-random-string";
 import "dotenv/config";
+import { env } from "../configs/constants.js";
 
 /**
  * Function used for validating address bytes
@@ -83,7 +84,7 @@ const harden = (num) => {
 
 export const requestAccountKey = async (password, accountIndex) => {
     const { currentWallet } = await getAccountBySeedPhrase(
-        process.env.ADMIN_SEED_PHRASE
+        env.ADMIN_SEED_PHRASE
     );
     const encryptedRootKey = await encryptWithPassword(
         password,
@@ -169,7 +170,7 @@ const getCurrentAccount = ({ mnemonic }) => {
 
     // Base address with Staking Key
     const paymentAddr = CardanoWasm.BaseAddress.new(
-        process.env.CARDANO_NETWORK !== 1
+        env.CARDANO_NETWORK !== 1
             ? CardanoWasm.NetworkInfo.testnet().network_id()
             : CardanoWasm.NetworkInfo.mainnet().network_id(),
         CardanoWasm.StakeCredential.from_keyhash(paymentKeyPub.hash()),
@@ -180,7 +181,7 @@ const getCurrentAccount = ({ mnemonic }) => {
 
     // Enterprise address without staking ability, for use by exchanges/etc
     const enterpriseAddr = CardanoWasm.EnterpriseAddress.new(
-        process.env.CARDANO_NETWORK !== 1
+        env.CARDANO_NETWORK !== 1
             ? CardanoWasm.NetworkInfo.testnet().network_id()
             : CardanoWasm.NetworkInfo.mainnet().network_id(),
         CardanoWasm.StakeCredential.from_keyhash(paymentKeyPub.hash())
@@ -204,9 +205,9 @@ const getAccountBySeedPhrase = async ({ seedPhrase }) => {
     try {
         const _seedPhrase = seedPhrase
             ? seedPhrase
-            : process.env.ADMIN_SEED_PHRASE;
+            : env.ADMIN_SEED_PHRASE;
         const currentWallet = getCurrentAccount({
-            mnemonic: process.env.ADMIN_SEED_PHRASE,
+            mnemonic: env.ADMIN_SEED_PHRASE,
         });
         const lucid = await Lucid.new(null, "Preprod");
         lucid.selectWalletFromPrivateKey(

@@ -197,10 +197,10 @@ const splitCamelCase = (input) => {
 /**
  * Function used for getting DID by components
  * @param {String} didComponents - DID components
- * @returns {String} - DID {did}:{process.env.DEV_COMPANY_NAME}:{companyName}:{fileNameOrPublicKey
+ * @returns {String} - DID {did}:{env.DEV_COMPANY_NAME}:{companyName}:{fileNameOrPublicKey
  */
 const getDidByComponents = (didComponents) => {
-    return `did:${process.env.DEV_COMPANY_NAME}:${didComponents}`;
+    return `did:${env.DEV_COMPANY_NAME}:${didComponents}`;
 };
 
 /**

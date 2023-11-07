@@ -30,6 +30,7 @@ import ControllerService from "../../../services/Controller.service.js";
 import AuthenticationService from "../../../services/Authentication.service.js";
 import CardanoService from "../../../services/Cardano.service.js";
 import credentialService from "../../../services/VerifiableCredential.service.js";
+import { env } from "../../../configs/constants.js";
 
 axios.defaults.withCredentials = true;
 
@@ -42,7 +43,7 @@ export default {
                 return next(ERRORS.INVALID_DID);
             }
             const accessToken =
-                process.env.NODE_ENV === "test"
+                env.NODE_ENV === "test"
                     ? "mock-access-token"
                     : await AuthenticationService().authenticationProgress();
             const docContentResponse = await ControllerService(
@@ -81,7 +82,7 @@ export default {
                 `Pdf file name: ${plotCertificationFileName}`
             );
             const accessToken =
-                process.env.NODE_ENV === "test"
+                env.NODE_ENV === "test"
                     ? "mock-access-token"
                     : await AuthenticationService().authenticationProgress();
             const isExistedResponse = await ControllerService(
@@ -128,11 +129,11 @@ export default {
             };
             const { currentWallet, lucidClient } = await getAccountBySeedPhrase(
                 {
-                    seedPhrase: process.env.ADMIN_SEED_PHRASE,
+                    seedPhrase: env.ADMIN_SEED_PHRASE,
                 }
             );
             const { wrappedDocument } = await createDocumentTaskQueue({
-                seedPhrase: process.env.ADMIN_SEED_PHRASE,
+                seedPhrase: env.ADMIN_SEED_PHRASE,
                 documents: [plotDetailForm],
                 address: getPublicKeyFromAddress(currentWallet?.paymentAddr),
                 access_token: accessToken,
@@ -211,7 +212,7 @@ export default {
                 plotCertificationFileName
             );
             const accessToken =
-                process.env.NODE_ENV === "test"
+                env.NODE_ENV === "test"
                     ? "mock-access-token"
                     : await AuthenticationService().authenticationProgress();
             const documentContentResponse = await ControllerService(
@@ -252,11 +253,11 @@ export default {
             };
             const { currentWallet, lucidClient } = await getAccountBySeedPhrase(
                 {
-                    seedPhrase: process.env.ADMIN_SEED_PHRASE,
+                    seedPhrase: env.ADMIN_SEED_PHRASE,
                 }
             );
             const { wrappedDocument } = await createDocumentTaskQueue({
-                seedPhrase: process.env.ADMIN_SEED_PHRASE,
+                seedPhrase: env.ADMIN_SEED_PHRASE,
                 documents: [plotDetailForm],
                 address: getPublicKeyFromAddress(currentWallet?.paymentAddr),
                 access_token: accessToken,
@@ -311,7 +312,7 @@ export default {
                 return next(ERRORS.INVALID_DID);
             }
             const accessToken =
-                process.env.NODE_ENV === "test"
+                env.NODE_ENV === "test"
                     ? "mock-access-token"
                     : await AuthenticationService().authenticationProgress();
             const documentContentResponse = await ControllerService(
@@ -386,7 +387,7 @@ export default {
                 },
             };
             const { currentWallet } = await getAccountBySeedPhrase({
-                seedPhrase: process.env.ADMIN_SEED_PHRASE,
+                seedPhrase: env.ADMIN_SEED_PHRASE,
             });
 
             const targetHash = await hashDocumentContent({

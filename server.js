@@ -72,7 +72,7 @@ app.use((err, req, res, _) => {
         }
         throw err;
     } catch (error) {
-        process?.env?.NODE_ENV !== "test" && logger.error(error);
+        env.NODE_ENV !== "test" && logger.error(error);
         return res.status(200).json({
             error_code: err.error_code,
             error_message:
@@ -82,7 +82,7 @@ app.use((err, req, res, _) => {
     }
 });
 
-const port = normalizePort(env.NODE_PORT || "8000");
+const port = normalizePort(env.SERVER_PORT || "8000");
 server.listen(port, () => {
     logger.debug(`Server is live on port ${port}: http://localhost:${port}/`);
 });

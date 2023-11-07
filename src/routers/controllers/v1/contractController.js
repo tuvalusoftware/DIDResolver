@@ -61,7 +61,7 @@ export default {
             const companyName = env.COMPANY_NAME;
             logger.apiInfo(req, res, `Pdf file name: ${contractFileName}`);
             const accessToken =
-                process.env.NODE_ENV === "test"
+                env.NODE_ENV === "test"
                     ? "mock-access-token"
                     : await AuthenticationService().authenticationProgress();
             const isExistedResponse = await ControllerService(
@@ -93,11 +93,11 @@ export default {
             };
             const { currentWallet, lucidClient } = await getAccountBySeedPhrase(
                 {
-                    seedPhrase: process.env.ADMIN_SEED_PHRASE,
+                    seedPhrase: env.ADMIN_SEED_PHRASE,
                 }
             );
             const { wrappedDocument } = await createDocumentTaskQueue({
-                seedPhrase: process.env.ADMIN_SEED_PHRASE,
+                seedPhrase: env.ADMIN_SEED_PHRASE,
                 documents: [contractForm],
                 address: getPublicKeyFromAddress(currentWallet?.paymentAddr),
                 access_token: accessToken,
@@ -135,7 +135,7 @@ export default {
                 return next(ERRORS.INVALID_DID);
             }
             const accessToken =
-                process.env.NODE_ENV === "test"
+                env.NODE_ENV === "test"
                     ? "mock-access-token"
                     : await AuthenticationService().authenticationProgress();
             const docContentResponse = await ControllerService(
@@ -183,7 +183,7 @@ export default {
                 return next(ERRORS.INVALID_DID);
             }
             const accessToken =
-                process.env.NODE_ENV === "test"
+                env.NODE_ENV === "test"
                     ? "mock-access-token"
                     : await AuthenticationService().authenticationProgress();
             const contractContentResponse = await ControllerService(
@@ -265,7 +265,7 @@ export default {
                 return next(ERRORS.INVALID_DID);
             }
             const accessToken =
-                process.env.NODE_ENV === "test"
+                env.NODE_ENV === "test"
                     ? "mock-access-token"
                     : await AuthenticationService().authenticationProgress();
             const didDocumentResponse = await ControllerService(

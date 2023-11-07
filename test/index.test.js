@@ -122,7 +122,7 @@ describe("UTILITIES", function () {
     describe("getDidByComponents", () => {
         it("should return a valid DID string", () => {
             const didComponents = "example:1234";
-            const expectedDID = `did:${process.env.DEV_COMPANY_NAME}:${didComponents}`;
+            const expectedDID = `did:${env.DEV_COMPANY_NAME}:${didComponents}`;
             expect(getDidByComponents(didComponents)).equal(expectedDID);
         });
     });

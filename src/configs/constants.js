@@ -39,6 +39,13 @@ export const env = cleanEnv(process.env, {
     RABBITMQ_SERVICE: url({
         default: "amqp://localhost",
     }),
+    NODE_ENV: str({
+        choices: ["dev", "production", "test"],
+        default: "dev",
+    }),
+    MONGO_DB_NAME: str({
+        default: "backup-blockchain",
+    }),
 });
 
 export const PLOT_STATUSES = {
@@ -95,6 +102,3 @@ export const REQUEST_TYPE = {
     MINT_CREDENTIAL: "mint_credential",
     ADD_CLAIMANT: "add_claimant",
 };
-
-export const COMPANY_NAME = process.env.COMPANY_NAME;
-export const DEV_COMPANY_NAME = process.env.DEV_COMPANY_NAME;
