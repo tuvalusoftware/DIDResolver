@@ -18,7 +18,7 @@ export default {
             role: Joi.string().required(),
             claimant: Joi.object()
                 .keys({
-                    certificateDid: Joi.string().required(),
+                    certificateDid: Joi.string().optional(),
                     seedPhrase: Joi.string().required(),
                     userDid: Joi.string().required(),
                 })
