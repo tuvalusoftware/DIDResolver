@@ -18,7 +18,7 @@ export default {
             role: Joi.string().required(),
             claimant: Joi.object()
                 .keys({
-                    certificateDid: Joi.string().required(),
+                    certificateDid: Joi.string().optional(),
                     seedPhrase: Joi.string().required(),
                     userDid: Joi.string().required(),
                 })
@@ -58,16 +58,22 @@ export default {
     verifyCertificate: Joi.object().keys({
         did: Joi.string().required(),
     }),
-    updateContract: Joi.object().keys({
-        did: Joi.string().required(),
-        metadata: Joi.object().optional().unknown(true),
-    }).unknown(true),
-    verifyContract: Joi.object().keys({
-        seedPhrase: Joi.string().required(),
-        contractDid: Joi.string().required(),
-    }).unknown(true),
-    checkLastestVersion: Joi.object().keys({
-        did: Joi.string().required(),
-        hash: Joi.string().required(),
-    }).unknown(true),
+    updateContract: Joi.object()
+        .keys({
+            did: Joi.string().required(),
+            metadata: Joi.object().optional().unknown(true),
+        })
+        .unknown(true),
+    verifyContract: Joi.object()
+        .keys({
+            seedPhrase: Joi.string().required(),
+            contractDid: Joi.string().required(),
+        })
+        .unknown(true),
+    checkLastestVersion: Joi.object()
+        .keys({
+            did: Joi.string().required(),
+            hash: Joi.string().required(),
+        })
+        .unknown(true),
 };

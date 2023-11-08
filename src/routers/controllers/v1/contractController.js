@@ -1,4 +1,3 @@
-// * Utilities
 import axios from "axios";
 import bs58 from "bs58";
 import "dotenv/config";
@@ -10,8 +9,6 @@ import RequestRepo from "../../../db/repos/requestRepo.js";
 import { REQUEST_TYPE } from "../../../rabbit/config.js";
 import schemaValidator from "../../../helpers/validator.js";
 import requestSchema from "../../../configs/schemas/request.schema.js";
-
-// * Services
 import AuthenticationService from "../../../services/Authentication.service.js";
 import CardanoService from "../../../services/Cardano.service.js";
 import DocumentService from "../../../services/Document.service.js";
@@ -42,15 +39,18 @@ export default {
                 env.NODE_ENV === "test"
                     ? "mock-access-token"
                     : await AuthenticationService().authenticationProgress();
+            const companyName = env.COMPANY_NAME;
             const response = await DocumentService(
                 accessToken
             ).createWrappedDocumentData(
                 wrappedDoc,
-                WRAPPED_DOCUMENT_TYPE.LOAN_CONTRACT
+                WRAPPED_DOCUMENT_TYPE.LOAN_CONTRACT,
+                companyName
             );
             if (response?.isExisted) {
                 return res.status(200).json(response.wrappedDocument);
             }
+            const { dataForm, fileName, did } = response;
             const { wrappedDocument } = await DocumentService(
                 accessToken
             ).issueBySignByAdmin(dataForm, companyName);
