@@ -1,18 +1,7 @@
 import { unsalt } from "../../../fuixlabs-documentor/utils/data.js";
-import { handleServerError } from "../../../configs/errors/errorHandler.js";
 import schemaValidator from "../../../helpers/validator.js";
 import requestSchema from "../../../configs/schemas/request.schema.js";
 
-/**
- * Controller for unsalting data.
- * @async
- * @function unsaltData
- * @param {Object} req - Express request object.
- * @param {Object} res - Express response object.
- * @param {Function} next - Express next middleware function.
- * @returns {Object} - Returns a JSON object with unsalted data.
- * @throws {Object} - Throws an error object with error code and message.
- */
 export default {
     unsaltData: async (req, res, next) => {
         try {
@@ -27,7 +16,7 @@ export default {
                 data: unsaltedData,
             });
         } catch (error) {
-            next(handleServerError(error));
+            next(error);
         }
     },
 };

@@ -2,7 +2,6 @@ import axios from "axios";
 import "dotenv/config";
 import logger from "../../../../logger.js";
 import RequestRepo from "../../../db/repos/requestRepo.js";
-import { handleServerError } from "../../../configs/errors/errorHandler.js";
 import { REQUEST_TYPE as RABBIT_REQUEST_TYPE } from "../../../rabbit/config.js";
 import AuthenticationService from "../../../services/Authentication.service.js";
 import CardanoService from "../../../services/Cardano.service.js";
@@ -65,7 +64,7 @@ export default {
             logger.apiInfo(req, res, `Document DID: ${did}`);
             return res.status(200).json(claimantsCredentialDids);
         } catch (error) {
-            next(handleServerError(error));
+            next(error);
         }
     },
 };

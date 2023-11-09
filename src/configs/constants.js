@@ -1,3 +1,4 @@
+import "dotenv/config";
 import { cleanEnv, port, str, url, num } from "envalid";
 
 export const env = cleanEnv(process.env, {
@@ -21,7 +22,6 @@ export const env = cleanEnv(process.env, {
     }),
     ADMIN_PUBLIC_KEY: str(),
     ADMIN_SEED_PHRASE: str(),
-    COMMONLANDS_SECRET_KEY: str(),
     ADMIN_PUBLIC_KEY: str(),
     ADMIN_PRIVATE_KEY: str(),
     RABBITMQ_PORT: port({
@@ -45,6 +45,9 @@ export const env = cleanEnv(process.env, {
     }),
     MONGO_DB_NAME: str({
         default: "backup-blockchain",
+    }),
+    SERVER_TIMEOUT: num({
+        default: 30000,
     }),
 });
 

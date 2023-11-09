@@ -1,7 +1,6 @@
 import "dotenv/config";
 import { validateDID } from "../../../utils/index.js";
 import { ERRORS } from "../../../configs/errors/error.constants.js";
-import { handleServerError } from "../../../configs/errors/errorHandler.js";
 import ControllerService from "../../../services/Controller.service.js";
 import AuthenticationService from "../../../services/Authentication.service.js";
 import CardanoService from "../../../services/Cardano.service.js";
@@ -69,7 +68,7 @@ export default {
                 data: documentContentResponse?.data?.wrappedDoc,
             });
         } catch (error) {
-            next(handleServerError(error));
+            next(error);
         }
     },
     verifyVerifiableCredential: async (req, res, next) => {
@@ -100,7 +99,7 @@ export default {
                 data: credentialContent,
             });
         } catch (error) {
-            next(handleServerError(error));
+            next(error);
         }
     },
 };

@@ -1,4 +1,5 @@
 import { ERRORS } from "../configs/errors/error.constants.js";
+import { AppError } from "../configs/errors/appError.js";
 
 export default (schema, source) => {
     try {
@@ -10,10 +11,7 @@ export default (schema, source) => {
         const message = details
             .map((i) => i.message.replace(/['"]+/g, ""))
             .join(",");
-        throw {
-            ...ERRORS.INVALID_INPUT,
-            error_detail: message,
-        };
+        throw new AppError(ERRORS.INVALID_INPUT, message);
     } catch (error) {
         throw error;
     }

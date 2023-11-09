@@ -3,8 +3,6 @@ import bs58 from "bs58";
 import "dotenv/config";
 import logger from "../../../../logger.js";
 import { validateDID } from "../../../utils/index.js";
-import { getAccountBySeedPhrase } from "../../../utils/lucid.js";
-import { createContractVerifiableCredential } from "../../../utils/credential.js";
 import RequestRepo from "../../../db/repos/requestRepo.js";
 import { REQUEST_TYPE } from "../../../rabbit/config.js";
 import schemaValidator from "../../../helpers/validator.js";
@@ -13,12 +11,12 @@ import AuthenticationService from "../../../services/Authentication.service.js";
 import CardanoService from "../../../services/Cardano.service.js";
 import DocumentService from "../../../services/Document.service.js";
 import ControllerService from "../../../services/Controller.service.js";
+import { getAccountBySeedPhrase } from "../../../utils/lucid.js";
 
 // * Constants
 import { ERRORS } from "../../../configs/errors/error.constants.js";
 import { generateDid } from "../../../fuixlabs-documentor/utils/did.js";
 import { env, WRAPPED_DOCUMENT_TYPE } from "../../../configs/constants.js";
-import { handleServerError } from "../../../configs/errors/errorHandler.js";
 
 axios.defaults.withCredentials = true;
 
@@ -72,7 +70,7 @@ export default {
                 did,
             });
         } catch (error) {
-            next(handleServerError(error));
+            next(error);
         }
     },
     getContract: async (req, res, next) => {
@@ -98,7 +96,7 @@ export default {
                 did: did,
             });
         } catch (error) {
-            next(handleServerError(error));
+            next(error);
         }
     },
     signContract: async (req, res, next) => {
@@ -141,7 +139,7 @@ export default {
                 currentWallet?.paymentKeyPub.as_bytes()
             );
             const { verifiableCredential, credentialHash } =
-                await createContractVerifiableCredential({
+                await credentialService.createContractVerifiableCredential({
                     subject: {
                         userDid,
                         contractDid: contract,
@@ -176,7 +174,7 @@ export default {
                 did: credentialDid,
             });
         } catch (error) {
-            next(handleServerError(error));
+            next(error);
         }
     },
     updateContract: async (req, res, next) => {
@@ -211,7 +209,7 @@ export default {
                 updated: true,
             });
         } catch (error) {
-            next(handleServerError(error));
+            next(error);
         }
     },
     verifyContract: async (req, res, next) => {
@@ -221,7 +219,7 @@ export default {
                 req.body
             );
         } catch (error) {
-            next(handleServerError(error));
+            next(error);
         }
     },
 };

@@ -26,6 +26,7 @@ import {
     SAMPLE_SERVICE,
     _DOCUMENT_TYPE,
 } from "../fuixlabs-documentor/constants/type.js";
+import { AppError } from "../configs/errors/appError.js";
 
 const adminSeedPhrase = env.ADMIN_SEED_PHRASE;
 
@@ -72,12 +73,12 @@ const wrapDocumentData = async ({
                     } else {
                         let lengthVar = checkRequirementOfInput(currentField);
                         if (!lengthVar?.valid) {
-                            throw {
+                            throw new AppError({
                                 error_code: 400,
                                 error_message: `${
                                     lengthVar?._key || key
                                 } is required! Please check your input again!`,
-                            };
+                            });
                         }
                     }
                     if (key !== "did")
@@ -164,6 +165,7 @@ const DocumentService = (accessToken) => {
                 throw error;
             }
         },
+
         async createWrappedDocumentData(data, type, companyName) {
             try {
                 switch (type) {
@@ -260,6 +262,7 @@ const DocumentService = (accessToken) => {
                 throw error;
             }
         },
+
         async getEndorsementChainByDid(did) {
             try {
                 const documentContentResponse = await ControllerService(
@@ -318,6 +321,7 @@ const DocumentService = (accessToken) => {
                 error;
             }
         },
+
         async checkLastestCertificate(currentHash, endorsementChain) {
             try {
                 const requireField = "timestamp";

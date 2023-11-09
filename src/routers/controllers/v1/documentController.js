@@ -1,10 +1,8 @@
 import axios from "axios";
 import "dotenv/config";
 import { validateDID } from "../../../utils/index.js";
-import { createClaimantVerifiableCredential } from "../../../utils/credential.js";
 import logger from "../../../../logger.js";
 import RequestRepo from "../../../db/repos/requestRepo.js";
-import { handleServerError } from "../../../configs/errors/errorHandler.js";
 import { REQUEST_TYPE as RABBIT_REQUEST_TYPE } from "../../../rabbit/config.js";
 import ControllerService from "../../../services/Controller.service.js";
 import AuthenticationService from "../../../services/Authentication.service.js";
@@ -45,7 +43,7 @@ export default {
                 did: did,
             });
         } catch (error) {
-            next(handleServerError(error));
+            next(error);
         }
     },
     createPlotCertification: async (req, res, next) => {
@@ -96,7 +94,7 @@ export default {
             logger.apiInfo(req, res, `Document DID: ${did}`);
             return res.status(200).json(claimantsCredentialDids);
         } catch (error) {
-            next(handleServerError(error));
+            next(error);
         }
     },
     updatePlotCertification: async (req, res, next) => {
@@ -168,7 +166,7 @@ export default {
             });
             return res.status(200).json(claimantsCredentialDids);
         } catch (error) {
-            next(handleServerError(error));
+            next(error);
         }
     },
     revokePlotCertification: async (req, res, next) => {
@@ -207,7 +205,7 @@ export default {
                 success: true,
             });
         } catch (error) {
-            next(handleServerError(error));
+            next(error);
         }
     },
     checkLastestVersion: async (req, res, next) => {
@@ -230,7 +228,7 @@ export default {
             ).checkLastestCertificate(hash, endorsementChain);
             return res.status(200).json(isLastest);
         } catch (error) {
-            next(handleServerError(error));
+            next(error);
         }
     },
     addClaimantToCertificate: async (req, res, next) => {
@@ -246,7 +244,7 @@ export default {
             const plotId = plotDid.split(":")[3].split("-")[1];
             const companyName = env.COMPANY_NAME;
             const { verifiableCredential, credentialHash, did } =
-                await createClaimantVerifiableCredential({
+                await credentialService.createClaimantVerifiableCredential({
                     subject: {
                         claims: {
                             plot: plotId,
@@ -282,7 +280,7 @@ export default {
                 did,
             });
         } catch (error) {
-            next(handleServerError(error));
+            next(error);
         }
     },
 };

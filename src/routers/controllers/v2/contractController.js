@@ -11,7 +11,6 @@ import DocumentService from "../../../services/Document.service.js";
 
 // * Constants
 import { env, WRAPPED_DOCUMENT_TYPE } from "../../../configs/constants.js";
-import { handleServerError } from "../../../configs/errors/errorHandler.js";
 
 axios.defaults.withCredentials = true;
 
@@ -66,7 +65,7 @@ export default {
                 did,
             });
         } catch (error) {
-            next(handleServerError(error));
+            next(error);
         }
     },
 };

@@ -139,7 +139,7 @@ export const ResolverConsumer = async () => {
                         type,
                         id,
                         retryCount,
-                        retryAfter
+                        retryAfter,
                     });
                     return;
                 }
