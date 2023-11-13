@@ -1,6 +1,5 @@
 import axios from "axios";
 import "dotenv/config";
-import logger from "../../../../logger.js";
 import RequestRepo from "../../../db/repos/requestRepo.js";
 import { REQUEST_TYPE } from "../../../rabbit/config.js";
 import schemaValidator from "../../../helpers/validator.js";
@@ -11,6 +10,7 @@ import DocumentService from "../../../services/Document.service.js";
 
 // * Constants
 import { env, WRAPPED_DOCUMENT_TYPE } from "../../../configs/constants.js";
+import wrappedDocumentSchema from "../../../configs/schemas/wrappedDocument.schema.js";
 
 axios.defaults.withCredentials = true;
 
@@ -23,7 +23,6 @@ axios.defaults.withCredentials = true;
 export default {
     createContract: async (req, res, next) => {
         try {
-            logger.apiInfo(req, res, "Request API: Create Contract!");
             const { wrappedDoc, metadata } = schemaValidator(
                 requestSchema.createContract,
                 req.body
@@ -43,7 +42,11 @@ export default {
             if (response?.isExisted) {
                 return res.status(200).json(response.wrappedDocument);
             }
-            const { dataForm, did, fileName } = response;
+            const { dataForm, did } = response;
+            schemaValidator(
+                wrappedDocumentSchema.dataForIssueDocument,
+                dataForm
+            )
             const { wrappedDocument } = await DocumentService(
                 accessToken
             ).issueBySignByAdmin(dataForm, companyName);
@@ -60,7 +63,6 @@ export default {
                 id: request._id,
                 type: "document",
             });
-            logger.apiInfo(req, res, `Document ${fileName} created!`);
             return res.status(200).json({
                 did,
             });

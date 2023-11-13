@@ -1,6 +1,5 @@
 import axios from "axios";
 import "dotenv/config";
-import logger from "../../../../logger.js";
 import RequestRepo from "../../../db/repos/requestRepo.js";
 import { REQUEST_TYPE as RABBIT_REQUEST_TYPE } from "../../../rabbit/config.js";
 import AuthenticationService from "../../../services/Authentication.service.js";
@@ -11,13 +10,13 @@ import schemaValidator from "../../../helpers/validator.js";
 // * Constants
 import { env, WRAPPED_DOCUMENT_TYPE } from "../../../configs/constants.js";
 import requestSchema from "../../../configs/schemas/request.schema.js";
+import wrappedDocumentSchema from "../../../configs/schemas/wrappedDocument.schema.js";
 
 axios.defaults.withCredentials = true;
 
 export default {
     createPlotCertification: async (req, res, next) => {
         try {
-            logger.apiInfo(req, res, `API Request: Create Plot Certification`);
             const { plot, status } = schemaValidator(
                 requestSchema.createCertificateForPlot,
                 req.body
@@ -38,6 +37,10 @@ export default {
                 return res.status(200).json(response.wrappedDocument);
             }
             const { dataForm, did } = response;
+            schemaValidator(
+                wrappedDocumentSchema.dataForIssueDocument,
+                dataForm
+            );
             const { wrappedDocument } = await DocumentService(
                 accessToken
             ).issueBySignByAdmin(dataForm, companyName);
@@ -61,7 +64,6 @@ export default {
                 hash: wrappedDocument?.signature?.targetHash,
                 id: request._id,
             });
-            logger.apiInfo(req, res, `Document DID: ${did}`);
             return res.status(200).json(claimantsCredentialDids);
         } catch (error) {
             next(error);

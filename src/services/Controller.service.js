@@ -1,6 +1,6 @@
 import dotenv from "dotenv";
+import { splitDid } from "../utils/index.js";
 import { handleServiceError } from "../configs/errors/errorHandler.js";
-import { validateDIDSyntax } from "../utils/index.js";
 import { env } from "../configs/constants.js";
 import axios from "axios";
 
@@ -12,12 +12,13 @@ dotenv.config();
  * @returns {Object} An object with methods for interacting with the DID controller API.
  */
 const ControllerService = (accessToken) => {
+    const controllerUrl = env.DID_CONTROLLER;
     const corsConfig = {
         headers: {
             Cookie: `access_token=${accessToken};`,
         },
     };
-    const controllerUrl = env.DID_CONTROLLER;
+
     return {
         async storeCredentials({ payload }) {
             return new Promise((resolve, reject) => {
@@ -75,12 +76,7 @@ const ControllerService = (accessToken) => {
 
         async getDocumentContent({ did }) {
             return new Promise((resolve, reject) => {
-                const validDid = validateDIDSyntax(did, false),
-                    companyName = validDid?.companyName,
-                    fileName = validDid?.fileNameOrPublicKey;
-                if (!validDid.valid) {
-                    reject(ERRORS.INVALID_INPUT);
-                }
+                const { fileName, companyName } = splitDid(did);
                 axios
                     .get(controllerUrl + "/api/v2/doc", {
                         ...corsConfig,
@@ -94,18 +90,15 @@ const ControllerService = (accessToken) => {
                         handleServiceError(response);
                         resolve(response);
                     })
-                    .catch((error) => reject(error));
+                    .catch((error) => {
+                        reject(error)
+                    });
             });
         },
 
         async getDocumentDid({ did }) {
             return new Promise((resolve, reject) => {
-                const validDid = validateDIDSyntax(did, false),
-                    companyName = validDid?.companyName,
-                    fileName = validDid?.fileNameOrPublicKey;
-                if (!validDid.valid) {
-                    reject(ERRORS.INVALID_INPUT);
-                }
+                const { fileName, companyName } = splitDid(did);
                 axios
                     .get(controllerUrl + "/api/v2/doc", {
                         ...corsConfig,
@@ -134,14 +127,14 @@ const ControllerService = (accessToken) => {
                         handleServiceError(response);
                         resolve(response);
                     })
-                    .catch((error) => reject(error));
+                    .catch((error) => {
+                        reject(error)
+                    });
             });
         },
 
         async updateDocumentDid({ did, didDoc }) {
-            const didComponents = did.split(":");
-            const companyName = didComponents[2];
-            const fileName = didComponents[3];
+            const { fileName, companyName } = splitDid(did);
             return new Promise((resolve, reject) => {
                 axios
                     .put(

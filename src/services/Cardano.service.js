@@ -25,27 +25,6 @@ const CardanoService = (accessToken) => {
     };
 
     return {
-        async storeCredentials({ credentialHash, mintingConfig }) {
-            return new Promise((resolve, reject) => {
-                axios
-                    .post(
-                        serverUrl + "/api/v2/credential-random",
-                        {
-                            config: mintingConfig,
-                            credential: credentialHash,
-                        },
-                        corsConfig
-                    )
-                    .then((response) => {
-                        handleServiceError(response);
-                        resolve(response);
-                    })
-                    .catch((error) => {
-                        reject(error);
-                    });
-            });
-        },
-
         async burnToken({ mintingConfig, skipWait = false, id }) {
             return await CardanoProducer({
                 data: {
@@ -59,23 +38,6 @@ const CardanoService = (accessToken) => {
             });
         },
 
-        async burnAllRelatedToken({ mintingConfig }) {
-            return new Promise((resolve, reject) => {
-                axios
-                    .delete(serverUrl + "/api/v2/hash", {
-                        ...corsConfig,
-                        data: { config: mintingConfig, burnAll: true },
-                    })
-                    .then((response) => {
-                        handleServiceError(response);
-                        resolve(response);
-                    })
-                    .catch((error) => {
-                        reject(error);
-                    });
-            });
-        },
-
         async verifyCardanoNft({ hashOfDocument, policyId }) {
             let query = { policyId };
             if (hashOfDocument) {
@@ -86,7 +48,7 @@ const CardanoService = (accessToken) => {
                     .post(serverUrl + "/api/v2/fetch/nft", query, corsConfig)
                     .then((response) => {
                         handleServiceError(response);
-                        resolve(response);
+                        resolve(response.data);
                     })
                     .catch((error) => {
                         reject(error);
@@ -169,46 +131,6 @@ const CardanoService = (accessToken) => {
                 },
                 type: REQUEST_TYPE.CARDANO_SERVICE.updateToken,
                 id,
-            });
-        },
-
-        async getEndorsementChain({ policyId }) {
-            return new Promise((resolve, reject) => {
-                axios
-                    .post(
-                        serverUrl + "/api/v2/fetch/nft",
-                        {
-                            policyId,
-                        },
-                        corsConfig
-                    )
-                    .then((response) => {
-                        handleServiceError(response);
-                        resolve(response);
-                    })
-                    .catch((error) => {
-                        reject(error);
-                    });
-            });
-        },
-
-        async getToken({ policyId }) {
-            return new Promise((resolve, reject) => {
-                axios
-                    .post(
-                        serverUrl + "/api/v2/fetch/nft",
-                        {
-                            policyId,
-                        },
-                        corsConfig
-                    )
-                    .then((response) => {
-                        handleServiceError(response);
-                        resolve(response);
-                    })
-                    .catch((error) => {
-                        reject(error);
-                    });
             });
         },
     };

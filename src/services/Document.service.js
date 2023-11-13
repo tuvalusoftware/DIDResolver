@@ -1,5 +1,3 @@
-import schemaValidator from "../helpers/validator.js";
-import wrappedDocumentSchema from "../configs/schemas/wrappedDocument.schema.js";
 import { getAccountBySeedPhrase } from "../utils/lucid.js";
 import { getPublicKeyFromAddress, getCurrentDateTime } from "../utils/index.js";
 import ControllerService from "./Controller.service.js";
@@ -27,6 +25,7 @@ import {
     _DOCUMENT_TYPE,
 } from "../fuixlabs-documentor/constants/type.js";
 import { AppError } from "../configs/errors/appError.js";
+import { ERRORS } from "../configs/errors/error.constants.js";
 
 const adminSeedPhrase = env.ADMIN_SEED_PHRASE;
 
@@ -137,12 +136,29 @@ const wrapDocumentData = async ({
 
 const DocumentService = (accessToken) => {
     return {
+        generateFileNameForDocument(data, type) {
+            const response = {
+                fileName: "",
+            };
+            switch (type) {
+                case WRAPPED_DOCUMENT_TYPE.LOAN_CONTRACT: {
+                    const fileName = `LoanContract_${data._id || data.id}`;
+                    response.fileName = fileName;
+                    break;
+                }
+                case WRAPPED_DOCUMENT_TYPE.PLOT_CERTIFICATE: {
+                    const fileName = `PlotCertification-${data?._id}`;
+                    response.fileName = fileName;
+                    break;
+                }
+                default:
+                    throw new AppError(ERRORS.INVALID_INPUT);
+            }
+            return response;
+        },
+
         async issueBySignByAdmin(issueData, companyName) {
             try {
-                schemaValidator(
-                    wrappedDocumentSchema.dataForIssueDocument,
-                    issueData
-                );
                 const { currentWallet, lucidClient } =
                     await getAccountBySeedPhrase({
                         seedPhrase: env.ADMIN_SEED_PHRASE,
@@ -166,97 +182,47 @@ const DocumentService = (accessToken) => {
             }
         },
 
-        async createWrappedDocumentData(data, type, companyName) {
+        async createWrappedDocumentData(fileName, data, type) {
             try {
+                const currentDate = getCurrentDateTime();
                 switch (type) {
                     case WRAPPED_DOCUMENT_TYPE.LOAN_CONTRACT: {
-                        const fileName = `LoanContract_${data._id || data.id}`;
-                        const isExistedResponse = await ControllerService(
-                            accessToken
-                        ).isExisted({
-                            companyName,
-                            fileName,
-                        });
-                        const did = generateDid(companyName, fileName);
-                        if (isExistedResponse?.data?.isExisted) {
-                            const getDocumentResponse = await ControllerService(
-                                accessToken
-                            ).getDocumentContent({
-                                did,
-                            });
-                            const document =
-                                getDocumentResponse?.data?.wrappedDoc;
-                            return {
-                                isExisted: true,
-                                wrappedDocument: document,
-                            };
-                        }
                         const dataForm = {
                             fileName,
                             name: WRAPPED_DOCUMENT_TYPE.LOAN_CONTRACT,
-                            title: `${WRAPPED_DOCUMENT_TYPE.LOAN_CONTRACT}-${data?._id}`,
-                            dateIssue: getCurrentDateTime(),
+                            title: `${WRAPPED_DOCUMENT_TYPE.LOAN_CONTRACT}-${data._id}`,
+                            dateIssue: currentDate,
                         };
                         return {
                             dataForm,
-                            companyName,
-                            did,
-                            fileName,
                         };
                     }
                     case WRAPPED_DOCUMENT_TYPE.PLOT_CERTIFICATE: {
-                        const fileName = `PlotCertification-${data?._id}`;
-                        const isExistedResponse = await ControllerService(
-                            accessToken
-                        ).isExisted({
-                            companyName,
-                            fileName,
-                        });
-                        const did = generateDid(companyName, fileName);
-                        if (isExistedResponse?.data?.isExisted) {
-                            const getDocumentResponse = await ControllerService(
-                                accessToken
-                            ).getDocumentContent({
-                                did,
-                            });
-                            const document =
-                                getDocumentResponse?.data?.wrappedDoc;
-                            return {
-                                isExisted: true,
-                                wrappedDocument: document,
-                            };
-                        }
-                        let dataForm = {
+                        const dataForm = {
                             fileName: fileName,
                             name: WRAPPED_DOCUMENT_TYPE.PLOT_CERTIFICATE,
-                            title: `${WRAPPED_DOCUMENT_TYPE.PLOT_CERTIFICATE}-${data?.name}`,
-                            dateIssue: getCurrentDateTime(),
+                            title: `${WRAPPED_DOCUMENT_TYPE.PLOT_CERTIFICATE}-${data.name}`,
+                            dateIssue: currentDate,
                             plotInformation: {
-                                plotName: data?.name,
-                                plotId: data?.id,
-                                plot_Id: data?._id,
-                                plotStatus: data?.status,
-                                plotLocation: data?.placeName,
-                                plotCoordinates: data?.centroid?.join(","),
-                                plotNeighbors: data?.neighbors?.length,
-                                plotDisputes: data?.disputes?.length,
+                                plotName: data.name,
+                                plotId: data.id,
+                                plot_Id: data._id,
+                                plotStatus: data.status,
+                                plotLocation: data.placeName,
+                                plotCoordinates: data.centroid.join(","),
+                                plotNeighbors: data.neighbors.length,
+                                plotDisputes: data.disputes.length,
                             },
                         };
-                        if (data?.status) {
-                            dataForm = {
-                                ...dataForm,
-                                status: data?.status,
-                            };
+                        if (data.status) {
+                            Object.assign(dataForm, {status: data.status})
                         }
                         return {
                             dataForm,
-                            companyName,
-                            did,
-                            fileName,
                         };
                     }
                     default:
-                        throw new Error("Invalid type");
+                        throw new AppError(ERRORS.INVALID_INPUT);
                 }
             } catch (error) {
                 throw error;
@@ -273,10 +239,7 @@ const DocumentService = (accessToken) => {
                 if (
                     !documentContentResponse?.data?.wrappedDoc?.mintingNFTConfig
                 ) {
-                    throw {
-                        ...ERRORS.CANNOT_UPDATE_DOCUMENT_INFORMATION,
-                        detail: "Cannot get minting config from document",
-                    };
+                    throw new AppError(ERRORS.CANNOT_UPDATE_DOCUMENT_INFORMATION, "Cannot get minting config from document")
                 }
                 const policyId =
                     documentContentResponse?.data?.wrappedDoc?.mintingNFTConfig

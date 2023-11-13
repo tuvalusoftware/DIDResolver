@@ -18,5 +18,6 @@ export const REQUEST_TYPE = {
         createClaimantCredential: "create-claimant-credential",
         updatePlot: "update-plot",
         deletePlot: "delete-plot",
+        addClaimantToPlot: "add-claimant-to-plot",
     },
 };

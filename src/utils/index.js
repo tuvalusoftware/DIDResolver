@@ -9,77 +9,37 @@ dotenv.config();
 const companyName = env.COMPANY_NAME;
 const devCompanyName = env.DEV_COMPANY_NAME;
 
-/**
- * Function used for validating DID syntax
- * @param {String} did - DID to be validated
- * @param {*} isSalted - true if did is salted, false otherwise
- * @returns {Object} - { valid: Boolean, detail: String }
- */
-const validateDIDSyntax = (did, isSalted) => {
-    if (!did) {
-        return { valid: false, detail: "Undefined did." };
-    }
-    const maxLength = isSalted ? 6 : 4;
-    const didPosition = isSalted ? 2 : 0;
+function splitDid(did) {
     const didComponents = did.split(":");
-
-    if (
-        didComponents.length < maxLength ||
-        didComponents[didPosition] !== "did"
-    ) {
-        return { valid: false };
-    }
     return {
-        valid: true,
-        companyName: didComponents[didPosition + 2],
-        fileNameOrPublicKey: didComponents[didPosition + 3],
-    };
-};
-
-/**
- * Function used for validating DID syntax
- * @param {String} did - DID to be validated
- * @returns {Object} - { valid: Boolean, detail: String }
- */
-const validateDID = (did) => {
-    if (!did) {
-        return { valid: false, detail: "Undefined did." };
-    }
-    const didComponents = did.split(":");
-
-    if (didComponents.length < 4 || didComponents[0] !== "did") {
-        return { valid: false };
-    }
-    return {
-        valid: true,
         companyName: didComponents[2],
-        fileNameOrPublicKey: didComponents[3],
+        fileName: didComponents[3],
     };
-};
+}
 
 /**
  * Function used to get address from hex encoded address
  * @param {String} hexAddress - hex encoded address
  * @returns {String} - bech32 address
  */
-const getAddressFromHexEncoded = (hexAddress) => {
+function getAddressFromHexEncoded(hexAddress) {
     const address = cardanoSerialization.Address.from_bytes(
         Buffer.from(hexAddress, "hex")
     ).to_bech32();
 
     return address;
-};
+}
 
 /**
  * Function used for getting public key from bech32 address
  * @param {String} bech32Address - bech32 address
  * @returns {String} - public key
  */
-const getPublicKeyFromAddress = (bech32Address) => {
+function getPublicKeyFromAddress(bech32Address) {
     const address = cardanoSerialization.Address.from_bech32(bech32Address);
     const publicKey = Buffer.from(address.to_bytes(), "hex").toString("hex");
     return publicKey;
-};
+}
 
 /**
  * Function used for validating JSON schema
@@ -87,20 +47,20 @@ const getPublicKeyFromAddress = (bech32Address) => {
  * @param {Object} object - object to be validated
  * @returns {Object} - { valid: Boolean, detail: String }
  */
-const validateJSONSchema = (rawSchema, object) => {
+function validateJSONSchema(rawSchema, object) {
     const schema = (({ example, ...props }) => props)(rawSchema);
     const ajv = new Ajv();
     const validate = ajv.compile(schema);
     const valid = validate(object);
     return valid ? { valid } : { valid, detail: validate.errors };
-};
+}
 
 /**
  * Function used for checking if there is any special character in strings
  * @param {String} strings - strings to be checked
  * @returns {Object} - { valid: Boolean, string: String }
  */
-const checkForSpecialChar = (strings) => {
+function checkForSpecialChar(strings) {
     const specialChars = `\`!@#$%^&*()+\-=\[\]{};':"\\|,.<>\/?~`;
     for (const index in strings) {
         let result = specialChars.split("").some((specialChar) => {
@@ -119,7 +79,7 @@ const checkForSpecialChar = (strings) => {
     return {
         valid: true,
     };
-};
+}
 
 /**
  * Function used for checking if two error objects are the same
@@ -127,18 +87,18 @@ const checkForSpecialChar = (strings) => {
  * @param {Object} errorObj - error object
  * @returns {Boolean} - true if two error objects are the same, false otherwise
  */
-const isSameError = (obj, errorObj) => {
+function isSameError(obj, errorObj) {
     return obj.error_code === errorObj.error_code &&
         obj.error_message === errorObj.error_message
         ? true
         : false;
-};
+}
 
 /**
  * Function used for getting current date time
  * @returns {String} - current date time
  */
-const getCurrentDateTime = () => {
+function getCurrentDateTime() {
     const now = new Date();
     const year = now.getFullYear();
     const month = (now.getMonth() + 1).toString().padStart(2, "0");
@@ -148,7 +108,7 @@ const getCurrentDateTime = () => {
     const seconds = now.getSeconds().toString().padStart(2, "0");
     const formattedDateTime = `${year}-${month}-${day} ${hours}:${minutes}:${seconds}`;
     return formattedDateTime;
-}; // TODO - Write unit-test
+} // TODO - Write unit-test
 
 /**
  * Function used for generating random string with given seed and length
@@ -156,7 +116,7 @@ const getCurrentDateTime = () => {
  * @param {Number} length - length of random string
  * @returns {String} - random string
  */
-const generateRandomString = (seed, length) => {
+function generateRandomString(seed, length) {
     const hash = crypto.createHash("sha256");
     hash.update(seed);
     const seedHash = hash.digest("hex");
@@ -166,25 +126,25 @@ const generateRandomString = (seed, length) => {
         result += seedHash.charAt(randomIndex);
     }
     return result;
-};
+}
 
 /**
  * Function used for spiting camel case string
  * @param {String} input - string to be split
  * @returns {String} - string after split
  */
-const splitCamelCase = (input) => {
+function splitCamelCase(input) {
     return _.startCase(input).replace(/([a-z])([A-Z])/g, "$1 $2");
-};
+}
 
 /**
  * Function used for getting DID by components
  * @param {String} didComponents - DID components
  * @returns {String} - DID {did}:{env.DEV_COMPANY_NAME}:{companyName}:{fileNameOrPublicKey
  */
-const getDidByComponents = (didComponents) => {
+function getDidByComponents(didComponents) {
     return `did:${env.DEV_COMPANY_NAME}:${didComponents}`;
-};
+}
 
 /**
  * Function used to determine whether a particular field exists in all objects of the input array or not, making it a valuable tool for checking data consistency within an array of objects.
@@ -192,14 +152,14 @@ const getDidByComponents = (didComponents) => {
  * @param {String} field - field to be checked
  * @returns {Boolean} - true if the field is present in all objects, false otherwise
  */
-const requireFieldInArray = (array, field) => {
+function requireFieldInArray(array, field) {
     for (const obj of array) {
         if (!obj.hasOwnProperty(field)) {
             return false; // If the field is missing in any object, return false
         }
     }
     return true; // If the field is present in all objects, return true
-};
+}
 
 /**
  * Converts a string to a bytes32 representation.
@@ -207,7 +167,7 @@ const requireFieldInArray = (array, field) => {
  * @returns {string} The bytes32 representation of the input string.
  * @throws {Error} If the input string is longer than 32 bytes.
  */
-const stringToBytes32 = (input) => {
+function stringToBytes32(input) {
     // Ensure the input is not longer than 32 bytes
     if (input.length > 32) {
         throw new Error("Input string is too long for bytes32");
@@ -223,24 +183,18 @@ const stringToBytes32 = (input) => {
     utf8Bytes.copy(bytes32);
 
     return "0x" + bytes32.toString("hex");
-};
+}
 
 /**
  * Generates a random DID (Decentralized Identifier) using a specific ID and a chosen DID method.
  * @function
  * @returns {string} The generated DID.
  */
-const generateRandomDID = () => {
-    // Generate a random specific ID (for example, using Math.random())
+function generateRandomDID() {
     const randomSpecificId = Math.random().toString(36).substring(2, 10);
-
-    // Choose a DID method (you can replace this with your desired method)
-
-    // Combine the method and specific ID to create the DID
     const did = `did:${devCompanyName}:${companyName}:${randomSpecificId}`;
-
     return did;
-};
+}
 
 /**
  * Replaces an object key with a new key.
@@ -249,7 +203,7 @@ const generateRandomDID = () => {
  * @param {string} newKey - The new key to use.
  * @returns {Object} A new object with the old key removed and the new key added, or the original object if the old key doesn't exist.
  */
-const replaceKey = (obj, oldKey, newKey) => {
+function replaceKey(obj, oldKey, newKey) {
     if (obj.hasOwnProperty(oldKey)) {
         // Create a new object with the old key removed and the new key added
         const newObj = { ...obj, [newKey]: obj[oldKey] };
@@ -260,7 +214,7 @@ const replaceKey = (obj, oldKey, newKey) => {
         // If the old key doesn't exist in the object, return the original object
         return obj;
     }
-};
+}
 
 /**
  * Encrypts the given data using the provided security key.
@@ -268,7 +222,7 @@ const replaceKey = (obj, oldKey, newKey) => {
  * @param {string} securityKey - The security key to use for encryption.
  * @returns {string} - The encrypted data in hexadecimal format.
  */
-const encryptData = (data, securityKey) => {
+function encryptData(data, securityKey) {
     const algorithm = "aes-256-cbc";
     const initVector = crypto.randomBytes(16);
     const cipher = crypto.createCipheriv(algorithm, securityKey, initVector);
@@ -279,7 +233,7 @@ const encryptData = (data, securityKey) => {
     let encryptedData = cipher.update(data, "utf-8", "hex");
     encryptedData += cipher.final("hex");
     return encryptedData;
-}; // TODO - Write unit-test
+} // TODO - Write unit-test
 
 /**
  * Decrypts the given data using the provided security key.
@@ -287,7 +241,7 @@ const encryptData = (data, securityKey) => {
  * @param {string} securityKey - The security key to use for decryption.
  * @returns {string} The decrypted data.
  */
-const decryptData = (data, securityKey) => {
+function decryptData(data, securityKey) {
     const algorithm = "aes-256-cbc";
     const initVector = crypto.randomBytes(16);
     const cipher = crypto.createCipheriv(algorithm, securityKey, initVector);
@@ -310,12 +264,11 @@ const decryptData = (data, securityKey) => {
 
     decryptedData += decipher.final("utf8");
     return decryptedData;
-}; // TODO - Write unit-test
+} // TODO - Write unit-test
 
 export {
     decryptData,
     encryptData,
-    validateDIDSyntax,
     getAddressFromHexEncoded,
     getPublicKeyFromAddress,
     validateJSONSchema,
@@ -324,10 +277,10 @@ export {
     getCurrentDateTime,
     generateRandomString,
     splitCamelCase,
-    validateDID,
     getDidByComponents,
     requireFieldInArray,
     generateRandomDID,
     replaceKey,
     stringToBytes32,
+    splitDid
 };

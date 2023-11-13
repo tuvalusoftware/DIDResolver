@@ -14,7 +14,9 @@ export default {
         .unknown(true),
     signContractWithClaimant: Joi.object()
         .keys({
-            contract: Joi.string().required(),
+            contract: Joi.string()
+                .required()
+                .regex(/^did:[A-Za-z0-9_]+:[A-Za-z0-9.\-:_ ]+$/),
             role: Joi.string().required(),
             claimant: Joi.object()
                 .keys({
@@ -37,14 +39,20 @@ export default {
         })
         .unknown(true),
     revokeCertificateForPlot: Joi.object().keys({
-        did: Joi.string().required(),
+        did: Joi.string()
+            .required()
+            .regex(/^did:[A-Za-z0-9_]+:[A-Za-z0-9.\-:_ ]+$/),
     }),
     addClaimantToPlot: Joi.object()
         .keys({
-            plotDid: Joi.string().required(),
+            plotDid: Joi.string()
+                .required()
+                .regex(/^did:[A-Za-z0-9_]+:[A-Za-z0-9.\-:_ ]+$/),
             claimant: Joi.object()
                 .keys({
-                    did: Joi.string().required(),
+                    did: Joi.string()
+                        .required()
+                        .regex(/^did:[A-Za-z0-9_]+:[A-Za-z0-9.\-:_ ]+$/),
                     role: Joi.string().required(),
                 })
                 .unknown(true),
@@ -56,11 +64,15 @@ export default {
         })
         .unknown(true),
     verifyCertificate: Joi.object().keys({
-        did: Joi.string().required(),
+        did: Joi.string()
+            .required()
+            .regex(/^did:[A-Za-z0-9_]+:[A-Za-z0-9.\-:_ ]+$/),
     }),
     updateContract: Joi.object()
         .keys({
-            did: Joi.string().required(),
+            did: Joi.string()
+                .required()
+                .regex(/^did:[A-Za-z0-9_]+:[A-Za-z0-9.\-:_ ]+$/),
             metadata: Joi.object().optional().unknown(true),
         })
         .unknown(true),
@@ -72,8 +84,15 @@ export default {
         .unknown(true),
     checkLastestVersion: Joi.object()
         .keys({
-            did: Joi.string().required(),
+            did: Joi.string()
+                .required()
+                .regex(/^did:[A-Za-z0-9_]+:[A-Za-z0-9.\-:_ ]+$/),
             hash: Joi.string().required(),
         })
         .unknown(true),
+    did: Joi.object().keys({
+        did: Joi.string()
+            .required()
+            .regex(/^did:[A-Za-z0-9_]+:[A-Za-z0-9.\-:_ ]+$/),
+    }),
 };

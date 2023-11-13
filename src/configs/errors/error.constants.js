@@ -1,4 +1,4 @@
-export const ERRORS = {
+const ERRORS = {
     MISSING_PARAMETERS: {
         error_code: 4001,
         error_message: "Bad request. Missing parameters.",
@@ -169,3 +169,7 @@ export const ERRORS = {
         error_message: "Internal server error.",
     },
 };
+
+export {
+    ERRORS
+}

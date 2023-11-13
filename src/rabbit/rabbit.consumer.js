@@ -240,6 +240,30 @@ export const ResolverConsumer = async () => {
                         response = cardanoResponse?.data;
                         break;
                     }
+                    case REQUEST_TYPE.MINTING_TYPE.addClaimantToPlot: {
+                        try {
+                            logger.info("add claimant to plot certificate...");
+                            const {
+                                credential,
+                                verifiedCredential,
+                                companyName,
+                            } = requestData?.data;
+                            const _verifiedCredential = await RabbitRepository(
+                                accessToken
+                            ).createClaimantCredential({
+                                credentialHash: credential,
+                                companyName,
+                                verifiedCredential,
+                            });
+                            response = {
+                                ...cardanoResponse?.data,
+                                verifiedCredential: _verifiedCredential,
+                            };
+                        } catch (error) {
+                            logger.error(error);
+                        }
+                        break;
+                    }
                     default: {
                         break;
                     }

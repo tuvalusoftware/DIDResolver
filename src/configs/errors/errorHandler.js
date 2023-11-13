@@ -7,9 +7,11 @@ import { AppError } from "./appError.js";
  * @param {Object} response - The response object from the service.
  * @returns {Promise} A promise that resolves with the response or rejects with the error object.
  */
-export const handleServiceError = (response) => {
+function handleServiceError(response) {
     if (response.data?.error_code) {
         throw new AppError(response.data);
     }
     return response;
-};
+}
+
+export { handleServiceError };
