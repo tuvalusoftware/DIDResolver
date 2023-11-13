@@ -3,8 +3,8 @@ import chaiHttp from "chai-http";
 import nock from "nock";
 
 import server from "../../server.js";
-import { ERRORS } from "../../src/config/errors/error.constants.js";
-import { env } from "../../src/config/constants.js";
+import { ERRORS } from "../../src/configs/errors/error.constants.js";
+import { env } from "../../src/configs/constants.js";
 import { CONTROLLER_RESPONSE, CARDANO_RESPONSES } from "../mockData.js";
 
 chai.use(chaiHttp);

@@ -1,4 +1,4 @@
-export const ERRORS = {
+const ERRORS = {
     MISSING_PARAMETERS: {
         error_code: 4001,
         error_message: "Bad request. Missing parameters.",
@@ -163,5 +163,13 @@ export const ERRORS = {
     DOCUMENT_IS_NOT_LASTEST_VERSION: {
         error_code: 4040,
         error_message: "Document is not lastest version!",
-    }
+    },
+    INTERNAL_SERVER_ERROR: {
+        error_code: 5001,
+        error_message: "Internal server error.",
+    },
 };
+
+export {
+    ERRORS
+}

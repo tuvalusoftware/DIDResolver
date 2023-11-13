@@ -16,13 +16,6 @@ dotenv.config();
 const AuthenticationService = () => {
     const serverUrl = env.AUTHENTICATION_SERVICE;
 
-    /**
-     * Get random number encryption from server.
-     * @async
-     * @function getRandomNumberEncryption
-     * @returns {Promise<string>} Promise object representing the random number encryption.
-     * @throws {Error} If there is an error while getting random number from server.
-     */
     async function getRandomNumberEncryption() {
         return new Promise((resolve, reject) => {
             axios
@@ -43,19 +36,6 @@ const AuthenticationService = () => {
         });
     }
 
-    /**
-     * Get authentication token from server.
-     * @async
-     * @function getAuthenticationToken
-     * @param {Object} params - The parameters for getting authentication token.
-     * @param {string} params.randomNumber - The random number.
-     * @param {string} params.timestamp - The timestamp.
-     * @param {string} params.signedData - The signed data.
-     * @param {string} params.address - The address.
-     * @param {string} params.accessToken - The access token.
-     * @returns {Promise<string>} Promise object representing the authentication token.
-     * @throws {Error} If there is an error while getting authentication token from server.
-     */
     async function getAuthenticationToken({
         randomNumber,
         timestamp,
@@ -92,12 +72,6 @@ const AuthenticationService = () => {
     }
 
     return {
-        /**
-         * Get authentication progress.
-         * @async
-         * @function authenticationProgress
-         * @returns {Promise<string>} Promise object representing the authentication progress.
-         */
         async authenticationProgress() {
             const randomNumberEncryption = await getRandomNumberEncryption();
             const decodedData = jwt_decode(

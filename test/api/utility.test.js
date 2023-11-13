@@ -1,7 +1,7 @@
 import chai from "chai";
 import chaiHttp from "chai-http";
-import { ERRORS } from "../../src/config/errors/error.constants.js";
 import server from "../../server.js";
+import { ERRORS } from "../../src/configs/errors/error.constants.js";
 
 let should = chai.should();
 let expect = chai.expect;

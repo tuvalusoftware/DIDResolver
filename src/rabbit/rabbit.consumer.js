@@ -132,13 +132,14 @@ export const ResolverConsumer = async () => {
                 if (cardanoResponse?.error_code) {
                     resolverSender.ack(msg);
                     logger.error("[ResolverQueue] 🔈", msg.content.toString());
-                    const { data, type, id, retryCount } =
+                    const { data, type, id, retryCount, retryAfter } =
                         cardanoResponse?.data;
                     await ErrorProducer({
                         data,
                         type,
                         id,
                         retryCount,
+                        retryAfter,
                     });
                     return;
                 }
@@ -237,6 +238,30 @@ export const ResolverConsumer = async () => {
                     case REQUEST_TYPE.MINTING_TYPE.deletePlot: {
                         logger.info("Requesting delete document...");
                         response = cardanoResponse?.data;
+                        break;
+                    }
+                    case REQUEST_TYPE.MINTING_TYPE.addClaimantToPlot: {
+                        try {
+                            logger.info("add claimant to plot certificate...");
+                            const {
+                                credential,
+                                verifiedCredential,
+                                companyName,
+                            } = requestData?.data;
+                            const _verifiedCredential = await RabbitRepository(
+                                accessToken
+                            ).createClaimantCredential({
+                                credentialHash: credential,
+                                companyName,
+                                verifiedCredential,
+                            });
+                            response = {
+                                ...cardanoResponse?.data,
+                                verifiedCredential: _verifiedCredential,
+                            };
+                        } catch (error) {
+                            logger.error(error);
+                        }
                         break;
                     }
                     default: {

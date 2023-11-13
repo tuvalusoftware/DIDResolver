@@ -1,17 +1,92 @@
 import { generateDid } from "../fuixlabs-documentor/utils/did.js";
 import jsigs from "jsonld-signatures";
+import { Ed25519Signature2020 } from "@digitalbazaar/ed25519-signature-2020";
+import { Ed25519VerificationKey2020 } from "@digitalbazaar/ed25519-verification-key-2020";
 import axios from "axios";
+import cred from "credentials-context";
+import ed25519Ctx from "ed25519-signature-2020-context";
+import { JsonLdDocumentLoader } from "jsonld-document-loader";
+import { generateRandomDID } from "../utils/index.js";
+import { sha256 } from "js-sha256";
+import {
+    CONTEXT as EdTechJsonSchemaValidator2019Context,
+    CONTEXT_URL as EdTechJsonSchemaValidator2019ContextURL,
+} from "../configs/contexts/1EdTechJsonSchemaValidator2019.js";
+import {
+    CONTEXT as VCContext,
+    CONTEXT_URL as VCContextURL,
+} from "../configs/contexts/VCSchema.js";
+import {
+    CONTEXT as odrlContext,
+    CONTEXT_URL as odrlContextURL,
+} from "../configs/contexts/odrl.js";
+import {
+    CONTEXT as vcedContext,
+    CONTEXT_URL as vcedContextURL,
+} from "../configs/contexts/vced.js";
 const {
     purposes: { AssertionProofPurpose },
 } = jsigs;
-import {
-    getDynamicDocumentLoader,
-    setUpSuite,
-} from "../utils/verifiableCredential.js";
-import {
-    env,
-} from "../configs/constants.js";
-import { createClaimantVerifiableCredential } from "../utils/credential.js";
+import { env } from "../configs/constants.js";
+import { AppError } from "../configs/errors/appError.js";
+
+async function getDynamicDocumentLoader(contexts) {
+    const {
+        contexts: credentialsContexts,
+        constants: { CREDENTIALS_CONTEXT_V1_URL },
+    } = cred;
+
+    const jdl = new JsonLdDocumentLoader();
+
+    jdl.addStatic(
+        CREDENTIALS_CONTEXT_V1_URL,
+        credentialsContexts.get(CREDENTIALS_CONTEXT_V1_URL)
+    );
+    jdl.addStatic(ed25519Ctx.CONTEXT_URL, ed25519Ctx.CONTEXT);
+    jdl.addStatic(vcedContextURL, vcedContext);
+    jdl.addStatic(odrlContextURL, odrlContext);
+    jdl.addStatic(VCContextURL, VCContext);
+    jdl.addStatic(
+        EdTechJsonSchemaValidator2019ContextURL,
+        EdTechJsonSchemaValidator2019Context
+    );
+
+    const documentURLs = [...jdl.documents.keys()];
+    for (let url of contexts) {
+        if (typeof url !== "string" || documentURLs.includes(url)) continue;
+
+        try {
+            const { data } = await axios.get(url);
+            jdl.addStatic(url, data);
+        } catch (e) {
+            throw `ERROR LOAD CONTEXT OF ${url}: ${e}`;
+        }
+    }
+
+    return jdl.build();
+}
+
+async function setUpSuite({ public_key, private_key }) {
+    const issuer = {
+        id: `did:key:${public_key}#${public_key}`,
+        name: "Dominium Issuer",
+    };
+    const _keyPair = {
+        issuer,
+        id: issuer.id,
+        publicKeyBase58: public_key,
+        privateKeyBase58: private_key,
+    };
+    const keyPair = await Ed25519VerificationKey2020.from({
+        type: "Ed25519VerificationKey2018",
+        keyPair: _keyPair,
+    });
+    const suite = await new Ed25519Signature2020({ key: keyPair });
+    suite.date = new Date().toISOString();
+
+    return { suite, issuer };
+}
+
 const { suite: DOMINIUM_SUITE } = await setUpSuite({
     private_key: env.ADMIN_PRIVATE_KEY,
     public_key: env.ADMIN_PUBLIC_KEY,
@@ -21,14 +96,6 @@ const { suite: DOMINIUM_SUITE } = await setUpSuite({
  * A service for issuing and verifying verifiable credentials.
  */
 class VerifiableCredentialService {
-    /**
-     * Issues a verifiable credential.
-     * @param {Object} options - The options for issuing the credential.
-     * @param {Object} options.credential - The credential to issue.
-     * @param {Object} [options.customSuite] - The custom suite to use for signing the credential.
-     * @returns {Promise<Object>} A promise that resolves with the issued verifiable credential.
-     * @throws {Error} If there is an error issuing the credential.
-     */
     async issueVerifiableCredential({ credential, customSuite }) {
         try {
             try {
@@ -62,24 +129,19 @@ class VerifiableCredentialService {
                 });
                 return { verifiableCredential };
             } catch (error) {
-                throw {
-                    error_code: 400,
-                    error_message: `Error sign contract: ${error.message}`,
-                    details: error.details,
-                };
+                throw new AppError(
+                    {
+                        error_code: 400,
+                        error_message: `Error sign contract: ${error.message}`,
+                    },
+                    error.details
+                );
             }
         } catch (error) {
             throw error;
         }
     }
 
-    /**
-     * Verifies a verifiable credential.
-     * @param {Object} options - The options for verifying the credential.
-     * @param {Object} options.credential - The credential to verify.
-     * @returns {Promise<Object>} A promise that resolves with the verification result.
-     * @throws {Error} If there is an error verifying the credential.
-     */
     async verifyVerifiableCredential({ credential }) {
         const documentLoader = await getDynamicDocumentLoader(
             credential["@context"]
@@ -92,53 +154,110 @@ class VerifiableCredentialService {
         return data;
     }
 
-    /**
-     * Creates a verifiable credential for a claimant.
-     * @param {Object} options - The options for creating the credential.
-     * @param {Object} options.signData - The data to sign.
-     * @param {string} options.issuerKey - The issuer's key.
-     * @param {Object} options.subject - The credential subject.
-     * @param {string} options.credentialDid - The credential's DID.
-     * @returns {Promise<Object>} A promise that resolves with the created verifiable credential.
-     */
-    async createClaimantVerifiableCredential({
-        signData,
-        issuerKey,
-        subject,
-        credentialDid,
-    }) {
-        const credential = {
-            "@context": [
-                "https://www.w3.org/ns/credentials/v2",
-                "https://www.w3.org/ns/credentials/examples/v2",
-            ],
-            id: credentialDid,
-            type: ["VerifiableCredential"],
-            issuer: generateDid(env.COMPANY_NAME, issuerKey),
-            validFrom: new Date().toISOString(),
-            credentialSubject: subject,
-            proof: {
-                type: "Ed25519Signature2020",
-                created: "2021-11-13T18:19:39Z",
-                verificationMethod:
-                    "https://university.example/issuers/14#key-1",
-                proofPurpose: "assertionMethod",
-                proofValue: JSON.stringify(signData),
-            },
-        };
-        return { credential };
+    async createClaimantVerifiableCredential({ issuerKey, subject }) {
+        try {
+            const credentialDid = generateRandomDID();
+            let hashingCredential = {
+                "@context": [
+                    "https://www.w3.org/2018/credentials/v1",
+                    "https://cml-resolver.ap.ngrok.io/config/dominium-credential.json",
+                ],
+                id: credentialDid,
+                type: ["VerifiableCredential", "ClaimantCredential"],
+                issuer: issuerKey,
+            };
+            const credentialHash = sha256(
+                Buffer.from(
+                    `$${subject?.claims?.did}${issuerKey}`,
+                    "utf8"
+                ).toString("hex")
+            );
+            const credential = {
+                ...hashingCredential,
+                credentialSubject: {
+                    id: generateDid(env.COMPANY_NAME, credentialHash),
+                    type: ["ClaimSubject"],
+                    claims: {
+                        type: ["Claims"],
+                        plot: subject?.claims?.plot,
+                        user: subject?.claims?.did,
+                        role: subject?.claims?.role,
+                        plotCertificate: issuerKey,
+                    },
+                },
+            };
+            const { verifiableCredential } =
+                env.NODE_ENV === "test"
+                    ? {
+                          verifiableCredential: credential,
+                      }
+                    : await credentialService.issueVerifiableCredential({
+                          credential,
+                      });
+            return {
+                verifiableCredential,
+                credentialHash,
+                did: generateDid(env.COMPANY_NAME, credentialHash),
+            };
+        } catch (e) {
+            throw e;
+        }
     }
 
-    /**
-     * Gets the credential DIDs for a list of claimants.
-     * @param {Object} options - The options for getting the credential DIDs.
-     * @param {Array<Object>} options.claimants - The list of claimants.
-     * @param {string} options.did - The DID.
-     * @param {string} options.companyName - The company name.
-     * @param {string} options.plotId - The plot ID.
-     * @returns {Promise<Object>} A promise that resolves with the credential DIDs for the claimants and plot.
-     * @throws {Error} If there is an error getting the credential DIDs.
-     */
+    async createContractVerifiableCredential({
+        issuerKey,
+        subject,
+        privateKey,
+        publicKey,
+    }) {
+        try {
+            const credentialDid = generateRandomDID();
+            let hashingCredential = {
+                "@context": [
+                    "https://www.w3.org/2018/credentials/v1",
+                    "https://cml-resolver.ap.ngrok.io/config/dominium-credential.json",
+                ],
+                id: credentialDid,
+                type: ["VerifiableCredential", "ContractCredential"],
+                issuer: issuerKey,
+            };
+            const credentialHash = sha256(
+                Buffer.from(
+                    `$${subject?.userDid}${issuerKey}`,
+                    "utf8"
+                ).toString("hex")
+            );
+            const credential = {
+                ...hashingCredential,
+                credentialSubject: {
+                    id: generateDid(env.COMPANY_NAME, credentialHash),
+                    type: ["ContractSubject"],
+                    ...subject,
+                },
+            };
+            const { suite: CUSTOM_SUITE } = await setUpSuite({
+                private_key: privateKey,
+                public_key: publicKey,
+            });
+            const { verifiableCredential } =
+                env.NODE_ENV === "test"
+                    ? {
+                          verifiableCredential: credential,
+                      }
+                    : await credentialService.issueVerifiableCredential({
+                          credential,
+                          customSuite: CUSTOM_SUITE,
+                      });
+            return {
+                verifiableCredential,
+                credentialHash,
+                did: generateDid(env.COMPANY_NAME, credentialHash),
+            };
+        } catch (e) {
+            throw e;
+        }
+    }
+
     async getCredentialDidsFromClaimants({
         claimants,
         did,
@@ -148,7 +267,7 @@ class VerifiableCredentialService {
         try {
             const promises = claimants.map(async (claimant) => {
                 const { credentialHash } =
-                    await createClaimantVerifiableCredential({
+                    await this.createClaimantVerifiableCredential({
                         subject: {
                             claims: {
                                 plot: plotId,

@@ -1,6 +1,7 @@
+import "dotenv/config";
 import { cleanEnv, port, str, url, num } from "envalid";
 
-export const env = cleanEnv(process.env, {
+const env = cleanEnv(process.env, {
     DID_CONTROLLER: url({
         default: "http://localhost:58003",
     }),
@@ -21,9 +22,8 @@ export const env = cleanEnv(process.env, {
     }),
     ADMIN_PUBLIC_KEY: str(),
     ADMIN_SEED_PHRASE: str(),
-    COMMONLANDS_SECRET_KEY: str(),
-    ADMIN_PUBLIC_KEY: str(),
     ADMIN_PRIVATE_KEY: str(),
+    // ADMIN_PASSWORD: str(),
     RABBITMQ_PORT: port({
         default: 5672,
     }),
@@ -46,9 +46,12 @@ export const env = cleanEnv(process.env, {
     MONGO_DB_NAME: str({
         default: "backup-blockchain",
     }),
+    SERVER_TIMEOUT: num({
+        default: 30000,
+    }),
 });
 
-export const PLOT_STATUSES = {
+const PLOT_STATUSES = {
     "F&C": {
         label: "Free & Clear",
         color: "#5EC4AC",
@@ -87,14 +90,14 @@ export const PLOT_STATUSES = {
     },
 };
 
-export const NETWORK_ID = {
+const NETWORK_ID = {
     mainnet: "mainnet",
     testnet: "testnet",
     preview: "preview",
     preprod: "preprod",
 };
 
-export const REQUEST_TYPE = {
+const REQUEST_TYPE = {
     MINT: "mint",
     BURN: "burn",
     UPDATE: "update",
@@ -102,3 +105,10 @@ export const REQUEST_TYPE = {
     MINT_CREDENTIAL: "mint_credential",
     ADD_CLAIMANT: "add_claimant",
 };
+
+const WRAPPED_DOCUMENT_TYPE = {
+    PLOT_CERTIFICATE: "Plot-Certificate",
+    LOAN_CONTRACT: "Loan-Contract",
+};
+
+export { env, PLOT_STATUSES, NETWORK_ID, REQUEST_TYPE, WRAPPED_DOCUMENT_TYPE };
