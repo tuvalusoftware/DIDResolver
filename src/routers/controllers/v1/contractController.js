@@ -11,6 +11,7 @@ import DocumentService from "../../../services/Document.service.js";
 import ControllerService from "../../../services/Controller.service.js";
 import { getAccountBySeedPhrase } from "../../../utils/lucid.js";
 import { asyncWrapper } from "../../middlewares/async.js";
+import credentialService from "../../../services/VerifiableCredential.service.js";
 
 // * Constants
 import { generateDid } from "../../../fuixlabs-documentor/utils/did.js";
