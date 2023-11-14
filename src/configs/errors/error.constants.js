@@ -164,12 +164,15 @@ const ERRORS = {
         error_code: 4040,
         error_message: "Document is not lastest version!",
     },
+    PROMISE_ALL_SETTLED: {
+        error_code: 4041,
+        error_message:
+            "Not all promises is settled when involving Promise.AllSettled().",
+    },
     INTERNAL_SERVER_ERROR: {
         error_code: 5001,
         error_message: "Internal server error.",
     },
 };
 
-export {
-    ERRORS
-}
+export { ERRORS };

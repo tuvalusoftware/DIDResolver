@@ -4,6 +4,7 @@ import * as dotenv from "dotenv";
 import crypto from "crypto";
 import _ from "lodash";
 import { env } from "../configs/constants.js";
+import { ERRORS } from "../configs/errors/error.constants.js";
 
 dotenv.config();
 const companyName = env.COMPANY_NAME;
@@ -266,6 +267,25 @@ function decryptData(data, securityKey) {
     return decryptedData;
 } // TODO - Write unit-test
 
+function handlePromiseAllSettle(results, additionalErrorMessage) {
+    let promiseSuccessfully = true;
+    for (let i = 0; i < results.length; i++) {
+        const result = results[i];
+        if (result.status === "rejected") {
+            logger.error(`Promise number ${i + 1}`);
+            logger.error(result.reason);
+            promiseSuccessfully = false;
+        }
+    }
+    if (!promiseSuccessfully) {
+        if (additionalErrorMessage) logger.error(additionalErrorMessage);
+
+        throw ERRORS.PROMISE_ALL_SETTLED;
+    }
+
+    return results.map((re) => re.value);
+}
+
 export {
     decryptData,
     encryptData,
@@ -282,5 +302,6 @@ export {
     generateRandomDID,
     replaceKey,
     stringToBytes32,
-    splitDid
+    splitDid,
+    handlePromiseAllSettle,
 };

@@ -1,4 +1,6 @@
+import { AppError } from "../../configs/errors/appError.js";
 import { RequestModel } from "../models/requestModel.js";
+import { ERRORS } from "../../configs/errors/error.constants.js";
 
 const RequestRepo = {
     /**
@@ -18,9 +20,15 @@ const RequestRepo = {
             throw error;
         }
     },
-    updateRequest: async (request, filter) => {
+    findOneAndUpdate: async (request, filter) => {
         try {
-            const updatedRequest = await RequestModel.findOneAndUpdate(filter, request);
+            const updatedRequest = await RequestModel.findOneAndUpdate(
+                filter,
+                request
+            );
+            if (!updatedRequest) {
+                throw new AppError(ERRORS.NOT_FOUND);
+            }
             return updatedRequest;
         } catch (error) {
             throw error;
@@ -34,7 +42,7 @@ const RequestRepo = {
      * @returns {Promise<Object>} - The retrieved request object.
      * @throws {Error} - If an error occurs while querying the database.
      */
-    retrieveRequest: async (filter) => {
+    findOne: async (filter) => {
         try {
             const request = await RequestModel.findOne(filter);
             return request;

@@ -7,6 +7,7 @@ import AuthenticationService from "../../services/Authentication.service.js";
 import { env } from "../constants.js";
 import { AppError } from "../errors/appError.js";
 import { ERRORS } from "../errors/error.constants.js";
+import RequestRepo from "../../db/repos/requestRepo.js";
 import logger from "../../../logger.js";
 
 export const setUpCron = (app) => {
@@ -21,7 +22,7 @@ export const setUpCron = (app) => {
                         REQUEST_TYPE.MINTING_TYPE.addClaimantToPlot,
                     ],
                 },
-            }).sort({ createdAt: -1 });
+            }).sort({ updatedAt: -1 });
             if (request) {
                 try {
                     switch (request.type) {
@@ -75,6 +76,10 @@ export const setUpCron = (app) => {
                     }
                 } catch (error) {
                     logger.error(error);
+                    await RequestRepo.findOneAndUpdate(
+                        { error: error.message },
+                        { _id: request._id }
+                    );
                 }
             }
         },
