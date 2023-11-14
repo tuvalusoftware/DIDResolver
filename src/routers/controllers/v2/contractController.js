@@ -7,8 +7,11 @@ import requestSchema from "../../../configs/schemas/request.schema.js";
 import AuthenticationService from "../../../services/Authentication.service.js";
 import CardanoService from "../../../services/Cardano.service.js";
 import DocumentService from "../../../services/Document.service.js";
+import ControllerService from "../../../services/Controller.service.js";
+import { asyncWrapper } from "../../middlewares/async.js";
 
 // * Constants
+import { generateDid } from "../../../fuixlabs-documentor/utils/did.js";
 import { env, WRAPPED_DOCUMENT_TYPE } from "../../../configs/constants.js";
 import wrappedDocumentSchema from "../../../configs/schemas/wrappedDocument.schema.js";
 
@@ -21,53 +24,67 @@ axios.defaults.withCredentials = true;
  * @property {Function} getContract - Gets an existing contract by DID.
  */
 export default {
-    createContract: async (req, res, next) => {
-        try {
-            const { wrappedDoc, metadata } = schemaValidator(
-                requestSchema.createContract,
-                req.body
-            );
-            const accessToken =
-                env.NODE_ENV === "test"
-                    ? "mock-access-token"
-                    : await AuthenticationService().authenticationProgress();
-            const companyName = env.COMPANY_NAME;
-            const response = await DocumentService(
+    createContract: asyncWrapper(async (req, res, next) => {
+        const { wrappedDoc, metadata } = schemaValidator(
+            requestSchema.createContract,
+            req.body
+        );
+        const accessToken =
+            env.NODE_ENV === "test"
+                ? "mock-access-token"
+                : await AuthenticationService().authenticationProgress();
+        const companyName = env.COMPANY_NAME;
+        const { fileName } = DocumentService(
+            accessToken
+        ).generateFileNameForDocument(
+            wrappedDoc,
+            WRAPPED_DOCUMENT_TYPE.LOAN_CONTRACT
+        );
+        const did = generateDid(companyName, fileName);
+        const isExistedResponse = await ControllerService(
+            accessToken
+        ).isExisted({
+            companyName,
+            fileName,
+        });
+        if (isExistedResponse.data?.isExisted) {
+            const getDocumentResponse = await ControllerService(
                 accessToken
-            ).createWrappedDocumentData(
-                wrappedDoc,
-                WRAPPED_DOCUMENT_TYPE.LOAN_CONTRACT,
-                companyName
-            );
-            if (response?.isExisted) {
-                return res.status(200).json(response.wrappedDocument);
-            }
-            const { dataForm, did } = response;
-            schemaValidator(
-                wrappedDocumentSchema.dataForIssueDocument,
-                dataForm
-            )
-            const { wrappedDocument } = await DocumentService(
-                accessToken
-            ).issueBySignByAdmin(dataForm, companyName);
-            const request = await RequestRepo.createRequest({
-                data: {
-                    wrappedDocument,
-                    metadata,
-                },
-                type: REQUEST_TYPE.MINTING_TYPE.createContract,
-                status: "pending",
-            });
-            await CardanoService(accessToken).storeToken({
-                hash: wrappedDocument?.signature?.targetHash,
-                id: request._id,
-                type: "document",
-            });
-            return res.status(200).json({
+            ).getDocumentContent({
                 did,
             });
-        } catch (error) {
-            next(error);
+            const { wrappedDoc } = getDocumentResponse?.data;
+            return {
+                isExisted: true,
+                wrappedDocument: wrappedDoc,
+            };
         }
-    },
+        const { dataForm } = await DocumentService(
+            accessToken
+        ).createWrappedDocumentData(
+            fileName,
+            wrappedDoc,
+            WRAPPED_DOCUMENT_TYPE.LOAN_CONTRACT
+        );
+        schemaValidator(wrappedDocumentSchema.dataForIssueDocument, dataForm);
+        const { wrappedDocument } = await DocumentService(
+            accessToken
+        ).issueBySignByAdmin(dataForm, companyName);
+        const request = await RequestRepo.createRequest({
+            data: {
+                wrappedDocument,
+                metadata,
+            },
+            type: REQUEST_TYPE.MINTING_TYPE.createContract,
+            status: "pending",
+        });
+        await CardanoService(accessToken).storeToken({
+            hash: wrappedDocument?.signature?.targetHash,
+            id: request._id,
+            type: "document",
+        });
+        return res.status(200).json({
+            did,
+        });
+    }),
 };

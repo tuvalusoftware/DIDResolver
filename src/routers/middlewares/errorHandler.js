@@ -12,7 +12,6 @@ const errorHandlerMiddleware = (err, req, res, next) => {
         if (err instanceof AppError) {
             throw err;
         }
-        console.log(err)
         throw new AppError(ERRORS.INTERNAL_SERVER_ERROR);
     } catch (error) {
         return res.status(200).json(error.getAppError());

@@ -60,7 +60,6 @@ export default {
             companyName,
             fileName,
         });
-        console.log(1)
         if (isExistedResponse.data?.isExisted) {
             const getDocumentResponse = await ControllerService(
                 accessToken
@@ -70,7 +69,6 @@ export default {
             const { wrappedDoc } = getDocumentResponse.data;
             return res.status(200).json(wrappedDoc);
         }
-        console.log(2)
         const { dataForm } = await DocumentService(
             accessToken
         ).createWrappedDocumentData(
@@ -89,7 +87,6 @@ export default {
                 companyName,
                 plotId: plot._id,
             });
-        console.log(1)
         const request = await RequestRepo.createRequest({
             data: {
                 wrappedDocument,
@@ -99,7 +96,6 @@ export default {
             type: RABBIT_REQUEST_TYPE.MINTING_TYPE.createPlot,
             status: "pending",
         });
-        console.log(2)
         await CardanoService(accessToken).storeToken({
             hash: wrappedDocument?.signature?.targetHash,
             id: request._id,
