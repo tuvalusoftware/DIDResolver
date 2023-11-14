@@ -1,5 +1,9 @@
 import { getAccountBySeedPhrase } from "../utils/lucid.js";
-import { getPublicKeyFromAddress, getCurrentDateTime } from "../utils/index.js";
+import {
+    getPublicKeyFromAddress,
+    getCurrentDateTime,
+    generateRandomString,
+} from "../utils/index.js";
 import ControllerService from "./Controller.service.js";
 import { generateDid } from "../fuixlabs-documentor/utils/did.js";
 import { deepMap } from "../fuixlabs-documentor/utils/salt.js";
@@ -136,7 +140,7 @@ const wrapDocumentData = async ({
 
 const DocumentService = (accessToken) => {
     return {
-        generateFileNameForDocument(data, type) {
+        generateFileNameForDocument(data, type, update = false) {
             const response = {
                 fileName: "",
             };
@@ -147,7 +151,14 @@ const DocumentService = (accessToken) => {
                     break;
                 }
                 case WRAPPED_DOCUMENT_TYPE.PLOT_CERTIFICATE: {
-                    const fileName = `PlotCertification-${data?._id}`;
+                    let fileName;
+                    if (update) {
+                        fileName = `PlotCertification-${
+                            data?._id
+                        }-${generateRandomString(data._id, 5)}`;
+                    } else {
+                        fileName = `PlotCertification-${data?._id}`;
+                    }
                     response.fileName = fileName;
                     break;
                 }
@@ -215,7 +226,7 @@ const DocumentService = (accessToken) => {
                             },
                         };
                         if (data.status) {
-                            Object.assign(dataForm, {status: data.status})
+                            Object.assign(dataForm, { status: data.status });
                         }
                         return {
                             dataForm,
@@ -239,7 +250,10 @@ const DocumentService = (accessToken) => {
                 if (
                     !documentContentResponse?.data?.wrappedDoc?.mintingNFTConfig
                 ) {
-                    throw new AppError(ERRORS.CANNOT_UPDATE_DOCUMENT_INFORMATION, "Cannot get minting config from document")
+                    throw new AppError(
+                        ERRORS.CANNOT_UPDATE_DOCUMENT_INFORMATION,
+                        "Cannot get minting config from document"
+                    );
                 }
                 const policyId =
                     documentContentResponse?.data?.wrappedDoc?.mintingNFTConfig

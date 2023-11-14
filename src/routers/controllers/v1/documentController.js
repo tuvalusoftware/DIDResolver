@@ -116,7 +116,8 @@ export default {
             accessToken
         ).generateFileNameForDocument(
             plot,
-            WRAPPED_DOCUMENT_TYPE.PLOT_CERTIFICATE
+            WRAPPED_DOCUMENT_TYPE.PLOT_CERTIFICATE,
+            true
         );
         const did = generateDid(companyName, fileName);
         const { dataForm } = await DocumentService(
