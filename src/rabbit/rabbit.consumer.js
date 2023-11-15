@@ -138,6 +138,32 @@ export const ResolverConsumer = async () => {
                         }
                         break;
                     }
+                    case REQUEST_TYPE.MINTING_TYPE.signContract: {
+                        try {
+                            logger.info(
+                                "Requesting create claimant credential..."
+                            );
+                            const {
+                                credential,
+                                verifiedCredential,
+                                companyName,
+                            } = requestData?.data;
+                            const _verifiedCredential = await RabbitRepository(
+                                accessToken
+                            ).createClaimantCredential({
+                                credentialHash: credential,
+                                companyName,
+                                verifiedCredential,
+                            });
+                            response = {
+                                ...cardanoResponse?.data,
+                                verifiedCredential: _verifiedCredential,
+                            };
+                        } catch (error) {
+                            logger.error(error);
+                        }
+                        break;
+                    }
                     case REQUEST_TYPE.MINTING_TYPE.updatePlot: {
                         logger.info("Requesting update document...");
                         const { wrappedDocument, claimants, plot } = deepUnsalt(

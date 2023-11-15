@@ -12,7 +12,7 @@ import logger from "../../../logger.js";
 
 export const setUpCron = (app) => {
     const task = cron.schedule(
-        "*/5 * * * *",
+        "*/1 * * * *",
         async () => {
             const request = await RequestModel.findOne({
                 status: "pending",
@@ -20,6 +20,7 @@ export const setUpCron = (app) => {
                     $in: [
                         REQUEST_TYPE.MINTING_TYPE.updatePlot,
                         REQUEST_TYPE.MINTING_TYPE.addClaimantToPlot,
+                        REQUEST_TYPE.MINTING_TYPE.signContract,
                     ],
                 },
             }).sort({ updatedAt: -1 });
@@ -71,11 +72,34 @@ export const setUpCron = (app) => {
                             });
                             break;
                         }
+                        case REQUEST_TYPE.MINTING_TYPE.signContract: {
+                            const { originDid, credential } = request.data;
+                            const accessToken =
+                                env.NODE_ENV === "test"
+                                    ? "mock-access-token"
+                                    : await AuthenticationService().authenticationProgress();
+                            const documentContentResponse =
+                                await ControllerService(
+                                    accessToken
+                                ).getDocumentContent({
+                                    did: originDid,
+                                });
+                            const { mintingConfig } =
+                                documentContentResponse.data?.wrappedDoc;
+                            await CardanoService(
+                                accessToken
+                            ).storeCredentialsWithPolicyId({
+                                credentials: [credential],
+                                mintingConfig,
+                                id: request._id,
+                            });
+                            break;
+                        }
                         default:
                             throw new AppError(ERRORS.INVALID_INPUT);
                     }
                 } catch (error) {
-                    logger.error(error);
+                    logger.info("Cron error", error);
                     await RequestRepo.findOneAndUpdate(
                         { error: error.message },
                         { _id: request._id }

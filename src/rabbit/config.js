@@ -19,5 +19,6 @@ export const REQUEST_TYPE = {
         updatePlot: "update-plot",
         deletePlot: "delete-plot",
         addClaimantToPlot: "add-claimant-to-plot",
+        signContract: "sign-contract",
     },
 };
