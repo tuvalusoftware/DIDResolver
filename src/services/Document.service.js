@@ -153,11 +153,11 @@ const DocumentService = (accessToken) => {
                 case WRAPPED_DOCUMENT_TYPE.PLOT_CERTIFICATE: {
                     let fileName;
                     if (update) {
-                        fileName = `PlotCertification-${
+                        fileName = `PlotCertification_${
                             data?._id
                         }-${generateRandomString(data._id, 5)}`;
                     } else {
-                        fileName = `PlotCertification-${data?._id}`;
+                        fileName = `PlotCertification_${data?._id}`;
                     }
                     response.fileName = fileName;
                     break;
