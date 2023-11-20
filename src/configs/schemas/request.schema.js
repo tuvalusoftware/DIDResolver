@@ -95,4 +95,9 @@ export default {
             .required()
             .regex(/^did:[A-Za-z0-9_]+:[A-Za-z0-9.\-:_ ]+$/),
     }),
+    getTransactionId: Joi.object().keys({
+        did: Joi.string()
+            .required()
+            .regex(/^did:[A-Za-z0-9_]+:[A-Za-z0-9.\-:_ ]+$/),
+    }),
 };

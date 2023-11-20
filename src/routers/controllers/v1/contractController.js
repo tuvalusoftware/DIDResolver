@@ -114,16 +114,6 @@ export default {
         );
         const { certificateDid, seedPhrase, userDid } = claimant;
         const companyName = env.COMPANY_NAME;
-        // const accessToken =
-        //     env.NODE_ENV === "test"
-        //         ? "mock-access-token"
-        //         : await AuthenticationService().authenticationProgress();
-        // const contractContentResponse = await ControllerService(
-        //     accessToken
-        // ).getDocumentContent({
-        //     did: contract,
-        // });
-        // const { mintingConfig } = contractContentResponse?.data?.wrappedDoc;
         const { currentWallet } = await getAccountBySeedPhrase({
             seedPhrase,
         });
@@ -159,11 +149,6 @@ export default {
             type: REQUEST_TYPE.MINTING_TYPE.signContract,
             status: "pending",
         });
-        // await CardanoService(accessToken).storeCredentialsWithPolicyId({
-        //     credentials: [credentialHash],
-        //     mintingConfig,
-        //     id: request._id,
-        // });
         return res.status(200).json({
             did: credentialDid,
         });
