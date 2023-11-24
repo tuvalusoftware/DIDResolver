@@ -61,13 +61,14 @@ export default {
             fileName,
         });
         if (isExistedResponse.data?.isExisted) {
-            const getDocumentResponse = await ControllerService(
-                accessToken
-            ).getDocumentContent({
-                did,
-            });
-            const { wrappedDoc } = getDocumentResponse.data;
-            return res.status(200).json(wrappedDoc);
+            const _claimantsCredentialDids =
+                await credentialService.getCredentialDidsFromClaimants({
+                    claimants: plot.claimants,
+                    did,
+                    companyName,
+                    plotId: plot._id,
+                });
+            return res.status(200).json(_claimantsCredentialDids);
         }
         const { dataForm } = await DocumentService(
             accessToken
