@@ -46,83 +46,6 @@ export const ErrorConsumer = async () => {
     });
 };
 
-export const CustomChanel = async (service, data) => {
-    return new Promise((resolve, reject) => {
-        const { hash, id, skipWait = true, type, retryCount } = data;
-        cardanoContractSender.sendToQueue(
-            cardanoContractQueue,
-            Buffer.from(
-                JSON.stringify({
-                    data: {
-                        hash,
-                        type,
-                    },
-                    options: {
-                        skipWait,
-                    },
-                    type: REQUEST_TYPE.CARDANO_SERVICE.mintToken,
-                    id,
-                    retryCount,
-                })
-            ),
-            {
-                durable: true,
-            }
-        );
-        resolverSender.consume(resolverQueue, async (msg) => {
-            if (msg !== null) {
-                logger.info("[CustomQueue] 🔈", msg.content.toString());
-                const cardanoResponse = JSON.parse(msg.content);
-                if (cardanoResponse?.error_code) {
-                    resolverSender.ack(msg);
-                    logger.error("[CustomQueue] 🔈", msg.content.toString());
-                    const { data, type, id } = cardanoResponse?.data;
-                    await ErrorProducer({
-                        data,
-                        type,
-                        id,
-                    });
-                    reject(cardanoResponse?.data);
-                }
-                const requestData = await RequestRepo.retrieveRequest({
-                    _id: cardanoResponse?.id,
-                });
-                const accessToken =
-                    env.NODE_ENV === "test"
-                        ? "mock-access-token"
-                        : await AuthenticationService().authenticationProgress();
-                const { companyName, fileName, did } = deepUnsalt(
-                    requestData?.data?.wrappedDocument?.data
-                );
-                const { wrappedDocument, metadata } = requestData?.data;
-                const mintingConfig = cardanoResponse.data;
-                await RabbitRepository(accessToken).createContract({
-                    companyName,
-                    fileName,
-                    did,
-                    wrappedDocument,
-                    metadata,
-                    mintingConfig,
-                });
-                const response = cardanoResponse?.data;
-                await RequestRepo.updateRequest(
-                    {
-                        response,
-                        status: "completed",
-                        completedAt: new Date(),
-                    },
-                    {
-                        _id: cardanoResponse?.id,
-                    }
-                );
-                logger.info("[CustomQueue] 🔈", msg.content.toString());
-                resolve(cardanoResponse?.data);
-                consumerSender.ack(msg);
-            }
-        });
-    });
-};
-
 export const ResolverConsumer = async () => {
     resolverSender.consume(resolverQueue, async (msg) => {
         if (msg !== null) {
@@ -132,17 +55,18 @@ export const ResolverConsumer = async () => {
                 if (cardanoResponse?.error_code) {
                     resolverSender.ack(msg);
                     logger.error("[ResolverQueue] 🔈", msg.content.toString());
-                    const { data, type, id, retryCount } =
+                    const { data, type, id, retryCount, retryAfter } =
                         cardanoResponse?.data;
                     await ErrorProducer({
                         data,
                         type,
                         id,
                         retryCount,
+                        retryAfter,
                     });
                     return;
                 }
-                const requestData = await RequestRepo.retrieveRequest({
+                const requestData = await RequestRepo.findOne({
                     _id: cardanoResponse?.id,
                 });
                 const accessToken =
@@ -214,6 +138,32 @@ export const ResolverConsumer = async () => {
                         }
                         break;
                     }
+                    case REQUEST_TYPE.MINTING_TYPE.signContract: {
+                        try {
+                            logger.info(
+                                "Requesting create claimant credential..."
+                            );
+                            const {
+                                credential,
+                                verifiedCredential,
+                                companyName,
+                            } = requestData?.data;
+                            const _verifiedCredential = await RabbitRepository(
+                                accessToken
+                            ).createClaimantCredential({
+                                credentialHash: credential,
+                                companyName,
+                                verifiedCredential,
+                            });
+                            response = {
+                                ...cardanoResponse?.data,
+                                verifiedCredential: _verifiedCredential,
+                            };
+                        } catch (error) {
+                            logger.error(error);
+                        }
+                        break;
+                    }
                     case REQUEST_TYPE.MINTING_TYPE.updatePlot: {
                         logger.info("Requesting update document...");
                         const { wrappedDocument, claimants, plot } = deepUnsalt(
@@ -239,11 +189,35 @@ export const ResolverConsumer = async () => {
                         response = cardanoResponse?.data;
                         break;
                     }
+                    case REQUEST_TYPE.MINTING_TYPE.addClaimantToPlot: {
+                        try {
+                            logger.info("add claimant to plot certificate...");
+                            const {
+                                credential,
+                                verifiedCredential,
+                                companyName,
+                            } = requestData?.data;
+                            const _verifiedCredential = await RabbitRepository(
+                                accessToken
+                            ).createClaimantCredential({
+                                credentialHash: credential,
+                                companyName,
+                                verifiedCredential,
+                            });
+                            response = {
+                                ...cardanoResponse?.data,
+                                verifiedCredential: _verifiedCredential,
+                            };
+                        } catch (error) {
+                            logger.error(error);
+                        }
+                        break;
+                    }
                     default: {
                         break;
                     }
                 }
-                await RequestRepo.updateRequest(
+                await RequestRepo.findOneAndUpdate(
                     {
                         response,
                         status: "completed",

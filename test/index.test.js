@@ -1,12 +1,9 @@
 import {
-    validateDIDSyntax,
-    checkUndefinedVar,
     checkForSpecialChar,
     splitCamelCase,
     getDidByComponents,
     requireFieldInArray,
     validateJSONSchema,
-    validateDID,
     isSameError,
     generateRandomString,
     stringToBytes32,
@@ -23,24 +20,6 @@ const companyName = env.COMPANY_NAME;
 const devCompanyName = env.DEV_COMPANY_NAME;
 
 describe("UTILITIES", function () {
-    describe("validateDIDSyntax", () => {
-        it("should return true for a valid DID", () => {
-            const validDID = "did:example:example:1234";
-            expect(JSON.stringify(validateDIDSyntax(validDID))).equal(
-                JSON.stringify({
-                    valid: true,
-                    companyName: "example",
-                    fileNameOrPublicKey: "1234",
-                })
-            );
-        });
-
-        it("should return false for an invalid DID", () => {
-            const invalidDID = "example:1234";
-            expect(validateDIDSyntax(invalidDID).valid).equal(false);
-        });
-    });
-
     describe("validateJSONSchema", () => {
         it("should return true for a valid JSON schema", () => {
             const schema = {
@@ -69,29 +48,6 @@ describe("UTILITIES", function () {
             const data = { name: "John" };
             expect(validateJSONSchema(schema, data))
                 .have.property("valid")
-                .equal(false);
-        });
-    });
-
-    describe("checkUndefinedVar", () => {
-        it("should return true if the variable is undefined", () => {
-            const undefinedVar = {
-                name: undefined,
-            };
-            expect(checkUndefinedVar(undefinedVar))
-                .have.property("undefined")
-                .equal(true);
-            expect(checkUndefinedVar(undefinedVar))
-                .have.property("detail")
-                .equal("Not found: name");
-        });
-
-        it("should return false if the variable is defined", () => {
-            const definedVar = {
-                name: "sample-name",
-            };
-            expect(checkUndefinedVar(definedVar))
-                .have.property("undefined")
                 .equal(false);
         });
     });
@@ -138,31 +94,6 @@ describe("UTILITIES", function () {
             const array = [{ name: "John" }, { age: 30 }];
             const field = "name";
             expect(requireFieldInArray(array, field)).equal(false);
-        });
-    });
-
-    describe("validateDID", () => {
-        it("should return an object with valid: true and the correct company name and file name or public key for a valid DID", () => {
-            const validDID = "did:example:example:1234";
-            expect(validateDID(validDID)).to.deep.equal({
-                valid: true,
-                companyName: "example",
-                fileNameOrPublicKey: "1234",
-            });
-        });
-
-        it("should return an object with valid: false and detail: 'Undefined did.' if the input is undefined", () => {
-            expect(validateDID()).to.deep.equal({
-                valid: false,
-                detail: "Undefined did.",
-            });
-        });
-
-        it("should return an object with valid: false if the input is not a valid DID", () => {
-            const invalidDID = "example:1234";
-            expect(validateDID(invalidDID)).to.deep.equal({
-                valid: false,
-            });
         });
     });
 

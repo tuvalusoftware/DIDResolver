@@ -11,7 +11,7 @@ import { env } from "../configs/constants.js";
  * @param {String} address
  * @returns {Boolean} - true if valid, false otherwise
  */
-const isValidAddressBytes = async (address) => {
+async function isValidAddressBytes(address) {
     const supportNetworkId = "preprod";
     const network = {
         id: supportNetworkId,
@@ -41,9 +41,9 @@ const isValidAddressBytes = async (address) => {
         return false;
     } catch (e) {}
     return false;
-};
+}
 
-export const decryptWithPassword = async (password, encryptedKeyHex) => {
+async function decryptWithPassword(password, encryptedKeyHex) {
     const passwordHex = Buffer.from(password).toString("hex");
     let decryptedHex;
     try {
@@ -55,9 +55,9 @@ export const decryptWithPassword = async (password, encryptedKeyHex) => {
         throw new Error("Invalid password");
     }
     return decryptedHex;
-};
+}
 
-export const encryptWithPassword = async (password, rootKeyBytes) => {
+async function encryptWithPassword(password, rootKeyBytes) {
     const rootKeyHex = Buffer.from(rootKeyBytes, "hex").toString("hex");
     const passwordHex = Buffer.from(password).toString("hex");
     const salt = cryptoRandomString({ length: 2 * 32 });
@@ -68,21 +68,22 @@ export const encryptWithPassword = async (password, rootKeyBytes) => {
         nonce,
         rootKeyHex
     );
-};
+}
 
-export const getStorage = (key) =>
-    new Promise((res, rej) =>
+function getStorage(key) {
+    return new Promise((res, rej) =>
         chrome.storage.local.get(key, (result) => {
             if (chrome.runtime.lastError) rej(undefined);
             res(key ? result[key] : result);
         })
     );
+}
 
-const harden = (num) => {
+function harden(num) {
     return 0x80000000 + num;
-};
+}
 
-export const requestAccountKey = async (password, accountIndex) => {
+async function requestAccountKey(password, accountIndex) {
     const { currentWallet } = await getAccountBySeedPhrase(
         env.ADMIN_SEED_PHRASE
     );
@@ -110,9 +111,9 @@ export const requestAccountKey = async (password, accountIndex) => {
         paymentKey: accountKey.derive(0).derive(0).to_raw_key(),
         stakeKey: accountKey.derive(2).derive(0).to_raw_key(),
     };
-};
+}
 
-export const extractKeyHash = async (address) => {
+async function extractKeyHash(address) {
     if (!(await isValidAddressBytes(Buffer.from(address, "hex"))))
         throw new Error("Invalid address format");
     try {
@@ -140,9 +141,9 @@ export const extractKeyHash = async (address) => {
         return addr.payment_cred().to_keyhash().to_bech32("stake_vkh");
     } catch (e) {}
     throw new Error("Invalid address format");
-};
+}
 
-const getCurrentAccount = ({ mnemonic }) => {
+function getCurrentAccount({ mnemonic }) {
     const entropy = BIP39.mnemonicToEntropy(mnemonic);
     const rootKey = CardanoWasm.Bip32PrivateKey.from_bip39_entropy(
         Buffer.from(entropy, "hex"),
@@ -199,13 +200,11 @@ const getCurrentAccount = ({ mnemonic }) => {
         paymentAddr: paymentAddr,
         enterpriseAddr: enterpriseAddr,
     };
-};
+}
 
-const getAccountBySeedPhrase = async ({ seedPhrase }) => {
+async function getAccountBySeedPhrase({ seedPhrase }) {
     try {
-        const _seedPhrase = seedPhrase
-            ? seedPhrase
-            : env.ADMIN_SEED_PHRASE;
+        const _seedPhrase = seedPhrase ? seedPhrase : env.ADMIN_SEED_PHRASE;
         const currentWallet = getCurrentAccount({
             mnemonic: env.ADMIN_SEED_PHRASE,
         });
@@ -222,9 +221,9 @@ const getAccountBySeedPhrase = async ({ seedPhrase }) => {
     } catch (error) {
         throw error;
     }
-};
+}
 
-const signData = async (address, payload, password, accountIndex) => {
+async function signData(address, payload, password, accountIndex) {
     const keyHash = await extractKeyHash(address);
     const prefix = keyHash.startsWith("addr_vkh") ? "addr_vkh" : "stake_vkh";
     let { paymentKey, stakeKey } = await requestAccountKey(
@@ -269,6 +268,12 @@ const signData = async (address, payload, password, accountIndex) => {
     paymentKey = null;
 
     return Buffer.from(coseSign1.to_bytes(), "hex").toString("hex");
-};
+}
 
-export { getAccountBySeedPhrase, signData };
+export {
+    getAccountBySeedPhrase,
+    signData,
+    decryptWithPassword,
+    encryptWithPassword,
+    getStorage,
+};

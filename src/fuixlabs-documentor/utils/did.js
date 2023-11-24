@@ -20,8 +20,8 @@ import "dotenv/config";
  * @param {String} publicKey - Public key
  * @return {String} - Did
  */
-export const generateDid = (fileName, prop) => {
-    const did = `did:${env.DEV_COMPANY_NAME}:${fileName}:${prop}`;
+export const generateDid = (companyName, prop) => {
+    const did = `did:${env.DEV_COMPANY_NAME}:${companyName}:${prop}`;
     return did;
 };
 
