@@ -220,9 +220,10 @@ const DocumentService = (accessToken) => {
                                 plot_Id: data._id,
                                 plotStatus: data.status,
                                 plotLocation: data.placeName,
-                                plotCoordinates: data.centroid.join(","),
-                                plotNeighbors: data.neighbors.length,
-                                plotDisputes: data.disputes.length,
+                                plotCoordinates:
+                                    data?.centroid?.join(",") || "",
+                                plotNeighbors: data?.neighbors?.length || 0,
+                                plotDisputes: data?.disputes?.length || 0,
                             },
                         };
                         if (data.status) {
