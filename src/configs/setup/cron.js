@@ -10,7 +10,7 @@ import { ERRORS } from "../errors/error.constants.js";
 import RequestRepo from "../../db/repos/requestRepo.js";
 import logger from "../../../logger.js";
 
-export const setUpCron = (app) => {
+export const setUpCron = () => {
     const task = cron.schedule(
         "*/1 * * * *",
         async () => {

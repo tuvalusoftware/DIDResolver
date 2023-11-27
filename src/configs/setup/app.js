@@ -8,11 +8,11 @@ import { setUpCron } from "./cron.js";
 
 export const setUpApp = async () => {
     const app = express();
-    setUpMiddleware(app);
+    await setUpMiddleware(app);
     setUpRoute(app);
     setUpSwagger(app);
     setUpErrorHandler(app);
     setUpCron(app);
-    await setUpRabbitMq(app);
+    setUpRabbitMq(app);
     return app;
 };

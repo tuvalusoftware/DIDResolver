@@ -23,7 +23,6 @@ const env = cleanEnv(process.env, {
     ADMIN_PUBLIC_KEY: str(),
     ADMIN_SEED_PHRASE: str(),
     ADMIN_PRIVATE_KEY: str(),
-    // ADMIN_PASSWORD: str(),
     RABBITMQ_PORT: port(),
     MONGO_PORT: port({
         default: 27017,
@@ -34,7 +33,7 @@ const env = cleanEnv(process.env, {
     CARDANO_NETWORK: num({
         choices: [1, 2, 3],
     }),
-    RABBITMQ_SERVICE: url(),
+    RABBITMQ_SERVICE: str(),
     NODE_ENV: str({
         choices: ["dev", "production", "test"],
         default: "dev",

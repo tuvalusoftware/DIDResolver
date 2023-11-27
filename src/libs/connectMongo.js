@@ -12,21 +12,24 @@ const logger = new Logger();
 const MongoHelper = () => {
     const port = env.MONGO_PORT;
     const dbName = env.MONGO_DB_NAME;
-    const dbUrl = `mongodb://localhost:${port}/${dbName}`;
+    const dbUrl = `mongodb://mongo:${port}/${dbName}`;
 
-    return {
-        async connect() {
-            mongoose
-                .connect(dbUrl)
-                .then(() => {
-                    return logger.info(`Successfully connected to ${dbUrl}`);
-                })
-                .catch((error) => {
-                    logger.error(`Error connecting to database: ${error}`);
-                    return process.exit(1);
-                });
-        },
+    const connect = () => {
+        logger.warn("Connecting to MongoDB ...");
+        mongoose
+            .connect(dbUrl)
+            .then(() => {
+                logger.info(`Successfully connected to ${dbUrl}`);
+            })
+            .catch((error) => {
+                logger.error("Error connecting to Mongo DB ...");
+                logger.error(error);
+                return process.exit(1);
+            });
     };
+    connect();
+
+    mongoose.connection.on("disconnected", connect);
 };
 
 export default MongoHelper;

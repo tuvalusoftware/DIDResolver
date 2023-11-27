@@ -4,19 +4,24 @@ services:
   mongo:
     image: mongo:7.0.0
     container_name: request-mongodb
+    volumes:
+       - ./docker-data/mongodb:/data/db
     ports:
       - "${MONGO_PORT}:27017"
+    expose:
+      - "${MONGO_PORT}"
     networks:
       - resolver-network
     restart: always
-  rabbitmq:
-    image: rabbitmq
-    container_name: request-rabbitmq
+  service:
+    image: resolver-service
+    container_name: resolver-service
     ports:
-      - "${RABBITMQ_PORT}:${RABBITMQ_PORT}"
+      - "${SERVER_PORT}:${SERVER_PORT}"
+    depends_on:
+      - mongo
     networks:
       - resolver-network
-    restart: always
 networks:
   resolver-network:
         driver: bridge

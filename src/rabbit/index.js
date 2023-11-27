@@ -8,13 +8,19 @@ const logger = new Logger();
 let rabbitMQ;
 
 try {
-    rabbitMQ = await amqplib.connect(env.RABBITMQ_SERVICE);
+    rabbitMQ = await amqplib.connect({
+        protocol: "amqp",
+        hostname: env.RABBITMQ_SERVICE,
+        username: "guest",
+        password: "1",
+        heartbeat: 60 * 60 * 1000,
+    });
     logger.debug(
         "Connected to RabbitMQ",
         rabbitMQ?.connection?.serverProperties?.cluster_name
     );
 } catch (error) {
-    logger.error("Error connecting to RabbitMQ", error);
+    logger.error(error);
 }
 
 const queue = {
@@ -67,4 +73,3 @@ export function getSender({ service }) {
         queue: queue[service],
     };
 }
-
