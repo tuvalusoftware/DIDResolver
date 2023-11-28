@@ -1,19 +1,17 @@
 import { Logger } from "tslog";
-import MongoHelper from "./src/libs/connectMongo.js";
-import { setUpApp } from "./src/configs/setup/app.js";
-import { env } from "./src/configs/constants.js";
+import morgen from "morgan";
 import cors from "cors";
+import express from "express";
+import bodyParser from "body-parser";
+import MongoHelper from "./src/libs/connectMongo.js";
+import { env } from "./src/configs/constants.js";
 import compression from "compression";
 import cookieParser from "cookie-parser";
 import methodOverride from "method-override";
-import bodyParser from "body-parser";
 import morganMiddleware from "./src/routers/middlewares/morganLogger.js";
-import http from "http";
-import express from "express";
 import routes from "./src/routers/routes/index.js";
 import { setUpErrorHandler } from "./src/configs/setup/errorHandler.js";
 import connectRabbitMQ from "./src/configs/setup/rabbitmq.js";
-import morgen from "morgan";
 import { setUpSwagger } from "./src/configs/setup/swagger.js";
 import { setUpCron } from "./src/configs/setup/cron.js";
 

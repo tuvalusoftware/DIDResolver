@@ -11,8 +11,8 @@ try {
     rabbitMQ = await amqplib.connect({
         protocol: "amqp",
         hostname: env.RABBITMQ_SERVICE,
-        username: "guest",
-        password: "1",
+        username: env.RABBITMQ_USER,
+        password: env.RABBITMQ_PASSWORD,
     });
     logger.debug(
         "Connected to RabbitMQ",

@@ -34,6 +34,12 @@ const env = cleanEnv(process.env, {
         choices: [1, 2, 3],
     }),
     RABBITMQ_SERVICE: str(),
+    RABBITMQ_USER: str({
+        default: "guest",
+    }),
+    RABBITMQ_PASSWORD: str({
+        default: "guest",
+    }),
     NODE_ENV: str({
         choices: ["dev", "production", "test"],
         default: "dev",
@@ -44,6 +50,7 @@ const env = cleanEnv(process.env, {
     SERVER_TIMEOUT: num({
         default: 30000,
     }),
+    MONGO_HOST: str({}),
 });
 
 const PLOT_STATUSES = {
