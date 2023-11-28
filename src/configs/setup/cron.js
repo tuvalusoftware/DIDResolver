@@ -12,7 +12,7 @@ import logger from "../../../logger.js";
 
 export const setUpCron = () => {
     const task = cron.schedule(
-        "*/30 * * * * *",
+        env.CRON_REMINDER,
         async () => {
             const request = await RequestModel.findOne({
                 status: "pending",

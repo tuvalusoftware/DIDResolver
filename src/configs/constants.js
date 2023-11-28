@@ -51,6 +51,9 @@ const env = cleanEnv(process.env, {
         default: 30000,
     }),
     MONGO_HOST: str({}),
+    CRON_REMINDER: str({
+        default: "*/30 * * * * *",
+    }),
 });
 
 const PLOT_STATUSES = {
