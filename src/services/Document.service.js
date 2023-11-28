@@ -31,12 +31,6 @@ import {
 import { AppError } from "../configs/errors/appError.js";
 import { ERRORS } from "../configs/errors/error.constants.js";
 
-const adminSeedPhrase = env.ADMIN_SEED_PHRASE;
-
-const { currentWallet, lucidClient } = await getAccountBySeedPhrase({
-    seedPhrase: env.ADMIN_SEED_PHRASE,
-});
-
 const wrapDocumentData = async ({
     documents,
     address,

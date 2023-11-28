@@ -1,14 +1,7 @@
 import axios from "axios";
-import dotenv from "dotenv";
+import "dotenv/config";
 import { env } from "../configs/constants.js";
 import { handleServiceError } from "../configs/errors/errorHandler.js";
-
-dotenv.config();
-
-/**
- * Authentication service module.
- * @module AuthenticationService
- */
 
 const AuthenticationService = () => {
     const serverUrl = env.AUTHENTICATION_SERVICE;

@@ -12,10 +12,10 @@ const logger = new Logger();
 const MongoHelper = () => {
     const port = env.MONGO_PORT;
     const dbName = env.MONGO_DB_NAME;
-    const dbUrl = `mongodb://localhost:${port}/${dbName}`;
+    const mongoHost = env.MONGO_HOST;
+    const dbUrl = `mongodb://${mongoHost}:${port}/${dbName}`;
 
     const connect = () => {
-        logger.warn("Connecting to MongoDB ...");
         mongoose
             .connect(dbUrl)
             .then(() => {

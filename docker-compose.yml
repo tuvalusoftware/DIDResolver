@@ -1,31 +1,54 @@
 version: "3.8"
 
 services:
+  rabbitmq:
+    image: rabbitmq:3-management
+    container_name: rabbitmq
+    ports:
+      - "${RABBITMQ_PORT}:${RABBITMQ_PORT}"
+    expose:
+      - "${RABBITMQ_PORT}"
+    healthcheck:
+      test: rabbitmq-diagnostics -q ping
+      interval: 30s
+      timeout: 30s
+      retries: 3
+    volumes:
+      - ./docker-data/rabbitmq:/var/lib/rabbitmq
+    networks:
+      - resolver-networks
+  mongo:
+    image: mongo
+    container_name: mongo
+    volumes:
+      - ./docker-data/mongo:/data/db
+    ports:
+      - "${MONGO_PORT}:${MONGO_PORT}"
+    expose:
+      - "${MONGO_PORT}"
+    healthcheck:
+      test: ["CMD","mongosh", "--eval", "db.adminCommand('ping')"]
+      interval: 5s
+      timeout: 5s
+      retries: 3
+      start_period: 5s
+    networks:
+      - resolver-networks
   service:
-    image: resolver-service
+    image: resolver
     container_name: resolver-service
     ports:
       - "${SERVER_PORT}:${SERVER_PORT}"
     expose:
       - "${SERVER_PORT}"
+    depends_on:
+      rabbitmq:
+        condition: service_healthy
+      mongo: 
+        condition: service_healthy
     networks:
-      - cardanonetwork
-    extra_hosts:
-      - "mongohost:172.17.0.1"
-
-  # mongo:
-  #   image: mongo
-  #   container_name: mongo
-  #   volumes:
-  #     - ./docker-data/mongo:/data/db
-  #   ports:
-  #     - "${MONGO_PORT}:${MONGO_PORT}"
-  #   expose:
-  #     - "${MONGO_PORT}"
-  #   networks:
-  #     - cardanonetwork
+      - resolver-networks
 
 networks:
-  cardanonetwork:
-    external:
-      name: cardanoservice_cardanonetwork
+  resolver-networks:
+    driver: bridge

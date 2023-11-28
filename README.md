@@ -5,7 +5,14 @@ Node version 18
 NPM version 9
 ```
 
- docker run -it -d --rm --name rabbitmq -p 5672:5672 -p 15672:15672 rabbitmq:3.12-management 
+```
+docker run -it -d --rm --name rabbitmq -p 5672:5672 -p 15672:15672 rabbitmq:3.12-management 
+```
+
+```
+docker build -t resolver .
+```
+
 ## Set up
 
 1. Set up `.env` file

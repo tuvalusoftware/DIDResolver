@@ -1,16 +1,9 @@
-import dotenv from "dotenv";
+import "dotenv/config";
 import { splitDid } from "../utils/index.js";
 import { handleServiceError } from "../configs/errors/errorHandler.js";
 import { env } from "../configs/constants.js";
 import axios from "axios";
 
-dotenv.config();
-
-/**
- * ControllerService is a factory function that returns an object with methods for interacting with the DID controller API.
- * @param {string} accessToken - The access token to use for authentication.
- * @returns {Object} An object with methods for interacting with the DID controller API.
- */
 const ControllerService = (accessToken) => {
     const controllerUrl = env.DID_CONTROLLER;
     const corsConfig = {
@@ -91,7 +84,7 @@ const ControllerService = (accessToken) => {
                         resolve(response);
                     })
                     .catch((error) => {
-                        reject(error)
+                        reject(error);
                     });
             });
         },
@@ -128,7 +121,7 @@ const ControllerService = (accessToken) => {
                         resolve(response);
                     })
                     .catch((error) => {
-                        reject(error)
+                        reject(error);
                     });
             });
         },
