@@ -1,4 +1,4 @@
-import { env } from "../configs/constants.js";
+// import { env } from "../configs/constants.js";
 import { handleServiceError } from "../configs/errors/errorHandler.js";
 import {
     CardanoProducer,
@@ -16,7 +16,7 @@ dotenv.config();
  * @returns {Object} An object containing methods for interacting with the Cardano blockchain.
  */
 const CardanoService = (accessToken) => {
-    const serverUrl = env.CARDANO_SERVICE;
+    // const serverUrl = env.CARDANO_SERVICE;
     const corsConfig = {
         withCredentials: true,
         headers: {
@@ -45,7 +45,7 @@ const CardanoService = (accessToken) => {
             }
             return new Promise((resolve, reject) => {
                 axios
-                    .post(serverUrl + "/api/v2/fetch/nft", query, corsConfig)
+                    .post('serverUrl' + "/api/v2/fetch/nft", query, corsConfig)
                     .then((response) => {
                         handleServiceError(response);
                         resolve(response.data);

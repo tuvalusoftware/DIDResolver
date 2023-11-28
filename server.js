@@ -49,7 +49,7 @@ setUpCron();
 const port = env.NODE_ENV !== "test" ? env.SERVER_PORT : 8001;
 app.listen(port, () => {
     logger.info(`Environment: ${env.NODE_ENV}`);
-    logger.info(`Server is live: http://localhost:${port}`);
+    logger.info(`Server is live: http://host.docker.internal:${port}`);
 });
 
 export default app;

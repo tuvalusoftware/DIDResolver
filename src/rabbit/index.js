@@ -13,7 +13,6 @@ try {
         hostname: env.RABBITMQ_SERVICE,
         username: "guest",
         password: "1",
-        heartbeat: 60 * 60 * 1000,
     });
     logger.debug(
         "Connected to RabbitMQ",

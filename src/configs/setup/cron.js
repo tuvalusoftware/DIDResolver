@@ -12,7 +12,7 @@ import logger from "../../../logger.js";
 
 export const setUpCron = () => {
     const task = cron.schedule(
-        "*/1 * * * *",
+        "*/30 * * * * *",
         async () => {
             const request = await RequestModel.findOne({
                 status: "pending",
@@ -28,6 +28,7 @@ export const setUpCron = () => {
                 try {
                     switch (request.type) {
                         case REQUEST_TYPE.MINTING_TYPE.updatePlot: {
+                            logger.info("update plot");
                             const { wrappedDocument, originDid } = request.data;
                             const accessToken =
                                 env.NODE_ENV === "test"
@@ -50,6 +51,7 @@ export const setUpCron = () => {
                             break;
                         }
                         case REQUEST_TYPE.MINTING_TYPE.addClaimantToPlot: {
+                            logger.info("add claimant to plot");
                             const { originDid, credential } = request.data;
                             const accessToken =
                                 env.NODE_ENV === "test"
@@ -73,6 +75,7 @@ export const setUpCron = () => {
                             break;
                         }
                         case REQUEST_TYPE.MINTING_TYPE.signContract: {
+                            logger.info("sign contract");
                             const { originDid, credential } = request.data;
                             const accessToken =
                                 env.NODE_ENV === "test"
@@ -99,7 +102,7 @@ export const setUpCron = () => {
                             throw new AppError(ERRORS.INVALID_INPUT);
                     }
                 } catch (error) {
-                    logger.info("Cron error", error);
+                    logger.error(error);
                     await RequestRepo.findOneAndUpdate(
                         { error: error.message },
                         { _id: request._id }

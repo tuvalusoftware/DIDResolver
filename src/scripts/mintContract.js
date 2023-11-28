@@ -5,14 +5,13 @@ import { env } from "../configs/constants.js";
 import http from "http";
 import RequestRepo from "../db/repos/requestRepo.js";
 import CardanoService from "../services/Cardano.service.js";
-import AuthenticationService from "../services/Authentication.service.js";
 
 const logger = new Logger();
-await MongoHelper().connect();
+MongoHelper();
 const app = await setUpApp();
 const server = http.createServer(app);
 server.timeout = env.SERVER_TIMEOUT;
-const port = env.NODE_ENV !== "test" ? env.SERVER_PORT : 8001;
+const port = 8005;
 server.listen(port, () => {
     logger.info(`Environment: ${env.NODE_ENV}`);
     logger.info(`Server is live: http://localhost:${port}`);
@@ -20,17 +19,27 @@ server.listen(port, () => {
 
 async function mintContract() {
     const request = await RequestRepo.findOne({
-        _id: "65547bbd7dbef1f198c125b0",
+        _id: "655ad3bdb8f55f44deb853b9",
     });
-    const accessToken =
-        env.NODE_ENV === "test"
-            ? "mock-access-token"
-            : await AuthenticationService().authenticationProgress();
-    await CardanoService(accessToken).storeToken({
+    await CardanoService('accessToken').storeToken({
         hash: request.data.wrappedDocument.signature.targetHash,
         id: request._id,
         type: "document",
     });
 }
 
-await mintContract();
+async function createClaimantCredential() {
+    const request = await RequestRepo.findOne({
+        _id: "656449d91458fe9c04c4b4c5",
+    });
+    await CardanoService(
+        'accessToken'
+    ).storeCredentialsWithPolicyId({
+        credentials: [request.data.credential],
+        mintingConfig: request.data.mintingConfig,
+        id: request?._id,
+    });
+}
+
+// await mintContract();
+await createClaimantCredential();
