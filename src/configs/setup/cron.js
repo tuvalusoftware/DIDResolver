@@ -101,6 +101,10 @@ export const setUpCron = () => {
                         default:
                             throw new AppError(ERRORS.INVALID_INPUT);
                     }
+                    await RequestRepo.findOneAndUpdate(
+                        { status: "minting" },
+                        { _id: request._id }
+                    );
                 } catch (error) {
                     logger.error(error);
                     await RequestRepo.findOneAndUpdate(
