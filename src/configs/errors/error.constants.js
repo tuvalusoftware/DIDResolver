@@ -173,6 +173,31 @@ const ERRORS = {
         error_code: 5001,
         error_message: "Internal server error.",
     },
+
+    RABBITMQ_CONNECTION_ERROR: {
+        error_code: 6001,
+        error_message: "RabbitMQ connection error.",
+    },
+    RABBITMQ_CHANNEL_ERROR: {
+        error_code: 6002,
+        error_message: "RabbitMQ channel error.",
+    },
+    RABBITMQ_CONSUME_ERROR: {
+        error_code: 6003,
+        error_message: "RabbitMQ consume error.",
+    },
+    RABBITMQ_PUBLISH_ERROR: {
+        error_code: 6004,
+        error_message: "RabbitMQ publish error.",
+    },
+    RABBITMQ_QUEUE_ERROR: {
+        error_code: 6005,
+        error_message: "RabbitMQ queue error.",
+    },
+    RABBIT_MESSAGE_ERROR: {
+        error_code: 6006,
+        error_message: "RabbitMQ message error.",
+    },
 };
 
 export { ERRORS };

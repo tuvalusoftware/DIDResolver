@@ -6,14 +6,10 @@ import RequestRepo from "../db/repos/requestRepo.js";
 import { generateDid } from "../fuixlabs-documentor/utils/did.js";
 import { REQUEST_TYPE } from "./config.js";
 import { Logger } from "tslog";
+import { rabbitMQ } from "./index.js";
 
 const logger = new Logger();
 
-/**
- * Rabbit repository module.
- * @param {string} accessToken - The access token.
- * @returns {Object} Rabbit repository object.
- */
 const RabbitRepository = (accessToken) => {
     return {
         async createContract({
@@ -118,6 +114,7 @@ const RabbitRepository = (accessToken) => {
             verifiedCredential,
             credentialHash,
             companyName,
+            txHash,
         }) {
             try {
                 const _verifiedCredential = {
@@ -131,6 +128,7 @@ const RabbitRepository = (accessToken) => {
                     payload: {
                         ..._verifiedCredential,
                         id: generateDid(companyName, credentialHash),
+                        txHash,
                     },
                 });
                 return _verifiedCredential;
@@ -144,9 +142,6 @@ const RabbitRepository = (accessToken) => {
             updateConfig,
             companyName,
             fileName,
-            claimants,
-            plot,
-            did,
         }) {
             try {
                 let updateWrappedDocument = {
@@ -158,43 +153,6 @@ const RabbitRepository = (accessToken) => {
                     fileName,
                     wrappedDocument: updateWrappedDocument,
                 });
-                if (claimants) {
-                    const promises = claimants.map(async (claimant) => {
-                        const { verifiableCredential, credentialHash } =
-                            await credentialService.createClaimantVerifiableCredential(
-                                {
-                                    subject: {
-                                        claims: {
-                                            plot: plot?._id,
-                                            ...claimant,
-                                        },
-                                    },
-                                    issuerKey: did,
-                                }
-                            );
-                        const request = await RequestRepo.createRequest({
-                            data: {
-                                mintingConfig: updateConfig,
-                                credential: credentialHash,
-                                verifiedCredential: verifiableCredential,
-                                companyName,
-                            },
-                            type: REQUEST_TYPE.MINTING_TYPE
-                                .createClaimantCredential,
-                            status: "pending",
-                        });
-                        await CardanoService(
-                            accessToken
-                        ).storeCredentialsWithPolicyId({
-                            credentials: [credentialHash],
-                            mintingConfig: updateConfig,
-                            id: request?._id,
-                        });
-                    });
-                    await Promise.all(promises).catch((error) => {
-                        logger.error(error);
-                    });
-                }
             } catch (error) {
                 throw error;
             }

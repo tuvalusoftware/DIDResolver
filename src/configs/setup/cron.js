@@ -18,7 +18,6 @@ export const setUpCron = () => {
                 status: "pending",
                 type: {
                     $in: [
-                        REQUEST_TYPE.MINTING_TYPE.updatePlot,
                         REQUEST_TYPE.MINTING_TYPE.addClaimantToPlot,
                         REQUEST_TYPE.MINTING_TYPE.signContract,
                     ],
@@ -27,29 +26,29 @@ export const setUpCron = () => {
             if (request) {
                 try {
                     switch (request.type) {
-                        case REQUEST_TYPE.MINTING_TYPE.updatePlot: {
-                            logger.info("update plot");
-                            const { wrappedDocument, originDid } = request.data;
-                            const accessToken =
-                                env.NODE_ENV === "test"
-                                    ? "mock-access-token"
-                                    : await AuthenticationService().authenticationProgress();
-                            const documentContentResponse =
-                                await ControllerService(
-                                    accessToken
-                                ).getDocumentContent({
-                                    did: originDid,
-                                });
-                            const { mintingConfig } =
-                                documentContentResponse?.data?.wrappedDoc;
-                            Object.assign(mintingConfig, { reuse: true });
-                            await CardanoService(accessToken).updateToken({
-                                hash: wrappedDocument?.signature?.targetHash,
-                                mintingConfig,
-                                id: request._id,
-                            });
-                            break;
-                        }
+                        // case REQUEST_TYPE.MINTING_TYPE.updatePlot: {
+                        //     logger.info("update plot");
+                        //     const { wrappedDocument, originDid } = request.data;
+                        //     const accessToken =
+                        //         env.NODE_ENV === "test"
+                        //             ? "mock-access-token"
+                        //             : await AuthenticationService().authenticationProgress();
+                        //     const documentContentResponse =
+                        //         await ControllerService(
+                        //             accessToken
+                        //         ).getDocumentContent({
+                        //             did: originDid,
+                        //         });
+                        //     const { mintingConfig } =
+                        //         documentContentResponse?.data?.wrappedDoc;
+                        //     Object.assign(mintingConfig, { reuse: true });
+                        //     await CardanoService(accessToken).updateToken({
+                        //         hash: wrappedDocument?.signature?.targetHash,
+                        //         mintingConfig,
+                        //         id: request._id,
+                        //     });
+                        //     break;
+                        // }
                         case REQUEST_TYPE.MINTING_TYPE.addClaimantToPlot: {
                             logger.info("add claimant to plot");
                             const { originDid, credential } = request.data;

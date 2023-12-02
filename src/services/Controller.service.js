@@ -4,12 +4,10 @@ import { handleServiceError } from "../configs/errors/errorHandler.js";
 import { env } from "../configs/constants.js";
 import axios from "axios";
 
-const ControllerService = (accessToken) => {
+const ControllerService = () => {
     const controllerUrl = env.DID_CONTROLLER;
     const corsConfig = {
-        headers: {
-            Cookie: `access_token=${accessToken};`,
-        },
+        headers: {},
     };
 
     return {

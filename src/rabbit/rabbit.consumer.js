@@ -165,23 +165,23 @@ export const ResolverConsumer = async () => {
                         break;
                     }
                     case REQUEST_TYPE.MINTING_TYPE.updatePlot: {
-                        logger.info("Requesting update document...");
-                        const { wrappedDocument, claimants, plot } = deepUnsalt(
-                            requestData?.data
-                        );
-                        const { fileName, companyName, did } =
-                            wrappedDocument?.data;
-                        const updateConfig = cardanoResponse.data;
-                        await RabbitRepository(accessToken).updatePlot({
-                            wrappedDocument,
-                            updateConfig,
-                            claimants: claimants?.claimants,
-                            companyName,
-                            fileName,
-                            plot,
-                            did,
-                        });
-                        response = cardanoResponse?.data;
+                        // logger.info("Requesting update document...");
+                        // const { wrappedDocument, claimants, plot } = deepUnsalt(
+                        //     requestData?.data
+                        // );
+                        // const { fileName, companyName, did } =
+                        //     wrappedDocument?.data;
+                        // const updateConfig = cardanoResponse.data;
+                        // await RabbitRepository(accessToken).updatePlot({
+                        //     wrappedDocument,
+                        //     updateConfig,
+                        //     claimants: claimants?.claimants,
+                        //     companyName,
+                        //     fileName,
+                        //     plot,
+                        //     did,
+                        // });
+                        // response = cardanoResponse?.data;
                         break;
                     }
                     case REQUEST_TYPE.MINTING_TYPE.deletePlot: {

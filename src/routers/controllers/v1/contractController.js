@@ -6,12 +6,12 @@ import { REQUEST_TYPE } from "../../../rabbit/config.js";
 import schemaValidator from "../../../helpers/validator.js";
 import requestSchema from "../../../configs/schemas/request.schema.js";
 import AuthenticationService from "../../../services/Authentication.service.js";
-import CardanoService from "../../../services/Cardano.service.js";
 import DocumentService from "../../../services/Document.service.js";
 import ControllerService from "../../../services/Controller.service.js";
 import { getAccountBySeedPhrase } from "../../../utils/lucid.js";
 import { asyncWrapper } from "../../middlewares/async.js";
 import credentialService from "../../../services/VerifiableCredential.service.js";
+import ConsumerService from "../../../services/Consumer.service.js";
 
 // * Constants
 import { generateDid } from "../../../fuixlabs-documentor/utils/did.js";
@@ -81,11 +81,22 @@ export default {
             type: REQUEST_TYPE.MINTING_TYPE.createContract,
             status: "pending",
         });
-        await CardanoService(accessToken).storeToken({
-            hash: wrappedDocument?.signature?.targetHash,
-            id: request._id,
-            type: "document",
-        });
+        const config = await ConsumerService().createDocument(
+            wrappedDocument?.signature?.targetHash,
+            request._id,
+            "document",
+            request
+        );
+        await RequestRepo.findOneAndUpdate(
+            {
+                response: config,
+                status: "completed",
+                completedAt: new Date(),
+            },
+            {
+                _id: request._id,
+            }
+        )
         return res.status(200).json({
             did,
         });
