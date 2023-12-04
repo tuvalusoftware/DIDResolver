@@ -1,8 +1,8 @@
+import "dotenv/config";
 import { getSender } from "./index.js";
 import { RABBITMQ_SERVICE } from "./config.js";
 import RequestRepo from "../db/repos/requestRepo.js";
 import { REQUEST_TYPE } from "./config.js";
-import "dotenv/config";
 import { Logger } from "tslog";
 import { deepUnsalt } from "../fuixlabs-documentor/utils/data.js";
 import AuthenticationService from "../services/Authentication.service.js";

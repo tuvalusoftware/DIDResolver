@@ -1022,3 +1022,84 @@ export const commonlandsPlotCertificateV2 = {
         },
     },
 };
+export const addClaimantToDocumentV2 = {
+    post: {
+        tags: ["Commonlands Document"],
+        summary:
+            "Add a claimant to a Land Certificate for the Commonlands Project using either a URL or a minting configuration.",
+        requestBody: {
+            require: true,
+            content: {
+                "application/json": {
+                    schema: {
+                        type: "object",
+                        properties: {
+                            plotDid: {
+                                type: "string",
+                                example:
+                                    "did:fuixlabs:COMMONLANDS_2:64db86559e77a4ffc2395ada",
+                            },
+                            claimant: {
+                                type: "object",
+                                example: {
+                                    documentation: {
+                                        nationalID: [],
+                                        driverLicense: [],
+                                        passport: [],
+                                    },
+                                    _id: "5f45cfdbfbb6cf2f7002a5621_1",
+                                    publicKey:
+                                        "addr_test1qp7abcd1234efgh5678ijkl90mnopqrstuvwx",
+                                    phoneNumber: "+1987654321",
+                                    fullName: "John Doe",
+                                    did: "did:user:addr_test1qp7abcd1234efgh5678ijkl90mnopqrstuvwx",
+                                    gender: "male",
+                                    photoOfFace: "1234567890-John%20Doe.jpg",
+                                    avatar: "https://aws-storage.s3.region-7.amazonaws.com/1234567890-John%20Doe.jpg_avatar",
+                                    lastLogin: 1692263912,
+                                    firstLogin: false,
+                                    createdAt: 1692263912031,
+                                    oldNumbers: [],
+                                    blockedPlots: [],
+                                    role: "renter",
+                                },
+                            },
+                        },
+                    },
+                },
+            },
+        },
+        responses: {
+            200: {
+                description:
+                    "Return an object include revoked is true if success",
+                content: {
+                    "application/json": {
+                        examples: {
+                            "Add claimant to document successfully": {
+                                value: {
+                                    success: true,
+                                },
+                            },
+                            "Missing parameters": {
+                                value: {
+                                    error_code: 400,
+                                    error_message:
+                                        "Bad request. Missing parameters.",
+                                    detail: "Not found: owner",
+                                },
+                            },
+                            "Add claimant to document failed": {
+                                value: {
+                                    error_code: 400,
+                                    error_message:
+                                        "Bad request. Add claimant to document failed.",
+                                },
+                            },
+                        },
+                    },
+                },
+            },
+        },
+    },
+};

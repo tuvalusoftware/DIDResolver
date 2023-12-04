@@ -8,11 +8,6 @@ import { Logger } from "tslog";
 
 const logger = new Logger();
 
-/**
- * Rabbit repository module.
- * @param {string} accessToken - The access token.
- * @returns {Object} Rabbit repository object.
- */
 const RabbitRepository = (accessToken) => {
     return {
         async createContract({
@@ -117,6 +112,7 @@ const RabbitRepository = (accessToken) => {
             verifiedCredential,
             credentialHash,
             companyName,
+            txHash,
         }) {
             try {
                 const _verifiedCredential = {
@@ -130,6 +126,7 @@ const RabbitRepository = (accessToken) => {
                     payload: {
                         ..._verifiedCredential,
                         id: generateDid(companyName, credentialHash),
+                        txHash,
                     },
                 });
                 return _verifiedCredential;

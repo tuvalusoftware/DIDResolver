@@ -216,7 +216,7 @@ export default {
                 },
                 issuerKey: plotDid,
             });
-        const request = await RequestRepo.createRequest({
+        await RequestRepo.createRequest({
             data: {
                 credential: credentialHash,
                 verifiedCredential: verifiableCredential,

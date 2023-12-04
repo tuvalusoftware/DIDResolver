@@ -20,6 +20,7 @@ export const REQUEST_TYPE = {
         updatePlot2: "update-plot-2",
         deletePlot: "delete-plot",
         addClaimantToPlot: "add-claimant-to-plot",
+        addClaimantToPlot2: "add-claimant-to-plot-2",
         signContract: "sign-contract",
     },
 };

@@ -4,6 +4,7 @@ import {
     getDocumentInformation,
     addClaimantToDocument,
     commonlandsPlotCertificateV2,
+    addClaimantToDocumentV2,
 } from "./commonlands.js";
 import { user } from "./user.js";
 import { unsalt } from "./utility.js";
@@ -22,6 +23,9 @@ export const paths = {
     },
     "/commonlands/document/certificate/add-claimant": {
         ...addClaimantToDocument,
+    },
+    "/v2/commonlands/document/certificate/add-claimant": {
+        ...addClaimantToDocumentV2,
     },
     "/commonlands/document/hash": {
         ...hashDocumentContent,

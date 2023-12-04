@@ -448,4 +448,105 @@ export default {
             claimants: _claimants,
         });
     }),
+    addClaimantToCertificate: asyncWrapper(async (req, res, next) => {
+        const { plotDid, claimant } = schemaValidator(
+            requestSchema.addClaimantToPlot,
+            req.body
+        );
+        const plotId = plotDid.split(":")[3].split("-")[1];
+        const companyName = env.COMPANY_NAME;
+        const { verifiableCredential, credentialHash, did } =
+            await credentialService.createClaimantVerifiableCredential({
+                subject: {
+                    claims: {
+                        plot: plotId,
+                        ...claimant,
+                    },
+                },
+                issuerKey: plotDid,
+            });
+        const request = await RequestRepo.createRequest({
+            data: {
+                credential: credentialHash,
+                verifiedCredential: verifiableCredential,
+                companyName,
+                originDid: plotDid,
+            },
+            type: REQUEST_TYPE.MINTING_TYPE.addClaimantToPlot2,
+            status: "pending",
+        });
+        const documentContentResponse =
+            await ControllerService().getDocumentContent({
+                did: plotDid,
+            });
+        const { mintingConfig } = documentContentResponse.data?.wrappedDoc;
+        const credentialChannel = await rabbitMQ.createChannel();
+        const correlationId = randomUUID();
+        const replyQueue = await credentialChannel.assertQueue(correlationId);
+        const requestMessage = {
+            type: REQUEST_TYPE.CARDANO_SERVICE.mintCredential,
+            options: {
+                skipWait: true,
+            },
+            data: {
+                config: mintingConfig,
+                credentials: [credentialHash],
+                type: "credential",
+            },
+            id: request._id,
+        };
+        credentialChannel.sendToQueue(
+            RABBITMQ_SERVICE.CardanoContractService,
+            Buffer.from(JSON.stringify(requestMessage)),
+            {
+                correlationId,
+                replyTo: correlationId,
+            }
+        );
+        const createClaimantCredentialHandle = new Promise(
+            (resolve, reject) => {
+                credentialChannel.consume(replyQueue.queue, async (msg) => {
+                    if (msg !== null) {
+                        const cardanoResponse = JSON.parse(msg.content);
+                        const config = cardanoResponse.data;
+                        if (cardanoResponse.id === request._id.toString()) {
+                            const _verifiedCredential = await RabbitRepository(
+                                "accessToken"
+                            ).createClaimantCredential({
+                                credentialHash,
+                                companyName,
+                                verifiedCredential: verifiableCredential,
+                                txHash: config.txHash,
+                            });
+                            await RequestRepo.findOneAndUpdate(
+                                {
+                                    response: {
+                                        config,
+                                        verifiedCredential: _verifiedCredential,
+                                    },
+                                    status: "completed",
+                                    completedAt: new Date(),
+                                },
+                                {
+                                    _id: request?.id,
+                                }
+                            );
+                            resolve({
+                                config,
+                                did: _verifiedCredential?.credentialSubject?.id,
+                            });
+                        }
+                        credentialChannel.ack(msg);
+                    }
+                    reject(new AppError(ERRORS.RABBIT_MESSAGE_ERROR));
+                });
+            }
+        );
+        const { config: _config, did: _did } =
+            await createClaimantCredentialHandle;
+        return res.status(200).json({
+            did: _did,
+            transactionId: _config?.txHash,
+        });
+    }),
 };
