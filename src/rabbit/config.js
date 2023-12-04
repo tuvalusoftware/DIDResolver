@@ -17,6 +17,7 @@ export const REQUEST_TYPE = {
         createPlot: "create-plot",
         createClaimantCredential: "create-claimant-credential",
         updatePlot: "update-plot",
+        updatePlot2: "update-plot-2",
         deletePlot: "delete-plot",
         addClaimantToPlot: "add-claimant-to-plot",
         signContract: "sign-contract",

@@ -1,7 +1,6 @@
 import ControllerService from "../services/Controller.service.js";
 import CardanoService from "../services/Cardano.service.js";
 import credentialService from "../services/VerifiableCredential.service.js";
-import AuthenticationService from "../services/Authentication.service.js";
 import RequestRepo from "../db/repos/requestRepo.js";
 import { generateDid } from "../fuixlabs-documentor/utils/did.js";
 import { REQUEST_TYPE } from "./config.js";
@@ -195,6 +194,62 @@ const RabbitRepository = (accessToken) => {
                         logger.error(error);
                     });
                 }
+            } catch (error) {
+                throw error;
+            }
+        },
+
+        async _createContract({
+            companyName,
+            fileName,
+            did,
+            wrappedDocument,
+            mintingConfig,
+            metadata = null,
+        }) {
+            const willWrappedDocument = {
+                ...wrappedDocument,
+                mintingConfig,
+            };
+            await ControllerService(accessToken).storeDocument({
+                companyName,
+                fileName,
+                wrappedDocument: willWrappedDocument,
+            });
+            if (metadata) {
+                const didDocumentResponse = await ControllerService(
+                    accessToken
+                ).getDocumentDid({
+                    did,
+                });
+                const originDidDocument = didDocumentResponse?.data?.didDoc;
+                await ControllerService(accessToken).updateDocumentDid({
+                    accessToken,
+                    did,
+                    didDoc: {
+                        ...originDidDocument,
+                        meta_data: metadata,
+                    },
+                });
+            }
+        },
+
+        async _updatePlot({
+            wrappedDocument,
+            updateConfig,
+            companyName,
+            fileName,
+        }) {
+            try {
+                let updateWrappedDocument = {
+                    ...wrappedDocument,
+                    mintingConfig: updateConfig,
+                };
+                await ControllerService(accessToken).storeDocument({
+                    companyName,
+                    fileName,
+                    wrappedDocument: updateWrappedDocument,
+                });
             } catch (error) {
                 throw error;
             }

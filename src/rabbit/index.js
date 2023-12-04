@@ -72,3 +72,7 @@ export function getSender({ service }) {
         queue: queue[service],
     };
 }
+
+export {
+    rabbitMQ
+}
