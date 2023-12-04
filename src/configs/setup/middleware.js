@@ -20,7 +20,6 @@ export const setUpMiddleware = async (app) => {
                 extended: true,
             })
         );
-        
         app.use(morganMiddleware);
     } catch (error) {
         throw error;

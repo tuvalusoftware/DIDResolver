@@ -117,6 +117,5 @@ export const setUpCron = () => {
             scheduled: false,
         }
     );
-
     task.start();
 };

@@ -1,4 +1,3 @@
-import * as rabbit from "../../rabbit/index.js";
 import { ResolverConsumer } from "../../rabbit/rabbit.consumer.js";
 import { Logger } from "tslog";
 
