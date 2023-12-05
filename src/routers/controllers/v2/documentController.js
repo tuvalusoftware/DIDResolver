@@ -118,7 +118,7 @@ export default {
                 _id: request?.id,
             }
         );
-        const { txHash } = config;
+        const { txHash, assetName } = config;
         const claimantsCredentialDids =
             await credentialService.getCredentialDidsFromClaimants({
                 claimants: plot.claimants,
@@ -248,6 +248,7 @@ export default {
             plot: {
                 did,
                 transactionId: txHash,
+                hashOfDocument: assetName,
             },
             claimants: _claimants,
         });
@@ -314,7 +315,7 @@ export default {
                 _id: request?.id,
             }
         );
-        const { txHash } = _config;
+        const { txHash, assetName } = _config;
         const claimantsCredentialDids =
             await credentialService.getCredentialDidsFromClaimants({
                 claimants: plot.claimants,
@@ -444,6 +445,7 @@ export default {
             plot: {
                 did,
                 transactionId: txHash,
+                hashOfDocument: assetName,
             },
             claimants: _claimants,
         });

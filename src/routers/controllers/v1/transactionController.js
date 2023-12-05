@@ -22,11 +22,15 @@ export default {
         );
         if (
             documentResponse.status === "fulfilled" &&
-            documentResponse.value.data?.wrappedDoc?.mintingConfig?.txHash
+            documentResponse.value.data?.wrappedDoc?.mintingConfig?.txHash &&
+            documentResponse.value.data?.wrappedDoc?.mintingConfig?.assetName
         ) {
             return res.status(200).json({
                 transactionId:
                     documentResponse.value.data.wrappedDoc.mintingConfig.txHash,
+                hashOfDocument:
+                    documentResponse.value.data.wrappedDoc.mintingConfig
+                        .assetName,
             });
         }
         if (
@@ -39,6 +43,7 @@ export default {
         }
         return res.status(200).json({
             transactionId: null,
+            hashOfDocument: null,
         });
     }),
 };
