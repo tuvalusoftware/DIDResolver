@@ -2,8 +2,6 @@ import { asyncWrapper } from "../../middlewares/async.js";
 import schemaValidator from "../../../helpers/validator.js";
 import requestSchema from "../../../configs/schemas/request.schema.js";
 import ControllerService from "../../../services/Controller.service.js";
-import AuthenticationService from "../../../services/Authentication.service.js";
-import { splitDid } from "../../../utils/index.js";
 
 export default {
     getTransactionIdByDid: asyncWrapper(async (req, res, next) => {
@@ -12,24 +10,35 @@ export default {
             req.body
         );
         const { did } = payload;
-        const { companyName, fileName } = splitDid(did);
-        const accessToken =
-            await AuthenticationService().authenticationProgress();
-        const response = await ControllerService(accessToken).isExisted({
-            companyName,
-            fileName,
-        });
-        if (!response.data.isExisted) {
+        const [documentResponse, credentialResponse] = await Promise.allSettled(
+            [
+                ControllerService().getDocumentContent({
+                    did: did,
+                }),
+                ControllerService().getCredentialContent({
+                    did: did,
+                }),
+            ]
+        );
+        if (
+            documentResponse.status === "fulfilled" &&
+            documentResponse.value.data?.wrappedDoc?.mintingConfig?.txHash
+        ) {
             return res.status(200).json({
-                transactionId: null,
+                transactionId:
+                    documentResponse.value.data.wrappedDoc.mintingConfig.txHash,
             });
         }
-        const _response = await ControllerService(
-            accessToken
-        ).getDocumentContent({ did: did });
-        const { txHash } = _response.data?.wrappedDoc?.mintingConfig;
+        if (
+            credentialResponse.status === "fulfilled" &&
+            credentialResponse?.value?.data?.txHash
+        ) {
+            return res.status(200).json({
+                transactionId: credentialResponse.value.data.txHash,
+            });
+        }
         return res.status(200).json({
-            transactionId: txHash,
+            transactionId: null,
         });
     }),
 };
