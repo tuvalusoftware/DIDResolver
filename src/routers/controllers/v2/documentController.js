@@ -56,6 +56,7 @@ export default {
                 });
             const __txHash =
                 _documentContent?.data?.wrappedDoc?.mintingConfig?.txHash;
+            const __assetName = _documentContent?.data?.wrappedDoc?.assetName;
             const _claimantsCredentialDids =
                 await credentialService.getCredentialDidsFromClaimants({
                     claimants: plot.claimants,
@@ -79,6 +80,7 @@ export default {
                 plot: {
                     did,
                     transactionId: __txHash,
+                    hashOfDocument: __assetName,
                 },
                 claimants: __claimants,
             });
