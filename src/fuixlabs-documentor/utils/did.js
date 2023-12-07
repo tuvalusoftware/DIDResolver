@@ -12,7 +12,9 @@ import { CLIENT_PATH } from "../rest/client.path.js";
 
 // * Utilities libraries
 import { generateDidOfWrappedDocument } from "../utils/data.js";
-import "dotenv/config";
+import dotenv from "dotenv";
+
+dotenv.config();
 
 /**
  * Function used to generate did rely on company name and encoded public key

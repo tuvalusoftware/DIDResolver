@@ -1,5 +1,8 @@
 import axios from "axios";
-import "dotenv/config";
+import dotenv from "dotenv";
+import { createRequire } from "module";
+import { fileURLToPath } from "node:url";
+import Logger from "../../../../logger.js";
 import RequestRepo from "../../../db/repos/requestRepo.js";
 import { REQUEST_TYPE } from "../../../rabbit/config.js";
 import schemaValidator from "../../../helpers/validator.js";
@@ -14,17 +17,19 @@ import { asyncWrapper } from "../../middlewares/async.js";
 import { generateDid } from "../../../fuixlabs-documentor/utils/did.js";
 import { env, WRAPPED_DOCUMENT_TYPE } from "../../../configs/constants.js";
 import wrappedDocumentSchema from "../../../configs/schemas/wrappedDocument.schema.js";
+import { AppError } from "../../../configs/errors/appError.js";
+import { ERRORS } from "../../../configs/errors/error.constants.js";
 
 axios.defaults.withCredentials = true;
 
-/**
- * Controller for creating and getting contracts.
- * @typedef {Object} ContractController
- * @property {Function} createContract - Creates a new contract.
- * @property {Function} getContract - Gets an existing contract by DID.
- */
+dotenv.config();
+const require = createRequire(import.meta.url);
+const __filename = fileURLToPath(import.meta.url);
+const logger = Logger(__filename);
+
 export default {
     createContract: asyncWrapper(async (req, res, next) => {
+        logger.apiInfo(req, `Create contract v2`);
         const { wrappedDoc, metadata } = schemaValidator(
             requestSchema.createContract,
             req.body
@@ -48,12 +53,16 @@ export default {
             fileName,
         });
         if (isExistedResponse.data?.isExisted) {
+            logger.warning(`Document ${did} is existed`);
             const getDocumentResponse = await ControllerService(
                 accessToken
             ).getDocumentContent({
                 did,
             });
-            const { wrappedDoc } = getDocumentResponse?.data;
+            if (!getDocumentResponse?.data) {
+                throw new AppError(ERRORS.INVALID_INPUT);
+            }
+            const { wrappedDoc } = getDocumentResponse.data;
             return {
                 isExisted: true,
                 wrappedDocument: wrappedDoc,

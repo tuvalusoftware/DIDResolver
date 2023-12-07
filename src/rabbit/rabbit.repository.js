@@ -1,19 +1,18 @@
 import ControllerService from "../services/Controller.service.js";
 import CardanoService from "../services/Cardano.service.js";
 import credentialService from "../services/VerifiableCredential.service.js";
-import AuthenticationService from "../services/Authentication.service.js";
 import RequestRepo from "../db/repos/requestRepo.js";
 import { generateDid } from "../fuixlabs-documentor/utils/did.js";
 import { REQUEST_TYPE } from "./config.js";
-import { Logger } from "tslog";
+import customLogger from "../helpers/customLogger.js";
+import { env } from "../configs/constants.js";
 
-const logger = new Logger();
+const pathToLog =
+    env.NODE_ENV === "test"
+        ? "logs/rabbit/test-task.log"
+        : "logs/rabbit/task.log";
+const logger = customLogger(pathToLog);
 
-/**
- * Rabbit repository module.
- * @param {string} accessToken - The access token.
- * @returns {Object} Rabbit repository object.
- */
 const RabbitRepository = (accessToken) => {
     return {
         async createContract({
@@ -118,6 +117,7 @@ const RabbitRepository = (accessToken) => {
             verifiedCredential,
             credentialHash,
             companyName,
+            txHash,
         }) {
             try {
                 const _verifiedCredential = {
@@ -131,6 +131,7 @@ const RabbitRepository = (accessToken) => {
                     payload: {
                         ..._verifiedCredential,
                         id: generateDid(companyName, credentialHash),
+                        txHash,
                     },
                 });
                 return _verifiedCredential;
@@ -195,6 +196,62 @@ const RabbitRepository = (accessToken) => {
                         logger.error(error);
                     });
                 }
+            } catch (error) {
+                throw error;
+            }
+        },
+
+        async _createContract({
+            companyName,
+            fileName,
+            did,
+            wrappedDocument,
+            mintingConfig,
+            metadata = null,
+        }) {
+            const willWrappedDocument = {
+                ...wrappedDocument,
+                mintingConfig,
+            };
+            await ControllerService(accessToken).storeDocument({
+                companyName,
+                fileName,
+                wrappedDocument: willWrappedDocument,
+            });
+            if (metadata) {
+                const didDocumentResponse = await ControllerService(
+                    accessToken
+                ).getDocumentDid({
+                    did,
+                });
+                const originDidDocument = didDocumentResponse?.data?.didDoc;
+                await ControllerService(accessToken).updateDocumentDid({
+                    accessToken,
+                    did,
+                    didDoc: {
+                        ...originDidDocument,
+                        meta_data: metadata,
+                    },
+                });
+            }
+        },
+
+        async _updatePlot({
+            wrappedDocument,
+            updateConfig,
+            companyName,
+            fileName,
+        }) {
+            try {
+                let updateWrappedDocument = {
+                    ...wrappedDocument,
+                    mintingConfig: updateConfig,
+                };
+                await ControllerService(accessToken).storeDocument({
+                    companyName,
+                    fileName,
+                    wrappedDocument: updateWrappedDocument,
+                });
             } catch (error) {
                 throw error;
             }

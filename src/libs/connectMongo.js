@@ -1,32 +1,37 @@
 import mongoose from "mongoose";
-import { Logger } from "tslog";
 import { env } from "../configs/constants.js";
-import "dotenv/config";
+import dotenv from "dotenv";
 
-const logger = new Logger();
+import { createRequire } from "module";
+import { fileURLToPath } from "node:url";
+import Logger from "../../logger.js";
 
-/**
- * Connects to a MongoDB database using the environment variables MONGO_PORT and MONGO_DB_NAME.
- * @returns {void}
- */
+dotenv.config();
+const require = createRequire(import.meta.url);
+const __filename = fileURLToPath(import.meta.url);
+const logger = Logger(__filename);
+
 const MongoHelper = () => {
     const port = env.MONGO_PORT;
     const dbName = env.MONGO_DB_NAME;
-    const dbUrl = `mongodb://localhost:${port}/${dbName}`;
+    const mongoHost = env.MONGO_HOST;
+    const dbUrl = `mongodb://${mongoHost}:${port}/${dbName}`;
 
-    return {
-        async connect() {
-            mongoose
-                .connect(dbUrl)
-                .then(() => {
-                    return logger.info(`Successfully connected to ${dbUrl}`);
-                })
-                .catch((error) => {
-                    logger.error(`Error connecting to database: ${error}`);
-                    return process.exit(1);
-                });
-        },
+    const connect = () => {
+        mongoose
+            .connect(dbUrl)
+            .then(() => {
+                logger.info(`Successfully connected to ${dbUrl}`);
+            })
+            .catch((error) => {
+                logger.error("Error connecting to Mongo DB ...");
+                logger.error(error);
+                return process.exit(1);
+            });
     };
+    connect();
+
+    mongoose.connection.on("disconnected", connect);
 };
 
 export default MongoHelper;

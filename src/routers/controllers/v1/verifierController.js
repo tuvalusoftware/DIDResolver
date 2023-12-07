@@ -1,4 +1,4 @@
-import "dotenv/config";
+import dotenv from "dotenv";
 import { ERRORS } from "../../../configs/errors/error.constants.js";
 import ControllerService from "../../../services/Controller.service.js";
 import AuthenticationService from "../../../services/Authentication.service.js";
@@ -7,17 +7,8 @@ import schemaValidator from "../../../helpers/validator.js";
 import requestSchema from "../../../configs/schemas/request.schema.js";
 import { asyncWrapper } from "../../middlewares/async.js";
 
-/**
- * Controller for verifying a certificate.
- * @typedef {Object} VerifierController
- * @property {Function} verifyCertificate - Verifies a certificate.
- * @property {Function} verifyVerifiableCredential - Verifies a verifiable credential.
- */
+dotenv.config();
 
-/**
- * Verifier controller object.
- * @type {VerifierController}
- */
 export default {
     verifyCertificate: asyncWrapper(async (req, res, next) => {
         const { did } = schemaValidator(

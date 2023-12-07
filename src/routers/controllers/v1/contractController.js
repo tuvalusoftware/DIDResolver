@@ -1,6 +1,5 @@
 import axios from "axios";
 import bs58 from "bs58";
-import "dotenv/config";
 import RequestRepo from "../../../db/repos/requestRepo.js";
 import { REQUEST_TYPE } from "../../../rabbit/config.js";
 import schemaValidator from "../../../helpers/validator.js";
@@ -12,6 +11,10 @@ import ControllerService from "../../../services/Controller.service.js";
 import { getAccountBySeedPhrase } from "../../../utils/lucid.js";
 import { asyncWrapper } from "../../middlewares/async.js";
 import credentialService from "../../../services/VerifiableCredential.service.js";
+import dotenv from "dotenv";
+import { createRequire } from "module";
+import { fileURLToPath } from "node:url";
+import Logger from "../../../../logger.js";
 
 // * Constants
 import { generateDid } from "../../../fuixlabs-documentor/utils/did.js";
@@ -20,14 +23,14 @@ import wrappedDocumentSchema from "../../../configs/schemas/wrappedDocument.sche
 
 axios.defaults.withCredentials = true;
 
-/**
- * Controller for creating and getting contracts.
- * @typedef {Object} ContractController
- * @property {Function} createContract - Creates a new contract.
- * @property {Function} getContract - Gets an existing contract by DID.
- */
+dotenv.config();
+const require = createRequire(import.meta.url);
+const __filename = fileURLToPath(import.meta.url);
+const logger = Logger(__filename);
+
 export default {
     createContract: asyncWrapper(async (req, res, next) => {
+        logger.apiInfo(req, "Create contract v1");
         const { wrappedDoc, metadata } = schemaValidator(
             requestSchema.createContract,
             req.body
@@ -91,6 +94,7 @@ export default {
         });
     }),
     getContract: asyncWrapper(async (req, res, next) => {
+        logger.apiInfo(req, "Get contract v1");
         const { did } = schemaValidator(requestSchema.did, req.params);
         const accessToken =
             env.NODE_ENV === "test"
@@ -108,6 +112,7 @@ export default {
         });
     }),
     signContract: asyncWrapper(async (req, res, next) => {
+        logger.apiInfo(req, "Sign contract v1");
         const { contract, claimant, role } = schemaValidator(
             requestSchema.signContractWithClaimant,
             req.body
@@ -154,6 +159,7 @@ export default {
         });
     }),
     updateContract: asyncWrapper(async (req, res, next) => {
+        logger.apiInfo(req, "Update contract v1");
         const { did, metadata } = schemaValidator(
             requestSchema.updateContract,
             req.body
@@ -178,11 +184,5 @@ export default {
         return res.status(200).json({
             updated: true,
         });
-    }),
-    verifyContract: asyncWrapper(async (req, res, next) => {
-        const { seedPhrase, contractDid } = schemaValidator(
-            requestSchema.verifyContract,
-            req.body
-        );
     }),
 };

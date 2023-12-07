@@ -173,6 +173,11 @@ const ERRORS = {
         error_code: 5001,
         error_message: "Internal server error.",
     },
+
+    RABBIT_MESSAGE_ERROR: {
+        error_code: 5002,
+        error_message: "RabbitMQ message error.",
+    },
 };
 
 export { ERRORS };

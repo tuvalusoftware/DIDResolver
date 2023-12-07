@@ -6,17 +6,10 @@ import axios from "axios";
 
 dotenv.config();
 
-/**
- * ControllerService is a factory function that returns an object with methods for interacting with the DID controller API.
- * @param {string} accessToken - The access token to use for authentication.
- * @returns {Object} An object with methods for interacting with the DID controller API.
- */
-const ControllerService = (accessToken) => {
+const ControllerService = () => {
     const controllerUrl = env.DID_CONTROLLER;
     const corsConfig = {
-        headers: {
-            Cookie: `access_token=${accessToken};`,
-        },
+        headers: {},
     };
 
     return {
@@ -91,7 +84,7 @@ const ControllerService = (accessToken) => {
                         resolve(response);
                     })
                     .catch((error) => {
-                        reject(error)
+                        reject(error);
                     });
             });
         },
@@ -128,7 +121,7 @@ const ControllerService = (accessToken) => {
                         resolve(response);
                     })
                     .catch((error) => {
-                        reject(error)
+                        reject(error);
                     });
             });
         },

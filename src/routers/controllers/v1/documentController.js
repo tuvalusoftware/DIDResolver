@@ -1,5 +1,4 @@
 import axios from "axios";
-import "dotenv/config";
 import RequestRepo from "../../../db/repos/requestRepo.js";
 import { REQUEST_TYPE as RABBIT_REQUEST_TYPE } from "../../../rabbit/config.js";
 import ControllerService from "../../../services/Controller.service.js";
@@ -9,6 +8,10 @@ import credentialService from "../../../services/VerifiableCredential.service.js
 import schemaValidator from "../../../helpers/validator.js";
 import DocumentService from "../../../services/Document.service.js";
 import { asyncWrapper } from "../../middlewares/async.js";
+import dotenv from "dotenv";
+import { createRequire } from "module";
+import { fileURLToPath } from "node:url";
+import Logger from "../../../../logger.js";
 
 // * Constants
 import { REQUEST_TYPE } from "../../../rabbit/config.js";
@@ -18,9 +21,14 @@ import wrappedDocumentSchema from "../../../configs/schemas/wrappedDocument.sche
 import { generateDid } from "../../../fuixlabs-documentor/utils/did.js";
 
 axios.defaults.withCredentials = true;
+dotenv.config();
+const require = createRequire(import.meta.url);
+const __filename = fileURLToPath(import.meta.url);
+const logger = Logger(__filename);
 
 export default {
     getDocument: asyncWrapper(async (req, res, next) => {
+        logger.apiInfo(req, "Get document v1");
         const { did } = schemaValidator(requestSchema.did, req.params);
         const accessToken =
             env.NODE_ENV === "test"
@@ -31,13 +39,21 @@ export default {
         ).getDocumentContent({
             did,
         });
-        const { targetHash } = docContentResponse?.data?.wrappedDoc?.signature;
+        if (!docContentResponse?.data?.wrappedDoc?.signature?.targetHash) {
+            logger.apiInfo(req, `There are no targetHash in document ${did}`);
+            return res.status(200).json({
+                hash: null,
+                did,
+            });
+        }
+        const { targetHash } = docContentResponse.data.wrappedDoc.signature;
         return res.status(200).json({
             hash: targetHash,
             did,
         });
     }),
     createPlotCertification: asyncWrapper(async (req, res, next) => {
+        logger.apiInfo(req, "Create plot certification v1");
         const { plot } = schemaValidator(
             requestSchema.createCertificateForPlot,
             req.body
@@ -61,13 +77,15 @@ export default {
             fileName,
         });
         if (isExistedResponse.data?.isExisted) {
-            const getDocumentResponse = await ControllerService(
-                accessToken
-            ).getDocumentContent({
-                did,
-            });
-            const { wrappedDoc } = getDocumentResponse.data;
-            return res.status(200).json(wrappedDoc);
+            logger.warning(`Document ${fileName} is existed`);
+            const _claimantsCredentialDids =
+                await credentialService.getCredentialDidsFromClaimants({
+                    claimants: plot.claimants,
+                    did,
+                    companyName,
+                    plotId: plot._id,
+                });
+            return res.status(200).json(_claimantsCredentialDids);
         }
         const { dataForm } = await DocumentService(
             accessToken
@@ -103,6 +121,7 @@ export default {
         return res.status(200).json(claimantsCredentialDids);
     }),
     updatePlotCertification: asyncWrapper(async (req, res, next) => {
+        logger.apiInfo(req, "Update plot certification v1");
         const { plot } = schemaValidator(
             requestSchema.createCertificateForPlot,
             req.body
@@ -153,6 +172,7 @@ export default {
         return res.status(200).json(claimantsCredentialDids);
     }),
     revokePlotCertification: asyncWrapper(async (req, res, next) => {
+        logger.apiInfo(req, "Revoke plot certification v1");
         const { did } = schemaValidator(
             requestSchema.revokeCertificateForPlot,
             req.body
@@ -184,6 +204,7 @@ export default {
         });
     }),
     checkLastestVersion: asyncWrapper(async (req, res, next) => {
+        logger.apiInfo(req, "Check lastest version v1");
         const { did, hash } = schemaValidator(
             requestSchema.checkLastestVersion,
             req.body
@@ -199,6 +220,7 @@ export default {
         return res.status(200).json(isLastest);
     }),
     addClaimantToCertificate: asyncWrapper(async (req, res, next) => {
+        logger.apiInfo(req, "Add claimant to certificate v1");
         const { plotDid, claimant } = schemaValidator(
             requestSchema.addClaimantToPlot,
             req.body
@@ -215,7 +237,7 @@ export default {
                 },
                 issuerKey: plotDid,
             });
-        const request = await RequestRepo.createRequest({
+        await RequestRepo.createRequest({
             data: {
                 credential: credentialHash,
                 verifiedCredential: verifiableCredential,

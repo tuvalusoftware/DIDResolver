@@ -26,16 +26,9 @@ import { VERIFIER_ERROR_CODE } from "../fuixlabs-documentor/constants/error.js";
 import {
     VALID_DOCUMENT_NAME_TYPE,
     SAMPLE_SERVICE,
-    _DOCUMENT_TYPE,
 } from "../fuixlabs-documentor/constants/type.js";
 import { AppError } from "../configs/errors/appError.js";
 import { ERRORS } from "../configs/errors/error.constants.js";
-
-const adminSeedPhrase = env.ADMIN_SEED_PHRASE;
-
-const { currentWallet, lucidClient } = await getAccountBySeedPhrase({
-    seedPhrase: env.ADMIN_SEED_PHRASE,
-});
 
 const wrapDocumentData = async ({
     documents,
@@ -220,9 +213,10 @@ const DocumentService = (accessToken) => {
                                 plot_Id: data._id,
                                 plotStatus: data.status,
                                 plotLocation: data.placeName,
-                                plotCoordinates: data.centroid.join(","),
-                                plotNeighbors: data.neighbors.length,
-                                plotDisputes: data.disputes.length,
+                                plotCoordinates:
+                                    data?.centroid?.join(",") || "",
+                                plotNeighbors: data?.neighbors?.length || 0,
+                                plotDisputes: data?.disputes?.length || 0,
                             },
                         };
                         if (data.status) {
@@ -295,7 +289,7 @@ const DocumentService = (accessToken) => {
                 const data = await Promise.all(retrieveCertificatePromises);
                 return data;
             } catch (error) {
-                error;
+                throw error;
             }
         },
 
@@ -307,10 +301,10 @@ const DocumentService = (accessToken) => {
                     "timestamp"
                 );
                 if (!validRequirement) {
-                    throw {
+                    throw new AppError({
                         ...MISSING_REQUIRED_PARAMETERS,
                         detail: `Missing ${requireField} in endorsement chain`,
-                    };
+                    });
                 }
                 const sortedEndorsementChain = endorsementChain.sort(
                     (a, b) => b.timestamp - a.timestamp

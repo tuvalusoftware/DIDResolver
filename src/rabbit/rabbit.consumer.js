@@ -2,15 +2,18 @@ import { getSender } from "./index.js";
 import { RABBITMQ_SERVICE } from "./config.js";
 import RequestRepo from "../db/repos/requestRepo.js";
 import { REQUEST_TYPE } from "./config.js";
-import "dotenv/config";
-import { Logger } from "tslog";
 import { deepUnsalt } from "../fuixlabs-documentor/utils/data.js";
 import AuthenticationService from "../services/Authentication.service.js";
 import RabbitRepository from "./rabbit.repository.js";
 import { ErrorProducer } from "./rabbit.producer.js";
 import { env } from "../configs/constants.js";
+import customLogger from "../helpers/customLogger.js";
 
-const logger = new Logger();
+const pathToLog =
+    env.NODE_ENV === "test"
+        ? "logs/rabbit/test-task.log"
+        : "logs/rabbit/task.log";
+const logger = customLogger(pathToLog);
 
 const { sender: cardanoSender, queue: cardanoQueue } = getSender({
     service: RABBITMQ_SERVICE.CardanoService,
@@ -22,11 +25,6 @@ const { sender: resolverSender, queue: resolverQueue } = getSender({
 const { sender: errorSender, queue: errorQueue } = getSender({
     service: RABBITMQ_SERVICE.ErrorService,
 });
-
-const { sender: cardanoContractSender, queue: cardanoContractQueue } =
-    getSender({
-        service: RABBITMQ_SERVICE.CardanoContractService,
-    });
 
 export const CardanoConsumer = async () => {
     cardanoSender.consume(cardanoQueue, async (msg) => {
@@ -227,7 +225,7 @@ export const ResolverConsumer = async () => {
                         _id: cardanoResponse?.id,
                     }
                 );
-                logger.info("[ResolverQueue] 🔈", msg.content.toString());
+                logger.info("[ResolverQueue] 🔈: " + msg.content.toString());
                 resolverSender.ack(msg);
             } catch (error) {
                 logger.error(error);
