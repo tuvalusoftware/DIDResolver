@@ -1,11 +1,8 @@
-import "dotenv/config";
-
 export const RABBITMQ_SERVICE = {
-    CardanoService: process.env.CardanoService || "CardanoService",
-    ResolverService: process.env.ResolverService || "ResolverService",
-    ErrorService: process.env.ErrorService || "CardanoErrorService",
-    CardanoContractService:
-        process.env.CardanoContractService || "CardanoContractService",
+    CardanoService: "CardanoService",
+    ResolverService: "ResolverService",
+    ErrorService: "CardanoErrorService",
+    CardanoContractService: "CardanoContractService",
 };
 
 export const REQUEST_TYPE = {
@@ -20,6 +17,10 @@ export const REQUEST_TYPE = {
         createPlot: "create-plot",
         createClaimantCredential: "create-claimant-credential",
         updatePlot: "update-plot",
+        updatePlot2: "update-plot-2",
         deletePlot: "delete-plot",
+        addClaimantToPlot: "add-claimant-to-plot",
+        addClaimantToPlot2: "add-claimant-to-plot-2",
+        signContract: "sign-contract",
     },
 };

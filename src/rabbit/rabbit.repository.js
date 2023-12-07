@@ -1,31 +1,20 @@
 import ControllerService from "../services/Controller.service.js";
 import CardanoService from "../services/Cardano.service.js";
-import { createClaimantVerifiableCredential } from "../utils/credential.js";
+import credentialService from "../services/VerifiableCredential.service.js";
 import RequestRepo from "../db/repos/requestRepo.js";
 import { generateDid } from "../fuixlabs-documentor/utils/did.js";
 import { REQUEST_TYPE } from "./config.js";
-import { Logger } from "tslog";
+import customLogger from "../helpers/customLogger.js";
+import { env } from "../configs/constants.js";
 
-const logger = new Logger();
+const pathToLog =
+    env.NODE_ENV === "test"
+        ? "logs/rabbit/test-task.log"
+        : "logs/rabbit/task.log";
+const logger = customLogger(pathToLog);
 
-/**
- * Rabbit repository module.
- * @param {string} accessToken - The access token.
- * @returns {Object} Rabbit repository object.
- */
 const RabbitRepository = (accessToken) => {
     return {
-        /**
-         * Creates a contract.
-         * @async
-         * @param {Object} params - The contract parameters.
-         * @param {string} params.companyName - The company name.
-         * @param {string} params.fileName - The file name.
-         * @param {string} params.did - The DID.
-         * @param {Object} params.wrappedDocument - The wrapped document.
-         * @param {Object} params.mintingConfig - The minting configuration.
-         * @param {Object} [params.metadata=null] - The metadata.
-         */
         async createContract({
             companyName,
             fileName,
@@ -61,18 +50,6 @@ const RabbitRepository = (accessToken) => {
             }
         },
 
-        /**
-         * Creates a plot.
-         * @async
-         * @param {Object} params - The plot parameters.
-         * @param {Object} params.wrappedDocument - The wrapped document.
-         * @param {Object} params.mintingConfig - The minting configuration.
-         * @param {Object} params.claimants - The claimants.
-         * @param {string} params.companyName - The company name.
-         * @param {string} params.fileName - The file name.
-         * @param {string} params.did - The DID.
-         * @param {Object} params.plot - The plot.
-         */
         async createPlot({
             wrappedDocument,
             mintingConfig,
@@ -96,15 +73,17 @@ const RabbitRepository = (accessToken) => {
                     const promises = claimants?.claimants?.map(
                         async (claimant) => {
                             const { verifiableCredential, credentialHash } =
-                                await createClaimantVerifiableCredential({
-                                    subject: {
-                                        claims: {
-                                            plot: plot?._id,
-                                            ...claimant,
+                                await credentialService.createClaimantVerifiableCredential(
+                                    {
+                                        subject: {
+                                            claims: {
+                                                plot: plot?._id,
+                                                ...claimant,
+                                            },
                                         },
-                                    },
-                                    issuerKey: did,
-                                });
+                                        issuerKey: did,
+                                    }
+                                );
                             const request = await RequestRepo.createRequest({
                                 data: {
                                     mintingConfig,
@@ -134,19 +113,11 @@ const RabbitRepository = (accessToken) => {
             }
         },
 
-        /**
-         * Creates a claimant credential.
-         * @async
-         * @param {Object} params - The claimant credential parameters.
-         * @param {Object} params.verifiedCredential - The verified credential.
-         * @param {string} params.credentialHash - The credential hash.
-         * @param {string} params.companyName - The company name.
-         * @returns {Object} The verified credential.
-         */
         async createClaimantCredential({
             verifiedCredential,
             credentialHash,
             companyName,
+            txHash,
         }) {
             try {
                 const _verifiedCredential = {
@@ -160,6 +131,7 @@ const RabbitRepository = (accessToken) => {
                     payload: {
                         ..._verifiedCredential,
                         id: generateDid(companyName, credentialHash),
+                        txHash,
                     },
                 });
                 return _verifiedCredential;
@@ -168,18 +140,6 @@ const RabbitRepository = (accessToken) => {
             }
         },
 
-        /**
-         * Updates a plot.
-         * @async
-         * @param {Object} params - The plot parameters.
-         * @param {Object} params.wrappedDocument - The wrapped document.
-         * @param {Object} params.updateConfig - The update configuration.
-         * @param {string} params.companyName - The company name.
-         * @param {string} params.fileName - The file name.
-         * @param {Object} params.claimants - The claimants.
-         * @param {Object} params.plot - The plot.
-         * @param {string} params.did - The DID.
-         */
         async updatePlot({
             wrappedDocument,
             updateConfig,
@@ -202,15 +162,17 @@ const RabbitRepository = (accessToken) => {
                 if (claimants) {
                     const promises = claimants.map(async (claimant) => {
                         const { verifiableCredential, credentialHash } =
-                            await createClaimantVerifiableCredential({
-                                subject: {
-                                    claims: {
-                                        plot: plot?._id,
-                                        ...claimant,
+                            await credentialService.createClaimantVerifiableCredential(
+                                {
+                                    subject: {
+                                        claims: {
+                                            plot: plot?._id,
+                                            ...claimant,
+                                        },
                                     },
-                                },
-                                issuerKey: did,
-                            });
+                                    issuerKey: did,
+                                }
+                            );
                         const request = await RequestRepo.createRequest({
                             data: {
                                 mintingConfig: updateConfig,
@@ -234,6 +196,62 @@ const RabbitRepository = (accessToken) => {
                         logger.error(error);
                     });
                 }
+            } catch (error) {
+                throw error;
+            }
+        },
+
+        async _createContract({
+            companyName,
+            fileName,
+            did,
+            wrappedDocument,
+            mintingConfig,
+            metadata = null,
+        }) {
+            const willWrappedDocument = {
+                ...wrappedDocument,
+                mintingConfig,
+            };
+            await ControllerService(accessToken).storeDocument({
+                companyName,
+                fileName,
+                wrappedDocument: willWrappedDocument,
+            });
+            if (metadata) {
+                const didDocumentResponse = await ControllerService(
+                    accessToken
+                ).getDocumentDid({
+                    did,
+                });
+                const originDidDocument = didDocumentResponse?.data?.didDoc;
+                await ControllerService(accessToken).updateDocumentDid({
+                    accessToken,
+                    did,
+                    didDoc: {
+                        ...originDidDocument,
+                        meta_data: metadata,
+                    },
+                });
+            }
+        },
+
+        async _updatePlot({
+            wrappedDocument,
+            updateConfig,
+            companyName,
+            fileName,
+        }) {
+            try {
+                let updateWrappedDocument = {
+                    ...wrappedDocument,
+                    mintingConfig: updateConfig,
+                };
+                await ControllerService(accessToken).storeDocument({
+                    companyName,
+                    fileName,
+                    wrappedDocument: updateWrappedDocument,
+                });
             } catch (error) {
                 throw error;
             }

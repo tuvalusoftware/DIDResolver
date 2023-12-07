@@ -1,0 +1,67 @@
+version: "3.8"
+
+services:
+  rabbitmq:
+    image: rabbitmq:3-management
+    container_name: rabbitmq
+    ports:
+      - "${RABBITMQ_PORT}:${RABBITMQ_PORT}"
+    expose:
+      - "${RABBITMQ_PORT}"
+    healthcheck:
+      test: rabbitmq-diagnostics -q ping
+      interval: 30s
+      timeout: 30s
+      retries: 3
+    volumes:
+      - ./docker-data/rabbitmq:/var/lib/rabbitmq
+    networks:
+      - resolver-networks
+  mongo:
+    image: mongo
+    container_name: mongo
+    volumes:
+      - ./docker-data/mongo:/data/db
+    ports:
+      - "${MONGO_PORT}:${MONGO_PORT}"
+    expose:
+      - "${MONGO_PORT}"
+    healthcheck:
+      test: ["CMD","mongosh", "--eval", "db.adminCommand('ping')"]
+      interval: 5s
+      timeout: 5s
+      retries: 3
+      start_period: 5s
+    networks:
+      - resolver-networks
+  service:
+    container_name: service
+    env_file:
+      - .env
+    build:
+      context: .
+      dockerfile: Dockerfile.dev
+      args:
+        - NODE_ENV=development
+        - SERVER_PORT=${SERVER_PORT}
+    restart: always
+    expose:
+      - "${SERVER_PORT}"
+    ports:
+      - ${SERVER_PORT}:${SERVER_PORT}
+    networks:
+      - resolver-networks
+    depends_on:
+      rabbitmq:
+        condition: service_healthy
+      mongo:
+        condition: service_healthy
+    volumes:
+      - ".:/usr/src/app"
+      - "ignore:/usr/src/app/node_modules"
+      - "./logs:/usr/src/app/logs"
+networks:
+  resolver-networks:
+    driver: bridge
+volumes:
+  ignore:

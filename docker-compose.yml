@@ -1,22 +1,23 @@
 version: "3.8"
 
 services:
-  mongo:
-    image: mongo:7.0.0
-    container_name: request-mongodb
+  service:
+    container_name: resolver-service
+    build:
+      context: .
+      dockerfile: Dockerfile
+      args:
+        - SERVER_PORT=${SERVER_PORT}
     ports:
-      - "${MONGO_PORT}:27017"
+      - "${SERVER_PORT}:${SERVER_PORT}"
+    expose:
+      - "${SERVER_PORT}"
     networks:
-      - resolver-network
-    restart: always
-  # rabbitmq:
-  #   image: rabbitmq
-  #   container_name: request-rabbitmq
-  #   ports:
-  #     - "${RABBITMQ_PORT}:${RABBITMQ_PORT}"
-  #   networks:
-  #     - resolver-network
-  #   restart: always
+      - cardanoservice_cardanonetwork
+    extra_hosts:
+      - "mongodb-host:172.17.0.1"
+    volumes:
+      - "./logs:/usr/src/app/logs"
 networks:
-  resolver-network:
-        driver: bridge
+  cardanoservice_cardanonetwork:
+    external: true

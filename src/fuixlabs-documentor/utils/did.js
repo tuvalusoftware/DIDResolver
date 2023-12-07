@@ -1,6 +1,6 @@
 // * Constant libraries
 import { DID_ERROR } from "../constants/error.js";
-import { DEV_COMPANY_NAME } from "../../configs/constants.js";
+import { env } from "../../configs/constants.js";
 
 // * Rest libraries
 import {
@@ -12,7 +12,9 @@ import { CLIENT_PATH } from "../rest/client.path.js";
 
 // * Utilities libraries
 import { generateDidOfWrappedDocument } from "../utils/data.js";
-import "dotenv/config";
+import dotenv from "dotenv";
+
+dotenv.config();
 
 /**
  * Function used to generate did rely on company name and encoded public key
@@ -20,8 +22,8 @@ import "dotenv/config";
  * @param {String} publicKey - Public key
  * @return {String} - Did
  */
-export const generateDid = (fileName, prop) => {
-    const did = `did:${DEV_COMPANY_NAME}:${fileName}:${prop}`;
+export const generateDid = (companyName, prop) => {
+    const did = `did:${env.DEV_COMPANY_NAME}:${companyName}:${prop}`;
     return did;
 };
 
