@@ -16,7 +16,6 @@ import dotenv from "dotenv";
 import { createRequire } from "module";
 import { fileURLToPath } from "node:url";
 import Logger from "./logger.js";
-
 dotenv.config();
 const require = createRequire(import.meta.url);
 const __filename = fileURLToPath(import.meta.url);

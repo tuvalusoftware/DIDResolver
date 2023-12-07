@@ -2,8 +2,12 @@ version: "3.8"
 
 services:
   service:
-    image: resolver-service:latest
     container_name: resolver-service
+    build:
+      context: .
+      dockerfile: Dockerfile
+      args:
+        - SERVER_PORT=${SERVER_PORT}
     ports:
       - "${SERVER_PORT}:${SERVER_PORT}"
     expose:
@@ -12,7 +16,8 @@ services:
       - cardanoservice_cardanonetwork
     extra_hosts:
       - "mongodb-host:172.17.0.1"
-
+    volumes:
+      - "./logs:/usr/src/app/logs"
 networks:
   cardanoservice_cardanonetwork:
     external: true
