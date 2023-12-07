@@ -14,7 +14,7 @@ import credentialService from "../../../services/VerifiableCredential.service.js
 import dotenv from "dotenv";
 import { createRequire } from "module";
 import { fileURLToPath } from "node:url";
-import Logger from "../../../../logger.js";
+import Logger from "../../../libs/logger.js";
 
 // * Constants
 import { generateDid } from "../../../fuixlabs-documentor/utils/did.js";

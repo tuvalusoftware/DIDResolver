@@ -19,7 +19,7 @@ import { AppError } from "../../../configs/errors/appError.js";
 import dotenv from "dotenv";
 import { createRequire } from "module";
 import { fileURLToPath } from "node:url";
-import Logger from "../../../../logger.js";
+import Logger from "../../../libs/logger.js";
 
 // * Constants
 import { REQUEST_TYPE } from "../../../rabbit/config.js";

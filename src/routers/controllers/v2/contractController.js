@@ -2,7 +2,7 @@ import axios from "axios";
 import dotenv from "dotenv";
 import { createRequire } from "module";
 import { fileURLToPath } from "node:url";
-import Logger from "../../../../logger.js";
+import Logger from "../../../libs/logger.js";
 import RequestRepo from "../../../db/repos/requestRepo.js";
 import { REQUEST_TYPE } from "../../../rabbit/config.js";
 import schemaValidator from "../../../helpers/validator.js";

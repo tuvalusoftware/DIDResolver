@@ -12,10 +12,10 @@ import connectRabbitMQ from "./src/configs/setup/rabbitmq.js";
 import { setUpSwagger } from "./src/configs/setup/swagger.js";
 import { setUpCron } from "./src/configs/setup/cron.js";
 import dotenv from "dotenv";
-
 import { createRequire } from "module";
 import { fileURLToPath } from "node:url";
-import Logger from "./logger.js";
+import Logger from "./src/libs/logger.js";
+
 dotenv.config();
 const require = createRequire(import.meta.url);
 const __filename = fileURLToPath(import.meta.url);

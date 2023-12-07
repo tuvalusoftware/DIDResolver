@@ -3,7 +3,7 @@ import { ResolverConsumer } from "../../rabbit/rabbit.consumer.js";
 
 import { createRequire } from "module";
 import { fileURLToPath } from "node:url";
-import Logger from "../../../logger.js";
+import Logger from "../../libs/logger.js";
 
 dotenv.config();
 const require = createRequire(import.meta.url);
