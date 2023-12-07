@@ -4,9 +4,14 @@ import credentialService from "../services/VerifiableCredential.service.js";
 import RequestRepo from "../db/repos/requestRepo.js";
 import { generateDid } from "../fuixlabs-documentor/utils/did.js";
 import { REQUEST_TYPE } from "./config.js";
-import { Logger } from "tslog";
+import customLogger from "../helpers/customLogger.js";
+import { env } from "../configs/constants.js";
 
-const logger = new Logger();
+const pathToLog =
+    env.NODE_ENV === "test"
+        ? "logs/rabbit/test-task.log"
+        : "logs/rabbit/task.log";
+const logger = customLogger(pathToLog);
 
 const RabbitRepository = (accessToken) => {
     return {

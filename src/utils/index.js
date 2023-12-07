@@ -65,10 +65,7 @@ function checkForSpecialChar(strings) {
     const specialChars = `\`!@#$%^&*()+\-=\[\]{};':"\\|,.<>\/?~`;
     for (const index in strings) {
         let result = specialChars.split("").some((specialChar) => {
-            if (strings[index].includes(specialChar)) {
-                return true;
-            }
-            return false;
+            return strings[index].includes(specialChar);
         });
         if (result) {
             return {
@@ -89,10 +86,10 @@ function checkForSpecialChar(strings) {
  * @returns {Boolean} - true if two error objects are the same, false otherwise
  */
 function isSameError(obj, errorObj) {
-    return obj.error_code === errorObj.error_code &&
+    return (
+        obj.error_code === errorObj.error_code &&
         obj.error_message === errorObj.error_message
-        ? true
-        : false;
+    );
 }
 
 /**
@@ -109,7 +106,7 @@ function getCurrentDateTime() {
     const seconds = now.getSeconds().toString().padStart(2, "0");
     const formattedDateTime = `${year}-${month}-${day} ${hours}:${minutes}:${seconds}`;
     return formattedDateTime;
-} // TODO - Write unit-test
+} 
 
 /**
  * Function used for generating random string with given seed and length
@@ -227,14 +224,10 @@ function encryptData(data, securityKey) {
     const algorithm = "aes-256-cbc";
     const initVector = crypto.randomBytes(16);
     const cipher = crypto.createCipheriv(algorithm, securityKey, initVector);
-
-    // encrypt the message
-    // input encoding
-    // output encoding
     let encryptedData = cipher.update(data, "utf-8", "hex");
     encryptedData += cipher.final("hex");
     return encryptedData;
-} // TODO - Write unit-test
+} 
 
 /**
  * Decrypts the given data using the provided security key.
@@ -265,7 +258,7 @@ function decryptData(data, securityKey) {
 
     decryptedData += decipher.final("utf8");
     return decryptedData;
-} // TODO - Write unit-test
+}
 
 function handlePromiseAllSettle(results, additionalErrorMessage) {
     let promiseSuccessfully = true;

@@ -2,9 +2,19 @@ import { asyncWrapper } from "../../middlewares/async.js";
 import schemaValidator from "../../../helpers/validator.js";
 import requestSchema from "../../../configs/schemas/request.schema.js";
 import ControllerService from "../../../services/Controller.service.js";
+import dotenv from "dotenv";
+import Logger from "../../../../logger.js";
+import { createRequire } from "module";
+import { fileURLToPath } from "node:url";
+
+dotenv.config();
+const require = createRequire(import.meta.url);
+const __filename = fileURLToPath(import.meta.url);
+const logger = Logger(__filename);
 
 export default {
     getTransactionIdByDid: asyncWrapper(async (req, res, next) => {
+        logger.apiInfo(req, "Get transaction id by did v1");
         const payload = schemaValidator(
             requestSchema.getTransactionId,
             req.body

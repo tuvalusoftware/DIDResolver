@@ -3,7 +3,6 @@ import cors from "cors";
 import compression from "compression";
 import cookieParser from "cookie-parser";
 import methodOverride from "method-override";
-import morganMiddleware from "../../routers/middlewares/morganLogger.js";
 import morgen from "morgan";
 
 export const setUpMiddleware = async (app) => {
@@ -20,8 +19,6 @@ export const setUpMiddleware = async (app) => {
                 extended: true,
             })
         );
-        
-        app.use(morganMiddleware);
     } catch (error) {
         throw error;
     }

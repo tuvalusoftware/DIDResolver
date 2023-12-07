@@ -1,14 +1,16 @@
 import mongoose from "mongoose";
-import { Logger } from "tslog";
 import { env } from "../configs/constants.js";
-import "dotenv/config";
+import dotenv from "dotenv";
 
-const logger = new Logger();
+import { createRequire } from "module";
+import { fileURLToPath } from "node:url";
+import Logger from "../../logger.js";
 
-/**
- * Connects to a MongoDB database using the environment variables MONGO_PORT and MONGO_DB_NAME.
- * @returns {void}
- */
+dotenv.config();
+const require = createRequire(import.meta.url);
+const __filename = fileURLToPath(import.meta.url);
+const logger = Logger(__filename);
+
 const MongoHelper = () => {
     const port = env.MONGO_PORT;
     const dbName = env.MONGO_DB_NAME;

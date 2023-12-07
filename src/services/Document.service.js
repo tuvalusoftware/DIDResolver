@@ -26,7 +26,6 @@ import { VERIFIER_ERROR_CODE } from "../fuixlabs-documentor/constants/error.js";
 import {
     VALID_DOCUMENT_NAME_TYPE,
     SAMPLE_SERVICE,
-    _DOCUMENT_TYPE,
 } from "../fuixlabs-documentor/constants/type.js";
 import { AppError } from "../configs/errors/appError.js";
 import { ERRORS } from "../configs/errors/error.constants.js";
@@ -290,7 +289,7 @@ const DocumentService = (accessToken) => {
                 const data = await Promise.all(retrieveCertificatePromises);
                 return data;
             } catch (error) {
-                error;
+                throw error;
             }
         },
 
@@ -302,10 +301,10 @@ const DocumentService = (accessToken) => {
                     "timestamp"
                 );
                 if (!validRequirement) {
-                    throw {
+                    throw new AppError({
                         ...MISSING_REQUIRED_PARAMETERS,
                         detail: `Missing ${requireField} in endorsement chain`,
-                    };
+                    });
                 }
                 const sortedEndorsementChain = endorsementChain.sort(
                     (a, b) => b.timestamp - a.timestamp

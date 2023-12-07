@@ -34,20 +34,6 @@ services:
       start_period: 5s
     networks:
       - resolver-networks
-  service:
-    image: resolver
-    container_name: resolver-service
-    ports:
-      - "${SERVER_PORT}:${SERVER_PORT}"
-    expose:
-      - "${SERVER_PORT}"
-    depends_on:
-      rabbitmq:
-        condition: service_healthy
-      mongo: 
-        condition: service_healthy
-    networks:
-      - resolver-networks
 
 networks:
   resolver-networks:

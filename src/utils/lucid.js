@@ -3,8 +3,10 @@ import { C as CardanoWasm, M as CardanoMessage } from "lucid-cardano";
 import { NETWORK_ID } from "../configs/constants.js";
 import { Lucid } from "lucid-cardano";
 import cryptoRandomString from "crypto-random-string";
-import "dotenv/config";
+import dotenv from "dotenv";
 import { env } from "../configs/constants.js";
+
+dotenv.config();
 
 /**
  * Function used for validating address bytes

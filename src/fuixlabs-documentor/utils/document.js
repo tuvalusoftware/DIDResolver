@@ -31,7 +31,9 @@ import {
   unsalt,
 } from "./data.js";
 import { generateDid } from "./did.js";
-import "dotenv/config";
+import dotenv from "dotenv";
+
+dotenv.config();
 
 const SAMPLE_SERVICE = "cardano";
 

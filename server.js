@@ -1,5 +1,3 @@
-import { Logger } from "tslog";
-import morgen from "morgan";
 import cors from "cors";
 import express from "express";
 import bodyParser from "body-parser";
@@ -8,14 +6,22 @@ import { env } from "./src/configs/constants.js";
 import compression from "compression";
 import cookieParser from "cookie-parser";
 import methodOverride from "method-override";
-import morganMiddleware from "./src/routers/middlewares/morganLogger.js";
 import routes from "./src/routers/routes/index.js";
 import { setUpErrorHandler } from "./src/configs/setup/errorHandler.js";
 import connectRabbitMQ from "./src/configs/setup/rabbitmq.js";
 import { setUpSwagger } from "./src/configs/setup/swagger.js";
 import { setUpCron } from "./src/configs/setup/cron.js";
+import dotenv from "dotenv";
 
-const logger = new Logger();
+import { createRequire } from "module";
+import { fileURLToPath } from "node:url";
+import Logger from "./logger.js";
+
+dotenv.config();
+const require = createRequire(import.meta.url);
+const __filename = fileURLToPath(import.meta.url);
+const logger = Logger(__filename);
+
 const app = express();
 app.use(cors());
 app.use(cookieParser());
@@ -29,14 +35,12 @@ app.use(
     })
 );
 app.use(methodOverride());
-app.use(morgen("tiny"));
 app.use(
     express.urlencoded({
         extended: true,
     })
 );
 MongoHelper();
-app.use(morganMiddleware);
 routes(app);
 app.use(express.static("assets"));
 setUpSwagger(app);

@@ -1,9 +1,16 @@
 import amqplib from "amqplib";
-import { Logger } from "tslog";
 import { env } from "../configs/constants.js";
 import { RABBITMQ_SERVICE } from "./config.js";
+import dotenv from "dotenv";
 
-const logger = new Logger();
+import { createRequire } from "module";
+import { fileURLToPath } from "node:url";
+import Logger from "../../logger.js";
+
+dotenv.config();
+const require = createRequire(import.meta.url);
+const __filename = fileURLToPath(import.meta.url);
+const logger = Logger(__filename);
 
 let rabbitMQ;
 
@@ -14,9 +21,8 @@ try {
         username: env.RABBITMQ_USER,
         password: env.RABBITMQ_PASSWORD,
     });
-    logger.debug(
-        "Connected to RabbitMQ",
-        rabbitMQ?.connection?.serverProperties?.cluster_name
+    logger.info(
+        `Connected to RabbitMQ: ${rabbitMQ?.connection?.serverProperties?.cluster_name}`
     );
 } catch (error) {
     logger.error(error);
@@ -60,12 +66,6 @@ const channel = {
     [RABBITMQ_SERVICE.CardanoContractService]: cardanoContractChannel,
 };
 
-/**
- * Returns the sender and queue for a given service.
- * @param {Object} options - The options object.
- * @param {string} options.service - The name of the service.
- * @returns {Object} - An object containing the sender and queue for the given service.
- */
 export function getSender({ service }) {
     return {
         sender: channel[service],
@@ -73,6 +73,4 @@ export function getSender({ service }) {
     };
 }
 
-export {
-    rabbitMQ
-}
+export { rabbitMQ };

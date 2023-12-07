@@ -1,5 +1,4 @@
 import axios from "axios";
-import "dotenv/config";
 import RequestRepo from "../../../db/repos/requestRepo.js";
 import {
     REQUEST_TYPE as RABBIT_REQUEST_TYPE,
@@ -17,6 +16,10 @@ import { randomUUID } from "crypto";
 import { ERRORS } from "../../../configs/errors/error.constants.js";
 import RabbitRepository from "../../../rabbit/rabbit.repository.js";
 import { AppError } from "../../../configs/errors/appError.js";
+import dotenv from "dotenv";
+import { createRequire } from "module";
+import { fileURLToPath } from "node:url";
+import Logger from "../../../../logger.js";
 
 // * Constants
 import { REQUEST_TYPE } from "../../../rabbit/config.js";
@@ -27,8 +30,14 @@ import { generateDid } from "../../../fuixlabs-documentor/utils/did.js";
 
 axios.defaults.withCredentials = true;
 
+dotenv.config();
+const require = createRequire(import.meta.url);
+const __filename = fileURLToPath(import.meta.url);
+const logger = Logger(__filename);
+
 export default {
     createPlotCertification: asyncWrapper(async (req, res, next) => {
+        logger.apiInfo(req, "Create plot certification v2");
         const { plot } = schemaValidator(
             requestSchema.createCertificateForPlot,
             req.body
@@ -50,6 +59,7 @@ export default {
             fileName,
         });
         if (isExistedResponse.data?.isExisted) {
+            logger.warning(`Document ${did} is existed`);
             const _documentContent =
                 await ControllerService().getDocumentContent({
                     did,
@@ -256,6 +266,7 @@ export default {
         });
     }),
     updatePlotCertification: asyncWrapper(async (req, res, next) => {
+        logger.apiInfo(req, "Update plot certification v2\n");
         const { plot } = schemaValidator(
             requestSchema.createCertificateForPlot,
             req.body
@@ -299,7 +310,10 @@ export default {
             await ControllerService().getDocumentContent({
                 did: plot.did,
             });
-        const { mintingConfig } = originDocumentContent?.data?.wrappedDoc;
+        if (!originDocumentContent?.data?.wrappedDoc?.mintingConfig) {
+            throw new AppError(ERRORS.RABBIT_MESSAGE_ERROR);
+        }
+        const { mintingConfig } = originDocumentContent.data.wrappedDoc;
         const _config = await ConsumerService().updateDocument(
             wrappedDocument?.signature?.targetHash,
             request._id,
@@ -453,13 +467,14 @@ export default {
         });
     }),
     addClaimantToCertificate: asyncWrapper(async (req, res, next) => {
+        logger.apiInfo(req, "Add claimant to certificate v2");
         const { plotDid, claimant } = schemaValidator(
             requestSchema.addClaimantToPlot,
             req.body
         );
         const plotId = plotDid.split(":")[3].split("-")[1];
         const companyName = env.COMPANY_NAME;
-        const { verifiableCredential, credentialHash, did } =
+        const { verifiableCredential, credentialHash } =
             await credentialService.createClaimantVerifiableCredential({
                 subject: {
                     claims: {
@@ -483,7 +498,11 @@ export default {
             await ControllerService().getDocumentContent({
                 did: plotDid,
             });
-        const { mintingConfig } = documentContentResponse.data?.wrappedDoc;
+        if (!documentContentResponse.data?.wrappedDoc?.mintingConfig) {
+            logger.apiError(req, `There is no minting config in ${plotDid}`);
+            throw new AppError(ERRORS.RABBIT_MESSAGE_ERROR);
+        }
+        const { mintingConfig } = documentContentResponse.data.wrappedDoc;
         const credentialChannel = await rabbitMQ.createChannel();
         const correlationId = randomUUID();
         const replyQueue = await credentialChannel.assertQueue(correlationId);

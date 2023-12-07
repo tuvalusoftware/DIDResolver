@@ -4,10 +4,12 @@ import {
     CardanoContractProducer,
 } from "../rabbit/rabbit.producer.js";
 import { REQUEST_TYPE } from "../rabbit/config.js";
-import "dotenv/config";
+import dotenv from "dotenv";
 import axios from "axios";
 
-const CardanoService = (accessToken) => {
+dotenv.config();
+
+const CardanoService = () => {
     const corsConfig = {
         withCredentials: true,
         headers: {},

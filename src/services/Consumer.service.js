@@ -5,11 +5,20 @@ import { ERRORS } from "../configs/errors/error.constants.js";
 import { deepUnsalt } from "../fuixlabs-documentor/utils/data.js";
 import RabbitRepository from "../rabbit/rabbit.repository.js";
 import { randomUUID } from "crypto";
+import customLogger from "../helpers/customLogger.js";
+import { env } from "../configs/constants.js";
+
+const pathToLog =
+    env.NODE_ENV === "test"
+        ? "logs/rabbit/test-task.log"
+        : "logs/rabbit/task.log";
+const logger = customLogger(pathToLog);
 
 const ConsumerService = () => {
     return {
         createDocument: async (hash, id, type, request) => {
             try {
+                logger.info(`Create document with hash ${hash} and id ${id}`);
                 const channel = await rabbitMQ.createChannel();
                 const correlationId = randomUUID();
                 const replyQueue = await channel.assertQueue(correlationId);
@@ -41,8 +50,18 @@ const ConsumerService = () => {
                                     deepUnsalt(
                                         request?.data?.wrappedDocument?.data
                                     );
+                                if (!request?.data?.wrappedDocument) {
+                                    logger.error(
+                                        `There are no wrappedDocument in request ${id}`
+                                    );
+                                    reject(
+                                        new AppError(
+                                            ERRORS.RABBIT_MESSAGE_ERROR
+                                        )
+                                    );
+                                }
                                 const { wrappedDocument, metadata } =
-                                    request?.data;
+                                    request.data;
                                 const mintingConfig = cardanoResponse.data;
                                 await RabbitRepository(
                                     "accessToken"
@@ -63,6 +82,9 @@ const ConsumerService = () => {
                 });
                 const config = await createPlotHandle;
                 await channel.close();
+                logger.info(
+                    `Created document successfully with hash ${hash} and transaction-id ${config?.txHash}\n`
+                );
                 return config;
             } catch (error) {
                 throw error;
@@ -70,6 +92,7 @@ const ConsumerService = () => {
         },
         updateDocument: async (hash, id, type, request, config) => {
             try {
+                logger.info(`Update document with hash ${hash} and id ${id}`);
                 const channel = await rabbitMQ.createChannel();
                 const correlationId = randomUUID();
                 const replyQueue = await channel.assertQueue(correlationId);
@@ -105,10 +128,24 @@ const ConsumerService = () => {
                         if (msg !== null) {
                             const cardanoResponse = JSON.parse(msg.content);
                             if (cardanoResponse.id === request._id.toString()) {
-                                const { wrappedDocument, claimants, plot } =
-                                    deepUnsalt(request?.data);
-                                const { fileName, companyName, did } =
-                                    wrappedDocument?.data;
+                                const { wrappedDocument } = deepUnsalt(
+                                    request?.data
+                                );
+                                if (
+                                    !wrappedDocument?.data?.fileName ||
+                                    !wrappedDocument?.data?.companyName
+                                ) {
+                                    logger.error(
+                                        `There are no wrappedDocument or metadata in request ${id}`
+                                    );
+                                    throw reject(
+                                        new AppError(
+                                            ERRORS.RABBIT_MESSAGE_ERROR
+                                        )
+                                    );
+                                }
+                                const { fileName, companyName } =
+                                    wrappedDocument.data;
                                 const updateConfig = cardanoResponse.data;
                                 await RabbitRepository(
                                     "accessToken"
@@ -127,6 +164,9 @@ const ConsumerService = () => {
                 });
                 const _config = await createPlotHandle;
                 await channel.close();
+                logger.info(
+                    `Updated document successfully with hash ${hash} and transaction-id ${_config?.txHash}\n`
+                );
                 return _config;
             } catch (error) {
                 throw error;
