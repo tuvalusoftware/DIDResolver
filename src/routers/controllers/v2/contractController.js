@@ -50,6 +50,7 @@ export default {
                     did,
                 });
             if (!getDocumentResponse?.data) {
+                logger.error(`Document ${did} dose not have data`);
                 throw new AppError(ERRORS.INVALID_INPUT);
             }
             const { wrappedDoc } = getDocumentResponse.data;
