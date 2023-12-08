@@ -7,7 +7,6 @@ import RequestRepo from "../../../db/repos/requestRepo.js";
 import { REQUEST_TYPE } from "../../../rabbit/config.js";
 import schemaValidator from "../../../helpers/validator.js";
 import requestSchema from "../../../configs/schemas/request.schema.js";
-import AuthenticationService from "../../../services/Authentication.service.js";
 import CardanoService from "../../../services/Cardano.service.js";
 import DocumentService from "../../../services/Document.service.js";
 import ControllerService from "../../../services/Controller.service.js";
@@ -34,31 +33,22 @@ export default {
             requestSchema.createContract,
             req.body
         );
-        const accessToken =
-            env.NODE_ENV === "test"
-                ? "mock-access-token"
-                : await AuthenticationService().authenticationProgress();
         const companyName = env.COMPANY_NAME;
-        const { fileName } = DocumentService(
-            accessToken
-        ).generateFileNameForDocument(
+        const { fileName } = DocumentService().generateFileNameForDocument(
             wrappedDoc,
             WRAPPED_DOCUMENT_TYPE.LOAN_CONTRACT
         );
         const did = generateDid(companyName, fileName);
-        const isExistedResponse = await ControllerService(
-            accessToken
-        ).isExisted({
+        const isExistedResponse = await ControllerService().isExisted({
             companyName,
             fileName,
         });
         if (isExistedResponse.data?.isExisted) {
             logger.warning(`Document ${did} is existed`);
-            const getDocumentResponse = await ControllerService(
-                accessToken
-            ).getDocumentContent({
-                did,
-            });
+            const getDocumentResponse =
+                await ControllerService().getDocumentContent({
+                    did,
+                });
             if (!getDocumentResponse?.data) {
                 throw new AppError(ERRORS.INVALID_INPUT);
             }
@@ -68,17 +58,16 @@ export default {
                 wrappedDocument: wrappedDoc,
             };
         }
-        const { dataForm } = await DocumentService(
-            accessToken
-        ).createWrappedDocumentData(
+        const { dataForm } = await DocumentService().createWrappedDocumentData(
             fileName,
             wrappedDoc,
             WRAPPED_DOCUMENT_TYPE.LOAN_CONTRACT
         );
         schemaValidator(wrappedDocumentSchema.dataForIssueDocument, dataForm);
-        const { wrappedDocument } = await DocumentService(
-            accessToken
-        ).issueBySignByAdmin(dataForm, companyName);
+        const { wrappedDocument } = await DocumentService().issueBySignByAdmin(
+            dataForm,
+            companyName
+        );
         const request = await RequestRepo.createRequest({
             data: {
                 wrappedDocument,
@@ -87,7 +76,7 @@ export default {
             type: REQUEST_TYPE.MINTING_TYPE.createContract,
             status: "pending",
         });
-        await CardanoService(accessToken).storeToken({
+        await CardanoService().storeToken({
             hash: wrappedDocument?.signature?.targetHash,
             id: request._id,
             type: "document",

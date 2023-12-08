@@ -3,7 +3,7 @@ import { REQUEST_TYPE, RABBITMQ_SERVICE } from "../rabbit/config.js";
 import { AppError } from "../configs/errors/appError.js";
 import { ERRORS } from "../configs/errors/error.constants.js";
 import { deepUnsalt } from "../fuixlabs-documentor/utils/data.js";
-import RabbitRepository from "../rabbit/rabbit.repository.js";
+import RabbitService from "../services/Rabbit.service.js";
 import { randomUUID } from "crypto";
 import customLogger from "../helpers/customLogger.js";
 import { env } from "../configs/constants.js";
@@ -63,9 +63,7 @@ const ConsumerService = () => {
                                 const { wrappedDocument, metadata } =
                                     request.data;
                                 const mintingConfig = cardanoResponse.data;
-                                await RabbitRepository(
-                                    "accessToken"
-                                )._createContract({
+                                await RabbitService()._createContract({
                                     companyName,
                                     fileName,
                                     did,
@@ -147,9 +145,7 @@ const ConsumerService = () => {
                                 const { fileName, companyName } =
                                     wrappedDocument.data;
                                 const updateConfig = cardanoResponse.data;
-                                await RabbitRepository(
-                                    "accessToken"
-                                )._updatePlot({
+                                await RabbitService()._updatePlot({
                                     wrappedDocument,
                                     updateConfig,
                                     companyName,

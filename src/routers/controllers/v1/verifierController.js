@@ -1,7 +1,6 @@
 import dotenv from "dotenv";
 import { ERRORS } from "../../../configs/errors/error.constants.js";
 import ControllerService from "../../../services/Controller.service.js";
-import AuthenticationService from "../../../services/Authentication.service.js";
 import CardanoService from "../../../services/Cardano.service.js";
 import schemaValidator from "../../../helpers/validator.js";
 import requestSchema from "../../../configs/schemas/request.schema.js";
@@ -15,29 +14,23 @@ export default {
             requestSchema.verifyCertificate,
             req.body
         );
-        const accessToken =
-            env.NODE_ENV === "test"
-                ? "mock-access-token"
-                : await AuthenticationService().authenticationProgress();
-        const documentContentResponse = await ControllerService(
-            accessToken
-        ).getDocumentContent({
-            did,
-        });
+        const documentContentResponse =
+            await ControllerService().getDocumentContent({
+                did,
+            });
         const documentHash =
             documentContentResponse?.data?.wrappedDoc?.signature?.targetHash;
         const policyId =
             documentContentResponse?.data?.wrappedDoc?.mintingConfig?.policy
                 ?.id;
-        await CardanoService(accessToken).verifyCardanoNft({
+        await CardanoService().verifyCardanoNft({
             hashofdocument: documentHash,
             policyid: policyId,
         });
-        const getEndorsementChainResponse = await CardanoService(
-            accessToken
-        ).getEndorsementChain({
-            policyId,
-        });
+        const getEndorsementChainResponse =
+            await CardanoService().getEndorsementChain({
+                policyId,
+            });
         const documentHistory = getEndorsementChainResponse?.data
             ?.filter((item) => item?.onchainMetadata?.type === "document")
             .sort(
@@ -58,15 +51,10 @@ export default {
             requestSchema.verifyCertificate,
             req.body
         );
-        const accessToken =
-            env.NODE_ENV === "test"
-                ? "mock-access-token"
-                : await AuthenticationService().authenticationProgress();
-        const credentialContentResponse = await ControllerService(
-            accessToken
-        ).getCredentialContent({
-            did,
-        });
+        const credentialContentResponse =
+            await ControllerService().getCredentialContent({
+                did,
+            });
         const credentialContent = credentialContentResponse?.data;
         delete credentialContent._id;
         delete credentialContent.createdAt;

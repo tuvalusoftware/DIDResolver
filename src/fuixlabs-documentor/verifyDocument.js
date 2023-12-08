@@ -20,7 +20,6 @@ import {
     verifyCardanoSignature,
 } from "../api/utils/cardano.js";
 import { getDidDocumentByDid as _getDidDocumentByDid } from "../api/utils/controller.js";
-import AuthenticationService from "../services/Authentication.service.js";
 const { get } = pkg;
 /**
  * Function used to validate wrapped document against current service
@@ -39,11 +38,8 @@ export const verifyWrappedDocument = async (document, usedAddress, service) => {
         // * Coming soon
     } else {
         try {
-            const accessToken =
-                await AuthenticationService().authenticationProgress();
             const res = await verifyCardanoDocument({
                 document: document,
-                accessToken: accessToken,
             });
             return res;
         } catch (e) {
@@ -65,12 +61,11 @@ export const verifyPdfDocument = async ({ document }) => {
  * @param {String} policyId - policyId of the wrappedDocument
  * @return {Promise}
  */
-const verifyCNFT = async (targetHash, policyId, accessToken) => {
+const verifyCNFT = async (targetHash, policyId) => {
     try {
         await verifyCardanoNft({
             hashofdocument: targetHash,
             policyid: policyId,
-            accessToken: accessToken,
         });
     } catch (e) {
         throw VERIFIER_ERROR_CODE.CNFTs;
@@ -123,20 +118,13 @@ const verifyIssuer = async (superUserPublicKey, currentAddress, signedData) => {
  * @param {String} signature
  * @return {Promise}
  */
-const verifySignature = async ({
-    address,
-    payload,
-    signature,
-    key,
-    accessToken,
-}) => {
+const verifySignature = async ({ address, payload, signature, key }) => {
     try {
         await verifyCardanoSignature({
             address: address,
             payload: payload,
             signature: signature,
             key: key,
-            accessToken: accessToken,
         });
     } catch (e) {
         throw VERIFIER_ERROR_CODE.INVALID_SIGNATURE;
@@ -149,7 +137,7 @@ const verifySignature = async ({
  * @return {Promise}
  */
 
-export const verifyCardanoDocument = async ({ document, accessToken }) => {
+export const verifyCardanoDocument = async ({ document }) => {
     try {
         // * First verifier is verifying the hash of wrappedDocument (targetHash)
         let verifyDocument = { ...document };
@@ -186,13 +174,12 @@ export const verifyCardanoDocument = async ({ document, accessToken }) => {
                 "utf8"
             ).toString("hex");
             // * Call to cardanoService to verify the targetHash
-            await verifyCNFT(targetHash, policyId, accessToken);
+            await verifyCNFT(targetHash, policyId);
             await verifySignature({
                 address: unsalt(verifyDocument?.data.issuers[0]?.address),
                 payload,
                 signature,
                 key,
-                accessToken,
             });
             // await verifyIssuer(
             //   process.env.REACT_APP_SUPER_USER,
@@ -201,7 +188,6 @@ export const verifyCardanoDocument = async ({ document, accessToken }) => {
             // );
             const didResponse = await _getDidDocumentByDid({
                 did: unsalt(didOfWrappedDocument),
-                accessToken: accessToken,
             });
             if (didResponse?.error_code) throw didResponse?.data;
             const didDocument = didResponse?.didDoc;

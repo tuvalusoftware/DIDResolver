@@ -1,11 +1,9 @@
 import axios from "axios";
+import dotenv from "dotenv";
+import { createRequire } from "module";
+import { fileURLToPath } from "node:url";
 import RequestRepo from "../../../db/repos/requestRepo.js";
-import {
-    REQUEST_TYPE as RABBIT_REQUEST_TYPE,
-    RABBITMQ_SERVICE,
-} from "../../../rabbit/config.js";
 import ControllerService from "../../../services/Controller.service.js";
-import AuthenticationService from "../../../services/Authentication.service.js";
 import credentialService from "../../../services/VerifiableCredential.service.js";
 import schemaValidator from "../../../helpers/validator.js";
 import DocumentService from "../../../services/Document.service.js";
@@ -13,12 +11,8 @@ import { asyncWrapper } from "../../middlewares/async.js";
 import ConsumerService from "../../../services/Consumer.service.js";
 import { rabbitMQ } from "../../../rabbit/index.js";
 import { randomUUID } from "crypto";
-import { ERRORS } from "../../../configs/errors/error.constants.js";
-import RabbitRepository from "../../../rabbit/rabbit.repository.js";
+import RabbitService from "../../../services/Rabbit.service.js";
 import { AppError } from "../../../configs/errors/appError.js";
-import dotenv from "dotenv";
-import { createRequire } from "module";
-import { fileURLToPath } from "node:url";
 import Logger from "../../../libs/logger.js";
 
 // * Constants
@@ -27,6 +21,11 @@ import { env, WRAPPED_DOCUMENT_TYPE } from "../../../configs/constants.js";
 import requestSchema from "../../../configs/schemas/request.schema.js";
 import wrappedDocumentSchema from "../../../configs/schemas/wrappedDocument.schema.js";
 import { generateDid } from "../../../fuixlabs-documentor/utils/did.js";
+import {
+    REQUEST_TYPE as RABBIT_REQUEST_TYPE,
+    RABBITMQ_SERVICE,
+} from "../../../rabbit/config.js";
+import { ERRORS } from "../../../configs/errors/error.constants.js";
 
 axios.defaults.withCredentials = true;
 
@@ -43,13 +42,7 @@ export default {
             req.body
         );
         const companyName = env.COMPANY_NAME;
-        const accessToken =
-            env.NODE_ENV === "test"
-                ? "mock-access-token"
-                : await AuthenticationService().authenticationProgress();
-        const { fileName } = DocumentService(
-            accessToken
-        ).generateFileNameForDocument(
+        const { fileName } = DocumentService().generateFileNameForDocument(
             plot,
             WRAPPED_DOCUMENT_TYPE.PLOT_CERTIFICATE
         );
@@ -95,17 +88,16 @@ export default {
                 claimants: __claimants,
             });
         }
-        const { dataForm } = await DocumentService(
-            accessToken
-        ).createWrappedDocumentData(
+        const { dataForm } = await DocumentService().createWrappedDocumentData(
             fileName,
             plot,
             WRAPPED_DOCUMENT_TYPE.PLOT_CERTIFICATE
         );
         schemaValidator(wrappedDocumentSchema.dataForIssueDocument, dataForm);
-        const { wrappedDocument } = await DocumentService(
-            accessToken
-        ).issueBySignByAdmin(dataForm, companyName);
+        const { wrappedDocument } = await DocumentService().issueBySignByAdmin(
+            dataForm,
+            companyName
+        );
         const request = await RequestRepo.createRequest({
             data: {
                 wrappedDocument,
@@ -205,15 +197,15 @@ export default {
                                         request._id.toString()
                                     ) {
                                         const _verifiedCredential =
-                                            await RabbitRepository(
-                                                accessToken
-                                            ).createClaimantCredential({
-                                                credentialHash,
-                                                companyName,
-                                                verifiedCredential:
-                                                    verifiableCredential,
-                                                txHash: config.txHash,
-                                            });
+                                            await RabbitService().createClaimantCredential(
+                                                {
+                                                    credentialHash,
+                                                    companyName,
+                                                    verifiedCredential:
+                                                        verifiableCredential,
+                                                    txHash: config.txHash,
+                                                }
+                                            );
                                         await RequestRepo.findOneAndUpdate(
                                             {
                                                 response: {
@@ -271,30 +263,23 @@ export default {
             requestSchema.createCertificateForPlot,
             req.body
         );
-        const accessToken =
-            env.NODE_ENV === "test"
-                ? "mock-access-token"
-                : await AuthenticationService().authenticationProgress();
         const companyName = env.COMPANY_NAME;
-        const { fileName } = DocumentService(
-            accessToken
-        ).generateFileNameForDocument(
+        const { fileName } = DocumentService().generateFileNameForDocument(
             plot,
             WRAPPED_DOCUMENT_TYPE.PLOT_CERTIFICATE,
             true
         );
         const did = generateDid(companyName, fileName);
-        const { dataForm } = await DocumentService(
-            accessToken
-        ).createWrappedDocumentData(
+        const { dataForm } = await DocumentService().createWrappedDocumentData(
             fileName,
             plot,
             WRAPPED_DOCUMENT_TYPE.PLOT_CERTIFICATE
         );
         schemaValidator(wrappedDocumentSchema.dataForIssueDocument, dataForm);
-        const { wrappedDocument } = await DocumentService(
-            accessToken
-        ).issueBySignByAdmin(dataForm, companyName);
+        const { wrappedDocument } = await DocumentService().issueBySignByAdmin(
+            dataForm,
+            companyName
+        );
         const request = await RequestRepo.createRequest({
             data: {
                 wrappedDocument,
@@ -406,15 +391,15 @@ export default {
                                         request._id.toString()
                                     ) {
                                         const _verifiedCredential =
-                                            await RabbitRepository(
-                                                accessToken
-                                            ).createClaimantCredential({
-                                                credentialHash,
-                                                companyName,
-                                                verifiedCredential:
-                                                    verifiableCredential,
-                                                txHash: config.txHash,
-                                            });
+                                            await RabbitService().createClaimantCredential(
+                                                {
+                                                    credentialHash,
+                                                    companyName,
+                                                    verifiedCredential:
+                                                        verifiableCredential,
+                                                    txHash: config.txHash,
+                                                }
+                                            );
                                         await RequestRepo.findOneAndUpdate(
                                             {
                                                 response: {
@@ -533,14 +518,13 @@ export default {
                         const cardanoResponse = JSON.parse(msg.content);
                         const config = cardanoResponse.data;
                         if (cardanoResponse.id === request._id.toString()) {
-                            const _verifiedCredential = await RabbitRepository(
-                                "accessToken"
-                            ).createClaimantCredential({
-                                credentialHash,
-                                companyName,
-                                verifiedCredential: verifiableCredential,
-                                txHash: config.txHash,
-                            });
+                            const _verifiedCredential =
+                                await RabbitService().createClaimantCredential({
+                                    credentialHash,
+                                    companyName,
+                                    verifiedCredential: verifiableCredential,
+                                    txHash: config.txHash,
+                                });
                             await RequestRepo.findOneAndUpdate(
                                 {
                                     response: {
