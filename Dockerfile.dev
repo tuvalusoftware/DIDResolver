@@ -1,5 +1,7 @@
 FROM node:18
 
+LABEL maintainer="HaoHuynh<hao152903@gmail.com>"
+
 WORKDIR /usr/src/app
 
 COPY package*.json ./
