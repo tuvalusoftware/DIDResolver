@@ -14,7 +14,7 @@ async function mintContract() {
     const request = await RequestRepo.findOne({
         _id: "6570414082e83d79a69f42ef",
     });
-    await CardanoService("accessToken").storeCredentialsWithPolicyId({
+    await CardanoService().storeCredentialsWithPolicyId({
         credentials: [request.data.credential],
         mintingConfig: request.data.mintingConfig,
         id: request?._id,

@@ -16,7 +16,7 @@ async function mintContract() {
     const request = await RequestRepo.findOne({
         _id: "655ad3bdb8f55f44deb853b9",
     });
-    await CardanoService("accessToken").storeToken({
+    await CardanoService().storeToken({
         hash: request.data.wrappedDocument.signature.targetHash,
         id: request._id,
         type: "document",

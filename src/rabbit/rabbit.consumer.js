@@ -3,8 +3,7 @@ import { RABBITMQ_SERVICE } from "./config.js";
 import RequestRepo from "../db/repos/requestRepo.js";
 import { REQUEST_TYPE } from "./config.js";
 import { deepUnsalt } from "../fuixlabs-documentor/utils/data.js";
-import AuthenticationService from "../services/Authentication.service.js";
-import RabbitRepository from "./rabbit.repository.js";
+import RabbitService from "../services/Rabbit.service.js";
 import { ErrorProducer } from "./rabbit.producer.js";
 import { env } from "../configs/constants.js";
 import customLogger from "../helpers/customLogger.js";
@@ -67,10 +66,6 @@ export const ResolverConsumer = async () => {
                 const requestData = await RequestRepo.findOne({
                     _id: cardanoResponse?.id,
                 });
-                const accessToken =
-                    env.NODE_ENV === "test"
-                        ? "mock-access-token"
-                        : await AuthenticationService().authenticationProgress();
                 switch (requestData?.type) {
                     case REQUEST_TYPE.MINTING_TYPE.createContract: {
                         logger.info("Requesting create contract...");
@@ -79,7 +74,7 @@ export const ResolverConsumer = async () => {
                         );
                         const { wrappedDocument, metadata } = requestData?.data;
                         const mintingConfig = cardanoResponse.data;
-                        await RabbitRepository(accessToken).createContract({
+                        await RabbitService().createContract({
                             companyName,
                             fileName,
                             did,
@@ -98,7 +93,7 @@ export const ResolverConsumer = async () => {
                         const { companyName, fileName, did } =
                             wrappedDocument?.data;
                         const mintingConfig = cardanoResponse.data;
-                        await RabbitRepository(accessToken).createPlot({
+                        await RabbitService().createPlot({
                             wrappedDocument,
                             mintingConfig,
                             claimants,
@@ -120,13 +115,12 @@ export const ResolverConsumer = async () => {
                                 verifiedCredential,
                                 companyName,
                             } = requestData?.data;
-                            const _verifiedCredential = await RabbitRepository(
-                                accessToken
-                            ).createClaimantCredential({
-                                credentialHash: credential,
-                                companyName,
-                                verifiedCredential,
-                            });
+                            const _verifiedCredential =
+                                await RabbitService().createClaimantCredential({
+                                    credentialHash: credential,
+                                    companyName,
+                                    verifiedCredential,
+                                });
                             response = {
                                 ...cardanoResponse?.data,
                                 verifiedCredential: _verifiedCredential,
@@ -146,13 +140,12 @@ export const ResolverConsumer = async () => {
                                 verifiedCredential,
                                 companyName,
                             } = requestData?.data;
-                            const _verifiedCredential = await RabbitRepository(
-                                accessToken
-                            ).createClaimantCredential({
-                                credentialHash: credential,
-                                companyName,
-                                verifiedCredential,
-                            });
+                            const _verifiedCredential =
+                                await RabbitService().createClaimantCredential({
+                                    credentialHash: credential,
+                                    companyName,
+                                    verifiedCredential,
+                                });
                             response = {
                                 ...cardanoResponse?.data,
                                 verifiedCredential: _verifiedCredential,
@@ -170,7 +163,7 @@ export const ResolverConsumer = async () => {
                         const { fileName, companyName, did } =
                             wrappedDocument?.data;
                         const updateConfig = cardanoResponse.data;
-                        await RabbitRepository(accessToken).updatePlot({
+                        await RabbitService().updatePlot({
                             wrappedDocument,
                             updateConfig,
                             claimants: claimants?.claimants,
@@ -195,13 +188,12 @@ export const ResolverConsumer = async () => {
                                 verifiedCredential,
                                 companyName,
                             } = requestData?.data;
-                            const _verifiedCredential = await RabbitRepository(
-                                accessToken
-                            ).createClaimantCredential({
-                                credentialHash: credential,
-                                companyName,
-                                verifiedCredential,
-                            });
+                            const _verifiedCredential =
+                                await RabbitService().createClaimantCredential({
+                                    credentialHash: credential,
+                                    companyName,
+                                    verifiedCredential,
+                                });
                             response = {
                                 ...cardanoResponse?.data,
                                 verifiedCredential: _verifiedCredential,

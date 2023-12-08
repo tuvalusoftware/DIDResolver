@@ -3,7 +3,6 @@ import { RequestModel } from "../../db/models/requestModel.js";
 import { REQUEST_TYPE } from "../../rabbit/config.js";
 import CardanoService from "../../services/Cardano.service.js";
 import ControllerService from "../../services/Controller.service.js";
-import AuthenticationService from "../../services/Authentication.service.js";
 import { env } from "../constants.js";
 import { AppError } from "../errors/appError.js";
 import { ERRORS } from "../errors/error.constants.js";
@@ -36,14 +35,8 @@ export const setUpCron = () => {
                         case REQUEST_TYPE.MINTING_TYPE.updatePlot: {
                             logger.info(`Cron update plot ${request._id}`);
                             const { wrappedDocument, originDid } = request.data;
-                            const accessToken =
-                                env.NODE_ENV === "test"
-                                    ? "mock-access-token"
-                                    : await AuthenticationService().authenticationProgress();
                             const documentContentResponse =
-                                await ControllerService(
-                                    accessToken
-                                ).getDocumentContent({
+                                await ControllerService().getDocumentContent({
                                     did: originDid,
                                 });
                             if (
@@ -58,7 +51,7 @@ export const setUpCron = () => {
                             const { mintingConfig } =
                                 documentContentResponse.data.wrappedDoc;
                             Object.assign(mintingConfig, { reuse: true });
-                            await CardanoService(accessToken).updateToken({
+                            await CardanoService().updateToken({
                                 hash: wrappedDocument?.signature?.targetHash,
                                 mintingConfig,
                                 id: request._id,
@@ -71,14 +64,8 @@ export const setUpCron = () => {
                         case REQUEST_TYPE.MINTING_TYPE.addClaimantToPlot: {
                             logger.info(`Cron add claimant ${request._id}`);
                             const { originDid, credential } = request.data;
-                            const accessToken =
-                                env.NODE_ENV === "test"
-                                    ? "mock-access-token"
-                                    : await AuthenticationService().authenticationProgress();
                             const documentContentResponse =
-                                await ControllerService(
-                                    accessToken
-                                ).getDocumentContent({
+                                await ControllerService().getDocumentContent({
                                     did: originDid,
                                 });
                             if (
@@ -92,13 +79,13 @@ export const setUpCron = () => {
                             }
                             const { mintingConfig } =
                                 documentContentResponse.data.wrappedDoc;
-                            await CardanoService(
-                                accessToken
-                            ).storeCredentialsWithPolicyId({
-                                credentials: [credential],
-                                mintingConfig,
-                                id: request._id,
-                            });
+                            await CardanoService().storeCredentialsWithPolicyId(
+                                {
+                                    credentials: [credential],
+                                    mintingConfig,
+                                    id: request._id,
+                                }
+                            );
                             logger.info(
                                 `Cron add claimant ${request._id} finished`
                             );
@@ -107,14 +94,8 @@ export const setUpCron = () => {
                         case REQUEST_TYPE.MINTING_TYPE.signContract: {
                             logger.info(`Cron sign contract ${request._id}`);
                             const { originDid, credential } = request.data;
-                            const accessToken =
-                                env.NODE_ENV === "test"
-                                    ? "mock-access-token"
-                                    : await AuthenticationService().authenticationProgress();
                             const documentContentResponse =
-                                await ControllerService(
-                                    accessToken
-                                ).getDocumentContent({
+                                await ControllerService().getDocumentContent({
                                     did: originDid,
                                 });
                             if (
@@ -128,13 +109,13 @@ export const setUpCron = () => {
                             }
                             const { mintingConfig } =
                                 documentContentResponse.data.wrappedDoc;
-                            await CardanoService(
-                                accessToken
-                            ).storeCredentialsWithPolicyId({
-                                credentials: [credential],
-                                mintingConfig,
-                                id: request._id,
-                            });
+                            await CardanoService().storeCredentialsWithPolicyId(
+                                {
+                                    credentials: [credential],
+                                    mintingConfig,
+                                    id: request._id,
+                                }
+                            );
                             logger.info(
                                 `Cron sign contract ${request._id} finished`
                             );

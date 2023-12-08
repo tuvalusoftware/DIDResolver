@@ -3,7 +3,7 @@ import schemaValidator from "../../../helpers/validator.js";
 import requestSchema from "../../../configs/schemas/request.schema.js";
 import ControllerService from "../../../services/Controller.service.js";
 import dotenv from "dotenv";
-import Logger from "../../../../logger.js";
+import Logger from "../../../libs/logger.js";
 import { createRequire } from "module";
 import { fileURLToPath } from "node:url";
 
