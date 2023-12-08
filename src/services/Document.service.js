@@ -131,7 +131,7 @@ const wrapDocumentData = async ({
     }
 };
 
-const DocumentService = (accessToken) => {
+const DocumentService = () => {
     return {
         generateFileNameForDocument(data, type, update = false) {
             const response = {
@@ -173,7 +173,6 @@ const DocumentService = (accessToken) => {
                     address: getPublicKeyFromAddress(
                         currentWallet?.paymentAddr
                     ),
-                    access_token: accessToken,
                     client: lucidClient,
                     currentWallet: currentWallet,
                     companyName: companyName,
@@ -236,11 +235,10 @@ const DocumentService = (accessToken) => {
 
         async getEndorsementChainByDid(did) {
             try {
-                const documentContentResponse = await ControllerService(
-                    accessToken
-                ).getDocumentContent({
-                    did: did,
-                });
+                const documentContentResponse =
+                    await ControllerService().getDocumentContent({
+                        did: did,
+                    });
                 if (
                     !documentContentResponse?.data?.wrappedDoc?.mintingNFTConfig
                 ) {
@@ -252,9 +250,7 @@ const DocumentService = (accessToken) => {
                 const policyId =
                     documentContentResponse?.data?.wrappedDoc?.mintingNFTConfig
                         ?.policy?.id;
-                const getNftResponse = await CardanoService(
-                    accessToken
-                ).getToken({
+                const getNftResponse = await CardanoService().getToken({
                     policyId,
                 });
                 const nftContracts = getNftResponse?.data?.data;
@@ -263,16 +259,14 @@ const DocumentService = (accessToken) => {
                         const certificateDid = getDidByComponents(
                             nft?.onchainMetadata?.did
                         );
-                        const certificateResponse = await ControllerService(
-                            accessToken
-                        ).getDocumentContent({
-                            did: certificateDid,
-                        });
-                        const didDocumentResponse = await ControllerService(
-                            accessToken
-                        ).getDocumentDid({
-                            did: certificateDid,
-                        });
+                        const certificateResponse =
+                            await ControllerService().getDocumentContent({
+                                did: certificateDid,
+                            });
+                        const didDocumentResponse =
+                            await ControllerService().getDocumentDid({
+                                did: certificateDid,
+                            });
                         return {
                             data: {
                                 ...certificateResponse?.data?.wrappedDoc?.data,

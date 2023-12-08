@@ -58,10 +58,8 @@ services:
         condition: service_healthy
     volumes:
       - ".:/usr/src/app"
-      - "ignore:/usr/src/app/node_modules"
       - "./logs:/usr/src/app/logs"
+      - "/usr/src/app/node_modules"
 networks:
   resolver-networks:
     driver: bridge
-volumes:
-  ignore:

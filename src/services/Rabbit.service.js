@@ -3,7 +3,7 @@ import CardanoService from "../services/Cardano.service.js";
 import credentialService from "../services/VerifiableCredential.service.js";
 import RequestRepo from "../db/repos/requestRepo.js";
 import { generateDid } from "../fuixlabs-documentor/utils/did.js";
-import { REQUEST_TYPE } from "./config.js";
+import { REQUEST_TYPE } from "../rabbit/config.js";
 import customLogger from "../helpers/customLogger.js";
 import { env } from "../configs/constants.js";
 
@@ -13,7 +13,7 @@ const pathToLog =
         : "logs/rabbit/task.log";
 const logger = customLogger(pathToLog);
 
-const RabbitRepository = (accessToken) => {
+const RabbitService = () => {
     return {
         async createContract({
             companyName,
@@ -27,20 +27,18 @@ const RabbitRepository = (accessToken) => {
                 ...wrappedDocument,
                 mintingConfig,
             };
-            await ControllerService(accessToken).storeDocument({
+            await ControllerService().storeDocument({
                 companyName,
                 fileName,
                 wrappedDocument: willWrappedDocument,
             });
             if (metadata) {
-                const didDocumentResponse = await ControllerService(
-                    accessToken
-                ).getDocumentDid({
-                    did,
-                });
+                const didDocumentResponse =
+                    await ControllerService().getDocumentDid({
+                        did,
+                    });
                 const originDidDocument = didDocumentResponse?.data?.didDoc;
-                await ControllerService(accessToken).updateDocumentDid({
-                    accessToken,
+                await ControllerService().updateDocumentDid({
                     did,
                     didDoc: {
                         ...originDidDocument,
@@ -64,7 +62,7 @@ const RabbitRepository = (accessToken) => {
                     ...wrappedDocument,
                     mintingConfig,
                 };
-                await ControllerService(accessToken).storeDocument({
+                await ControllerService().storeDocument({
                     companyName,
                     fileName,
                     wrappedDocument: willWrappedDocument,
@@ -95,13 +93,13 @@ const RabbitRepository = (accessToken) => {
                                     .createClaimantCredential,
                                 status: "pending",
                             });
-                            await CardanoService(
-                                accessToken
-                            ).storeCredentialsWithPolicyId({
-                                credentials: [credentialHash],
-                                mintingConfig,
-                                id: request?._id,
-                            });
+                            await CardanoService().storeCredentialsWithPolicyId(
+                                {
+                                    credentials: [credentialHash],
+                                    mintingConfig,
+                                    id: request?._id,
+                                }
+                            );
                         }
                     );
                     await Promise.all(promises).catch((error) => {
@@ -127,7 +125,7 @@ const RabbitRepository = (accessToken) => {
                     claims: { ..._verifiedCredential.credentialSubject.claims },
                     id: generateDid(companyName, credentialHash),
                 };
-                await ControllerService(accessToken).storeCredentials({
+                await ControllerService().storeCredentials({
                     payload: {
                         ..._verifiedCredential,
                         id: generateDid(companyName, credentialHash),
@@ -154,7 +152,7 @@ const RabbitRepository = (accessToken) => {
                     ...wrappedDocument,
                     mintingConfig: updateConfig,
                 };
-                await ControllerService(accessToken).storeDocument({
+                await ControllerService().storeDocument({
                     companyName,
                     fileName,
                     wrappedDocument: updateWrappedDocument,
@@ -184,9 +182,7 @@ const RabbitRepository = (accessToken) => {
                                 .createClaimantCredential,
                             status: "pending",
                         });
-                        await CardanoService(
-                            accessToken
-                        ).storeCredentialsWithPolicyId({
+                        await CardanoService().storeCredentialsWithPolicyId({
                             credentials: [credentialHash],
                             mintingConfig: updateConfig,
                             id: request?._id,
@@ -213,20 +209,18 @@ const RabbitRepository = (accessToken) => {
                 ...wrappedDocument,
                 mintingConfig,
             };
-            await ControllerService(accessToken).storeDocument({
+            await ControllerService().storeDocument({
                 companyName,
                 fileName,
                 wrappedDocument: willWrappedDocument,
             });
             if (metadata) {
-                const didDocumentResponse = await ControllerService(
-                    accessToken
-                ).getDocumentDid({
-                    did,
-                });
+                const didDocumentResponse =
+                    await ControllerService().getDocumentDid({
+                        did,
+                    });
                 const originDidDocument = didDocumentResponse?.data?.didDoc;
-                await ControllerService(accessToken).updateDocumentDid({
-                    accessToken,
+                await ControllerService().updateDocumentDid({
                     did,
                     didDoc: {
                         ...originDidDocument,
@@ -247,7 +241,7 @@ const RabbitRepository = (accessToken) => {
                     ...wrappedDocument,
                     mintingConfig: updateConfig,
                 };
-                await ControllerService(accessToken).storeDocument({
+                await ControllerService().storeDocument({
                     companyName,
                     fileName,
                     wrappedDocument: updateWrappedDocument,
@@ -259,4 +253,4 @@ const RabbitRepository = (accessToken) => {
     };
 };
 
-export default RabbitRepository;
+export default RabbitService;
