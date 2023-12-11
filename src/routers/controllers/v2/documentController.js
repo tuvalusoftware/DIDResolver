@@ -53,7 +53,7 @@ export default {
             plot,
             WRAPPED_DOCUMENT_TYPE.PLOT_CERTIFICATE
         );
-        taskLogger.info(req, `Create plot certification v2 with ${fileName}`);
+        taskLogger.info(`Create plot certification v2 with ${fileName}`);
         const did = generateDid(companyName, fileName);
         const isExistedResponse = await ControllerService().isExisted({
             companyName,
@@ -269,7 +269,6 @@ export default {
         }
         logger.apiInfo(req, `Create plot certification v2 ${did} successfully`);
         taskLogger.info(
-            req,
             `Create plot certification v2 ${did} successfully with transactionId ${txHash}, hashOfDocument ${assetName}, with ${_claimants.length} claimants`
         );
         return res.status(200).json({
