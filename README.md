@@ -27,7 +27,12 @@ NPM version 9
 
 ## Start production
 1. Set up `.env` file
-2. Start MongoDB and RabbitMQ with docker
+2. Build docker image
+
+    ```
+    docker build -t resolver-service .
+    ```
+3. Start MongoDB and RabbitMQ with docker
     - Ensure all MongoDB and RabbitMQ configs are set in `.env`.
     - Ensure that no other service is running on the same port as the one configured for MongoDB in the `.env` file. (Use the command below to check if there is any other mongo service run in the same port)
         ```

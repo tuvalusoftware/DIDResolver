@@ -59,7 +59,9 @@ export default {
                 });
             const __txHash =
                 _documentContent?.data?.wrappedDoc?.mintingConfig?.txHash;
-            const __assetName = _documentContent?.data?.wrappedDoc?.assetName;
+            const __assetName =
+                _documentContent?.data?.wrappedDoc?.mintingConfig?.assetName;
+            logger.apiInfo(`Hash of document: ${__assetName}`);
             const _claimantsCredentialDids =
                 await credentialService.getCredentialDidsFromClaimants({
                     claimants: plot.claimants,
@@ -248,10 +250,6 @@ export default {
             });
             await credentialChannel.close();
         }
-        logger.apiInfo(
-            req,
-            `Create plot certification v2 success: ${did}, ${txHash}, ${assetName}`
-        );
         return res.status(200).json({
             plot: {
                 did,
@@ -446,10 +444,6 @@ export default {
             });
             await credentialChannel.close();
         }
-        logger.apiInfo(
-            req,
-            `Update plot certification v2 success: ${did}, ${txHash}, ${assetName}`
-        );
         return res.status(200).json({
             plot: {
                 did,
@@ -559,10 +553,6 @@ export default {
         );
         const { config: _config, did: _did } =
             await createClaimantCredentialHandle;
-        logger.apiInfo(
-            req,
-            `Add claimant to certificate v2 success: ${_did} ${_config?.txHash}`
-        );
         return res.status(200).json({
             did: _did,
             transactionId: _config?.txHash,
