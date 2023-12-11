@@ -14,6 +14,7 @@ import { randomUUID } from "crypto";
 import RabbitService from "../../../services/Rabbit.service.js";
 import { AppError } from "../../../configs/errors/appError.js";
 import Logger from "../../../libs/logger.js";
+import customLogger from "../../../helpers/customLogger.js";
 
 // * Constants
 import { REQUEST_TYPE } from "../../../rabbit/config.js";
@@ -34,6 +35,12 @@ const require = createRequire(import.meta.url);
 const __filename = fileURLToPath(import.meta.url);
 const logger = Logger(__filename);
 
+const pathToLog =
+    env.NODE_ENV === "test"
+        ? "logs/plot/create-test-task.log"
+        : "logs/plot/create-task.log";
+const taskLogger = customLogger(pathToLog);
+
 export default {
     createPlotCertification: asyncWrapper(async (req, res, next) => {
         logger.apiInfo(req, "Create plot certification v2");
@@ -46,6 +53,7 @@ export default {
             plot,
             WRAPPED_DOCUMENT_TYPE.PLOT_CERTIFICATE
         );
+        taskLogger.info(req, `Create plot certification v2 with ${fileName}`);
         const did = generateDid(companyName, fileName);
         const isExistedResponse = await ControllerService().isExisted({
             companyName,
@@ -57,11 +65,17 @@ export default {
                 await ControllerService().getDocumentContent({
                     did,
                 });
+            if (
+                !_documentContent?.data?.wrappedDoc?.mintingConfig?.txHash ||
+                !_documentContent?.data?.wrappedDoc?.mintingConfig?.assetName
+            ) {
+                logger.warning(`Missing txHash or assetName of ${did}`);
+            }
             const __txHash =
                 _documentContent?.data?.wrappedDoc?.mintingConfig?.txHash;
             const __assetName =
                 _documentContent?.data?.wrappedDoc?.mintingConfig?.assetName;
-            logger.apiInfo(`Hash of document: ${__assetName}`);
+            logger.warning(`Hash of document: ${__assetName}`);
             const _claimantsCredentialDids =
                 await credentialService.getCredentialDidsFromClaimants({
                     claimants: plot.claimants,
@@ -81,6 +95,9 @@ export default {
                     transactionId: _credential.data.txHash,
                 });
             }
+            taskLogger.warning(
+                `Create plot certification v2 ${did} existed with ${__txHash}, ${__assetName}, and ${__claimants.length} claimants`
+            );
             return res.status(200).json({
                 plot: {
                     did,
@@ -250,6 +267,11 @@ export default {
             });
             await credentialChannel.close();
         }
+        logger.apiInfo(req, `Create plot certification v2 ${did} successfully`);
+        taskLogger.info(
+            req,
+            `Create plot certification v2 ${did} successfully with transactionId ${txHash}, hashOfDocument ${assetName}, with ${_claimants.length} claimants`
+        );
         return res.status(200).json({
             plot: {
                 did,
