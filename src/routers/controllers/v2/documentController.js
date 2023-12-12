@@ -171,7 +171,7 @@ export default {
                         },
                         issuerKey: did,
                     });
-                let request_ = await RequestRepo.createRequest({
+                const request_ = await RequestRepo.createRequest({
                     data: {
                         mintingConfig: config,
                         credential: credentialHash,
@@ -369,7 +369,7 @@ export default {
                         },
                         issuerKey: did,
                     });
-                let _request = await RequestRepo.createRequest({
+                const _request = await RequestRepo.createRequest({
                     data: {
                         mintingConfig: _config,
                         credential: credentialHash,
