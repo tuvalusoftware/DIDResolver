@@ -95,7 +95,7 @@ export default {
                     transactionId: _credential.data.txHash,
                 });
             }
-            taskLogger.warning(
+            taskLogger.info(
                 `Create plot certification v2 ${did} existed with ${__txHash}, ${__assetName}, and ${__claimants.length} claimants`
             );
             return res.status(200).json({
@@ -122,7 +122,7 @@ export default {
                 wrappedDocument,
                 plot,
             },
-            type: RABBIT_REQUEST_TYPE.MINTING_TYPE.createPlot,
+            type: RABBIT_REQUEST_TYPE.MINTING_TYPE.createPlot2,
             status: "pending",
         });
         const config = await ConsumerService().createDocument(
@@ -171,7 +171,7 @@ export default {
                         },
                         issuerKey: did,
                     });
-                const request = await RequestRepo.createRequest({
+                let request_ = await RequestRepo.createRequest({
                     data: {
                         mintingConfig: config,
                         credential: credentialHash,
@@ -188,7 +188,7 @@ export default {
                         type: "credential",
                         config,
                     },
-                    id: request._id,
+                    id: request_._id,
                     options: {
                         skipWait: true,
                     },
@@ -213,7 +213,7 @@ export default {
                                     const config = cardanoResponse.data;
                                     if (
                                         cardanoResponse.id ===
-                                        request._id.toString()
+                                        request_._id.toString()
                                     ) {
                                         const _verifiedCredential =
                                             await RabbitService().createClaimantCredential(
@@ -236,7 +236,7 @@ export default {
                                                 completedAt: new Date(),
                                             },
                                             {
-                                                _id: request?.id,
+                                                _id: request_?.id,
                                             }
                                         );
                                         resolve({
@@ -369,7 +369,7 @@ export default {
                         },
                         issuerKey: did,
                     });
-                const request = await RequestRepo.createRequest({
+                let _request = await RequestRepo.createRequest({
                     data: {
                         mintingConfig: _config,
                         credential: credentialHash,
@@ -386,7 +386,7 @@ export default {
                         type: "credential",
                         config: _config,
                     },
-                    id: request._id,
+                    id: _request._id,
                     options: {
                         skipWait: true,
                     },
@@ -411,7 +411,7 @@ export default {
                                     const config = cardanoResponse.data;
                                     if (
                                         cardanoResponse.id ===
-                                        request._id.toString()
+                                        _request._id.toString()
                                     ) {
                                         const _verifiedCredential =
                                             await RabbitService().createClaimantCredential(
@@ -434,7 +434,7 @@ export default {
                                                 completedAt: new Date(),
                                             },
                                             {
-                                                _id: request?.id,
+                                                _id: _request?.id,
                                             }
                                         );
                                         resolve({
