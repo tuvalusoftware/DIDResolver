@@ -75,22 +75,39 @@ async function connectToDB() {
 }
 
 async function HFAddSpecificClaimantTxHash() {
-    // const _txHash = await RedisService().getCacheValue(
-    //     `57000d9db9728593932e366521d860d4e2b89e11b0128397527f6f5105e3827a`
-    // );
-    // const config = _txHash.data;
-    // const { assetName, txHash } = config;
-    // console.log(`assetName: ${assetName}, txHash: ${txHash}`);
-    const vc = await VerifiableCredentialModel.findOne({
+    const vcs = await VerifiableCredentialModel.find({
         txHash: ''
     });
-    console.log(vc);
+    console.log(`There are ${vcs.length} VCs need to add transaction hash!`)
+    if(vcs.length === 0) {
+        return;
+    }
+    const promises = vcs.map(async (vc) => {
+        const id = vc.id;
+        const vcHash = id.split(':')[3];
+        const _txHash = await RedisService().getCacheValue(
+             vcHash
+        );
+        const config = _txHash.data;
+        const { assetName, txHash } = config;
+        console.log(`vcHash: ${vcHash}, assetName: ${assetName}, txHash: ${txHash}`)
+        const _vc = await VerifiableCredentialModel.findOneAndUpdate(
+            { _id: vc._id },
+            { txHash },
+            { new: true }
+        );
+    });
+    await Promise.all(promises).then(() => {
+        console.log(`Add transaction hash successfully!`)
+    }).catch((error) => {
+        console.log(`Error: ${JSON.stringify(error, null, 2)}`)
+    })
 }
 
 (async () => {
     try {
         await connectToDB();
-        // await HFAddSpecificClaimantTxHash();
+        await HFAddSpecificClaimantTxHash();
     } catch (error) {
         console.log(`Error: ${error}`);
     }
