@@ -10,7 +10,7 @@ const require = createRequire(import.meta.url);
 const __filename = fileURLToPath(import.meta.url);
 const logger = Logger(__filename);
 
-export const setUpRabbitMq = async (app) => {
+export const setUpRabbitMq = async () => {
     await ResolverConsumer();
 };
 

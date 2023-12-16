@@ -160,7 +160,7 @@ class VerifiableCredentialService {
             let hashingCredential = {
                 "@context": [
                     "https://www.w3.org/2018/credentials/v1",
-                    "https://cml-resolver.ap.ngrok.io/config/dominium-credential.json",
+                    "http://18.143.138.104:59002/config/dominium-credential.json"
                 ],
                 id: credentialDid,
                 type: ["VerifiableCredential", "ClaimantCredential"],
