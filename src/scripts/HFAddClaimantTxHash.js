@@ -1,13 +1,14 @@
-
+import { RedisService } from "../services/RedisService";
 
 async function HFAddClaimantTxHash() {
-    
+    const txHash = await RedisService().getCacheValue(``)
+    console.log(`txHash: ${txHash}`);
 }
 
-(async() => {
+(async () => {
     try {
-
-    } catch(error) {
-        console.log(`Error: ${error}`)
+        await HFAddClaimantTxHash();
+    } catch (error) {
+        console.log(`Error: ${error}`);
     }
-})
+})();
