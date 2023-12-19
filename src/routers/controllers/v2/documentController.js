@@ -14,6 +14,7 @@ import { randomUUID } from "crypto";
 import RabbitService from "../../../services/Rabbit.service.js";
 import { AppError } from "../../../configs/errors/appError.js";
 import Logger from "../../../libs/logger.js";
+import customLogger from "../../../helpers/customLogger.js";
 
 // * Constants
 import { REQUEST_TYPE } from "../../../rabbit/config.js";
@@ -34,6 +35,12 @@ const require = createRequire(import.meta.url);
 const __filename = fileURLToPath(import.meta.url);
 const logger = Logger(__filename);
 
+const pathToLog =
+    env.NODE_ENV === "test"
+        ? "logs/plot/create-test-task.log"
+        : "logs/plot/create-task.log";
+const taskLogger = customLogger(pathToLog);
+
 export default {
     createPlotCertification: asyncWrapper(async (req, res, next) => {
         logger.apiInfo(req, "Create plot certification v2");
@@ -46,6 +53,7 @@ export default {
             plot,
             WRAPPED_DOCUMENT_TYPE.PLOT_CERTIFICATE
         );
+        taskLogger.info(`Create plot certification v2 with ${fileName}`);
         const did = generateDid(companyName, fileName);
         const isExistedResponse = await ControllerService().isExisted({
             companyName,
@@ -57,9 +65,17 @@ export default {
                 await ControllerService().getDocumentContent({
                     did,
                 });
+            if (
+                !_documentContent?.data?.wrappedDoc?.mintingConfig?.txHash ||
+                !_documentContent?.data?.wrappedDoc?.mintingConfig?.assetName
+            ) {
+                logger.warning(`Missing txHash or assetName of ${did}`);
+            }
             const __txHash =
                 _documentContent?.data?.wrappedDoc?.mintingConfig?.txHash;
-            const __assetName = _documentContent?.data?.wrappedDoc?.assetName;
+            const __assetName =
+                _documentContent?.data?.wrappedDoc?.mintingConfig?.assetName;
+            logger.warning(`Hash of document: ${__assetName} \n`);
             const _claimantsCredentialDids =
                 await credentialService.getCredentialDidsFromClaimants({
                     claimants: plot.claimants,
@@ -79,6 +95,9 @@ export default {
                     transactionId: _credential.data.txHash,
                 });
             }
+            taskLogger.info(
+                `Create plot certification v2 ${did} existed with ${__txHash}, ${__assetName}, and ${__claimants.length} claimants \n`
+            );
             return res.status(200).json({
                 plot: {
                     did,
@@ -103,7 +122,7 @@ export default {
                 wrappedDocument,
                 plot,
             },
-            type: RABBIT_REQUEST_TYPE.MINTING_TYPE.createPlot,
+            type: RABBIT_REQUEST_TYPE.MINTING_TYPE.createPlot2,
             status: "pending",
         });
         const config = await ConsumerService().createDocument(
@@ -152,7 +171,7 @@ export default {
                         },
                         issuerKey: did,
                     });
-                const request = await RequestRepo.createRequest({
+                const request_ = await RequestRepo.createRequest({
                     data: {
                         mintingConfig: config,
                         credential: credentialHash,
@@ -169,7 +188,7 @@ export default {
                         type: "credential",
                         config,
                     },
-                    id: request._id,
+                    id: request_._id,
                     options: {
                         skipWait: true,
                     },
@@ -194,7 +213,7 @@ export default {
                                     const config = cardanoResponse.data;
                                     if (
                                         cardanoResponse.id ===
-                                        request._id.toString()
+                                        request_._id.toString()
                                     ) {
                                         const _verifiedCredential =
                                             await RabbitService().createClaimantCredential(
@@ -217,7 +236,7 @@ export default {
                                                 completedAt: new Date(),
                                             },
                                             {
-                                                _id: request?.id,
+                                                _id: request_?.id,
                                             }
                                         );
                                         resolve({
@@ -248,9 +267,9 @@ export default {
             });
             await credentialChannel.close();
         }
-        logger.apiInfo(
-            req,
-            `Create plot certification v2 success: ${did}, ${txHash}, ${assetName}`
+        logger.apiInfo(req, `Create plot certification v2 ${did} successfully \n`);
+        taskLogger.info(
+            `Create plot certification v2 ${did} successfully with transactionId ${txHash}, hashOfDocument ${assetName}, with ${_claimants.length} claimants \n`
         );
         return res.status(200).json({
             plot: {
@@ -350,7 +369,7 @@ export default {
                         },
                         issuerKey: did,
                     });
-                const request = await RequestRepo.createRequest({
+                const _request = await RequestRepo.createRequest({
                     data: {
                         mintingConfig: _config,
                         credential: credentialHash,
@@ -367,7 +386,7 @@ export default {
                         type: "credential",
                         config: _config,
                     },
-                    id: request._id,
+                    id: _request._id,
                     options: {
                         skipWait: true,
                     },
@@ -392,7 +411,7 @@ export default {
                                     const config = cardanoResponse.data;
                                     if (
                                         cardanoResponse.id ===
-                                        request._id.toString()
+                                        _request._id.toString()
                                     ) {
                                         const _verifiedCredential =
                                             await RabbitService().createClaimantCredential(
@@ -415,7 +434,7 @@ export default {
                                                 completedAt: new Date(),
                                             },
                                             {
-                                                _id: request?.id,
+                                                _id: _request?.id,
                                             }
                                         );
                                         resolve({
@@ -446,10 +465,6 @@ export default {
             });
             await credentialChannel.close();
         }
-        logger.apiInfo(
-            req,
-            `Update plot certification v2 success: ${did}, ${txHash}, ${assetName}`
-        );
         return res.status(200).json({
             plot: {
                 did,
@@ -559,10 +574,6 @@ export default {
         );
         const { config: _config, did: _did } =
             await createClaimantCredentialHandle;
-        logger.apiInfo(
-            req,
-            `Add claimant to certificate v2 success: ${_did} ${_config?.txHash}`
-        );
         return res.status(200).json({
             did: _did,
             transactionId: _config?.txHash,

@@ -21,7 +21,7 @@ const MongoHelper = () => {
         mongoose
             .connect(dbUrl)
             .then(() => {
-                logger.info(`Successfully connected to ${dbUrl}`);
+                return logger.info(`Successfully connected to ${dbUrl}`);
             })
             .catch((error) => {
                 logger.error("Error connecting to Mongo DB ...");

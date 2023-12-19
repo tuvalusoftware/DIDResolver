@@ -59,6 +59,7 @@
         "mongoose": "^7.6.3",
         "morgan": "^1.10.0",
         "node-cron": "^3.0.3",
+        "redis": "^4.6.11",
         "swagger-jsdoc": "^6.2.1",
         "swagger-ui-express": "^4.4.0",
         "uuid": "^9.0.0",

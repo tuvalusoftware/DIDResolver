@@ -1,16 +1,7 @@
 import MongoHelper from "../libs/connectMongo.js";
-import { setUpApp } from "../configs/setup/app.js";
-import { env } from "../configs/constants.js";
-import http from "http";
+import connectRabbitMq from "../configs/setup/rabbitmq.js";
 import RequestRepo from "../db/repos/requestRepo.js";
 import CardanoService from "../services/Cardano.service.js";
-
-MongoHelper();
-const app = await setUpApp();
-const server = http.createServer(app);
-server.timeout = env.SERVER_TIMEOUT;
-const port = 8005;
-server.listen(port, () => {});
 
 async function mintContract() {
     const request = await RequestRepo.findOne({
@@ -23,4 +14,12 @@ async function mintContract() {
     });
 }
 
-await mintContract();
+(async () => {
+    try {
+        await connectRabbitMq();
+        await MongoHelper();
+        // await mintContract();
+    } catch(error) {
+        console.log("Error: ", error);
+    }
+})();  

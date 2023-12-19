@@ -23,28 +23,32 @@ const RabbitService = () => {
             mintingConfig,
             metadata = null,
         }) {
-            const willWrappedDocument = {
-                ...wrappedDocument,
-                mintingConfig,
-            };
-            await ControllerService().storeDocument({
-                companyName,
-                fileName,
-                wrappedDocument: willWrappedDocument,
-            });
-            if (metadata) {
-                const didDocumentResponse =
-                    await ControllerService().getDocumentDid({
-                        did,
-                    });
-                const originDidDocument = didDocumentResponse?.data?.didDoc;
-                await ControllerService().updateDocumentDid({
-                    did,
-                    didDoc: {
-                        ...originDidDocument,
-                        meta_data: metadata,
-                    },
+            try {
+                const willWrappedDocument = {
+                    ...wrappedDocument,
+                    mintingConfig,
+                };
+                await ControllerService().storeDocument({
+                    companyName,
+                    fileName,
+                    wrappedDocument: willWrappedDocument,
                 });
+                if (metadata) {
+                    const didDocumentResponse =
+                        await ControllerService().getDocumentDid({
+                            did,
+                        });
+                    const originDidDocument = didDocumentResponse?.data?.didDoc;
+                    await ControllerService().updateDocumentDid({
+                        did,
+                        didDoc: {
+                            ...originDidDocument,
+                            meta_data: metadata,
+                        },
+                    });
+                }
+            } catch(error) {
+                throw error;
             }
         },
 
@@ -205,28 +209,32 @@ const RabbitService = () => {
             mintingConfig,
             metadata = null,
         }) {
-            const willWrappedDocument = {
-                ...wrappedDocument,
-                mintingConfig,
-            };
-            await ControllerService().storeDocument({
-                companyName,
-                fileName,
-                wrappedDocument: willWrappedDocument,
-            });
-            if (metadata) {
-                const didDocumentResponse =
-                    await ControllerService().getDocumentDid({
-                        did,
-                    });
-                const originDidDocument = didDocumentResponse?.data?.didDoc;
-                await ControllerService().updateDocumentDid({
-                    did,
-                    didDoc: {
-                        ...originDidDocument,
-                        meta_data: metadata,
-                    },
+            try {
+                const willWrappedDocument = {
+                    ...wrappedDocument,
+                    mintingConfig,
+                };
+                await ControllerService().storeDocument({
+                    companyName,
+                    fileName,
+                    wrappedDocument: willWrappedDocument,
                 });
+                if (metadata) {
+                    const didDocumentResponse =
+                        await ControllerService().getDocumentDid({
+                            did,
+                        });
+                    const originDidDocument = didDocumentResponse?.data?.didDoc;
+                    await ControllerService().updateDocumentDid({
+                        did,
+                        didDoc: {
+                            ...originDidDocument,
+                            meta_data: metadata,
+                        },
+                    });
+                }
+            } catch(error) {
+                throw error;
             }
         },
 

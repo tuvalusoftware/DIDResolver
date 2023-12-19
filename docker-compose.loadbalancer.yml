@@ -1,0 +1,98 @@
+version: '3.8'
+
+services:
+  rabbitmq:
+    image: rabbitmq:3-management
+    container_name: rabbitmq
+    ports:
+      - "${RABBITMQ_PORT}:${RABBITMQ_PORT}"
+    expose:
+      - "${RABBITMQ_PORT}"
+    healthcheck:
+      test: rabbitmq-diagnostics -q ping
+      interval: 30s
+      timeout: 30s
+      retries: 3
+    volumes:
+      - ./docker-data/rabbitmq:/var/lib/rabbitmq
+    networks:
+      - resolver-networks
+      
+  mongo:
+    image: mongo
+    container_name: mongo
+    volumes:
+      - ./docker-data/mongo:/data/db
+    ports:
+      - "${MONGO_PORT}:${MONGO_PORT}"
+    expose:
+      - "${MONGO_PORT}"
+    healthcheck:
+      test: ["CMD","mongosh", "--eval", "db.adminCommand('ping')"]
+      interval: 5s
+      timeout: 5s
+      retries: 3
+      start_period: 5s
+    networks:
+      - resolver-networks
+
+  service1:
+    container_name: service1
+    env_file:
+      - .env
+    build:
+      context: .
+      dockerfile: Dockerfile.dev
+      args:
+        - NODE_ENV=development
+        - SERVER_PORT=${SERVER_PORT}
+    restart: on-failure
+    ports:
+      - "8001:${SERVER_PORT}"
+    networks:
+      - resolver-networks
+    depends_on:
+      rabbitmq:
+        condition: service_healthy
+      mongo:
+        condition: service_healthy
+
+  service2:
+    container_name: service2
+    env_file:
+      - .env
+    build:
+      context: .
+      dockerfile: Dockerfile.dev
+      args:
+        - NODE_ENV=development
+        - SERVER_PORT=${SERVER_PORT}
+    restart: on-failure
+    ports:
+      - "8002:${SERVER_PORT}"
+    networks:
+      - resolver-networks
+    depends_on:
+      rabbitmq:
+        condition: service_healthy
+      mongo:
+        condition: service_healthy
+
+  resolver-nginx:
+    image: nginx:latest
+    container_name: resolver-nginx
+    ports:
+      - "${SERVER_PORT}:80"
+    expose:
+      - "${SERVER_PORT}:80"
+    volumes:
+      - ./nginx/nginx.conf:/etc/nginx/nginx.conf
+    networks:
+      - resolver-networks
+    depends_on:
+      - service1
+      - service2
+
+networks:
+  resolver-networks:
+    driver: bridge

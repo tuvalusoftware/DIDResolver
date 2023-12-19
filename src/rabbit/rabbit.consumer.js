@@ -110,6 +110,7 @@ export const ResolverConsumer = async () => {
                             logger.info(
                                 "Requesting create claimant credential..."
                             );
+                            const config = cardanoResponse.data;
                             const {
                                 credential,
                                 verifiedCredential,
@@ -120,6 +121,7 @@ export const ResolverConsumer = async () => {
                                     credentialHash: credential,
                                     companyName,
                                     verifiedCredential,
+                                    txHash: config?.txHash,
                                 });
                             response = {
                                 ...cardanoResponse?.data,

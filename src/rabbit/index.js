@@ -14,12 +14,15 @@ const logger = Logger(__filename);
 
 let rabbitMQ;
 
+const TWO_HOUR = 7200000;
+
 try {
     rabbitMQ = await amqplib.connect({
         protocol: "amqp",
         hostname: env.RABBITMQ_SERVICE,
         username: env.RABBITMQ_USER,
         password: env.RABBITMQ_PASSWORD,
+        heartbeat: TWO_HOUR,
     });
     logger.info(
         `Connected to RabbitMQ: ${rabbitMQ?.connection?.serverProperties?.cluster_name}`
