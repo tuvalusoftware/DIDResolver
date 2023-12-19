@@ -174,11 +174,11 @@ export default {
                         credential: credentialHash,
                         verifiedCredential: verifiableCredential,
                         companyName,
+                        claimantId: claimant._id,
                     },
                     type: REQUEST_TYPE.MINTING_TYPE.createClaimantCredential,
                     status: "pending",
                 });
-                console.log(credentialHash);
                 _claimants.push(credentialHash);
             });
             await Promise.all(promises).catch((error) => {
@@ -236,8 +236,7 @@ export default {
                                 txHash: cardanoResponse.data.txHash,
                             });
                             __claimants.push({
-                                userId: r.data.verifiedCredential
-                                    .credentialSubject.claims.user,
+                                userId: r.data.claimantId,
                                 did: r.data.verifiedCredential.credentialSubject
                                     .id,
                                 transactionId: cardanoResponse.data.txHash,
