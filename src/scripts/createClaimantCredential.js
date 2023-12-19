@@ -40,7 +40,7 @@ async function reMintCredential() {
 
 async function reMintCredentialOfPlot() {
     const request = await RequestRepo.findOne({
-        _id: "657960e23262e379b24b80b4",
+        _id: "657fec275ad19c0a9332875f",
     });
     const claimants = request.data.plot.claimants;
     const plot = request.data.plot;

@@ -14,6 +14,7 @@ services:
       - "mongodb-host:172.17.0.1"
     volumes:
       - "./logs:/usr/src/app/logs"
+    restart: always
 networks:
   cardanoservice_cardanonetwork:
     external: true

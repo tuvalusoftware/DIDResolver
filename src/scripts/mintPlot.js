@@ -1,13 +1,15 @@
 import MongoHelper from "../libs/connectMongo.js";
 import connectRabbitMq from "../configs/setup/rabbitmq.js";
 import RequestRepo from "../db/repos/requestRepo.js";
+import { RequestModel } from "../db/models/requestModel.js";
 import ConsumerService from "../services/Consumer.service.js";
 import { deepUnsalt } from "../fuixlabs-documentor/utils/data.js";
 import credentialService from "../services/VerifiableCredential.service.js";
+import { REQUEST_TYPE } from "../rabbit/config.js";
 
 async function reMintSpecificPlot() {
     const request = await RequestRepo.findOne({
-        _id: "657920237d4df5ffdf362b16",
+        _id: "657fec275ad19c0a9332875f",
     });
     const wrappedDocument = deepUnsalt(request.data.wrappedDocument);
     const plot = wrappedDocument.data.plot;
@@ -73,22 +75,31 @@ async function changePlotStatusToDuplicate() {
     const request = await RequestRepo.findOneAndUpdate({
         status: "duplicate",
     }, {
-        _id: "657972533262e379b24b8428",
+        _id: "657fcfd7420672a91f37bc75",
     });
     console.log(`Changed plot status to duplicate!`);
 }
 
-async function reMintPlots() {
-
+async function reMintUpdatePlots() {
+    console.log("Re-minting update plots...")
+    const requests = await RequestModel.find({
+        type: REQUEST_TYPE.MINTING_TYPE.updatePlot2,
+        status: 'pending'
+    });
+    console.log(`Found ${requests.length} update plot requests!`);
+    if(requests.length > 0) {
+        
+    }
 }
 
 (async () => {
     try {
         await connectRabbitMq();
         await MongoHelper();
+        await reMintUpdatePlots();
         // await reMintSpecificPlot();
         // await reMintPlots();
-        await changePlotStatusToDuplicate();
+        // await changePlotStatusToDuplicate();
     } catch(error) {
         console.log("Error: ", error);
     }

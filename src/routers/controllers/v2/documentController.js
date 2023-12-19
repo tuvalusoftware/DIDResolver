@@ -75,7 +75,7 @@ export default {
                 _documentContent?.data?.wrappedDoc?.mintingConfig?.txHash;
             const __assetName =
                 _documentContent?.data?.wrappedDoc?.mintingConfig?.assetName;
-            logger.warning(`Hash of document: ${__assetName}`);
+            logger.warning(`Hash of document: ${__assetName} \n`);
             const _claimantsCredentialDids =
                 await credentialService.getCredentialDidsFromClaimants({
                     claimants: plot.claimants,
@@ -96,7 +96,7 @@ export default {
                 });
             }
             taskLogger.info(
-                `Create plot certification v2 ${did} existed with ${__txHash}, ${__assetName}, and ${__claimants.length} claimants`
+                `Create plot certification v2 ${did} existed with ${__txHash}, ${__assetName}, and ${__claimants.length} claimants \n`
             );
             return res.status(200).json({
                 plot: {
@@ -267,9 +267,9 @@ export default {
             });
             await credentialChannel.close();
         }
-        logger.apiInfo(req, `Create plot certification v2 ${did} successfully`);
+        logger.apiInfo(req, `Create plot certification v2 ${did} successfully \n`);
         taskLogger.info(
-            `Create plot certification v2 ${did} successfully with transactionId ${txHash}, hashOfDocument ${assetName}, with ${_claimants.length} claimants`
+            `Create plot certification v2 ${did} successfully with transactionId ${txHash}, hashOfDocument ${assetName}, with ${_claimants.length} claimants \n`
         );
         return res.status(200).json({
             plot: {
