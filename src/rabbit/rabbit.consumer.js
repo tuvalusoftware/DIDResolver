@@ -111,6 +111,7 @@ export const ResolverConsumer = async () => {
                                 "Requesting create claimant credential..."
                             );
                             const config = cardanoResponse.data;
+                            logger.warning(JSON.stringify(config, null, 2))
                             const {
                                 credential,
                                 verifiedCredential,
@@ -123,10 +124,12 @@ export const ResolverConsumer = async () => {
                                     verifiedCredential,
                                     txHash: config?.txHash,
                                 });
+                            logger.warning(JSON.stringify(_verifiedCredential, null, 2))
                             response = {
                                 ...cardanoResponse?.data,
                                 verifiedCredential: _verifiedCredential,
                             };
+                            logger.warning(JSON.stringify(response, null, 2))
                         } catch (error) {
                             logger.error(error);
                         }

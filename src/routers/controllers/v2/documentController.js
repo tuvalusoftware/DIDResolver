@@ -86,6 +86,7 @@ export default {
                 });
             const __claimants = [];
             for (const i of _claimantsCredentialDids.claimants) {
+                logger.warning(`Special: ${i.did}`)
                 const _credential =
                     await ControllerService().getCredentialContent({
                         did: i.did,
@@ -184,7 +185,6 @@ export default {
             await Promise.all(promises).catch((error) => {
                 console.error(error);
             });
-            console.log(`_claimants`, _claimants);
             const credentialChannel = await rabbitMQ.createChannel();
             const correlationId = randomUUID();
             const replyQueue = await credentialChannel.assertQueue(
@@ -433,6 +433,7 @@ export default {
                                     credentialChannel.ack(msg);
                                 }
                                 reject(
+
                                     new AppError(ERRORS.RABBIT_MESSAGE_ERROR)
                                 );
                             }
@@ -555,6 +556,7 @@ export default {
                         }
                         credentialChannel.ack(msg);
                     }
+                    logger.apiError(`There is no response from rabbitmq`)
                     reject(new AppError(ERRORS.RABBIT_MESSAGE_ERROR));
                 });
             }
