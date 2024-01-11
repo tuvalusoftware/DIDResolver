@@ -310,7 +310,6 @@ export default {
                 did: plot.did,
             });
         if (!originDocumentContent?.data?.wrappedDoc?.mintingConfig) {
-            console.log('Missing 1')
             throw new AppError(ERRORS.RABBIT_MESSAGE_ERROR);
         }
         const { mintingConfig } = originDocumentContent.data.wrappedDoc;
@@ -344,7 +343,6 @@ export default {
             did,
             transactionId: txHash,
         };
-        const __claimants = [];
         if (claimantsCredentialDids.claimants) {
             const credentialChannel = await rabbitMQ.createChannel();
             const correlationId = randomUUID();
@@ -368,7 +366,6 @@ export default {
                         credential: credentialHash,
                         verifiedCredential: verifiableCredential,
                         companyName,
-                        claimantId: claimant._id,
                     },
                     type: REQUEST_TYPE.MINTING_TYPE.createClaimantCredential,
                     status: "pending",
@@ -398,19 +395,20 @@ export default {
                         credentialChannel.consume(
                             replyQueue.queue,
                             async (msg) => {
-                                console.log('Missing 2 msg', msg)
-                                if (msg !== null) {
+                                if (msg) {
                                     const cardanoResponse = JSON.parse(
                                         msg.content
                                     );
                                     const config = cardanoResponse.data;
-                                    console.log('Missing 2 cònig', config)
                                     if (
                                         cardanoResponse.id ===
                                         _request._id.toString()
                                     ) {
-                                        const _verifiedCredential =
-                                            await RabbitService().createClaimantCredential(
+                                        try {
+                                            console.log('Call1')
+                                            console.log('credentialHash', credentialHash);
+                                            console.log('verifiableCredential', verifiableCredential);
+                                            const _verifiedCredential = await RabbitService().createClaimantCredential(
                                                 {
                                                     credentialHash,
                                                     companyName,
@@ -419,42 +417,41 @@ export default {
                                                     txHash: config.txHash,
                                                 }
                                             );
-                                        await RequestRepo.findOneAndUpdate(
-                                            {
-                                                response: {
-                                                    config,
-                                                    verifiedCredential:
-                                                        _verifiedCredential,
+                                            await RequestRepo.findOneAndUpdate(
+                                                {
+                                                    response: {
+                                                        config,
+                                                        verifiedCredential:
+                                                            _verifiedCredential,
+                                                    },
+                                                    status: "completed",
+                                                    completedAt: new Date(),
                                                 },
-                                                status: "completed",
-                                                completedAt: new Date(),
-                                            },
-                                            {
-                                                _id: _request?.id,
-                                            }
-                                        );
-                                        console.log('Missing 2 credential', _verifiedCredential)
-                                        resolve({
-                                            config,
-                                            did: _verifiedCredential
-                                                ?.credentialSubject?.id,
-                                        });
+                                                {
+                                                    _id: _request?.id,
+                                                }
+                                            );
+                                            resolve({
+                                                config,
+                                                did: _verifiedCredential
+                                                    ?.credentialSubject?.id,
+                                            });
+                                        } catch(error) {
+                                            console.log('Call1 error', error);
+                                        }
                                     }
                                     credentialChannel.ack(msg);
-                                } else {
-                                    reject(
-                                        new AppError(ERRORS.RABBIT_MESSAGE_ERROR)
-                                    );
                                 }
-                                console.log('Done')
+                                console.log('Call2')
+                                reject(
+                                    new AppError(ERRORS.RABBIT_MESSAGE_ERROR)
+                                );
                             }
                         );
                     }
                 );
-                console.log('Updated successfully', __config, _did)
                 const { config: __config, did: _did } =
                     await createClaimantCredentialHandle;
-                console.log(`Done ${_did} with ${__config.txHash}`)
                 _claimants.push({
                     userId: claimant._id,
                     did: _did,

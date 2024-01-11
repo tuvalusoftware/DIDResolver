@@ -166,6 +166,7 @@ class VerifiableCredentialService {
                 type: ["VerifiableCredential", "ClaimantCredential"],
                 issuer: issuerKey,
             };
+            console.log("subject", subject);
             const credentialHash = sha256(
                 Buffer.from(
                     `$${subject?.claims?.did}${issuerKey}`,

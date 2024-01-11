@@ -122,7 +122,6 @@ const RabbitService = () => {
             txHash,
         }) {
             try {
-                console.log('BUG1', generateDid(companyName, credentialHash))
                 const _verifiedCredential = {
                     ...verifiedCredential,
                 };
@@ -130,7 +129,6 @@ const RabbitService = () => {
                     claims: { ..._verifiedCredential.credentialSubject.claims },
                     id: generateDid(companyName, credentialHash),
                 };
-                console.log('credentialHash', generateDid(companyName, credentialHash))
                 await ControllerService().storeCredentials({
                     payload: {
                         ..._verifiedCredential,
@@ -138,7 +136,6 @@ const RabbitService = () => {
                         txHash,
                     },
                 });
-                console.log('here')
                 return _verifiedCredential;
             } catch (error) {
                 throw error;
