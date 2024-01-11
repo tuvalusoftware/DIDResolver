@@ -54,6 +54,7 @@ const ConsumerService = () => {
                                     logger.error(
                                         `There are no wrappedDocument in request ${id}`
                                     );
+                                    console.log('Missing 3')
                                     reject(
                                         new AppError(
                                             ERRORS.RABBIT_MESSAGE_ERROR
@@ -75,6 +76,7 @@ const ConsumerService = () => {
                             }
                             channel.ack(msg);
                         }
+                        console.log('Missing 4')
                         reject(new AppError(ERRORS.RABBIT_MESSAGE_ERROR));
                     });
                 });
@@ -136,6 +138,7 @@ const ConsumerService = () => {
                                     logger.error(
                                         `There are no wrappedDocument or metadata in request ${id}`
                                     );
+                                    console.log('Missing 5')
                                     throw reject(
                                         new AppError(
                                             ERRORS.RABBIT_MESSAGE_ERROR
@@ -155,6 +158,7 @@ const ConsumerService = () => {
                             }
                             channel.ack(msg);
                         }
+                        console.log('Missing 6')
                         reject(new AppError(ERRORS.RABBIT_MESSAGE_ERROR));
                     });
                 });

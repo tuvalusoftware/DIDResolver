@@ -110,8 +110,8 @@ export const ResolverConsumer = async () => {
                             logger.info(
                                 "Requesting create claimant credential..."
                             );
+                            console.log(1, cardanoResponse?.data)
                             const config = cardanoResponse.data;
-                            logger.warning(JSON.stringify(config, null, 2))
                             const {
                                 credential,
                                 verifiedCredential,
@@ -124,15 +124,15 @@ export const ResolverConsumer = async () => {
                                     verifiedCredential,
                                     txHash: config?.txHash,
                                 });
-                            logger.warning(JSON.stringify(_verifiedCredential, null, 2))
+                            console.log(2, _verifiedCredential)
                             response = {
                                 ...cardanoResponse?.data,
                                 verifiedCredential: _verifiedCredential,
                             };
-                            logger.warning(JSON.stringify(response, null, 2))
+                            console.log(3, response)
                         } catch (error) {
-                            logger.error(error);
-                        }
+                            console.log(error)
+                                                }
                         break;
                     }
                     case REQUEST_TYPE.MINTING_TYPE.signContract: {

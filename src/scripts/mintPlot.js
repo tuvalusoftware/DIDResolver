@@ -271,10 +271,10 @@ async function reMintUpdatePlots412024() {
         await connectRabbitMq();
         await MongoHelper();
         // await reMintUpdatePlots();
-        await reMintSpecificPlot();
+        // await reMintSpecificPlot();
         // await reMintPlots();
         // await changePlotStatusToDuplicate();
-        // await reMintUpdatePlots412024();
+        await reMintUpdatePlots412024();
     } catch (error) {
         console.log("Error: ", error);
     }

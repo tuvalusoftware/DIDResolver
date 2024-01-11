@@ -13,7 +13,7 @@ async function lmeo() {
         verifiableCredential: {
             "@context": [
                 "https://www.w3.org/2018/credentials/v1",
-                "http://13.250.16.210:59002/config/dominium-credential.json",
+                "http://175.41.177.26:59002/config/dominium-credential.json",
                 "https://w3id.org/security/suites/ed25519-2020/v1",
             ],
             id: "did:fuixlabs:commonlands:nlxisyzm",
@@ -74,7 +74,7 @@ async function reMintSpecificCredential() {
         verifiableCredential: {
             "@context": [
                 "https://www.w3.org/2018/credentials/v1",
-                "http://13.250.16.210:59002/config/dominium-credential.json",
+                "http://175.41.177.26:59002/config/dominium-credential.json",
                 "https://w3id.org/security/suites/ed25519-2020/v1",
             ],
             id: "did:fuixlabs:commonlands:nlxisyzm",
@@ -126,6 +126,11 @@ async function reMintCredential() {
         type: "create-claimant-credential",
     });
     for (const request of requests) {
+        console.log({
+            credentials: [request.data.credential],
+            mintingConfig: request.data.mintingConfig,
+            id: request?._id,
+        })
         await CardanoService().storeCredentialsWithPolicyId({
             credentials: [request.data.credential],
             mintingConfig: request.data.mintingConfig,
@@ -138,7 +143,7 @@ async function reMintCredential() {
 
 async function reMintCredentialOfPlot() {
     const request = await RequestRepo.findOne({
-        _id: "659664ce3d8724dd90c2f697",
+        _id: "6597a01d139ab4ae479b3776",
     });
     const claimants = request.data.plot.claimants;
     const plot = request.data.plot;
@@ -186,55 +191,55 @@ async function reMintCredentialOfPlot() {
     console.log("Done!");
 }
 
-async function reMintCredentialOfPlot2() {
-    const request = await RequestRepo.findOne({
-        _id: "659664ce3d8724dd90c2f697",
-    });
-    const claimants = request.data.plot.claimants;
-    const plot = request.data.plot;
-    const config = request.response;
-    const wrappedDocument = deepUnsalt(request.data.wrappedDocument);
-    const did = wrappedDocument.data.did;
-    const companyName = wrappedDocument.data.companyName;
-    const claimantsCredentialDids =
-        await credentialService.getCredentialDidsFromClaimants({
-            claimants: plot.claimants,
-            did,
-            companyName,
-            plotId: plot._id,
-        });
-    const promises = plot.claimants.map(async (claimant) => {
-        const { verifiableCredential, credentialHash } =
-            await credentialService.createClaimantVerifiableCredential({
-                subject: {
-                    claims: {
-                        plot: plot?._id,
-                        ...claimant,
-                    },
-                },
-                issuerKey: did,
-            });
-        const request_ = await RequestRepo.createRequest({
-            data: {
-                mintingConfig: config,
-                credential: credentialHash,
-                verifiedCredential: verifiableCredential,
-                companyName,
-            },
-            type: REQUEST_TYPE.MINTING_TYPE.createClaimantCredential,
-            status: "pending",
-        });
-        await CardanoService().storeCredentialsWithPolicyId({
-            credentials: [credentialHash],
-            mintingConfig: config,
-            id: request_?._id,
-        });
-    });
-    await Promise.all(promises).catch((error) => {
-        console.error(error);
-    });
-    console.log("Done!");
-}
+// async function reMintCredentialOfPlot2() {
+//     const request = await RequestRepo.findOne({
+//         _id: "659664ce3d8724dd90c2f697",
+//     });
+//     const claimants = request.data.plot.claimants;
+//     const plot = request.data.plot;
+//     const config = request.response;
+//     const wrappedDocument = deepUnsalt(request.data.wrappedDocument);
+//     const did = wrappedDocument.data.did;
+//     const companyName = wrappedDocument.data.companyName;
+//     const claimantsCredentialDids =
+//         await credentialService.getCredentialDidsFromClaimants({
+//             claimants: plot.claimants,
+//             did,
+//             companyName,
+//             plotId: plot._id,
+//         });
+//     const promises = plot.claimants.map(async (claimant) => {
+//         const { verifiableCredential, credentialHash } =
+//             await credentialService.createClaimantVerifiableCredential({
+//                 subject: {
+//                     claims: {
+//                         plot: plot?._id,
+//                         ...claimant,
+//                     },
+//                 },
+//                 issuerKey: did,
+//             });
+//         const request_ = await RequestRepo.createRequest({
+//             data: {
+//                 mintingConfig: config,
+//                 credential: credentialHash,
+//                 verifiedCredential: verifiableCredential,
+//                 companyName,
+//             },
+//             type: REQUEST_TYPE.MINTING_TYPE.createClaimantCredential,
+//             status: "pending",
+//         });
+//         await CardanoService().storeCredentialsWithPolicyId({
+//             credentials: [credentialHash],
+//             mintingConfig: config,
+//             id: request_?._id,
+//         });
+//     });
+//     await Promise.all(promises).catch((error) => {
+//         console.error(error);
+//     });
+//     console.log("Done!");
+// }
 
 (async () => {
     try {
@@ -242,8 +247,8 @@ async function reMintCredentialOfPlot2() {
         await MongoHelper();
         // await reMintCredentialOfPlot();
         // await reMintSpecificCredential();
-        // await reMintCredential();
-        await lmeo();
+        await reMintCredential();
+        // await lmeo();
     } catch (error) {
         console.log("Error: ", error);
     }
