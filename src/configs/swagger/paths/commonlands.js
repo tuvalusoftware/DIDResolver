@@ -1005,7 +1005,7 @@ export const commonlandsPlotCertificateV2 = {
                                                 "addr_test1qzz85cplvzxvx0scjj6gfj0w2rq3km4g2s6ag9yq7ptpxjasmrsqazt6hlxsh6d58xz0w0y05nq7awjpsmzn5dsy5gls7a53u_2t",
                                             phoneNumber: "+84311111190",
                                             fullName: "90",
-                                            did: "did:fuixlabs:commonlands:addr_test1qzz85cplvzxvx0scjj6gfj0w2rq3km4g2s6ag9yq7ptpxjasmrsqazt6hlxsh6d58xz0w0y05nq7awjpsmzn5dsy5gls7a53ut",
+                                            did: "did:fuixlabs:commonlands:addr_test1qzz85cplvzxvx0scjj6gfj0w2rq3km4g2s6ag9yq7ptpxjasmrsqazt6hlxsh6d58xz0w0y05nq7awjpsmzn5dsy5gls7a53ut_2",
                                             gender: "male",
                                             lastLogin: 1696841941,
                                             firstLogin: false,

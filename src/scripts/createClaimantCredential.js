@@ -126,11 +126,6 @@ async function reMintCredential() {
         type: "create-claimant-credential",
     });
     for (const request of requests) {
-        console.log({
-            credentials: [request.data.credential],
-            mintingConfig: request.data.mintingConfig,
-            id: request?._id,
-        })
         await CardanoService().storeCredentialsWithPolicyId({
             credentials: [request.data.credential],
             mintingConfig: request.data.mintingConfig,
@@ -238,7 +233,6 @@ async function reMintCredentialOfPlot() {
 //     await Promise.all(promises).catch((error) => {
 //         console.error(error);
 //     });
-//     console.log("Done!");
 // }
 
 (async () => {

@@ -343,12 +343,13 @@ export default {
             did,
             transactionId: txHash,
         };
+        const __claimants = [];
         if (claimantsCredentialDids.claimants) {
-            const credentialChannel = await rabbitMQ.createChannel();
-            const correlationId = randomUUID();
-            const replyQueue = await credentialChannel.assertQueue(
-                correlationId
-            );
+            // const credentialChannel = await rabbitMQ.createChannel();
+            // const correlationId = randomUUID();
+            // const replyQueue = await credentialChannel.assertQueue(
+            //     correlationId
+            // );
             const promises = plot.claimants?.map(async (claimant) => {
                 const { verifiableCredential, credentialHash } =
                     await credentialService.createClaimantVerifiableCredential({
@@ -366,18 +367,41 @@ export default {
                         credential: credentialHash,
                         verifiedCredential: verifiableCredential,
                         companyName,
+                        claimantId: claimant._id,
                     },
                     type: REQUEST_TYPE.MINTING_TYPE.createClaimantCredential,
                     status: "pending",
                 });
+                _claimants.push(credentialHash);
+                // const requestMessage = {
+                //     type: REQUEST_TYPE.CARDANO_SERVICE.mintCredential,
+                //     data: {
+                //         credentials: [credentialHash],
+                //         type: "credential",
+                //         config: _config,
+                //     },
+                //     id: _request._id,
+                //     options: {
+                //         skipWait: true,
+                //     },
+                // };
+            });
+            await Promise.all(promises).catch((error) => {
+                console.error(error);
+            });
+            try {
+                const credentialChannel = await rabbitMQ.createChannel();
+                const correlationId = randomUUID();
+                const replyQueue = await credentialChannel.assertQueue(
+                    correlationId
+                );
                 const requestMessage = {
                     type: REQUEST_TYPE.CARDANO_SERVICE.mintCredential,
                     data: {
-                        credentials: [credentialHash],
+                        credentials: _claimants,
                         type: "credential",
                         config: _config,
                     },
-                    id: _request._id,
                     options: {
                         skipWait: true,
                     },
@@ -395,81 +419,59 @@ export default {
                         credentialChannel.consume(
                             replyQueue.queue,
                             async (msg) => {
-                                if (msg) {
-                                    const cardanoResponse = JSON.parse(
-                                        msg.content
-                                    );
-                                    const config = cardanoResponse.data;
-                                    if (
-                                        cardanoResponse.id ===
-                                        _request._id.toString()
-                                    ) {
-                                        try {
-                                            console.log('Call1')
-                                            console.log('credentialHash', credentialHash);
-                                            console.log('verifiableCredential', verifiableCredential);
-                                            const _verifiedCredential = await RabbitService().createClaimantCredential(
-                                                {
-                                                    credentialHash,
-                                                    companyName,
-                                                    verifiedCredential:
-                                                        verifiableCredential,
-                                                    txHash: config.txHash,
-                                                }
-                                            );
-                                            await RequestRepo.findOneAndUpdate(
-                                                {
-                                                    response: {
-                                                        config,
-                                                        verifiedCredential:
-                                                            _verifiedCredential,
-                                                    },
-                                                    status: "completed",
-                                                    completedAt: new Date(),
-                                                },
-                                                {
-                                                    _id: _request?.id,
-                                                }
-                                            );
-                                            resolve({
-                                                config,
-                                                did: _verifiedCredential
-                                                    ?.credentialSubject?.id,
-                                            });
-                                        } catch(error) {
-                                            console.log('Call1 error', error);
+                                if (msg !== null) {
+                                    const cardanoResponse = JSON.parse(msg.content);
+                                    const r = await RequestModel.findOneAndUpdate(
+                                        {
+                                            status: "pending",
+                                            type: REQUEST_TYPE.MINTING_TYPE
+                                                .createClaimantCredential,
+                                            "data.credential":
+                                                cardanoResponse.data.assetName,
+                                        },
+                                        {
+                                            status: "completed",
+                                            completedAt: new Date(),
+                                            response: cardanoResponse.data,
                                         }
+                                    );
+        
+                                    await RabbitService().createClaimantCredential({
+                                        credentialHash: cardanoResponse.data.assetName,
+                                        companyName,
+                                        verifiedCredential: r.data.verifiedCredential,
+                                        txHash: cardanoResponse.data.txHash,
+                                    });
+                                    __claimants.push({
+                                        userId: r.data.claimantId,
+                                        did: r.data.verifiedCredential.credentialSubject
+                                            .id,
+                                        transactionId: cardanoResponse.data.txHash,
+                                    });
+                                    if (__claimants.length === _claimants.length) {
+                                        resolve(__claimants);
+                                        credentialChannel.ack(msg);
                                     }
-                                    credentialChannel.ack(msg);
                                 }
-                                console.log('Call2')
-                                reject(
-                                    new AppError(ERRORS.RABBIT_MESSAGE_ERROR)
-                                );
                             }
                         );
                     }
                 );
                 const { config: __config, did: _did } =
                     await createClaimantCredentialHandle;
-                _claimants.push({
-                    userId: claimant._id,
-                    did: _did,
-                    transactionId: __config?.txHash,
-                });
-            });
-            await Promise.all(promises).catch((error) => {
-                console.error(error);
-            });
-            await credentialChannel.close();
+            } catch(error) {
+                logger.error(error)
+            }
         }
+        logger.apiInfo(req, `Update plot certification v2 ${did} successfully \n`);
+        logger.info(`Update plot certification v2 ${did} successfully with transactionId ${txHash}, hashOfDocument ${assetName}, with ${_claimants.length} claimants \n`);
         return res.status(200).json({
             plot: {
                 did,
                 transactionId: txHash,
                 hashOfDocument: assetName,
             },
-            claimants: _claimants,
+            claimants: __claimants,
         });
     }),
     addClaimantToCertificate: asyncWrapper(async (req, res, next) => {
