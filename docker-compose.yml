@@ -1,0 +1,20 @@
+version: "3.8"
+
+services:
+  service:
+    container_name: resolver-service
+    image: resolver-service
+    ports:
+      - "${SERVER_PORT}:${SERVER_PORT}"
+    expose:
+      - "${SERVER_PORT}"
+    networks:
+      - cardanoservice_cardanonetwork
+    extra_hosts:
+      - "mongodb-host:172.17.0.1"
+    volumes:
+      - "./logs:/usr/src/app/logs"
+    restart: always
+networks:
+  cardanoservice_cardanonetwork:
+    external: true

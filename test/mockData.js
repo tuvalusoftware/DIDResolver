@@ -134,7 +134,7 @@ export const TASK_QUEUE_CREDENTIAL_REQUEST = {
         verifiedCredential: {
             "@context": [
                 "https://www.w3.org/2018/credentials/v1",
-                "https://cml-resolver.ap.ngrok.io/config/dominium-credential.json",
+                "https://resolver-dev.ap.ngrok.io/config/dominium-credential.json",
                 "https://w3id.org/security/suites/ed25519-2020/v1",
             ],
             id: "did:fuixlabs:COMMONLANDS_2zum7awik",

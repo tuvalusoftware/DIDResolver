@@ -1,4 +1,4 @@
-import { createDocument, createDocumentForCommonlands } from './createDocument';
-import { verifyCardanoDocument } from './verifyDocument';
+import { createDocument } from "./createDocument";
+import { verifyCardanoDocument } from "./verifyDocument";
 
-export { createDocument, verifyCardanoDocument, createDocumentForCommonlands };
+export { createDocument, verifyCardanoDocument };

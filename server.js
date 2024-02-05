@@ -1,83 +1,56 @@
-import http from "http";
-import express from "express";
 import cors from "cors";
+import express from "express";
+import bodyParser from "body-parser";
+import MongoHelper from "./src/libs/connectMongo.js";
+import { env } from "./src/configs/constants.js";
 import compression from "compression";
 import cookieParser from "cookie-parser";
 import methodOverride from "method-override";
-import logger from "./logger.js";
-import swaggerUi from "swagger-ui-express";
-import { swaggerDocument } from "./src/config/swagger/index.js";
-import routes from "./src/router/routes/index.js";
-import { ERRORS } from "./src/config/errors/error.constants.js";
+import routes from "./src/routers/routes/index.js";
+import { setUpErrorHandler } from "./src/configs/setup/errorHandler.js";
+import connectRabbitMQ from "./src/configs/setup/rabbitmq.js";
+import { setUpSwagger } from "./src/configs/setup/swagger.js";
+import { setUpCron } from "./src/configs/setup/cron.js";
+import dotenv from "dotenv";
+import { createRequire } from "module";
+import { fileURLToPath } from "node:url";
+import Logger from "./src/libs/logger.js";
+
+dotenv.config();
+const require = createRequire(import.meta.url);
+const __filename = fileURLToPath(import.meta.url);
+const logger = Logger(__filename);
 
 const app = express();
 app.use(cors());
 app.use(cookieParser());
 app.use(compression());
-app.use(express.json({ limit: "200mb" }));
-app.use(express.urlencoded({ limit: "200mb", extended: true }));
+app.use(bodyParser.json({ limit: "200mb" }));
+app.use(
+    bodyParser.urlencoded({
+        limit: "200mb",
+        extended: true,
+        parameterLimit: 1000000,
+    })
+);
 app.use(methodOverride());
 app.use(
     express.urlencoded({
         extended: true,
     })
 );
-
-const normalizePort = (val) => {
-    const port = parseInt(val, 10);
-
-    if (isNaN(port)) {
-        return val;
-    }
-    if (port >= 0) {
-        return port;
-    }
-    return false;
-};
-
-/* c8 ignore start */
-// SET UP SWAGGER API DOCUMENT
-const swaggerOptions = {
-    customCss: ".swagger-ui .topbar { display: none }",
-    customSiteTitle: "DID Resolver API",
-};
-app.use(
-    "/api-docs",
-    swaggerUi.serve,
-    swaggerUi.setup(swaggerDocument, swaggerOptions)
-);
-
-const server = http.createServer(app);
-server.timeout = 300000;
+MongoHelper();
 routes(app);
 app.use(express.static("assets"));
-app.use((err, req, res, _) => {
-    try {
-        if (err.code === "ECONNABORTED") {
-            throw ERRORS.CONNECTION_TIMEOUT;
-        }
-        if (err.code === "ECONNREFUSED") {
-            throw ERRORS.CONNECTION_REFUSED;
-        }
-        throw err;
-    } catch (error) {
-        logger.apiError(
-            req,
-            res,
-            `Error in ${req.method} ${req.url}: ${err?.error_message}`
-        );
-        return res.status(200).json({
-            error_code: err.error_code,
-            error_message:
-                err.error_message || err?.message || "Something went wrong!",
-            error_detail: err.detail || err.error_detail,
-        });
-    }
+setUpSwagger(app);
+setUpErrorHandler(app);
+connectRabbitMQ();
+setUpCron();
+
+const port = env.NODE_ENV !== "test" ? env.SERVER_PORT : 8001;
+app.listen(port, () => {
+    logger.info(`Environment: ${env.NODE_ENV}`);
+    logger.info(`Server is live: http://host.docker.internal:${port}`);
 });
 
-const port = normalizePort(process.env.NODE_PORT || "8000");
-server.listen(port, () => {
-    logger.info(`Server is live on port ${port}: http://localhost:${port}/`);
-});
-
-export default server;
+export default app;
