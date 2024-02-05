@@ -521,7 +521,10 @@ export default {
         const { mintingConfig } = documentContentResponse.data.wrappedDoc;
         const credentialChannel = await rabbitMQ.createChannel();
         const correlationId = randomUUID();
-        const replyQueue = await credentialChannel.assertQueue(correlationId);
+        const replyQueue = await credentialChannel.assertQueue(correlationId, {
+            durable: true,
+            noAck: true,
+        });
         const requestMessage = {
             type: REQUEST_TYPE.CARDANO_SERVICE.mintCredential,
             options: {
@@ -576,13 +579,12 @@ export default {
                         }
                         credentialChannel.ack(msg);
                     }
-                    logger.apiError(req, `There is no response from rabbitmq`)
-                    reject(new AppError(ERRORS.RABBIT_MESSAGE_ERROR));
                 });
             }
         );
         const { config: _config, did: _did } =
             await createClaimantCredentialHandle;
+        credentialChannel.close();
         return res.status(200).json({
             did: _did,
             transactionId: _config?.txHash,
