@@ -11,7 +11,11 @@ const __filename = fileURLToPath(import.meta.url);
 const logger = Logger(__filename);
 
 export const setUpRabbitMq = async () => {
-    await ResolverConsumer();
+    try {
+        await ResolverConsumer();
+    } catch(error) {
+        throw error;
+    }
 };
 
 export default () => {

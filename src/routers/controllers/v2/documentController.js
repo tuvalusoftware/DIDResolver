@@ -189,7 +189,10 @@ export default {
                 const credentialChannel = await rabbitMQ.createChannel();
                 const correlationId = randomUUID();
                 const replyQueue = await credentialChannel.assertQueue(
-                    correlationId
+                    correlationId, {
+                        durable: true,
+                        noAck: true,
+                    }
                 );
                 const requestMessage = {
                     type: REQUEST_TYPE.CARDANO_SERVICE.mintCredential,
@@ -251,6 +254,7 @@ export default {
                     }
                 );
                 await createClaimantCredentialHandle;
+                credentialChannel.close();
             } catch(error) {
                 logger.error(error);
             }
@@ -393,7 +397,10 @@ export default {
                 const credentialChannel = await rabbitMQ.createChannel();
                 const correlationId = randomUUID();
                 const replyQueue = await credentialChannel.assertQueue(
-                    correlationId
+                    correlationId, {
+                        durable: true,
+                        noAck: true,
+                    }
                 );
                 const requestMessage = {
                     type: REQUEST_TYPE.CARDANO_SERVICE.mintCredential,
@@ -459,6 +466,7 @@ export default {
                 );
                 const { config: __config, did: _did } =
                     await createClaimantCredentialHandle;
+                credentialChannel.close();
             } catch(error) {
                 logger.error(error)
             }
@@ -568,7 +576,7 @@ export default {
                         }
                         credentialChannel.ack(msg);
                     }
-                    logger.apiError(`There is no response from rabbitmq`)
+                    logger.apiError(req, `There is no response from rabbitmq`)
                     reject(new AppError(ERRORS.RABBIT_MESSAGE_ERROR));
                 });
             }
