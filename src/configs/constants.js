@@ -56,6 +56,12 @@ const env = cleanEnv(process.env, {
     CRON_REMINDER: str({
         default: "*/20 * * * * *",
     }),
+    REDIS_PORT: port({
+        default: 6379,
+    }),
+    REDIS_PASSWORD: str({
+        default: "password",
+    }),
 });
 
 const NETWORK_ID = {

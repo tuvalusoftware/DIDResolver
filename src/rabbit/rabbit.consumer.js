@@ -63,9 +63,15 @@ export const ResolverConsumer = async () => {
                     });
                     return;
                 }
-                const requestData = await RequestRepo.findOne({
+                let requestData = await RequestRepo.findOne({
                     _id: cardanoResponse?.id,
                 });
+                if(!requestData) {
+                    const credentialHash = cardanoResponse?.data?.assetName;
+                    requestData = await RequestRepo.findOne({
+                        "data.credential": credentialHash,
+                    });
+                }
                 switch (requestData?.type) {
                     case REQUEST_TYPE.MINTING_TYPE.createContract: {
                         logger.info("Requesting create contract...");
@@ -110,24 +116,27 @@ export const ResolverConsumer = async () => {
                             logger.info(
                                 "Requesting create claimant credential..."
                             );
+                            const config = cardanoResponse.data;
                             const {
                                 credential,
                                 verifiedCredential,
                                 companyName,
                             } = requestData?.data;
+                            
                             const _verifiedCredential =
                                 await RabbitService().createClaimantCredential({
                                     credentialHash: credential,
                                     companyName,
                                     verifiedCredential,
+                                    txHash: config?.txHash,
                                 });
                             response = {
                                 ...cardanoResponse?.data,
                                 verifiedCredential: _verifiedCredential,
                             };
                         } catch (error) {
-                            logger.error(error);
-                        }
+                            console.error(error)
+                                                }
                         break;
                     }
                     case REQUEST_TYPE.MINTING_TYPE.signContract: {

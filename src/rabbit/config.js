@@ -15,6 +15,7 @@ export const REQUEST_TYPE = {
     MINTING_TYPE: {
         createContract: "create-contract",
         createPlot: "create-plot",
+        createPlot2: "create-plot-2",
         createClaimantCredential: "create-claimant-credential",
         updatePlot: "update-plot",
         updatePlot2: "update-plot-2",
