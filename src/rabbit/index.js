@@ -22,7 +22,11 @@ try {
         hostname: env.RABBITMQ_SERVICE,
         username: env.RABBITMQ_USER,
         password: env.RABBITMQ_PASSWORD,
-        heartbeat: TWO_HOUR,
+        port: env.RABBITMQ_PORT,
+    });
+    rabbitMQ.on("error", (error) => {
+        logger.error("Error with RabbitMQ");
+        logger.error(error);
     });
     logger.info(
         `Connected to RabbitMQ: ${rabbitMQ?.connection?.serverProperties?.cluster_name}`
@@ -70,10 +74,15 @@ const channel = {
 };
 
 export function getSender({ service }) {
-    return {
-        sender: channel[service],
-        queue: queue[service],
-    };
+    try {
+        return {
+            sender: channel[service],
+            queue: queue[service],
+        };
+    } catch(error) {
+        console.log('Get sender error', error);
+        throw error;
+    }
 }
 
 export { rabbitMQ };
