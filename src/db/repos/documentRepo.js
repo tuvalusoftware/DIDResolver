@@ -1,5 +1,5 @@
 import { generateDid } from "../../fuixlabs-documentor/utils/did.js";
-import consumerService from "../../services/Consumer.service.class.js";
+import consumerService from "../../services/Consumer.service.js";
 import ControllerService from "../../services/Controller.service.js";
 import { documentService } from "../../services/Document.service.js";
 import RequestRepo from "./requestRepo.js";
@@ -72,6 +72,30 @@ const DocumentRepository = {
         } catch (error) {
             throw error;
         }
+    },
+
+    /**
+     * Stores a document in the database.
+     *
+     * @param {Object} data - The data of the document.
+     * @param {Object} mintingConfig - The minting configuration of the document.
+     * @param {Object} options - Additional options.
+     * @param {string} options.companyName - The name of the company associated with the document.
+     * @param {string} options.fileName - The name of the file associated with the document.
+     * @returns {Promise<void>} A promise that resolves when the document is stored successfully.
+     */
+    async storeDocument(
+        document,
+        {
+            companyName,
+            fileName,            
+        }
+    ) {
+        await ControllerService().storeDocument({
+            companyName,
+            fileName,
+            wrappedDocument: document,
+        });
     },
 
     // ** HELPER FUNCTIONS ** \\

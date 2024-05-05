@@ -14,8 +14,6 @@ const logger = Logger(__filename);
 
 let rabbitMQ;
 
-const TWO_HOUR = 7200000;
-
 try {
     rabbitMQ = await amqplib.connect({
         protocol: "amqp",

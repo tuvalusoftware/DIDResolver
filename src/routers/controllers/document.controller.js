@@ -75,8 +75,8 @@ export default {
         logger.apiInfo(req, "GET DOCUMENT BY DID");
 
         try {
-
             const { did } = req.params;
+
             schemaValidator(requestSchema.getDocumentContentByDid, {
                 did,
             });

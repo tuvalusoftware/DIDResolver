@@ -1,7 +1,6 @@
 import { getAccountBySeedPhrase } from "../utils/lucid.js";
 import {
     getPublicKeyFromAddress,
-    getCurrentDateTime,
     generateRandomString,
 } from "../utils/index.js";
 import ControllerService from "./Controller.service.js";
@@ -19,8 +18,6 @@ import {
     createWrappedDocument,
     wrapDocument,
 } from "../fuixlabs-documentor/utils/document.js";
-
-// * Constants
 import { env, WRAPPED_DOCUMENT_TYPE } from "../configs/constants.js";
 import { VERIFIER_ERROR_CODE } from "../fuixlabs-documentor/constants/error.js";
 import {
@@ -149,10 +146,8 @@ const wrapDocumentData = async ({
  * @returns {boolean} - Returns true if the document type is valid, otherwise false.
  */
 const validateDocumentType = (type) => {
-    return !!VALID_DOCUMENT_NAME_TYPE.find(
-        (prop) => prop.name === type
-    )
-}
+    return !!VALID_DOCUMENT_NAME_TYPE.find((prop) => prop.name === type);
+};
 
 const DocumentService = () => {
     return {
@@ -235,18 +230,18 @@ const DocumentService = () => {
          */
         async createWrappedDocumentData(fileName, data, type) {
             const isValidType = validateDocumentType(type);
-            if(!isValidType) {
+            if (!isValidType) {
                 throw new AppError(
                     ERRORS.DOCUMENT_TYPE_IS_NOT_VALID,
                     "Invalid type of document"
-                )
+                );
             }
             try {
                 const dataForm = {
                     fileName,
                     name: type,
                     title: `${type}-${data._id}`,
-                }
+                };
                 return dataForm;
             } catch (error) {
                 throw error;
@@ -360,6 +355,4 @@ const DocumentService = () => {
 };
 const documentService = DocumentService();
 export default DocumentService;
-export {
-    documentService
-}
+export { documentService };

@@ -3,172 +3,110 @@ import { REQUEST_TYPE, RABBITMQ_SERVICE } from "../rabbit/config.js";
 import { AppError } from "../configs/errors/appError.js";
 import { ERRORS } from "../configs/errors/error.constants.js";
 import { deepUnsalt } from "../fuixlabs-documentor/utils/data.js";
-import RabbitService from "../services/Rabbit.service.js";
-import { randomUUID } from "crypto";
-import customLogger from "../helpers/customLogger.js";
 import { env } from "../configs/constants.js";
+import customLogger from "../helpers/customLogger.js";
+import { randomUUID } from "crypto";
+import DocumentRepository from "../db/repos/documentRepo.js";
 
 const pathToLog =
     env.NODE_ENV === "test"
         ? "logs/rabbit/test-task.log"
         : "logs/rabbit/task.log";
+
 const logger = customLogger(pathToLog);
 
-const ConsumerService = () => {
-    return {
-        createDocument: async (hash, id, type, request) => {
-            try {
-                logger.info(`Create document with hash ${hash} and id ${id}`);
-                const channel = await rabbitMQ.createChannel();
-                const correlationId = randomUUID();
-                const replyQueue = await channel.assertQueue(correlationId);
-                const requestMessage = {
-                    type: REQUEST_TYPE.CARDANO_SERVICE.mintToken,
-                    data: {
-                        hash,
-                        type,
-                    },
-                    id,
-                    options: {
-                        skipWait: true,
-                    },
-                };
-                channel.sendToQueue(
-                    RABBITMQ_SERVICE.CardanoContractService,
-                    Buffer.from(JSON.stringify(requestMessage)),
-                    {
-                        correlationId,
-                        replyTo: correlationId,
-                    }
-                );
-                const createPlotHandle = new Promise((resolve, reject) => {
-                    channel.consume(replyQueue.queue, async (msg) => {
-                        if (msg !== null) {
-                            const cardanoResponse = JSON.parse(msg.content);
-                            if (cardanoResponse.id === request._id.toString()) {
-                                const { companyName, fileName, did } =
-                                    deepUnsalt(
-                                        request?.data?.wrappedDocument?.data
-                                    );
-                                if (!request?.data?.wrappedDocument) {
-                                    logger.error(
-                                        `There are no wrappedDocument in request ${id}`
-                                    );
-                                    reject(
-                                        new AppError(
-                                            ERRORS.RABBIT_MESSAGE_ERROR
-                                        )
-                                    );
-                                }
-                                const { wrappedDocument, metadata } =
-                                    request.data;
-                                const mintingConfig = cardanoResponse.data;
-                                await RabbitService()._createContract({
-                                    companyName,
-                                    fileName,
-                                    did,
-                                    wrappedDocument,
-                                    metadata,
-                                    mintingConfig,
-                                });
-                                resolve(mintingConfig);
-                            }
-                            channel.ack(msg);
-                        }
-                        reject(new AppError(ERRORS.RABBIT_MESSAGE_ERROR));
-                    });
-                });
-                const config = await createPlotHandle;
-                await channel.close();
-                logger.info(
-                    `Created document successfully with hash ${hash} and transaction-id ${config?.txHash}\n`
-                );
-                return config;
-            } catch (error) {
-                throw error;
-            }
-        },
-        updateDocument: async (hash, id, type, request, config) => {
-            try {
-                logger.info(`Update document with hash ${hash} and id ${id}`);
-                const channel = await rabbitMQ.createChannel();
-                const correlationId = randomUUID();
-                const replyQueue = await channel.assertQueue(correlationId);
-                const mintingConfig = {
-                    ...config,
-                    reuse: true,
-                };
-                const requestMessage = {
-                    data: {
-                        newHash: hash,
-                        config: {
-                            ...mintingConfig,
-                            burn: false,
-                        },
-                        type,
-                    },
-                    options: {
-                        skipWait: true,
-                    },
-                    type: REQUEST_TYPE.CARDANO_SERVICE.updateToken,
-                    id,
-                };
-                channel.sendToQueue(
-                    RABBITMQ_SERVICE.CardanoContractService,
-                    Buffer.from(JSON.stringify(requestMessage)),
-                    {
-                        correlationId,
-                        replyTo: correlationId,
-                    }
-                );
-                const createPlotHandle = new Promise((resolve, reject) => {
-                    channel.consume(replyQueue.queue, async (msg) => {
-                        if (msg !== null) {
-                            const cardanoResponse = JSON.parse(msg.content);
-                            if (cardanoResponse.id === request._id.toString()) {
-                                const { wrappedDocument } = deepUnsalt(
-                                    request?.data
-                                );
-                                if (
-                                    !wrappedDocument?.data?.fileName ||
-                                    !wrappedDocument?.data?.companyName
-                                ) {
-                                    logger.error(
-                                        `There are no wrappedDocument or metadata in request ${id}`
-                                    );
-                                    throw reject(
-                                        new AppError(
-                                            ERRORS.RABBIT_MESSAGE_ERROR
-                                        )
-                                    );
-                                }
-                                const { fileName, companyName } =
-                                    wrappedDocument.data;
-                                const updateConfig = cardanoResponse.data;
-                                await RabbitService()._updatePlot({
-                                    wrappedDocument,
-                                    updateConfig,
-                                    companyName,
-                                    fileName,
-                                });
-                                resolve(updateConfig);
-                            }
-                            channel.ack(msg);
-                        }
-                        reject(new AppError(ERRORS.RABBIT_MESSAGE_ERROR));
-                    });
-                });
-                const _config = await createPlotHandle;
-                await channel.close();
-                logger.info(
-                    `Updated document successfully with hash ${hash} and transaction-id ${_config?.txHash}\n`
-                );
-                return _config;
-            } catch (error) {
-                throw error;
-            }
-        },
-    };
-};
+class ConsumerService {
+    /**
+     * Creates a channel with a random correlation ID queue.
+     * @returns {Promise<{ channel: any, correlationId: string, replyQueue: any }>} The created channel, correlation ID, and reply queue.
+     */
+    async createChannelWithRandomCorrelationIdQueue() {
+        const channel = await rabbitMQ.createChannel();
+        const correlationId = randomUUID();
+        const replyQueue = await channel.assertQueue(correlationId);
+        return { channel, correlationId, replyQueue };
+    }
+    /**
+     * Sends data to a queue using the provided channel.
+     *
+     * @param {Channel} channel - The channel to send the data.
+     * @param {string} queue - The name of the queue to send the data to.
+     * @param {Object} data - The data to send to the queue.
+     * @param {Object} options - The options for sending the data.
+     */
+    sendDataToQueue(channel, queue, data, options) {
+        channel.sendToQueue(queue, Buffer.from(JSON.stringify(data)), options);
+    }
 
-export default ConsumerService;
+    // ** SPECIALIZED FUNCTIONS **
+    async createDocument(hash, id, type, request) {
+        try {
+            const { channel, correlationId, replyQueue } =
+                await this.createChannelWithRandomCorrelationIdQueue();
+
+            const requestMessage = {
+                type: REQUEST_TYPE.CARDANO_SERVICE.mintToken,
+                data: {
+                    hash,
+                    type,
+                },
+                id,
+                options: {
+                    skipWait: true,
+                },
+            };
+
+            this.sendDataToQueue(
+                channel,
+                RABBITMQ_SERVICE.CardanoContractService,
+                requestMessage,
+                {
+                    correlationId,
+                    replyTo: correlationId,
+                }
+            );
+
+            const createPlotHandle = new Promise((resolve, reject) => {
+                channel.consume(replyQueue.queue, async (msg) => {
+                    if (msg !== null) {
+                        const cardanoResponse = JSON.parse(msg.content);
+                        if (cardanoResponse.id === request._id.toString()) {
+                            const { companyName, fileName } = deepUnsalt(
+                                request?.data?.wrappedDocument?.data
+                            );
+                            if (!request?.data?.wrappedDocument) {
+                                logger.error(
+                                    `There are no wrappedDocument in request ${id}`
+                                );
+                                reject(
+                                    new AppError(ERRORS.RABBIT_MESSAGE_ERROR)
+                                );
+                            }
+                            const { wrappedDocument } = request.data;
+                            const mintingConfig = cardanoResponse.data;
+                            const document = {
+                                ...wrappedDocument,
+                                mintingConfig,
+                            };
+                            await DocumentRepository.storeDocument(document, {
+                                companyName,
+                                fileName,
+                            });
+                            resolve(mintingConfig);
+                        }
+                        channel.ack(msg);
+                    }
+                    reject(new AppError(ERRORS.RABBIT_MESSAGE_ERROR));
+                });
+            });
+            const config = await createPlotHandle;
+            await channel.close();
+            return config;
+        } catch (error) {
+            throw error;
+        }
+    }
+}
+
+const consumerService = new ConsumerService();
+export default consumerService;

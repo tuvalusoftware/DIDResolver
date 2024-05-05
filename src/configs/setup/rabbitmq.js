@@ -1,5 +1,4 @@
 import dotenv from "dotenv";
-import { ResolverConsumer } from "../../rabbit/rabbit.consumer.js";
 
 import { createRequire } from "module";
 import { fileURLToPath } from "node:url";
@@ -10,23 +9,6 @@ const require = createRequire(import.meta.url);
 const __filename = fileURLToPath(import.meta.url);
 const logger = Logger(__filename);
 
-export const setUpRabbitMq = async () => {
-    try {
-        await ResolverConsumer();
-    } catch(error) {
-        throw error;
-    }
-};
-
 export default () => {
-    const connectConsumer = () => {
-        ResolverConsumer()
-            .then(() => {
-                logger.info("Resolver consumer connected");
-            })
-            .catch((err) => {
-                logger.error("Error connecting to RabbitMQ");
-            });
-    };
-    connectConsumer();
+    
 };

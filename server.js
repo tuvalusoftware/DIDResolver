@@ -8,9 +8,6 @@ import cookieParser from "cookie-parser";
 import methodOverride from "method-override";
 import routes from "./src/routers/routes/index.js";
 import { setUpErrorHandler } from "./src/configs/setup/errorHandler.js";
-import connectRabbitMQ from "./src/configs/setup/rabbitmq.js";
-import { setUpSwagger } from "./src/configs/setup/swagger.js";
-import { setUpCron } from "./src/configs/setup/cron.js";
 import dotenv from "dotenv";
 import { createRequire } from "module";
 import { fileURLToPath } from "node:url";
@@ -41,10 +38,7 @@ app.use(
 MongoHelper();
 routes(app);
 app.use(express.static("assets"));
-setUpSwagger(app);
 setUpErrorHandler(app);
-connectRabbitMQ();
-setUpCron();
 
 const port = env.NODE_ENV !== "test" ? env.SERVER_PORT : 8001;
 app.listen(port, () => {
