@@ -7,7 +7,7 @@
     "scripts": {
         "start:dev": "nodemon ./server.js",
         "start": "node ./server.js",
-        "test": "export NODE_ENV=test && mocha --recursive --exit",
+        "test:document": "export NODE_ENV=test && mocha ./test/apis/document.**test.js --exit",
         "coverage": "c8 --check-coverage --lines 85 npm test"
     },
     "author": "",
@@ -20,7 +20,7 @@
         "chai": "^4.3.6",
         "chai-http": "^4.3.0",
         "mocha": "^10.0.0",
-        "nock": "^13.3.3",
+        "nock": "^13.5.4",
         "nodemon": "^2.0.16"
     },
     "dependencies": {
@@ -37,6 +37,7 @@
         "bip39": "^3.0.4",
         "bs58": "^5.0.0",
         "cardano-crypto.js": "^6.1.1",
+        "chai-spies": "^1.1.0",
         "compression": "^1.7.4",
         "cookie-parser": "^1.4.6",
         "cors": "^2.8.5",

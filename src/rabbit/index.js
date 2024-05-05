@@ -79,10 +79,10 @@ export function getSender({ service }) {
             sender: channel[service],
             queue: queue[service],
         };
-    } catch(error) {
-        console.log('Get sender error', error);
+    } catch (error) {
+        console.log("Get sender error", error);
         throw error;
     }
 }
 
-export { rabbitMQ };
+export { rabbitMQ, resolverChanel };

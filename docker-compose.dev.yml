@@ -23,7 +23,7 @@ services:
     volumes:
       - ./docker-data/mongo:/data/db
     ports:
-      - "${MONGO_PORT}:${MONGO_PORT}"
+      - "27015:${MONGO_PORT}"
     expose:
       - "${MONGO_PORT}"
     healthcheck:
@@ -34,32 +34,32 @@ services:
       start_period: 5s
     networks:
       - resolver-networks
-  service:
-    container_name: service
-    env_file:
-      - .env
-    build:
-      context: .
-      dockerfile: Dockerfile.dev
-      args:
-        - NODE_ENV=development
-        - SERVER_PORT=${SERVER_PORT}
-    restart: always
-    expose:
-      - "${SERVER_PORT}"
-    ports:
-      - ${SERVER_PORT}:${SERVER_PORT}
-    networks:
-      - resolver-networks
-    depends_on:
-      rabbitmq:
-        condition: service_healthy
-      mongo:
-        condition: service_healthy
-    volumes:
-      - ".:/usr/src/app"
-      - "./logs:/usr/src/app/logs"
-      - "/usr/src/app/node_modules"
+  # service:
+  #   container_name: service
+  #   env_file:
+  #     - .env
+  #   build:
+  #     context: .
+  #     dockerfile: Dockerfile.dev
+  #     args:
+  #       - NODE_ENV=development
+  #       - SERVER_PORT=${SERVER_PORT}
+  #   restart: always
+  #   expose:
+  #     - "${SERVER_PORT}"
+  #   ports:
+  #     - ${SERVER_PORT}:${SERVER_PORT}
+  #   networks:
+  #     - resolver-networks
+  #   depends_on:
+  #     rabbitmq:
+  #       condition: service_healthy
+  #     mongo:
+  #       condition: service_healthy
+  #   volumes:
+  #     - ".:/usr/src/app"
+  #     - "./logs:/usr/src/app/logs"
+  #     - "/usr/src/app/node_modules"
 networks:
   resolver-networks:
     driver: bridge

@@ -2,7 +2,7 @@ import MongoHelper from "../libs/connectMongo.js";
 import connectRabbitMq from "../configs/setup/rabbitmq.js";
 import RequestRepo from "../db/repos/requestRepo.js";
 import { RequestModel } from "../db/models/requestModel.js";
-import ConsumerService from "../services/Consumer.service.js";
+import consumerService from "../services/Consumer.service.class.js";
 import { deepUnsalt } from "../fuixlabs-documentor/utils/data.js";
 import credentialService from "../services/VerifiableCredential.service.js";
 import { REQUEST_TYPE } from "../rabbit/config.js";
@@ -15,7 +15,7 @@ async function reMintSpecificPlot() {
     const wrappedDocument = deepUnsalt(request.data.wrappedDocument);
     const plot = wrappedDocument.data.plot;
     const { companyName, fileName, did } = wrappedDocument.data;
-    const config = await ConsumerService().createDocument(
+    const config = await consumerService().createDocument(
         wrappedDocument?.signature?.targetHash,
         request._id,
         "document",
@@ -105,7 +105,7 @@ async function reMintUpdatePlots() {
                     did: originDid,
                 });
             const { mintingConfig } = originDocumentContent.data.wrappedDoc;
-            const _config = await ConsumerService().updateDocument(
+            const _config = await consumerService().updateDocument(
                 wrappedDocument?.signature?.targetHash,
                 request._id,
                 "document",
@@ -196,7 +196,7 @@ async function reMintUpdatePlots412024() {
                     did: originDid,
                 });
             const { mintingConfig } = originDocumentContent.data.wrappedDoc;
-            const _config = await ConsumerService().updateDocument(
+            const _config = await consumerService().updateDocument(
                 wrappedDocument?.signature?.targetHash,
                 request._id,
                 "document",

@@ -30,6 +30,17 @@ import {
 import { AppError } from "../configs/errors/appError.js";
 import { ERRORS } from "../configs/errors/error.constants.js";
 
+/**
+ * Wraps document data with additional information and creates a wrapped document.
+ * @param {Object} options - The options object.
+ * @param {Array} options.documents - The array of documents to be wrapped.
+ * @param {string} options.address - The address associated with the document.
+ * @param {Object} options.client - The client object.
+ * @param {string} options.currentWallet - The current wallet.
+ * @param {string} options.companyName - The name of the company.
+ * @returns {Object} The wrapped document.
+ * @throws {Error} If an error occurs during the wrapping process.
+ */
 const wrapDocumentData = async ({
     documents,
     address,
@@ -131,8 +142,29 @@ const wrapDocumentData = async ({
     }
 };
 
+/**
+ * Validates the document type.
+ *
+ * @param {string} type - The document type to validate.
+ * @returns {boolean} - Returns true if the document type is valid, otherwise false.
+ */
+const validateDocumentType = (type) => {
+    return !!VALID_DOCUMENT_NAME_TYPE.find(
+        (prop) => prop.name === type
+    )
+}
+
 const DocumentService = () => {
     return {
+        /**
+         * Generates a file name for a document based on the provided data and type.
+         *
+         * @param {Object} data - The data object for the document.
+         * @param {string} type - The type of the document.
+         * @param {boolean} [update=false] - Indicates whether the document is being updated.
+         * @returns {Object} - An object containing the generated file name.
+         * @throws {AppError} - If the input type is invalid.
+         */
         generateFileNameForDocument(data, type, update = false) {
             const response = {
                 fileName: "",
@@ -161,6 +193,13 @@ const DocumentService = () => {
             return response;
         },
 
+        /**
+         * Issues and signs a document by an admin.
+         * @param {Object} issueData - The data of the document to be issued.
+         * @param {string} companyName - The name of the company issuing the document.
+         * @returns {Promise<Object>} - The wrapped document.
+         * @throws {Error} - If an error occurs during the process.
+         */
         async issueBySignByAdmin(issueData, companyName) {
             try {
                 const { currentWallet, lucidClient } =
@@ -185,54 +224,42 @@ const DocumentService = () => {
             }
         },
 
+        /**
+         * Creates wrapped document data.
+         *
+         * @param {string} fileName - The name of the file.
+         * @param {object} data - The data object.
+         * @param {string} type - The type of the document.
+         * @returns {object} The created data form.
+         * @throws {AppError} If the document type is not valid.
+         */
         async createWrappedDocumentData(fileName, data, type) {
+            const isValidType = validateDocumentType(type);
+            if(!isValidType) {
+                throw new AppError(
+                    ERRORS.DOCUMENT_TYPE_IS_NOT_VALID,
+                    "Invalid type of document"
+                )
+            }
             try {
-                const currentDate = getCurrentDateTime();
-                switch (type) {
-                    case WRAPPED_DOCUMENT_TYPE.LOAN_CONTRACT: {
-                        const dataForm = {
-                            fileName,
-                            name: WRAPPED_DOCUMENT_TYPE.LOAN_CONTRACT,
-                            title: `${WRAPPED_DOCUMENT_TYPE.LOAN_CONTRACT}-${data._id}`,
-                            dateIssue: currentDate,
-                        };
-                        return {
-                            dataForm,
-                        };
-                    }
-                    case WRAPPED_DOCUMENT_TYPE.PLOT_CERTIFICATE: {
-                        const dataForm = {
-                            fileName: fileName,
-                            name: WRAPPED_DOCUMENT_TYPE.PLOT_CERTIFICATE,
-                            title: `${WRAPPED_DOCUMENT_TYPE.PLOT_CERTIFICATE}-${data.name}`,
-                            dateIssue: currentDate,
-                            plotInformation: {
-                                plotName: data.name,
-                                plotId: data.id,
-                                plot_Id: data._id,
-                                plotStatus: data.status,
-                                plotLocation: data.placeName,
-                                plotCoordinates:
-                                    data?.centroid?.join(",") || "",
-                                plotNeighbors: data?.neighbors?.length || 0,
-                                plotDisputes: data?.disputes?.length || 0,
-                            },
-                        };
-                        if (data.status) {
-                            Object.assign(dataForm, { status: data.status });
-                        }
-                        return {
-                            dataForm,
-                        };
-                    }
-                    default:
-                        throw new AppError(ERRORS.INVALID_INPUT);
+                const dataForm = {
+                    fileName,
+                    name: type,
+                    title: `${type}-${data._id}`,
                 }
+                return dataForm;
             } catch (error) {
                 throw error;
             }
         },
 
+        /**
+         * Retrieves the endorsement chain for a given DID.
+         *
+         * @param {string} did - The DID (Decentralized Identifier) to retrieve the endorsement chain for.
+         * @returns {Promise<Array<Object>>} - A promise that resolves to an array of certificate objects representing the endorsement chain.
+         * @throws {AppError} - If there is an error retrieving the endorsement chain.
+         */
         async getEndorsementChainByDid(did) {
             try {
                 const documentContentResponse =
@@ -287,6 +314,13 @@ const DocumentService = () => {
             }
         },
 
+        /**
+         * Checks if the given document hash matches the hash of the latest certificate in the endorsement chain.
+         * @param {string} currentHash - The hash of the current document.
+         * @param {Array} endorsementChain - The endorsement chain containing certificates.
+         * @returns {Object} - An object indicating whether the document is valid and a verifier message.
+         * @throws {AppError} - If the endorsement chain is missing the required field.
+         */
         async checkLastestCertificate(currentHash, endorsementChain) {
             try {
                 const requireField = "timestamp";
@@ -324,5 +358,8 @@ const DocumentService = () => {
         },
     };
 };
-
+const documentService = DocumentService();
 export default DocumentService;
+export {
+    documentService
+}

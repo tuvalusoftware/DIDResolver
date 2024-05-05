@@ -20,7 +20,6 @@ dotenv.config();
 const require = createRequire(import.meta.url);
 const __filename = fileURLToPath(import.meta.url);
 const logger = Logger(__filename);
-
 const app = express();
 app.use(cors());
 app.use(cookieParser());

@@ -10,6 +10,12 @@ dotenv.config();
 const companyName = env.COMPANY_NAME;
 const devCompanyName = env.DEV_COMPANY_NAME;
 
+/**
+ * Splits a DID (Decentralized Identifier) into its components.
+ *
+ * @param {string} did - The DID to split.
+ * @returns {Object} An object containing the companyName and fileName components of the DID.
+ */
 function splitDid(did) {
     const didComponents = did.split(":");
     return {
@@ -260,6 +266,14 @@ function decryptData(data, securityKey) {
     return decryptedData;
 }
 
+/**
+ * Handles the results of a Promise.allSettled operation.
+ *
+ * @param {Array} results - An array of promise results.
+ * @param {string} additionalErrorMessage - An optional additional error message.
+ * @returns {Array} - An array of resolved promise values.
+ * @throws {Error} - Throws an error if any of the promises were rejected.
+ */
 function handlePromiseAllSettle(results, additionalErrorMessage) {
     let promiseSuccessfully = true;
     for (let i = 0; i < results.length; i++) {
@@ -277,6 +291,25 @@ function handlePromiseAllSettle(results, additionalErrorMessage) {
     }
 
     return results.map((re) => re.value);
+}
+
+/**
+ * Checks the validation of a DID by comparing the dev company name and company name in the DID.
+ *
+ * @param {string} did - The DID to validate.
+ * @param {string} devCompanyName - The expected dev company name in the DID.
+ * @param {string} companyName - The expected company name in the DID.
+ * @returns {boolean} - Returns true if the DID is valid, false otherwise.
+ */
+function checkValidationOfDidByCompanyName(did, companyName) {
+    const didComponents = did.split(":");
+    if(didComponents.length !== 4) {
+        return false;
+    }
+    if (didComponents[2] !== companyName) {
+        return false;
+    }
+    return true;
 }
 
 export {
@@ -297,4 +330,5 @@ export {
     stringToBytes32,
     splitDid,
     handlePromiseAllSettle,
+    checkValidationOfDidByCompanyName
 };

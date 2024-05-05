@@ -169,6 +169,12 @@ const ERRORS = {
         error_message:
             "Not all promises is settled when involving Promise.AllSettled().",
     },
+    DOCUMENT_TYPE_IS_NOT_VALID: {
+        error_code: 4042,
+        error_message: "Document type is not valid!",
+    },
+
+    // Internal server errors
     INTERNAL_SERVER_ERROR: {
         error_code: 5001,
         error_message: "Internal server error.",

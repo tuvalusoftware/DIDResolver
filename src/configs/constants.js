@@ -85,4 +85,6 @@ const WRAPPED_DOCUMENT_TYPE = {
     LOAN_CONTRACT: "Loan-Contract",
 };
 
-export { env, NETWORK_ID, REQUEST_TYPE, WRAPPED_DOCUMENT_TYPE };
+const isTestEnv = env.NODE_ENV === "test";
+
+export { env, NETWORK_ID, REQUEST_TYPE, WRAPPED_DOCUMENT_TYPE, isTestEnv };
