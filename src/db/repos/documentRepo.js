@@ -20,7 +20,7 @@ const DocumentRepository = {
      * @returns {Object} An object containing the transaction hash (txHash) and asset name (assetName) of the created document.
      * @throws {Error} If an error occurs during the process.
      */
-    async createDocument(wrappedDoc, fileName, type, companyName) {
+    async createDocument(wrappedDoc, fileName, type, companyName, network = 'stellar') {
         try {
             const did = generateDid(companyName, fileName);
             const isExists = await this.isExists(companyName, fileName);

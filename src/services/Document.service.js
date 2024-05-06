@@ -1,4 +1,4 @@
-import { getAccountBySeedPhrase } from "../utils/lucid.js";
+import { getAccountBySeedPhrase, signData } from "../utils/lucid.js";
 import {
     getPublicKeyFromAddress,
     generateRandomString,
@@ -26,6 +26,8 @@ import {
 } from "../fuixlabs-documentor/constants/type.js";
 import { AppError } from "../configs/errors/appError.js";
 import { ERRORS } from "../configs/errors/error.constants.js";
+import cardanoService from "./Cardano.service.js";
+import stellarService from "./Stellar.service.js";
 
 /**
  * Wraps document data with additional information and creates a wrapped document.
@@ -38,13 +40,10 @@ import { ERRORS } from "../configs/errors/error.constants.js";
  * @returns {Object} The wrapped document.
  * @throws {Error} If an error occurs during the wrapping process.
  */
-const wrapDocumentData = async ({
-    documents,
-    address,
-    client,
-    currentWallet,
-    companyName,
-}) => {
+const wrapDocumentData = async (
+    { documents, address, companyName },
+    network = "stellar"
+) => {
     try {
         for (let index = 0; index < documents.length; index++) {
             let document = documents[index];
@@ -104,19 +103,20 @@ const wrapDocumentData = async ({
                     did
                 );
                 const { _document, targetHash } = res;
-                const signMessage = await client
-                    ?.newMessage(
-                        getPublicKeyFromAddress(currentWallet?.paymentAddr),
-                        Buffer.from(
-                            JSON.stringify({
-                                address: getPublicKeyFromAddress(
-                                    currentWallet?.paymentAddr
-                                ),
-                                targetHash: targetHash,
-                            })
-                        ).toString("hex")
-                    )
-                    .sign();
+                let signMessage;
+                if (network === "stellar") {
+                    signMessage = await stellarService.sign({
+                        address: address,
+                        targetHash: targetHash,
+                    });
+                } else if (network === "cardano") {
+                    const paymentAddr =
+                        await cardanoService.getPaymentAddress();
+                    signMessage = await cardanoService.sign({
+                        address: paymentAddr,
+                        targetHash: targetHash,
+                    });
+                }
                 const wrappedDocument = wrapDocument({
                     document: _document,
                     walletAddress: address,
@@ -151,6 +151,71 @@ const validateDocumentType = (type) => {
 
 const DocumentService = () => {
     return {
+        // ** SIGNATURE FUNCTIONS ** \\
+        /**
+         * Signs the provided issue data with Cardano.
+         *
+         * @param {Object} issueData - The data to be signed.
+         * @param {string} companyName - The name of the company.
+         * @returns {Promise<Object>} - The wrapped document.
+         * @throws {Error} - If an error occurs during the signing process.
+         */
+        async signDataWithCardano(issueData, companyName) {
+            try {
+                const { currentWallet, lucidClient } =
+                    await getAccountBySeedPhrase({
+                        seedPhrase: env.CARDANO_SEED_PHRASE,
+                    });
+                const { wrappedDocument } = await wrapDocumentData(
+                    {
+                        seedPhrase: env.CARDANO_SEED_PHRASE,
+                        documents: [issueData],
+                        address: getPublicKeyFromAddress(
+                            currentWallet?.paymentAddr
+                        ),
+                        client: lucidClient,
+                        currentWallet: currentWallet,
+                        companyName: companyName,
+                    },
+                    "cardano"
+                );
+                return {
+                    wrappedDocument,
+                };
+            } catch (error) {
+                throw error;
+            }
+        },
+
+        /**
+         * Signs the provided issueData with Stellar.
+         *
+         * @param {Object} issueData - The data to be signed.
+         * @param {string} companyName - The name of the company.
+         * @returns {Promise<Object>} - The wrapped document containing the signed data.
+         * @throws {Error} - If an error occurs during the signing process.
+         */
+        async signDataWithStellar(issueData, companyName) {
+            try {
+                const address = stellarService.getPublicKey();
+                const { wrappedDocument } = await wrapDocumentData(
+                    {
+                        seedPhrase: env.CARDANO_SEED_PHRASE,
+                        documents: [issueData],
+                        address,
+                        currentWallet: currentWallet,
+                        companyName: companyName,
+                    },
+                    "stellar"
+                );
+                return {
+                    wrappedDocument,
+                };
+            } catch (error) {
+                throw error;
+            }
+        },
+
         /**
          * Generates a file name for a document based on the provided data and type.
          *
@@ -195,27 +260,11 @@ const DocumentService = () => {
          * @returns {Promise<Object>} - The wrapped document.
          * @throws {Error} - If an error occurs during the process.
          */
-        async issueBySignByAdmin(issueData, companyName) {
-            try {
-                const { currentWallet, lucidClient } =
-                    await getAccountBySeedPhrase({
-                        seedPhrase: env.ADMIN_SEED_PHRASE,
-                    });
-                const { wrappedDocument } = await wrapDocumentData({
-                    seedPhrase: env.ADMIN_SEED_PHRASE,
-                    documents: [issueData],
-                    address: getPublicKeyFromAddress(
-                        currentWallet?.paymentAddr
-                    ),
-                    client: lucidClient,
-                    currentWallet: currentWallet,
-                    companyName: companyName,
-                });
-                return {
-                    wrappedDocument,
-                };
-            } catch (error) {
-                throw error;
+        async issueBySignByAdmin(issueData, companyName, network = "stellar") {
+            if (network === "cardano") {
+                return await this.signDataWithCardano(issueData, companyName);
+            } else if (network === "stellar") {
+                return await this.signDataWithStellar(issueData, companyName);
             }
         },
 

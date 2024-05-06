@@ -11,7 +11,6 @@ export default {
                 .unknown(true),
             fileName: Joi.string().required(),
             companyName: Joi.string().required(),
-            network: Joi.string().required().valid("cardano", "stellar"),
             type: Joi.string().required(),
         })
         .unknown(true),

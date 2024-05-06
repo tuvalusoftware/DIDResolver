@@ -25,17 +25,28 @@ export default {
         logger.apiInfo(req, "CREATE DOCUMENT");
 
         try {
-            const { wrappedDoc, fileName, type, companyName, chain } =
-                schemaValidator(requestSchema.createDocument, req.body);
+            const { wrappedDoc, fileName, type, companyName } = schemaValidator(
+                requestSchema.createDocument,
+                req.body
+            );
 
-            logger.apiInfo(`Create document: ${fileName}`);
+            let { network } = req.query;
+
+            if (!network) {
+                network = "stellar";
+            }
+
+            logger.apiInfo(
+                `Create document: ${fileName} with on ${network} \n`
+            );
 
             const { txHash, assetName, did } =
                 await DocumentRepository.createDocument(
                     wrappedDoc,
                     fileName,
                     type,
-                    companyName
+                    companyName,
+                    network
                 );
 
             logger.apiInfo(

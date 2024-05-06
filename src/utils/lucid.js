@@ -87,7 +87,7 @@ function harden(num) {
 
 async function requestAccountKey(password, accountIndex) {
     const { currentWallet } = await getAccountBySeedPhrase(
-        env.ADMIN_SEED_PHRASE
+        env.CARDANO_SEED_PHRASE
     );
     const encryptedRootKey = await encryptWithPassword(
         password,
@@ -206,9 +206,9 @@ function getCurrentAccount({ mnemonic }) {
 
 async function getAccountBySeedPhrase({ seedPhrase }) {
     try {
-        const _seedPhrase = seedPhrase ? seedPhrase : env.ADMIN_SEED_PHRASE;
+        const _seedPhrase = seedPhrase ? seedPhrase : env.CARDANO_SEED_PHRASE;
         const currentWallet = getCurrentAccount({
-            mnemonic: env.ADMIN_SEED_PHRASE,
+            mnemonic: env.CARDANO_SEED_PHRASE,
         });
         const lucid = await Lucid.new(null, "Preprod");
         lucid.selectWalletFromPrivateKey(

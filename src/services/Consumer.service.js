@@ -58,7 +58,7 @@ class ConsumerService {
 
             this.sendDataToQueue(
                 channel,
-                RABBITMQ_SERVICE.CardanoContractService,
+                RABBITMQ_SERVICE.cardano.CardanoDocumentService,
                 requestMessage,
                 {
                     correlationId,

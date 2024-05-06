@@ -22,9 +22,15 @@ const env = cleanEnv(process.env, {
     DAPP_KEY: str({
         default: "dapp_dominium",
     }),
-    ADMIN_PUBLIC_KEY: str(),
-    ADMIN_SEED_PHRASE: str(),
-    ADMIN_PRIVATE_KEY: str(),
+
+    // Cardano wallet info
+    CARDANO_PUBLIC_KEY: str(),
+    CARDANO_SEED_PHRASE: str(),
+    CARDANO_PRIVATE_KEY: str(),
+
+    // Stellar wallet info
+    STELLAR_PUBLIC_KEY: str(),
+
     RABBITMQ_PORT: port(),
     MONGO_PORT: port({
         default: 27017,

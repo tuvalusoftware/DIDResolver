@@ -88,8 +88,8 @@ async function setUpSuite({ public_key, private_key }) {
 }
 
 const { suite: DOMINIUM_SUITE } = await setUpSuite({
-    private_key: env.ADMIN_PRIVATE_KEY,
-    public_key: env.ADMIN_PUBLIC_KEY,
+    private_key: env.CARDANO_PRIVATE_KEY,
+    public_key: env.CARDANO_PUBLIC_KEY,
 });
 
 /**

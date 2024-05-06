@@ -1,8 +1,12 @@
 export const RABBITMQ_SERVICE = {
-    CardanoService: "CardanoService",
-    ResolverService: "ResolverService",
-    ErrorService: "CardanoErrorService",
-    CardanoContractService: "CardanoContractService",
+    cardano: {
+        CardanoErrorService: "CardanoCardanoErrorService",
+        CardanoDocumentService: "CardanoDocumentService",
+    },
+    stellar: {
+        StellarErrorService: "StellarErrorService",
+        StellarDocumentService: "StellarDocumentService",
+    },
 };
 
 export const REQUEST_TYPE = {
