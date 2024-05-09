@@ -1,17 +1,28 @@
 import { env } from "../configs/constants.js";
-import { sign } from "@stellar/stellar-sdk";
+import * as StellarSdk from "@stellar/stellar-sdk";
 
 class StellarService {
     constructor() {
-        this.publicKey = env.STELLAR_PUBLIC_KEY;
+        this.privateKey = env.STELLAR_PUBLIC_KEY;
     }
 
     async sign(data) {
-        return sign(data, this.publicKey);
+        const keypair = StellarSdk.Keypair.fromSecret(this.privateKey);
+        return keypair.sign(data);
+    }
+
+    async verify(data, signature) {
+        const keypair = StellarSdk.Keypair.fromSecret(this.privateKey);
+        return keypair.verify(data, signature);
+    }
+
+    async getPrivateKey() {
+        return this.privateKey;
     }
 
     async getPublicKey() {
-        return this.publicKey;
+        const keypair = StellarSdk.Keypair.fromSecret(this.privateKey);
+        return keypair.publicKey();
     }
 }
 

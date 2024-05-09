@@ -39,7 +39,7 @@ class ConsumerService {
     }
 
     // ** SPECIALIZED FUNCTIONS **
-    async createDocument(hash, id, type, request) {
+    async createDocument(hash, id, type, request, network = "stellar") {
         try {
             const { channel, correlationId, replyQueue } =
                 await this.createChannelWithRandomCorrelationIdQueue();
@@ -56,9 +56,11 @@ class ConsumerService {
                 },
             };
 
+            const queueName = network === "cardano" ? RABBITMQ_SERVICE.cardano.CardanoDocumentService : RABBITMQ_SERVICE.stellar.StellarService;
+
             this.sendDataToQueue(
                 channel,
-                RABBITMQ_SERVICE.cardano.CardanoDocumentService,
+                queueName,
                 requestMessage,
                 {
                     correlationId,

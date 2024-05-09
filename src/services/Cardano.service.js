@@ -2,7 +2,7 @@ import { env } from "../configs/constants.js";
 import { getAccountBySeedPhrase } from "../utils/lucid.js";
 
 const { currentWallet, lucidClient } = await getAccountBySeedPhrase({
-    seedPhrase: this.seedPhrase,
+    seedPhrase: env.CARDANO_SEED_PHRASE,
 });
 
 class CardanoService {

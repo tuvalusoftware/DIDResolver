@@ -37,6 +37,7 @@ export default {
             }
 
             logger.apiInfo(
+                req,
                 `Create document: ${fileName} with on ${network} \n`
             );
 

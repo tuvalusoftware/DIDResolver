@@ -4,8 +4,7 @@ export const RABBITMQ_SERVICE = {
         CardanoDocumentService: "CardanoDocumentService",
     },
     stellar: {
-        StellarErrorService: "StellarErrorService",
-        StellarDocumentService: "StellarDocumentService",
+        StellarService: "StellarService",
     },
 };
 

@@ -1,10 +1,10 @@
-import StellarSdk from '@stellar/stellar-sdk';
+import StellarSdk from "@stellar/stellar-sdk";
 
 const generateKeysPair = async () => {
     const issuerKeypair = StellarSdk.Keypair.random();
-    console.log('public-key', issuerKeypair.publicKey());
-    console.log('DONE');
-}
+    console.log("secrey-key", issuerKeypair.secret());
+    console.log("DONE");
+};
 
 (async () => {
     try {
@@ -13,6 +13,6 @@ const generateKeysPair = async () => {
         console.log("Default data added unsuccessful.");
         console.log(err);
     } finally {
-       console.log("DONE");
+        console.log("DONE");
     }
 })();

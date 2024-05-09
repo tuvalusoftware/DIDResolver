@@ -105,10 +105,15 @@ const wrapDocumentData = async (
                 const { _document, targetHash } = res;
                 let signMessage;
                 if (network === "stellar") {
-                    signMessage = await stellarService.sign({
-                        address: address,
-                        targetHash: targetHash,
-                    });
+                    signMessage = await stellarService.sign(
+                        Buffer.from(
+                            JSON.stringify({
+                                address: address,
+                                targetHash: targetHash,
+                            }),
+                            "utf-8"
+                        )
+                    );
                 } else if (network === "cardano") {
                     const paymentAddr =
                         await cardanoService.getPaymentAddress();
@@ -162,19 +167,15 @@ const DocumentService = () => {
          */
         async signDataWithCardano(issueData, companyName) {
             try {
-                const { currentWallet, lucidClient } =
-                    await getAccountBySeedPhrase({
-                        seedPhrase: env.CARDANO_SEED_PHRASE,
-                    });
+                const { currentWallet } = await getAccountBySeedPhrase({
+                    seedPhrase: env.CARDANO_SEED_PHRASE,
+                });
                 const { wrappedDocument } = await wrapDocumentData(
                     {
-                        seedPhrase: env.CARDANO_SEED_PHRASE,
                         documents: [issueData],
                         address: getPublicKeyFromAddress(
                             currentWallet?.paymentAddr
                         ),
-                        client: lucidClient,
-                        currentWallet: currentWallet,
                         companyName: companyName,
                     },
                     "cardano"
@@ -197,13 +198,11 @@ const DocumentService = () => {
          */
         async signDataWithStellar(issueData, companyName) {
             try {
-                const address = stellarService.getPublicKey();
+                const address = await stellarService.getPublicKey();
                 const { wrappedDocument } = await wrapDocumentData(
                     {
-                        seedPhrase: env.CARDANO_SEED_PHRASE,
                         documents: [issueData],
                         address,
-                        currentWallet: currentWallet,
                         companyName: companyName,
                     },
                     "stellar"

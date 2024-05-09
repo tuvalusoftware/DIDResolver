@@ -20,11 +20,21 @@ const DocumentRepository = {
      * @returns {Object} An object containing the transaction hash (txHash) and asset name (assetName) of the created document.
      * @throws {Error} If an error occurs during the process.
      */
-    async createDocument(wrappedDoc, fileName, type, companyName, network = 'stellar') {
+    async createDocument(
+        wrappedDoc,
+        fileName,
+        type,
+        companyName,
+        network = "stellar"
+    ) {
         try {
             const did = generateDid(companyName, fileName);
             const isExists = await this.isExists(companyName, fileName);
-            if (isExists) {
+            if (isExists.data) {
+                const data = await ControllerService().getDocumentContent({
+                    did: did,
+                });
+                console.log(data);
             }
 
             // Generate data for issuing document by
@@ -36,7 +46,11 @@ const DocumentRepository = {
 
             // Add signature to document what created by signing admin
             const { wrappedDocument } =
-                await documentService.issueBySignByAdmin(dataForm, companyName);
+                await documentService.issueBySignByAdmin(
+                    dataForm,
+                    companyName,
+                    network
+                );
 
             // Save creating document into database for tracking
             const request = await RequestRepo.createRequest({
@@ -63,7 +77,8 @@ const DocumentRepository = {
                 wrappedDocument?.signature?.targetHash,
                 request._id,
                 "document",
-                request
+                request,
+                network
             );
 
             // Get txHash - hash of nft in Cardano blockchain, assetName - hash of document
@@ -84,13 +99,7 @@ const DocumentRepository = {
      * @param {string} options.fileName - The name of the file associated with the document.
      * @returns {Promise<void>} A promise that resolves when the document is stored successfully.
      */
-    async storeDocument(
-        document,
-        {
-            companyName,
-            fileName,            
-        }
-    ) {
+    async storeDocument(document, { companyName, fileName }) {
         await ControllerService().storeDocument({
             companyName,
             fileName,
