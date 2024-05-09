@@ -1,3 +1,6 @@
+import { AppError } from "../../configs/errors/appError.js";
+import { ERRORS } from "../../configs/errors/error.constants.js";
+import { deepUnsalt, unsalt } from "../../fuixlabs-documentor/utils/data.js";
 import { generateDid } from "../../fuixlabs-documentor/utils/did.js";
 import consumerService from "../../services/Consumer.service.js";
 import ControllerService from "../../services/Controller.service.js";
@@ -31,10 +34,15 @@ const DocumentRepository = {
             const did = generateDid(companyName, fileName);
             const isExists = await this.isExists(companyName, fileName);
             if (isExists.data) {
-                const data = await ControllerService().getDocumentContent({
+                // Get document content if document is existed
+                const { data } = await ControllerService().getDocumentContent({
                     did: did,
                 });
-                console.log(data);
+                const wrappedDoc = data.wrappedDoc;
+                const txHash = wrappedDoc?.mintingConfig?.txHash;
+                const assetName = wrappedDoc?.signature?.targetHash;
+
+                return { txHash, assetName, did };
             }
 
             // Generate data for issuing document by
