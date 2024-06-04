@@ -19,20 +19,9 @@ module.exports = {
                     detail: undefinedVar.detail,
                 });
 
-            // Call Cardano Service
-            // success:
-            // v2
-            //   {
-            //     code: 0,
-            //     message: string,
-            //     data: [] or {}
-            //   }
-            // error:
-            //   { code: 1, message: string }
             const { data } = await axios.post(
                 `${SERVERS.CARDANO_SERVICE}/api/v2/fetch/nft`,
                 {
-                    // (opt) asset: 41ac0d6b1287d7abd2c0443566cf34f95f1ec7e338dc18653fcedcb4ec9df0f3318725fa3c636ee118d233cadf8bd4a6f654c89f164d1169cc473cdc
                     policyId: policyId, // 41ac0d6b1287d7abd2c0443566cf34f95f1ec7e338dc18653fcedcb4
                 },
                 {

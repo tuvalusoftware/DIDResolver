@@ -40,6 +40,7 @@ module.exports = {
             //   }
             // error:
             //   { error_code: number, message: string }
+            console.log(1)
             const { data } = await axios.get(
                 SERVERS.DID_CONTROLLER + "/api/doc",
                 {
@@ -50,10 +51,11 @@ module.exports = {
                     params: { companyName, fileName, only },
                 }
             );
-
+            console.log(2)
             Logger.apiInfo(req, res, `Success.\n${JSON.stringify(data)}`);
             return res.status(200).json(data); // 404
         } catch (error) {
+            console.log(error)
             Logger.apiError(req, res, `${JSON.stringify(error)}`);
             error.response
                 ? res.status(400).json(error.response.data)
@@ -104,6 +106,8 @@ module.exports = {
                 }
             );
 
+            console.log(data);
+
             data?.error_code
                 ? Logger.apiError(req, res, `${JSON.stringify(data)}`)
                 : Logger.apiInfo(req, res, `Success.\n${JSON.stringify(data)}`);
@@ -133,6 +137,7 @@ module.exports = {
             // Call DID Contoller
             // success:
             //   { isExisted: true/false }
+            console.log(1)
             const { data } = await axios.get(
                 SERVERS.DID_CONTROLLER + "/api/doc/exists",
                 {
@@ -146,6 +151,7 @@ module.exports = {
                     },
                 }
             );
+            console.log(2)
 
             Logger.apiInfo(req, res, `Success.\n${JSON.stringify(data)}`);
             return res.status(200).json(data?.isExisted);
@@ -178,18 +184,6 @@ module.exports = {
                 });
             }
 
-            // ? Validate wrapped document format
-            // const valid = validateJSONSchema(
-            //   SCHEMAS.NEW_WRAPPED_DOCUMENT,
-            //   wrappedDocument
-            // );
-            // if (!valid.valid)
-            //   return res.status(200).json({
-            //     ...ERRORS.INVALID_INPUT,
-            //     error_message: "Bad request. Invalid wrapped document.",
-            //     detail: valid.detail,
-            //   });
-
             // Validate DID syntax
             const did = wrappedDocument.data?.did,
                 validDid = validateDIDSyntax(did, true),
@@ -206,38 +200,6 @@ module.exports = {
                     encryptedIssuerAddress
                 ),
                 targetHash = wrappedDocument.signature.targetHash;
-
-            // 1.1. Get address of user from the access token
-            // success:
-            //   { data: { address: string } }
-            // error: 401 - unauthorized
-            const address = await axios.get(
-                SERVERS.AUTHENTICATION_SERVICE + "/api/auth/verify",
-                {
-                    withCredentials: true,
-                    headers: { Cookie: `access_token=${access_token};` },
-                }
-            );
-            Logger.apiInfo(
-                req,
-                res,
-                `Address of user: ${address?.data?.data?.address}`
-            );
-
-            // 1.2 Compare issuer address with user address
-            if (issuerAddress !== address.data.data.address) {
-                Logger.apiError(
-                    req,
-                    res,
-                    `Address ${address.data.data.address} is not issuerAddress ${issuerAddress}`
-                );
-                return res.status(200).send(ERRORS.PERMISSION_DENIED);
-            } else
-                Logger.apiInfo(
-                    req,
-                    res,
-                    `Issuer address matches current address. Address: ${issuerAddress}`
-                );
 
             // 2. Check if document is already stored on DB (true/false).
             // success:
@@ -382,7 +344,6 @@ module.exports = {
                 return res.status(201).json(wrappedDocument);
             }
         } catch (error) {
-            Logger.apiError(req, res, `${JSON.stringify(error)}`);
             return error.response
                 ? res.status(400).json(error.response.data)
                 : res.status(400).json(error);
