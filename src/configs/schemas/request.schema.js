@@ -21,4 +21,11 @@ export default {
                 .required()
                 .pattern(/did:([a-z0-9]+):([a-zA-Z0-9]+):([a-zA-Z0-9]+)/),
         }),
+    createDid: Joi.object()
+        .keys({
+            companyName: Joi.string().required(),
+            publicKey: Joi.string().required(),
+            content: Joi.object().required(),
+        })
+        .required(),
 };

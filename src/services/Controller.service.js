@@ -146,6 +146,26 @@ const ControllerService = () => {
                     .catch((error) => reject(error));
             });
         },
+
+        async storeDid({ companyName, publicKey, content }) {
+            return new Promise((resolve, reject) => {
+                axios
+                    .post(
+                        controllerUrl + "/api/v2/did",
+                        {
+                            companyName,
+                            publicKey,
+                            content,
+                        },
+                        corsConfig
+                    )
+                    .then((response) => {
+                        handleServiceError(response);
+                        resolve(response);
+                    })
+                    .catch((error) => reject(error));
+            });
+        },
     };
 };
 
