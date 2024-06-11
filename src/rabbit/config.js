@@ -23,5 +23,6 @@ export const REQUEST_TYPE = {
         addClaimantToPlot: "add-claimant-to-plot",
         addClaimantToPlot2: "add-claimant-to-plot-2",
         signContract: "sign-contract",
+        createContractHistory: "createContractHistory",
     },
 };

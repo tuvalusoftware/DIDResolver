@@ -113,6 +113,7 @@ export default {
         const userPublicKey = bs58.encode(
             currentWallet?.paymentKeyPub.as_bytes()
         );
+
         const { verifiableCredential, credentialHash } =
             await credentialService.createContractVerifiableCredential({
                 subject: {
@@ -162,6 +163,56 @@ export default {
         });
         return res.status(200).json({
             updated: true,
+        });
+    }),
+    signContractHistory: asyncWrapper(async (req, res, next) => {
+        logger.apiInfo(req, "Create contract history v1");
+
+        const { contract, hash, seedPhrase, userDid } = schemaValidator(
+            requestSchema.createContractHistory,
+            req.body
+        );
+
+        const { currentWallet } = await getAccountBySeedPhrase({
+            seedPhrase,
+        });
+        const userPrivateKey = bs58.encode(
+            currentWallet?.paymentKey.as_bytes()
+        );
+        const userPublicKey = bs58.encode(
+            currentWallet?.paymentKeyPub.as_bytes()
+        );
+
+        const { verifiableCredential, credentialHash } =
+            await credentialService.createContractVerifiableCredential({
+                subject: {
+                    userDid,
+                    contractDid: contract,
+                    certificateDid: "did:cardano:meo:dsadsadsadasd",
+                    role: "renter",
+                },
+                issuerKey: contract,
+                privateKey: userPrivateKey,
+                publicKey: userPublicKey,
+            });
+
+        const companyName = env.COMPANY_NAME;
+
+        const credentialDid = generateDid(companyName, credentialHash);
+
+        await RequestRepo.createRequest({
+            data: {
+                credential: credentialHash,
+                verifiedCredential: verifiableCredential,
+                companyName,
+                originDid: contract,
+            },
+            type: REQUEST_TYPE.MINTING_TYPE.createContractHistory,
+            status: "pending",
+        });
+
+        return res.status(200).json({
+            did: credentialDid,
         });
     }),
 };

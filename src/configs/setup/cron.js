@@ -26,6 +26,7 @@ export const setUpCron = () => {
                         REQUEST_TYPE.MINTING_TYPE.updatePlot,
                         REQUEST_TYPE.MINTING_TYPE.addClaimantToPlot,
                         REQUEST_TYPE.MINTING_TYPE.signContract,
+                        REQUEST_TYPE.MINTING_TYPE.createContractHistory,
                     ],
                 },
             }).sort({ updatedAt: -1 });
@@ -118,6 +119,39 @@ export const setUpCron = () => {
                             );
                             logger.info(
                                 `Cron sign contract ${request._id} finished`
+                            );
+                            break;
+                        }
+                        case REQUEST_TYPE.MINTING_TYPE.createContractHistory: {
+                            console.log("Cron sign contract history");
+                            logger.info(
+                                `Cron sign contract history ${request._id}`
+                            );
+                            const { originDid, credential } = request.data;
+                            const documentContentResponse =
+                                await ControllerService().getDocumentContent({
+                                    did: originDid,
+                                });
+                            if (
+                                !documentContentResponse.data?.wrappedDoc
+                                    ?.mintingConfig
+                            ) {
+                                logger.error(
+                                    `There are no mintingConfig in request ${request._id}`
+                                );
+                                throw new AppError(ERRORS.INVALID_INPUT);
+                            }
+                            const { mintingConfig } =
+                                documentContentResponse.data.wrappedDoc;
+                            await CardanoService().storeCredentialsWithPolicyId(
+                                {
+                                    credentials: [credential],
+                                    mintingConfig,
+                                    id: request._id,
+                                }
+                            );
+                            logger.info(
+                                `Cron create history contract ${request._id} finished`
                             );
                             break;
                         }

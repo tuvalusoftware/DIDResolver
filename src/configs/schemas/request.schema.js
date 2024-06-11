@@ -100,4 +100,10 @@ export default {
             .required()
             .regex(/^did:[A-Za-z0-9_]+:[A-Za-z0-9.\-:_ ]+$/),
     }),
+    createContractHistory: Joi.object().keys({
+        contract: Joi.string().required(),
+        hash: Joi.string().required(),
+        seedPhrase: Joi.string().required(),
+        userDid: Joi.string().required(),
+    }),
 };

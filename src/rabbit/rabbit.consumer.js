@@ -66,7 +66,7 @@ export const ResolverConsumer = async () => {
                 let requestData = await RequestRepo.findOne({
                     _id: cardanoResponse?.id,
                 });
-                if(!requestData) {
+                if (!requestData) {
                     const credentialHash = cardanoResponse?.data?.assetName;
                     requestData = await RequestRepo.findOne({
                         "data.credential": credentialHash,
@@ -122,7 +122,7 @@ export const ResolverConsumer = async () => {
                                 verifiedCredential,
                                 companyName,
                             } = requestData?.data;
-                            
+
                             const _verifiedCredential =
                                 await RabbitService().createClaimantCredential({
                                     credentialHash: credential,
@@ -135,8 +135,8 @@ export const ResolverConsumer = async () => {
                                 verifiedCredential: _verifiedCredential,
                             };
                         } catch (error) {
-                            console.error(error)
-                                                }
+                            console.error(error);
+                        }
                         break;
                     }
                     case REQUEST_TYPE.MINTING_TYPE.signContract: {
@@ -192,6 +192,31 @@ export const ResolverConsumer = async () => {
                     case REQUEST_TYPE.MINTING_TYPE.addClaimantToPlot: {
                         try {
                             logger.info("add claimant to plot certificate...");
+                            const {
+                                credential,
+                                verifiedCredential,
+                                companyName,
+                            } = requestData?.data;
+                            const _verifiedCredential =
+                                await RabbitService().createClaimantCredential({
+                                    credentialHash: credential,
+                                    companyName,
+                                    verifiedCredential,
+                                });
+                            response = {
+                                ...cardanoResponse?.data,
+                                verifiedCredential: _verifiedCredential,
+                            };
+                        } catch (error) {
+                            logger.error(error);
+                        }
+                        break;
+                    }
+                    case REQUEST_TYPE.MINTING_TYPE.createContractHistory: {
+                        try {
+                            logger.info(
+                                "Requesting create contract history..."
+                            );
                             const {
                                 credential,
                                 verifiedCredential,
