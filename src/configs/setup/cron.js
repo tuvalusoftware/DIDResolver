@@ -26,7 +26,6 @@ export const setUpCron = () => {
                         REQUEST_TYPE.MINTING_TYPE.updatePlot,
                         REQUEST_TYPE.MINTING_TYPE.addClaimantToPlot,
                         REQUEST_TYPE.MINTING_TYPE.signContract,
-                        REQUEST_TYPE.MINTING_TYPE.createContractHistory,
                     ],
                 },
             }).sort({ updatedAt: -1 });

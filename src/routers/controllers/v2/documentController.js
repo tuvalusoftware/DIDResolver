@@ -537,6 +537,7 @@ export default {
             },
             id: request._id,
         };
+        
         credentialChannel.sendToQueue(
             RABBITMQ_SERVICE.CardanoContractService,
             Buffer.from(JSON.stringify(requestMessage)),

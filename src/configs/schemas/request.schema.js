@@ -102,7 +102,6 @@ export default {
     }),
     createContractHistory: Joi.object().keys({
         contract: Joi.string().required(),
-        hash: Joi.string().required(),
         seedPhrase: Joi.string().required(),
         userDid: Joi.string().required(),
     }),

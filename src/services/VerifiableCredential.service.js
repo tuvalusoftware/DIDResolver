@@ -160,7 +160,7 @@ class VerifiableCredentialService {
             let hashingCredential = {
                 "@context": [
                     "https://www.w3.org/2018/credentials/v1",
-                    "https://resolver-dev.ap.ngrok.io/config/dominium-credential.json"
+                    "https://resolver-dev.fuixlabs.xyz/config/dominium-credential.json"
                 ],
                 id: credentialDid,
                 type: ["VerifiableCredential", "ClaimantCredential"],
@@ -189,11 +189,11 @@ class VerifiableCredentialService {
             const { verifiableCredential } =
                 env.NODE_ENV === "test"
                     ? {
-                          verifiableCredential: credential,
-                      }
+                        verifiableCredential: credential,
+                    }
                     : await credentialService.issueVerifiableCredential({
-                          credential,
-                      });
+                        credential,
+                    });
             return {
                 verifiableCredential,
                 credentialHash,
@@ -215,7 +215,7 @@ class VerifiableCredentialService {
             let hashingCredential = {
                 "@context": [
                     "https://www.w3.org/2018/credentials/v1",
-                    "https://resolver-dev.ap.ngrok.io/config/dominium-credential.json",
+                    "https://resolver-dev.fuixlabs.xyz/config/dominium-credential.json",
                 ],
                 id: credentialDid,
                 type: ["VerifiableCredential", "ContractCredential"],
@@ -242,12 +242,12 @@ class VerifiableCredentialService {
             const { verifiableCredential } =
                 env.NODE_ENV === "test"
                     ? {
-                          verifiableCredential: credential,
-                      }
+                        verifiableCredential: credential,
+                    }
                     : await credentialService.issueVerifiableCredential({
-                          credential,
-                          customSuite: CUSTOM_SUITE,
-                      });
+                        credential,
+                        customSuite: CUSTOM_SUITE,
+                    });
             return {
                 verifiableCredential,
                 credentialHash,

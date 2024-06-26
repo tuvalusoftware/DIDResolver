@@ -7,5 +7,6 @@ router.post("/", contractController.createContract);
 router.get("/:did", contractController.getContract);
 router.put("/", contractController.updateContract);
 router.post("/sign", contractController.signContract);
+router.post('/sign-contract-history', contractController.signContractHistory)
 
 export default router;

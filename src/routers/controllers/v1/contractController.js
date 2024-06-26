@@ -14,6 +14,20 @@ import dotenv from "dotenv";
 import { createRequire } from "module";
 import { fileURLToPath } from "node:url";
 import Logger from "../../../libs/logger.js";
+import {
+    AppError
+} from '../../../configs/errors/appError.js'
+import {
+    ERRORS
+} from '../../../configs/errors/error.constants.js';
+
+import {
+    rabbitMQ
+} from '../../../rabbit/index.js'
+import {
+    RABBITMQ_SERVICE
+} from '../../../rabbit/config.js'
+import { randomUUID } from "crypto";
 
 // * Constants
 import { generateDid } from "../../../fuixlabs-documentor/utils/did.js";
@@ -168,7 +182,7 @@ export default {
     signContractHistory: asyncWrapper(async (req, res, next) => {
         logger.apiInfo(req, "Create contract history v1");
 
-        const { contract, hash, seedPhrase, userDid } = schemaValidator(
+        const { contract, seedPhrase, userDid } = schemaValidator(
             requestSchema.createContractHistory,
             req.body
         );
@@ -200,7 +214,30 @@ export default {
 
         const credentialDid = generateDid(companyName, credentialHash);
 
-        await RequestRepo.createRequest({
+        const documentContentResponse =
+            await ControllerService().getDocumentContent({
+                did: contract,
+            });
+        if (
+            !documentContentResponse.data?.wrappedDoc
+                ?.mintingConfig
+        ) {
+            logger.error(
+                `There are no mintingConfig in request ${request._id}`
+            );
+            throw new AppError(ERRORS.INVALID_INPUT);
+        }
+        const { mintingConfig } =
+            documentContentResponse.data.wrappedDoc;
+
+        const credentialChannel = await rabbitMQ.createChannel();
+        const correlationId = randomUUID();
+        const replyQueue = await credentialChannel.assertQueue(correlationId, {
+            durable: true,
+            noAck: true,
+        });
+
+        const request = await RequestRepo.createRequest({
             data: {
                 credential: credentialHash,
                 verifiedCredential: verifiableCredential,
@@ -211,8 +248,82 @@ export default {
             status: "pending",
         });
 
+        const requestMessage = {
+            data: {
+                config: mintingConfig,
+                credentials: [credentialHash],
+                type: "credential",
+            },
+            options: {
+                skipWait: true,
+            },
+            type: REQUEST_TYPE.CARDANO_SERVICE.mintCredential,
+            id: request._id.toString(),
+        }
+
+        credentialChannel.sendToQueue(
+            RABBITMQ_SERVICE.CardanoContractService,
+            Buffer.from(JSON.stringify(requestMessage)),
+            {
+                correlationId,
+                replyTo: correlationId,
+            }
+        );
+
+        const createClaimantCredentialHandle = new Promise(
+            (resolve, reject) => {
+                credentialChannel.consume(replyQueue.queue, async (msg) => {
+                    if (msg !== null) {
+                        const cardanoResponse = JSON.parse(msg.content);
+                        const config = cardanoResponse.data;
+                        if (cardanoResponse.id === request._id.toString()) {
+                            const { originDid, credential } = request.data;
+                            const documentContentResponse =
+                                await ControllerService().getDocumentContent({
+                                    did: originDid,
+                                });
+                            if (
+                                !documentContentResponse.data?.wrappedDoc
+                                    ?.mintingConfig
+                            ) {
+                                logger.error(
+                                    `There are no mintingConfig in request ${request._id}`
+                                );
+                                throw new AppError(ERRORS.INVALID_INPUT);
+                            }
+                            const { mintingConfig } = documentContentResponse.data.wrappedDoc;
+
+                            await CardanoService().storeCredentialsWithPolicyId(
+                                {
+                                    credentials: [credential],
+                                    mintingConfig,
+                                    id: request._id,
+                                }
+                            );
+                            await RequestRepo.findOneAndUpdate(
+                                { status: "completed" },
+                                { _id: request._id }
+                            );
+                            resolve({
+                                txHash: cardanoResponse.data.txHash
+                            });
+                        }
+                        credentialChannel.ack(msg);
+                    }
+                });
+            }
+        );
+
+        const {
+            txHash
+        } = await createClaimantCredentialHandle;
+
+        credentialChannel.close();
+
         return res.status(200).json({
             did: credentialDid,
+            txHash
         });
+
     }),
 };
