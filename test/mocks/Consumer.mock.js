@@ -1,5 +1,4 @@
 import chai from "chai";
-import chaiSpies from "chai-spies";
 import consumerService from "../../src/services/Consumer.service.js";
 
 export const ConsumerServiceMock = () => {

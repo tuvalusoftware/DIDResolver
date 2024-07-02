@@ -169,4 +169,8 @@ const ControllerService = () => {
     };
 };
 
+const controllerService = ControllerService();
+export {
+    controllerService
+}
 export default ControllerService;

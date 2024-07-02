@@ -14,6 +14,15 @@ export default {
             type: Joi.string().required(),
         })
         .unknown(true),
+    updateDocument: Joi.object().keys({
+        wrappedDoc: Joi.object()
+            .required()
+            .keys({
+                _id: Joi.string().required(),
+            })
+            .unknown(true),
+        originalDid: Joi.string().required(),
+    }),
     getDocumentContentByDid: Joi.object()
         .required()
         .keys({

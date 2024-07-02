@@ -13,6 +13,9 @@ import { VALID_DOCUMENT_NAME_TYPE } from "../../src/fuixlabs-documentor/constant
 import { deleteDB } from "../../src/scripts/index.js";
 import Rabbit from "../RabbitMQ.js";
 import { ConsumerServiceMock } from "../mocks/Consumer.mock.js";
+import ControllerService from "../../src/services/Controller.service.js";
+import { ControllerServiceMock } from "../mocks/Controller.mock.js";
+import { DocumentServiceMock } from "../mocks/Document.mock.js";
 
 let should = chai.should();
 let expect = chai.expect;
@@ -36,6 +39,8 @@ describe("Document API", async function () {
     this.beforeAll(async () => {
         await deleteDB();
         ConsumerServiceMock();
+        ControllerServiceMock();
+        DocumentServiceMock();
         // do something before all tests
     });
 
@@ -154,7 +159,7 @@ describe("Document API", async function () {
                         .true;
                     done();
                 });
-        })
+        });
         it("it should return 'validation' error due to wrappedDoc is not an object", (done) => {
             chai.request(server)
                 .post("/api/v1/document")
@@ -272,5 +277,49 @@ describe("Document API", async function () {
                     done();
                 });
         });
+    });
+
+    describe("PUT /api/v1/document", () => {
+        it("it should 'missing parameters' error due to missing all of required parameters in req body", (done) => {
+            chai.request(server)
+                .put("/api/v1/document")
+                .send({})
+                .end((err, res) => {
+                    res.should.have.status(200);
+                    res.body.should.be.a("object");
+                    expect(isSameError(res.body, ERRORS.INVALID_INPUT)).to.be
+                        .true;
+                    done();
+                });
+        });
+        it("it should 'missing parameters' due to missing originalDid in req.body", (done) => {
+            chai.request(server)
+                .post("/api/v1/document")
+                .send({
+                    wrappedDoc: {},
+                })
+                .end((err, res) => {
+                    res.should.have.status(200);
+                    res.body.should.be.a("object");
+                    expect(isSameError(res.body, ERRORS.INVALID_INPUT)).to.be
+                        .true;
+                    done();
+                });
+        });
+        it("it should 'missing parameters' due to missing wrappedDoc in req.body", (done) => {
+            chai.request(server)
+                .post("/api/v1/document")
+                .send({
+                    originalDid: 'test',
+                })
+                .end((err, res) => {
+                    res.should.have.status(200);
+                    res.body.should.be.a("object");
+                    expect(isSameError(res.body, ERRORS.INVALID_INPUT)).to.be
+                        .true;
+                    done();
+                });
+        });
+        
     });
 });

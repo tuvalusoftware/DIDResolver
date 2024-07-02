@@ -71,6 +71,16 @@ export default {
         logger.apiInfo(req, "UPDATE DOCUMENT");
 
         try {
+            const { wrappedDoc, originalDid } = schemaValidator(
+                requestSchema.updateDocument,
+                req.body
+            );
+            
+            let { network } = req.query;
+
+            if (!network) {
+                network = "stellar";
+            }
         } catch (error) {
             next(error);
         }

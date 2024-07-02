@@ -24,7 +24,6 @@ class Rabbit {
                 queue,
                 Buffer.from(JSON.stringify(message))
             );
-            console.log(`Message sent to queue '${queue}':`, message);
         } catch (error) {
             console.error("Error publishing message:", error.message);
             throw error;
@@ -36,10 +35,6 @@ class Rabbit {
             await this.channel.assertQueue(queue);
             this.channel.consume(queue, (msg) => {
                 if (msg !== null) {
-                    console.log(
-                        `Received message from queue '${queue}':`,
-                        message
-                    );
                     callback(message);
                     this.channel.ack(msg);
                 }

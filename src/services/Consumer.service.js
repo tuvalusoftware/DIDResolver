@@ -56,17 +56,15 @@ class ConsumerService {
                 },
             };
 
-            const queueName = network === "cardano" ? RABBITMQ_SERVICE.cardano.CardanoDocumentService : RABBITMQ_SERVICE.stellar.StellarService;
+            const queueName =
+                network === "cardano"
+                    ? RABBITMQ_SERVICE.cardano.CardanoDocumentService
+                    : RABBITMQ_SERVICE.stellar.StellarService;
 
-            this.sendDataToQueue(
-                channel,
-                queueName,
-                requestMessage,
-                {
-                    correlationId,
-                    replyTo: correlationId,
-                }
-            );
+            this.sendDataToQueue(channel, queueName, requestMessage, {
+                correlationId,
+                replyTo: correlationId,
+            });
 
             const createPlotHandle = new Promise((resolve, reject) => {
                 channel.consume(replyQueue.queue, async (msg) => {
@@ -107,6 +105,72 @@ class ConsumerService {
         } catch (error) {
             throw error;
         }
+    }
+
+    async updateDocument(hash, id, type, request, config, network = "stellar") {
+        const { channel, correlationId, replyQueue } =
+            await this.createChannelWithRandomCorrelationIdQueue();
+
+        const requestMessage = {
+            type: REQUEST_TYPE.CARDANO_SERVICE.updateToken,
+            data: {
+                newHash: hash,
+                type,
+                config: {
+                    ...config,
+                    burn: false,
+                },
+            },
+            id,
+            options: {
+                skipWait: true,
+            },
+        };
+
+        const queueName =
+            network === "cardano"
+                ? RABBITMQ_SERVICE.cardano.CardanoDocumentService
+                : RABBITMQ_SERVICE.stellar.StellarService;
+
+        this.sendDataToQueue(channel, queueName, requestMessage, {
+            correlationId,
+            replyTo: correlationId,
+        });
+
+        const updateDocumentHandle = new Promise((resolve, reject) => {
+            channel.consume(replyQueue.queue, async (msg) => {
+                if (msg !== null) {
+                    const cardanoResponse = JSON.parse(msg.content);
+                    if (cardanoResponse.id === request._id.toString()) {
+                        const { companyName, fileName } = deepUnsalt(
+                            request?.data?.wrappedDocument?.data
+                        );
+                        if (!request?.data?.wrappedDocument) {
+                            logger.error(
+                                `There are no wrappedDocument in request ${id}`
+                            );
+                            reject(new AppError(ERRORS.RABBIT_MESSAGE_ERROR));
+                        }
+                        const { wrappedDocument } = request.data;
+                        const mintingConfig = cardanoResponse.data;
+                        const document = {
+                            ...wrappedDocument,
+                            mintingConfig,
+                        };
+                        await DocumentRepository.storeDocument(document, {
+                            companyName,
+                            fileName,
+                        });
+                        resolve(mintingConfig);
+                    }
+                    channel.ack(msg);
+                }
+                reject(new AppError(ERRORS.RABBIT_MESSAGE_ERROR));
+            });
+        });
+        const _config = await updateDocumentHandle;
+        await channel.close();
+        return _config;
     }
 }
 

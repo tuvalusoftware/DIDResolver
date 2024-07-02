@@ -1,9 +1,12 @@
+import { nanoid } from "nanoid";
 import { AppError } from "../../configs/errors/appError.js";
 import { ERRORS } from "../../configs/errors/error.constants.js";
 import { deepUnsalt, unsalt } from "../../fuixlabs-documentor/utils/data.js";
 import { generateDid } from "../../fuixlabs-documentor/utils/did.js";
 import consumerService from "../../services/Consumer.service.js";
-import ControllerService from "../../services/Controller.service.js";
+import ControllerService, {
+    controllerService,
+} from "../../services/Controller.service.js";
 import { documentService } from "../../services/Document.service.js";
 import RequestRepo from "./requestRepo.js";
 
@@ -33,9 +36,9 @@ const DocumentRepository = {
         try {
             const did = generateDid(companyName, fileName);
             const isExists = await this.isExists(companyName, fileName);
-            if (isExists.data) {
+            if (isExists.data.isExists) {
                 // Get document content if document is existed
-                const { data } = await ControllerService().getDocumentContent({
+                const { data } = await controllerService.getDocumentContent({
                     did: did,
                 });
                 const wrappedDoc = data.wrappedDoc;
@@ -69,7 +72,7 @@ const DocumentRepository = {
                 status: "pending",
             });
 
-            // Send request to Cardano service to create document through RabbitMQ
+            // Send request to blockchain service to create document through RabbitMQ
             /**
              * Current now we are using test data for creating document
              * We will use RabbitMQ to send request to Cardano service
@@ -86,6 +89,64 @@ const DocumentRepository = {
                 request._id,
                 "document",
                 request,
+                network
+            );
+
+            // Get txHash - hash of nft in Cardano blockchain, assetName - hash of document
+            const { txHash, assetName } = config;
+            return { txHash, assetName, did };
+        } catch (error) {
+            throw error;
+        }
+    },
+
+    async updateDocument(wrappedDoc, originalDid, network = "stellar") {
+        try {
+            const originDocumentContent =
+                await controllerService.getDocumentContent({
+                    did: originalDid,
+                });
+            const { mintingConfig, data: saltedData } =
+                originDocumentContent.data.wrappedDoc;
+
+            if (!mintingConfig) {
+                throw new AppError(ERRORS.NOT_FOUND, "Missing minting config");
+            }
+
+            const { companyName, fileName, type } = deepUnsalt(saltedData);
+
+            const updatedFileName = `${fileName}-${nanoid(5)}`;
+
+            // Generate data for issuing document by
+            const dataForm = await documentService.createWrappedDocumentData(
+                updatedFileName,
+                wrappedDoc,
+                type
+            );
+
+            // Add signature to document what created by signing admin
+            const { wrappedDocument } =
+                await documentService.issueBySignByAdmin(
+                    dataForm,
+                    companyName,
+                    network
+                );
+
+            // Save creating document into database for tracking
+            const request = await RequestRepo.createRequest({
+                data: {
+                    wrappedDocument,
+                },
+                type: "updateDocument",
+                status: "pending",
+            });
+
+            const config = await consumerService.updateDocument(
+                wrappedDocument?.signature?.targetHash,
+                request._id,
+                "document",
+                request,
+                mintingConfig,
                 network
             );
 
@@ -129,6 +190,27 @@ const DocumentRepository = {
             fileName,
         });
         return isExists;
+    },
+
+    /**
+     * Updates a document with the provided information.
+     *
+     * @param {object} document - The document to be updated.
+     * @param {object} options - The options for updating the document.
+     * @param {string} options.companyName - The name of the company.
+     * @param {string} options.fileName - The name of the file.
+     * @param {object} config - The configuration for updating the document.
+     * @returns {Promise<void>} - A promise that resolves when the document is updated.
+     */
+    async updateDocument(document, { companyName, fileName }, config) {
+        await ControllerService().storeDocument({
+            companyName,
+            fileName,
+            wrappedDocument: {
+                ...document,
+                mintingConfig: config,
+            },
+        });
     },
 };
 
